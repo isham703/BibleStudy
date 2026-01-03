@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Bulb-1--Streamline-Ultimate" height="24" width="24">
+  <desc>
+    Bulb 1 Streamline Icon: https://streamlinehq.com
+  </desc>
+  <g>
+    <path d="M15 17.25v4.5a1.5 1.5 0 0 1 -1.5 1.5h-3a1.5 1.5 0 0 1 -1.5 -1.5v-4.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="m9 20.25 6 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="m12 0.75 0 1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="m1.5 11.25 1.5 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="m3.75 3.75 1.1 1.06" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="m22.5 11.25 -1.5 0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="m20.25 3.75 -1.1 1.06" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="M9 10.75a1.5 1.5 0 0 1 1.5 1.5v5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="M13.5 17.25v-5a1.5 1.5 0 0 1 1.5 -1.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+    <path d="M8.92 17.25h6.16a6.6 6.6 0 0 0 3.67 -6A6.87 6.87 0 0 0 12 4.5a6.87 6.87 0 0 0 -6.75 6.75 6.6 6.6 0 0 0 3.67 6Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+  </g>
+</svg>
