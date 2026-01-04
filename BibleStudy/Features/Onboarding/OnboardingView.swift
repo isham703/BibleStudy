@@ -280,7 +280,7 @@ struct OnboardingPageIndicator: View {
         HStack(spacing: AppTheme.Spacing.sm) {
             ForEach(0..<pageCount, id: \.self) { index in
                 Capsule()
-                    .fill(index == currentPage ? Color.warmGold : Color.warmGold.opacity(AppTheme.Opacity.medium))
+                    .fill(index == currentPage ? Color.divineGold : Color.divineGold.opacity(AppTheme.Opacity.medium))
                     .frame(width: index == currentPage ? 24 : 8, height: 8)
                     .animation(AppTheme.Animation.spring, value: currentPage)
             }

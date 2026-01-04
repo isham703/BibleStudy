@@ -56,7 +56,7 @@ private struct HighlightShapeIndicator: View {
             .frame(width: 60, height: 20)
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .stroke(Color.warmGold.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
+                    .stroke(Color.divineGold.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
             )
     }
 }
@@ -110,7 +110,7 @@ private struct PenStrokeLines: View {
 
             context.stroke(
                 trimmed,
-                with: .color(Color.warmGold.opacity(AppTheme.Opacity.disabled)),
+                with: .color(Color.divineGold.opacity(AppTheme.Opacity.disabled)),
                 style: StrokeStyle(lineWidth: AppTheme.Border.regular, lineCap: .round)
             )
         }
@@ -158,7 +158,7 @@ struct NoTopicsAnimation: View {
             Image(systemName: "magnifyingglass")
                 .font(Typography.UI.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
         }
     }
 }
@@ -196,12 +196,12 @@ struct NoPlansAnimation: View {
 private struct CalendarIndicator: View {
     var body: some View {
         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-            .stroke(Color.warmGold.opacity(AppTheme.Opacity.disabled), lineWidth: AppTheme.Border.thin)
+            .stroke(Color.divineGold.opacity(AppTheme.Opacity.disabled), lineWidth: AppTheme.Border.thin)
             .frame(width: 30, height: 26)
             .overlay(
                 VStack(spacing: AppTheme.Spacing.xxs) {
                     Rectangle()
-                        .fill(Color.warmGold.opacity(AppTheme.Opacity.disabled))
+                        .fill(Color.divineGold.opacity(AppTheme.Opacity.disabled))
                         .frame(height: AppTheme.Divider.heavy)
                     Spacer()
                 }
@@ -314,7 +314,7 @@ struct NoVersesToMemorizeAnimation: View {
             // Brain/memory indicator
             Image(systemName: "brain.head.profile")
                 .font(Typography.UI.subheadline)
-                .foregroundStyle(Color.warmGold.opacity(AppTheme.Opacity.heavy))
+                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.heavy))
                 .offset(x: 0, y: -5)
         }
     }
@@ -347,7 +347,7 @@ struct NoSearchResultsAnimation: View {
             // Pulsing search icon in center
             Image(systemName: "magnifyingglass")
                 .font(Typography.UI.title2)
-                .foregroundStyle(Color.warmGold.opacity(AppTheme.Opacity.heavy))
+                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.heavy))
                 .scaleEffect(searchPulse ? 1.1 : 1.0)
                 .opacity(searchPulse ? 0.6 : 1.0)
         }
@@ -386,7 +386,7 @@ struct NoBookmarksAnimation: View {
             // Bookmark indicator in center
             Image(systemName: "bookmark")
                 .font(Typography.UI.subheadline)
-                .foregroundStyle(Color.warmGold.opacity(AppTheme.Opacity.heavy))
+                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.heavy))
         }
     }
 }
@@ -417,7 +417,7 @@ struct NoHistoryAnimation: View {
             // Clock indicator
             Image(systemName: "clock.arrow.circlepath")
                 .font(Typography.UI.caption1)
-                .foregroundStyle(Color.warmGold.opacity(AppTheme.Opacity.disabled))
+                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.disabled))
                 .offset(y: -35)
         }
     }

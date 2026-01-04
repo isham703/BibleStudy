@@ -87,7 +87,7 @@ struct AIThinkingAnimation: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(Color.warmGold)
+                        .fill(Color.divineGold)
                         .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
                         .opacity(dotOpacities[index])
                 }
@@ -135,7 +135,7 @@ struct AIResponseReceivedAnimation: View {
             ConnectionLine(
                 start: CGPoint(x: 30, y: 25),
                 end: CGPoint(x: 170, y: 25),
-                color: .warmGold,
+                color: .divineGold,
                 lineWidth: AppTheme.Border.regular,
                 isActive: connectionComplete
             )
@@ -148,7 +148,7 @@ struct AIResponseReceivedAnimation: View {
             ZStack {
                 if showGlow {
                     Circle()
-                        .fill(Color.warmGold.opacity(AppTheme.Opacity.medium))
+                        .fill(Color.divineGold.opacity(AppTheme.Opacity.medium))
                         .frame(width: 40, height: 40)
                         .blur(radius: AppTheme.Blur.medium)
                 }
@@ -246,7 +246,7 @@ struct AISparkle: View {
     var body: some View {
         Image(systemName: "sparkle")
             .font(Typography.UI.caption1)
-            .foregroundStyle(Color.warmGold)
+            .foregroundStyle(Color.divineGold)
             .opacity(sparkleOpacity)
             .scaleEffect(sparkleScale)
             .onAppear {

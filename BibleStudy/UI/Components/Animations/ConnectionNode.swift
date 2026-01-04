@@ -6,7 +6,7 @@ import SwiftUI
 
 struct ConnectionNode: View {
     let size: CGFloat
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var isActive: Bool = false
     var isPulsing: Bool = false
     var glowIntensity: CGFloat = 0.5
@@ -119,9 +119,9 @@ enum NodeState {
 
     var color: Color {
         switch self {
-        case .idle: return .warmGold.opacity(AppTheme.Opacity.heavy)
-        case .active: return .warmGold
-        case .pulsing: return .warmGold
+        case .idle: return .divineGold.opacity(AppTheme.Opacity.heavy)
+        case .active: return .divineGold
+        case .pulsing: return .divineGold
         case .success: return .highlightGreen
         case .dimmed: return .tertiaryText
         }

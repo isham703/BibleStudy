@@ -5,8 +5,8 @@ import Combine
 // Animated gradient using the app's brand colors
 
 struct GoldenGradient: View {
-    var startColor: Color = .warmGoldDark
-    var endColor: Color = .warmGoldLight
+    var startColor: Color = .burnishedGold
+    var endColor: Color = .illuminatedGold
     var animationDuration: Double = 3.0
 
     @State private var animateGradient = false
@@ -37,8 +37,8 @@ struct GoldenGradient: View {
 // Subtle shimmer animation for loading states
 
 struct ShimmerEffect: View {
-    var baseColor: Color = .warmGold.opacity(AppTheme.Opacity.medium)
-    var highlightColor: Color = .warmGold.opacity(AppTheme.Opacity.strong)
+    var baseColor: Color = .divineGold.opacity(AppTheme.Opacity.medium)
+    var highlightColor: Color = .divineGold.opacity(AppTheme.Opacity.strong)
     var duration: Double = 1.5
 
     @State private var shimmerOffset: CGFloat = -1
@@ -89,7 +89,7 @@ struct ShimmerEffect: View {
 
 // MARK: - Glow Effect Modifier
 struct GlowModifier: ViewModifier {
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var radius: CGFloat = 10
     var isActive: Bool = true
 
@@ -117,7 +117,7 @@ struct GlowModifier: ViewModifier {
 
 extension View {
     func goldenGlow(radius: CGFloat = 10, isActive: Bool = true) -> some View {
-        modifier(GlowModifier(color: .warmGold, radius: radius, isActive: isActive))
+        modifier(GlowModifier(color: .divineGold, radius: radius, isActive: isActive))
     }
 
     func roseGlow(radius: CGFloat = 10, isActive: Bool = true) -> some View {
@@ -129,7 +129,7 @@ extension View {
 // Expanding radial gradient for emphasis
 
 struct RadialPulseGradient: View {
-    var centerColor: Color = .warmGold
+    var centerColor: Color = .divineGold
     var edgeColor: Color = .clear
     var minRadius: CGFloat = 0.2
     var maxRadius: CGFloat = 0.8
@@ -166,7 +166,7 @@ struct RadialPulseGradient: View {
 
 struct ConnectionTrail: View {
     let points: [CGPoint]
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var trailLength: Int = 5
 
     @State private var headIndex: Int = 0
@@ -241,7 +241,7 @@ struct ConnectionTrail: View {
 
             Text("Golden Glow").font(Typography.UI.headline)
             Circle()
-                .fill(Color.warmGold)
+                .fill(Color.divineGold)
                 .frame(width: 40, height: 40)
                 .goldenGlow(radius: 15)
 

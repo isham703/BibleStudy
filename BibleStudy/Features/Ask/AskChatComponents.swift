@@ -1120,7 +1120,7 @@ struct AskDisclaimerBanner: View {
         HStack(spacing: AppTheme.Spacing.sm) {
             Image(systemName: "sparkles")
                 .font(Typography.UI.caption1)
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
 
             Text("AI study tool. Always verify with Scripture.")
                 .font(Typography.UI.caption1)

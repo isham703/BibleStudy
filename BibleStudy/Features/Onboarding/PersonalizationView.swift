@@ -178,7 +178,7 @@ struct PersonalizationAnimation: View {
             // Book pages effect
             ForEach(0..<3, id: \.self) { index in
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .fill(Color.warmGoldLight.opacity(AppTheme.Opacity.medium + Double(index) * AppTheme.Opacity.lightMedium))
+                    .fill(Color.illuminatedGold.opacity(AppTheme.Opacity.medium + Double(index) * AppTheme.Opacity.lightMedium))
                     .frame(width: 50 - CGFloat(index) * 4, height: 70)
                     .offset(x: CGFloat(index) * 3, y: 0)
                     .rotationEffect(.degrees(Double(index) * 2))
@@ -189,7 +189,7 @@ struct PersonalizationAnimation: View {
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
                     .fill(
                         LinearGradient(
-                            colors: [.warmGold, .warmGoldDark],
+                            colors: [.divineGold, .burnishedGold],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -198,7 +198,7 @@ struct PersonalizationAnimation: View {
 
                 // Book spine
                 Rectangle()
-                    .fill(Color.warmGoldDark.opacity(AppTheme.Opacity.heavy))
+                    .fill(Color.burnishedGold.opacity(AppTheme.Opacity.heavy))
                     .frame(width: 4, height: 75)
                     .offset(x: -28)
 
@@ -213,7 +213,7 @@ struct PersonalizationAnimation: View {
                 .trim(from: 0, to: progress)
                 .stroke(
                     LinearGradient(
-                        colors: [.warmGold, .warmGoldLight],
+                        colors: [.divineGold, .illuminatedGold],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),

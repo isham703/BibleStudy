@@ -165,7 +165,7 @@ struct InlineCelebrationEffect: View {
             switch type {
             case .correctPulse:
                 if isShowing {
-                    NodePulse(color: .warmGold, maxScale: 2, ringCount: 2)
+                    NodePulse(color: .divineGold, maxScale: 2, ringCount: 2)
                         .frame(width: 20, height: 20)
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -183,7 +183,7 @@ struct InlineCelebrationEffect: View {
                         .font(Typography.UI.title3)
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.orange, .warmGold],
+                                colors: [.orange, .divineGold],
                                 startPoint: .bottom,
                                 endPoint: .top
                             )

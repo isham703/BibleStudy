@@ -7,7 +7,7 @@ import SwiftUI
 struct ConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var flowProgress: CGFloat? = nil // nil = no flow, 0-1 = flow position
@@ -96,7 +96,7 @@ struct ConnectionLine: View {
 struct CurvedConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var curvature: CGFloat = 0.3 // 0 = straight, 1 = very curved
@@ -153,7 +153,7 @@ struct CurvedConnectionLine: View {
 struct FlowingConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var lineWidth: CGFloat = 2
     var flowSpeed: Double = 2.0 // seconds for full traversal
 
@@ -196,9 +196,9 @@ enum LineState {
 
     var color: Color {
         switch self {
-        case .idle: return .warmGold.opacity(AppTheme.Opacity.medium)
-        case .active: return .warmGold
-        case .flowing: return .warmGold
+        case .idle: return .divineGold.opacity(AppTheme.Opacity.medium)
+        case .active: return .divineGold
+        case .flowing: return .divineGold
         case .success: return .highlightGreen
         case .dimmed: return .tertiaryText.opacity(AppTheme.Opacity.medium)
         }

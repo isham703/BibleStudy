@@ -7,7 +7,7 @@ import SwiftUI
 // Quick golden connection pulse
 
 struct CorrectAnswerCelebration: View {
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var onComplete: (() -> Void)? = nil
 
     @State private var showPulse = false
@@ -122,7 +122,7 @@ struct WrongAnswerFeedback: View {
                 CurvedConnectionLine(
                     start: CGPoint(x: 30, y: 40),
                     end: CGPoint(x: 170, y: 40),
-                    color: .warmGold.opacity(AppTheme.Opacity.disabled),
+                    color: .divineGold.opacity(AppTheme.Opacity.disabled),
                     lineWidth: AppTheme.Border.regular,
                     isActive: false,
                     curvature: 0.2
@@ -194,7 +194,7 @@ struct FirstVerseMasteredCelebration: View {
                         CurvedConnectionLine(
                             start: CGPoint(x: 150, y: 150),
                             end: CGPoint(x: endX, y: endY),
-                            color: .warmGold,
+                            color: .divineGold,
                             lineWidth: AppTheme.Border.regular,
                             isActive: true,
                             curvature: 0.1
@@ -209,7 +209,7 @@ struct FirstVerseMasteredCelebration: View {
             // Center burst
             if showCenterBurst {
                 ZStack {
-                    RippleEffect(color: .warmGold, rippleCount: 3, maxScale: 2.5)
+                    RippleEffect(color: .divineGold, rippleCount: 3, maxScale: 2.5)
                         .frame(width: 60, height: 60)
 
                     StatefulConnectionNode(size: 24, state: .success)
@@ -226,7 +226,7 @@ struct FirstVerseMasteredCelebration: View {
                         .font(Typography.Display.title2)
                         .fontWeight(.bold)
                 }
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
                 .position(x: 150, y: 260)
                 .transition(.scale.combined(with: .opacity))
             }
@@ -305,7 +305,7 @@ struct StreakCelebration: View {
                     ConnectionLine(
                         start: CGPoint(x: spacing * CGFloat(index), y: 100),
                         end: CGPoint(x: x, y: 100),
-                        color: litNodes.contains(index) ? .warmGold : .tertiaryText,
+                        color: litNodes.contains(index) ? .divineGold : .tertiaryText,
                         lineWidth: AppTheme.Border.regular,
                         isActive: litNodes.contains(index)
                     )
@@ -325,7 +325,7 @@ struct StreakCelebration: View {
                     .font(Typography.UI.largeTitle)
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.orange, .warmGold],
+                            colors: [.orange, .divineGold],
                             startPoint: .bottom,
                             endPoint: .top
                         )
@@ -343,7 +343,7 @@ struct StreakCelebration: View {
                     Text("Day Streak!")
                         .font(Typography.UI.warmSubheadline)
                 }
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
                 .position(x: 125, y: 160)
             }
         }

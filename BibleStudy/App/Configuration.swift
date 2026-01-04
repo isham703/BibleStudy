@@ -126,6 +126,7 @@ enum AppConfiguration {
     // MARK: - User Defaults Keys
     enum UserDefaultsKeys {
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static let userName = "userName"
         static let lastReadLocation = "lastReadLocation"
         static let lastScrolledVerse = "lastScrolledVerse"
         static let preferredFontSize = "preferredFontSize"

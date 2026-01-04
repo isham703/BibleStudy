@@ -133,7 +133,7 @@ struct NetworkConnection: Identifiable {
     let id: String
     let fromId: String
     let toId: String
-    var color: Color = .warmGold
+    var color: Color = .divineGold
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var isFlowing: Bool = false
@@ -145,7 +145,7 @@ struct NetworkConnection: Identifiable {
     init(
         from: String,
         to: String,
-        color: Color = .warmGold,
+        color: Color = .divineGold,
         lineWidth: CGFloat = 2,
         isActive: Bool = false,
         isFlowing: Bool = false,

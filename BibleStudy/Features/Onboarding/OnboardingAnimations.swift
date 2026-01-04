@@ -29,7 +29,7 @@ struct WelcomeAnimation: View {
                     CurvedConnectionLine(
                         start: CGPoint(x: 125, y: 125),
                         end: CGPoint(x: endX, y: endY),
-                        color: .warmGold.opacity(AppTheme.Opacity.strong),
+                        color: .divineGold.opacity(AppTheme.Opacity.strong),
                         lineWidth: AppTheme.Border.regular,
                         isActive: true,
                         curvature: 0.05
@@ -46,7 +46,7 @@ struct WelcomeAnimation: View {
                 ZStack {
                     // Glow
                     Circle()
-                        .fill(Color.warmGold.opacity(AppTheme.Opacity.lightMedium))
+                        .fill(Color.divineGold.opacity(AppTheme.Opacity.lightMedium))
                         .frame(width: 100, height: 100)
                         .blur(radius: AppTheme.Blur.heavy)
 
@@ -54,7 +54,7 @@ struct WelcomeAnimation: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [.warmGold, .warmGoldDark],
+                                colors: [.divineGold, .burnishedGold],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -151,7 +151,7 @@ struct ReadStudyAnimation: View {
                 VStack(spacing: AppTheme.Spacing.xs) {
                     ZStack {
                         Circle()
-                            .fill(Color.warmGold)
+                            .fill(Color.divineGold)
                             .frame(width: 40, height: 40)
 
                         Image(systemName: "text.book.closed")
@@ -251,7 +251,7 @@ struct MemorizeAnimation: View {
                     ConnectionLine(
                         start: CGPoint(x: 30 + CGFloat(i) * 50, y: 125),
                         end: CGPoint(x: 80 + CGFloat(i) * 50, y: 125),
-                        color: .warmGold,
+                        color: .divineGold,
                         lineWidth: AppTheme.Border.regular + nodeStrengths[i] * AppTheme.Border.regular,
                         isActive: nodeStrengths[i] > 0.5
                     )
@@ -267,13 +267,13 @@ struct MemorizeAnimation: View {
                     // Glow based on strength
                     if strength > 0.5 {
                         Circle()
-                            .fill(Color.warmGold.opacity(AppTheme.Opacity.medium * strength))
+                            .fill(Color.divineGold.opacity(AppTheme.Opacity.medium * strength))
                             .frame(width: 30 * strength, height: 30 * strength)
                             .blur(radius: AppTheme.Blur.light)
                     }
 
                     Circle()
-                        .fill(Color.warmGold.opacity(AppTheme.Opacity.disabled + strength * AppTheme.Opacity.strong))
+                        .fill(Color.divineGold.opacity(AppTheme.Opacity.disabled + strength * AppTheme.Opacity.strong))
                         .frame(width: 12 + strength * 8, height: 12 + strength * 8)
                 }
                 .position(x: x, y: 125)
@@ -344,7 +344,7 @@ struct AskAIAnimation: View {
                     FlowingConnectionLine(
                         start: CGPoint(x: 50, y: 125),
                         end: CGPoint(x: 140, y: midY),
-                        color: .warmGold,
+                        color: .divineGold,
                         flowSpeed: 1.5
                     )
                 }
@@ -363,7 +363,7 @@ struct AskAIAnimation: View {
                     CurvedConnectionLine(
                         start: CGPoint(x: 140, y: 125 + yOffset),
                         end: CGPoint(x: 210, y: 125),
-                        color: .warmGold,
+                        color: .divineGold,
                         isActive: true,
                         curvature: CGFloat(i - 1) * 0.1
                     )
@@ -396,12 +396,12 @@ struct AskAIAnimation: View {
                     ZStack {
                         // Glow
                         Circle()
-                            .fill(Color.warmGold.opacity(AppTheme.Opacity.medium))
+                            .fill(Color.divineGold.opacity(AppTheme.Opacity.medium))
                             .frame(width: 50, height: 50)
                             .blur(radius: AppTheme.Blur.medium)
 
                         Circle()
-                            .fill(Color.warmGold)
+                            .fill(Color.divineGold)
                             .frame(width: 36, height: 36)
 
                         Image(systemName: "sparkles")

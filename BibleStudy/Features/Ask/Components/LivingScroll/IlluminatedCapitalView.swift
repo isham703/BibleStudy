@@ -24,14 +24,14 @@ struct IlluminatedCapitalView: View {
             // Outer glow layer
             Text(letter.uppercased())
                 .font(illuminatedFont)
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
                 .blur(radius: AppTheme.Blur.medium)
                 .opacity(glowIntensity * AppTheme.Opacity.strong)
 
             // Inner glow layer
             Text(letter.uppercased())
                 .font(illuminatedFont)
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
                 .blur(radius: AppTheme.Blur.subtle)
                 .opacity(glowIntensity * AppTheme.Opacity.pressed)
 
@@ -106,14 +106,14 @@ struct CompactIlluminatedCapital: View {
             // Glow layer
             Text(letter.uppercased())
                 .font(compactFont)
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
                 .blur(radius: AppTheme.Blur.subtle)
                 .opacity(glowIntensity * AppTheme.Opacity.heavy)
 
             // Main letter
             Text(letter.uppercased())
                 .font(compactFont)
-                .foregroundStyle(Color.warmGold)
+                .foregroundStyle(Color.divineGold)
         }
         .frame(width: 40, height: 40)
         .onAppear {
@@ -145,9 +145,9 @@ struct IlluminatedBorder: View {
             .strokeBorder(
                 LinearGradient(
                     colors: [
-                        Color.warmGold.opacity(AppTheme.Opacity.medium),
-                        Color.warmGold.opacity(AppTheme.Opacity.strong),
-                        Color.warmGold.opacity(AppTheme.Opacity.medium)
+                        Color.divineGold.opacity(AppTheme.Opacity.medium),
+                        Color.divineGold.opacity(AppTheme.Opacity.strong),
+                        Color.divineGold.opacity(AppTheme.Opacity.medium)
                     ],
                     startPoint: UnitPoint(x: shimmerOffset, y: 0),
                     endPoint: UnitPoint(x: shimmerOffset + 0.5, y: 1)
