@@ -1,0 +1,9 @@
+// Debug.xcconfig
+// Debug build configuration
+
+#include? "Secrets.xcconfig"
+
+// Debug-specific settings
+SWIFT_OPTIMIZATION_LEVEL = -Onone
+DEBUG_INFORMATION_FORMAT = dwarf
+ENABLE_TESTABILITY = YES

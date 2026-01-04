@@ -6,9 +6,60 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D65B01C62F000BD400374A39 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = D65B01C52F000BD400374A39 /* GRDB */; };
+		D65B01D42F000C2400374A39 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D65B01D52F000C2400374A39 /* Supabase */; };
+		D661C0B42F035F01004F6466 /* BibleStudy_Icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = D661C0B32F035F01004F6466 /* BibleStudy_Icon.icon */; };
+		D661C38F2F03A5FC004F6466 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D661C38E2F03A5FC004F6466 /* WidgetKit.framework */; };
+		D661C3912F03A5FC004F6466 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D661C3902F03A5FC004F6466 /* SwiftUI.framework */; };
+		D661C3A02F03A5FD004F6466 /* DailyVerseWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D661C38C2F03A5FC004F6466 /* DailyVerseWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D661C39E2F03A5FD004F6466 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D65B01012EFFF9ED00374A39 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D661C38B2F03A5FC004F6466;
+			remoteInfo = DailyVerseWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D661C3A52F03A5FD004F6466 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D661C3A02F03A5FD004F6466 /* DailyVerseWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		D65B01092EFFF9ED00374A39 /* BibleStudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BibleStudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D65B02002F001A0000374A39 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		D65B02012F001A0000374A39 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		D65B02022F001A0000374A39 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		D661C0B32F035F01004F6466 /* BibleStudy_Icon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = BibleStudy_Icon.icon; sourceTree = "<group>"; };
+		D661C38C2F03A5FC004F6466 /* DailyVerseWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DailyVerseWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D661C38E2F03A5FC004F6466 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D661C3902F03A5FC004F6466 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		D6AA12C12F07E1F000071B73 /* StoriesShowcase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StoriesShowcase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		62ECB8AC6A2446999569C1C8 /* Exceptions for "DailyVerseWidget" folder in "DailyVerseWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D661C38B2F03A5FC004F6466 /* DailyVerseWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D65B010B2EFFF9ED00374A39 /* BibleStudy */ = {
@@ -16,10 +67,36 @@
 			path = BibleStudy;
 			sourceTree = "<group>";
 		};
+		D661C3922F03A5FC004F6466 /* DailyVerseWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				62ECB8AC6A2446999569C1C8 /* Exceptions for "DailyVerseWidget" folder in "DailyVerseWidgetExtension" target */,
+			);
+			path = DailyVerseWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D65B01062EFFF9ED00374A39 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D65B01C62F000BD400374A39 /* GRDB in Frameworks */,
+				D65B01D42F000C2400374A39 /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D661C3892F03A5FC004F6466 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D661C3912F03A5FC004F6466 /* SwiftUI.framework in Frameworks */,
+				D661C38F2F03A5FC004F6466 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6AA12BE2F07E1F000071B73 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -32,8 +109,12 @@
 		D65B01002EFFF9ED00374A39 = {
 			isa = PBXGroup;
 			children = (
+				D65B02032F001A0000374A39 /* Config */,
 				D65B010B2EFFF9ED00374A39 /* BibleStudy */,
+				D661C3922F03A5FC004F6466 /* DailyVerseWidget */,
+				D661C38D2F03A5FC004F6466 /* Frameworks */,
 				D65B010A2EFFF9ED00374A39 /* Products */,
+				D661C0B32F035F01004F6466 /* BibleStudy_Icon.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,8 +122,29 @@
 			isa = PBXGroup;
 			children = (
 				D65B01092EFFF9ED00374A39 /* BibleStudy.app */,
+				D661C38C2F03A5FC004F6466 /* DailyVerseWidgetExtension.appex */,
+				D6AA12C12F07E1F000071B73 /* StoriesShowcase.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D65B02032F001A0000374A39 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				D65B02002F001A0000374A39 /* Debug.xcconfig */,
+				D65B02012F001A0000374A39 /* Release.xcconfig */,
+				D65B02022F001A0000374A39 /* Secrets.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		D661C38D2F03A5FC004F6466 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D661C38E2F03A5FC004F6466 /* WidgetKit.framework */,
+				D661C3902F03A5FC004F6466 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,19 +157,64 @@
 				D65B01052EFFF9ED00374A39 /* Sources */,
 				D65B01062EFFF9ED00374A39 /* Frameworks */,
 				D65B01072EFFF9ED00374A39 /* Resources */,
+				D661C3A52F03A5FD004F6466 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D661C39F2F03A5FD004F6466 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D65B010B2EFFF9ED00374A39 /* BibleStudy */,
 			);
 			name = BibleStudy;
 			packageProductDependencies = (
+				D65B01C52F000BD400374A39 /* GRDB */,
+				D65B01D52F000C2400374A39 /* Supabase */,
 			);
 			productName = BibleStudy;
 			productReference = D65B01092EFFF9ED00374A39 /* BibleStudy.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D661C38B2F03A5FC004F6466 /* DailyVerseWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D661C3A22F03A5FD004F6466 /* Build configuration list for PBXNativeTarget "DailyVerseWidgetExtension" */;
+			buildPhases = (
+				D661C3882F03A5FC004F6466 /* Sources */,
+				D661C3892F03A5FC004F6466 /* Frameworks */,
+				D661C38A2F03A5FC004F6466 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D661C3922F03A5FC004F6466 /* DailyVerseWidget */,
+			);
+			name = DailyVerseWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = DailyVerseWidgetExtension;
+			productReference = D661C38C2F03A5FC004F6466 /* DailyVerseWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		D6AA12C02F07E1F000071B73 /* StoriesShowcase */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6AA12CB2F07E1F200071B73 /* Build configuration list for PBXNativeTarget "StoriesShowcase" */;
+			buildPhases = (
+				D6AA12BD2F07E1F000071B73 /* Sources */,
+				D6AA12BE2F07E1F000071B73 /* Frameworks */,
+				D6AA12BF2F07E1F000071B73 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StoriesShowcase;
+			packageProductDependencies = (
+			);
+			productName = StoriesShowcase;
+			productReference = D6AA12C12F07E1F000071B73 /* StoriesShowcase.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -83,6 +230,12 @@
 					D65B01082EFFF9ED00374A39 = {
 						CreatedOnToolsVersion = 26.2;
 					};
+					D661C38B2F03A5FC004F6466 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					D6AA12C02F07E1F000071B73 = {
+						CreatedOnToolsVersion = 26.2;
+					};
 				};
 			};
 			buildConfigurationList = D65B01042EFFF9ED00374A39 /* Build configuration list for PBXProject "BibleStudy" */;
@@ -94,18 +247,39 @@
 			);
 			mainGroup = D65B01002EFFF9ED00374A39;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D65B01C42F000BD400374A39 /* XCRemoteSwiftPackageReference "GRDB" */,
+				D65B01C92F000C2400374A39 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D65B010A2EFFF9ED00374A39 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				D65B01082EFFF9ED00374A39 /* BibleStudy */,
+				D661C38B2F03A5FC004F6466 /* DailyVerseWidgetExtension */,
+				D6AA12C02F07E1F000071B73 /* StoriesShowcase */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D65B01072EFFF9ED00374A39 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D661C0B42F035F01004F6466 /* BibleStudy_Icon.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D661C38A2F03A5FC004F6466 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6AA12BF2F07E1F000071B73 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,11 +296,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D661C3882F03A5FC004F6466 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6AA12BD2F07E1F000071B73 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D661C39F2F03A5FD004F6466 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D661C38B2F03A5FC004F6466 /* DailyVerseWidgetExtension */;
+			targetProxy = D661C39E2F03A5FD004F6466 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D65B01142EFFF9EE00374A39 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D65B02002F001A0000374A39 /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -163,7 +360,7 @@
 				DEVELOPMENT_TEAM = G7AYV42537;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -191,6 +388,7 @@
 		};
 		D65B01152EFFF9EE00374A39 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D65B02012F001A0000374A39 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -227,7 +425,7 @@
 				DEVELOPMENT_TEAM = G7AYV42537;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -249,26 +447,26 @@
 		D65B01172EFFF9EE00374A39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = BibleStudy_Icon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = BibleStudy/BibleStudy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G7AYV42537;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OPENAI_API_KEY = "$(OPENAI_API_KEY)";
 				PRODUCT_BUNDLE_IDENTIFIER = Przma.BibleStudy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				SUPABASE_URL = "$(SUPABASE_URL)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -281,12 +479,107 @@
 		D65B01182EFFF9EE00374A39 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = BibleStudy_Icon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = BibleStudy/BibleStudy.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G7AYV42537;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OPENAI_API_KEY = "$(OPENAI_API_KEY)";
+				PRODUCT_BUNDLE_IDENTIFIER = Przma.BibleStudy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				SUPABASE_URL = "$(SUPABASE_URL)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D661C3A32F03A5FD004F6466 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G7AYV42537;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyVerseWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DailyVerseWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Przma.BibleStudy.DailyVerseWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D661C3A42F03A5FD004F6466 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G7AYV42537;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyVerseWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DailyVerseWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Przma.BibleStudy.DailyVerseWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D6AA12CC2F07E1F200071B73 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G7AYV42537;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -298,7 +591,40 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Przma.BibleStudy;
+				PRODUCT_BUNDLE_IDENTIFIER = Przma.StoriesShowcase;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D6AA12CD2F07E1F200071B73 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G7AYV42537;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Przma.StoriesShowcase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -331,7 +657,57 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		D661C3A22F03A5FD004F6466 /* Build configuration list for PBXNativeTarget "DailyVerseWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D661C3A32F03A5FD004F6466 /* Debug */,
+				D661C3A42F03A5FD004F6466 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D6AA12CB2F07E1F200071B73 /* Build configuration list for PBXNativeTarget "StoriesShowcase" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6AA12CC2F07E1F200071B73 /* Debug */,
+				D6AA12CD2F07E1F200071B73 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D65B01C42F000BD400374A39 /* XCRemoteSwiftPackageReference "GRDB" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
+		D65B01C92F000C2400374A39 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D65B01C52F000BD400374A39 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D65B01C42F000BD400374A39 /* XCRemoteSwiftPackageReference "GRDB" */;
+			productName = GRDB;
+		};
+		D65B01D52F000C2400374A39 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D65B01C92F000C2400374A39 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D65B01012EFFF9ED00374A39 /* Project object */;
 }

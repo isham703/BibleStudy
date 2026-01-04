@@ -1,0 +1,64 @@
+# Xcode
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+DerivedData/
+build/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+.swiftpm/
+
+# CocoaPods (if used)
+Pods/
+Podfile.lock
+
+# Carthage (if used)
+Carthage/Build/
+Carthage/Checkouts/
+
+# Secrets - NEVER COMMIT THESE
+Config/Secrets.xcconfig
+*.secrets
+.env
+.env.local
+.env.*.local
+
+# API Keys that might be in other locations
+**/secrets.swift
+**/Secrets.swift.local
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Crash logs
+*.crash
+*.ips
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Archives
+*.xcarchive
+
+# Provisioning profiles (may contain sensitive info)
+*.mobileprovision
+*.provisionprofile
+
+# Debug files
+*.dSYM.zip
+*.dSYM/

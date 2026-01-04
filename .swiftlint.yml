@@ -1,0 +1,274 @@
+# =============================================================================
+# BibleStudy Design System Linting Configuration
+# =============================================================================
+# This configuration enforces design token usage and catches hardcoded values.
+# See /BibleStudy/UI/Theme/README.md for token reference.
+# =============================================================================
+
+# === RULE SELECTION ===
+# Run ONLY our custom design system rules (avoid unrelated noise)
+only_rules:
+  - custom_rules  # Required literal to enable custom_rules with only_rules
+
+# === BEHAVIOR ===
+lenient: true  # Treat errors as warnings (never block builds)
+reporter: xcode  # Xcode-friendly output
+
+# === PATHS ===
+included:
+  - BibleStudy
+
+excluded:
+  - build
+  - BibleStudy/UI/Theme  # Token definitions allowed here
+  - BibleStudy/Resources
+  - "*.generated.swift"
+  - Scripts/LintTests  # Test fixtures excluded
+
+# === BASELINE ===
+# Generated with 112 existing violations on 2025-12-29
+# Remove violations from baseline as they are fixed
+# Uncomment to hide existing violations:
+# baseline: swiftlint_baseline.json
+
+# =============================================================================
+# CUSTOM RULES - Design System Enforcement
+# =============================================================================
+
+custom_rules:
+
+  # ---------------------------------------------------------------------------
+  # COLORS
+  # ---------------------------------------------------------------------------
+
+  hardcoded_color_rgb:
+    name: "Hardcoded RGB Color"
+    regex: 'Color\s*\(\s*(red|\.sRGB.*red)\s*:'
+    message: "Use semantic colors from Colors.swift (Color.primaryText, Color.accentGold, etc.)"
+    severity: warning
+
+  hardcoded_color_white:
+    name: "Hardcoded White/Gray Color"
+    regex: 'Color\s*\(\s*white\s*:'
+    message: "Use semantic colors from Colors.swift"
+    severity: warning
+
+  hardcoded_uicolor_rgb:
+    name: "Hardcoded UIColor"
+    regex: 'UIColor\s*\(\s*(red|hue)\s*:'
+    message: "Use semantic colors converted to UIColor"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # TYPOGRAPHY
+  # ---------------------------------------------------------------------------
+
+  hardcoded_font_system:
+    name: "Hardcoded System Font Size"
+    # Match .font(.system(size: X)) but exclude lines using Typography.Scale or AppTheme.IconSize
+    regex: '\.font\s*\(\s*\.system\s*\(\s*size\s*:\s*\d'
+    message: "Use Typography.UI.*, Typography.Display.*, or Typography.Scripture.*"
+    severity: warning
+
+  hardcoded_font_custom:
+    name: "Hardcoded Custom Font Size"
+    regex: '\.font\s*\(\s*\.custom\s*\([^)]+,\s*size\s*:'
+    message: "Use Typography constants"
+    severity: warning
+
+  hardcoded_font_creation:
+    name: "Hardcoded Font Creation"
+    # Match Font.system(size: X) where X is a digit (hardcoded), not a variable
+    regex: 'Font\s*\.\s*system\s*\(\s*size\s*:\s*\d'
+    message: "Use Typography.UI.*, Typography.Display.*, or Typography.Scripture.*"
+    severity: warning
+
+  hardcoded_swiftui_text_style:
+    name: "SwiftUI Text Style"
+    regex: '\.font\s*\(\s*\.(largeTitle|title|title2|title3|headline|subheadline|body|callout|footnote|caption|caption2)\s*\)'
+    message: "Use Typography.UI.*, Typography.Display.*, or Typography.Scripture.* instead of SwiftUI text styles"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # SPACING
+  # ---------------------------------------------------------------------------
+
+  hardcoded_padding_single:
+    name: "Hardcoded Padding Value"
+    regex: '\.padding\s*\(\s*\d+\.?\d*\s*\)'
+    message: "Use AppTheme.Spacing.* (xxs:2, xs:4, sm:8, md:12, lg:16, xl:24, xxl:32, xxxl:48)"
+    severity: warning
+
+  hardcoded_padding_edge:
+    name: "Hardcoded Edge Padding"
+    regex: '\.padding\s*\(\s*\.(horizontal|vertical|top|bottom|leading|trailing)\s*,\s*\d+'
+    message: "Use AppTheme.Spacing.*"
+    severity: warning
+
+  hardcoded_padding_edge_insets:
+    name: "Hardcoded EdgeInsets"
+    regex: '\.padding\s*\(\s*EdgeInsets\s*\([^)]*\d+'
+    message: "Use AppTheme.Spacing.*"
+    severity: warning
+
+  hardcoded_stack_spacing:
+    name: "Hardcoded Stack Spacing"
+    regex: '(VStack|HStack|LazyVStack|LazyHStack)\s*\([^)]*spacing\s*:\s*[1-9]\d*'
+    message: "Use AppTheme.Spacing.*"
+    severity: warning
+
+  hardcoded_grid_spacing:
+    name: "Hardcoded Grid Spacing"
+    regex: 'Grid\s*\([^)]*spacing\s*:\s*\d+'
+    message: "Use AppTheme.Spacing.*"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # CORNER RADIUS
+  # ---------------------------------------------------------------------------
+
+  hardcoded_corner_radius_modifier:
+    name: "Hardcoded cornerRadius Modifier"
+    regex: '\.cornerRadius\s*\(\s*\d+'
+    message: "Use AppTheme.CornerRadius.* (small:4, medium:8, large:12, xl:16, card:12, sheet:20)"
+    severity: warning
+
+  hardcoded_rounded_rectangle:
+    name: "Hardcoded RoundedRectangle"
+    regex: 'RoundedRectangle\s*\(\s*cornerRadius\s*:\s*\d+'
+    message: "Use AppTheme.CornerRadius.*"
+    severity: warning
+
+  hardcoded_uirounded_rect:
+    name: "UIKit Corner Masking"
+    regex: 'UIRectCorner|CACornerMask'
+    message: "Prefer SwiftUI RoundedRectangle with AppTheme.CornerRadius.*"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # ANIMATIONS
+  # ---------------------------------------------------------------------------
+
+  hardcoded_animation_ease:
+    name: "Hardcoded Ease Animation"
+    # Only match when duration is followed by a digit (not a variable)
+    regex: '\.(easeIn|easeOut|easeInOut|linear)\s*\(\s*duration\s*:\s*\d'
+    message: "Use AppTheme.Animation.* (quick:0.15, standard:0.25, slow:0.4)"
+    severity: warning
+
+  hardcoded_animation_spring:
+    name: "Hardcoded Spring Animation"
+    regex: '\.spring\s*\(\s*(response|duration)\s*:'
+    message: "Use AppTheme.Animation.spring"
+    severity: warning
+
+  hardcoded_with_animation:
+    name: "Hardcoded withAnimation"
+    # Only match withAnimation with hardcoded duration, not variables/expressions
+    regex: 'withAnimation\s*\(\s*\.(easeIn|easeOut|easeInOut)\s*\(\s*duration\s*:\s*\d'
+    message: "Use AppTheme.Animation.* in withAnimation"
+    severity: warning
+
+  hardcoded_animation_creation:
+    name: "Hardcoded Animation Creation"
+    regex: 'Animation\s*\.\s*(easeIn|easeOut|easeInOut|linear|spring)\s*\('
+    message: "Use AppTheme.Animation.*"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # OPACITY (Phase 2)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_opacity:
+    name: "Hardcoded Opacity Value"
+    regex: '\.opacity\(0\.[0-9]+'
+    message: "Use AppTheme.Opacity.* (faint:0.08, subtle:0.1, light:0.15, lightMedium:0.2, medium:0.3, disabled:0.4, heavy:0.5, strong:0.6, overlay:0.7, pressed:0.8, high:0.9, nearOpaque:0.95)"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # BORDER/STROKE (Phase 2)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_line_width:
+    name: "Hardcoded Line Width"
+    regex: 'lineWidth:\s*[0-9]+'
+    message: "Use AppTheme.Border.* (thin:1, regular:2, thick:3)"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # ICON CONTAINERS (Phase 2)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_icon_frame:
+    name: "Hardcoded Icon Frame"
+    regex: '\.frame\(width:\s*(24|32|44|56)\)'
+    message: "Use AppTheme.IconContainer.* (small:24, medium:32, large:44, xl:56)"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # BLUR RADIUS (Phase 3)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_blur_radius:
+    name: "Hardcoded Blur Radius"
+    regex: '\.blur\(radius:\s*\d+'
+    message: "Use AppTheme.Blur.* (subtle:3, light:5, medium:8, heavy:10, intense:15)"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # SCALE EFFECTS (Phase 3)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_scale_effect:
+    name: "Hardcoded Scale Effect"
+    regex: '\.scaleEffect\(\s*0\.[0-9]+'
+    message: "Use AppTheme.Scale.* (small:0.7, reduced:0.8, pressed:0.95, subtle:0.98)"
+    severity: warning
+
+  hardcoded_scale_enlarged:
+    name: "Hardcoded Enlarged Scale"
+    regex: '\.scaleEffect\(\s*1\.[0-9]+'
+    message: "Use AppTheme.Scale.* (enlarged:1.2, pulse:1.5)"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # SHADOWS (Phase 4)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_shadow_params:
+    name: "Hardcoded Shadow Parameters"
+    regex: '\.shadow\(color:[^)]+radius:\s*\d+'
+    message: "Use AppTheme.Shadow.* (small, medium, large) or .shadow(_ style:) extension"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # DIVIDERS (Phase 4)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_divider_frame:
+    name: "Hardcoded Divider Frame"
+    regex: '\.frame\(height:\s*[1-6]\)'
+    message: "Use AppTheme.Divider.* (hairline:0.5, thin:1, medium:2, thick:4, heavy:6)"
+    severity: warning
+
+  hardcoded_spacer_frame:
+    name: "Hardcoded Spacer Frame"
+    regex: 'Spacer\(\)\.frame\(height:\s*\d+'
+    message: "Use AppTheme.Spacing.* for spacer heights"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # COMPONENT SIZES (Phase 4)
+  # ---------------------------------------------------------------------------
+
+  hardcoded_indicator_size:
+    name: "Hardcoded Indicator Size"
+    regex: '\.frame\(width:\s*[4-8]\s*,\s*height:\s*[4-8]\)'
+    message: "Use AppTheme.ComponentSize.* (dot:4, dotSmall:6, indicator:8)"
+    severity: warning
+
+  hardcoded_touch_target:
+    name: "Hardcoded Touch Target"
+    regex: 'minWidth:\s*44|minHeight:\s*44'
+    message: "Use AppTheme.TouchTarget.minimum (44) for touch targets"
+    severity: warning

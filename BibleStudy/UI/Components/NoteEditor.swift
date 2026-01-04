@@ -1,0 +1,821 @@
+import SwiftUI
+
+// MARK: - Note Editor
+// Sheet for creating and editing notes with Markdown support
+
+struct NoteEditor: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let range: VerseRange
+    let existingNote: Note?
+    let allNotes: [Note]
+    let onSave: (String, NoteTemplate, [UUID]) -> Void
+    let onDelete: (() -> Void)?
+    let onNavigateToNote: ((Note) -> Void)?
+
+    @State private var content: String
+    @State private var selectedTemplate: NoteTemplate
+    @State private var linkedNoteIds: [UUID]
+    @State private var showDeleteConfirmation = false
+    @State private var showPreview = false
+    @State private var showTemplateSheet = false
+    @State private var showLinkPicker = false
+    @FocusState private var isContentFocused: Bool
+
+    init(
+        range: VerseRange,
+        existingNote: Note? = nil,
+        allNotes: [Note] = [],
+        onSave: @escaping (String, NoteTemplate, [UUID]) -> Void,
+        onDelete: (() -> Void)? = nil,
+        onNavigateToNote: ((Note) -> Void)? = nil
+    ) {
+        self.range = range
+        self.existingNote = existingNote
+        self.allNotes = allNotes
+        self.onSave = onSave
+        self.onDelete = onDelete
+        self.onNavigateToNote = onNavigateToNote
+        _content = State(initialValue: existingNote?.content ?? "")
+        _selectedTemplate = State(initialValue: existingNote?.template ?? .freeform)
+        _linkedNoteIds = State(initialValue: existingNote?.linkedNoteIds ?? [])
+    }
+
+    private var linkedNotes: [Note] {
+        allNotes.filter { linkedNoteIds.contains($0.id) }
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Reference header
+                referenceHeader
+
+                Divider()
+                    .background(Color.divider)
+
+                // Formatting toolbar
+                formattingToolbar
+
+                Divider()
+                    .background(Color.divider)
+
+                // Linked notes display (if any)
+                if !linkedNotes.isEmpty {
+                    linkedNotesSection
+                    Divider()
+                        .background(Color.divider)
+                }
+
+                // Note content or preview
+                if showPreview {
+                    markdownPreview
+                } else {
+                    noteContent
+                }
+
+                Spacer()
+            }
+            .background(Color.appBackground)
+            .navigationTitle(existingNote == nil ? "New Note" : "Edit Note")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        onSave(content, selectedTemplate, linkedNoteIds)
+                        dismiss()
+                    }
+                    .disabled(content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                             content.count > Note.maxContentLength)
+                }
+
+                if existingNote != nil, onDelete != nil {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button(role: .destructive) {
+                            showDeleteConfirmation = true
+                        } label: {
+                            Label("Delete Note", systemImage: "trash")
+                                .foregroundStyle(Color.error)
+                        }
+                    }
+                }
+            }
+            .confirmationDialog(
+                "Delete Note",
+                isPresented: $showDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    onDelete?()
+                    dismiss()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to delete this note? This action cannot be undone.")
+            }
+            .sheet(isPresented: $showTemplateSheet) {
+                templatePickerSheet
+            }
+            .sheet(isPresented: $showLinkPicker) {
+                NoteLinkPicker(
+                    currentNoteId: existingNote?.id,
+                    allNotes: allNotes,
+                    linkedNoteIds: $linkedNoteIds
+                )
+                .presentationDetents([.medium, .large])
+            }
+            .onAppear {
+                isContentFocused = true
+            }
+        }
+    }
+
+    // MARK: - Linked Notes Section
+    private var linkedNotesSection: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                ForEach(linkedNotes) { note in
+                    Button {
+                        onNavigateToNote?(note)
+                    } label: {
+                        HStack(spacing: AppTheme.Spacing.xs) {
+                            Image(systemName: "link")
+                                .font(Typography.UI.caption2)
+
+                            Text(note.reference)
+                                .font(Typography.UI.caption2)
+                        }
+                        .foregroundStyle(Color.accentGold)
+                        .padding(.horizontal, AppTheme.Spacing.sm)
+                        .padding(.vertical, AppTheme.Spacing.xs)
+                        .background(
+                            Capsule()
+                                .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                        )
+                    }
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
+        }
+        .background(Color.surfaceBackground)
+    }
+
+    // MARK: - Reference Header
+    private var referenceHeader: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                Text(range.reference)
+                    .font(Typography.Display.headline)
+                    .foregroundStyle(Color.primaryText)
+
+                if let book = Book.find(byId: range.bookId) {
+                    Text("\(book.testament.rawValue.capitalized) Testament")
+                        .font(Typography.UI.caption1)
+                        .foregroundStyle(Color.secondaryText)
+                }
+            }
+
+            Spacer()
+
+            // Template badge
+            Button {
+                showTemplateSheet = true
+            } label: {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Image(systemName: selectedTemplate.icon)
+                    Text(selectedTemplate.displayName)
+                }
+                .font(Typography.UI.caption1)
+                .foregroundStyle(Color.accentGold)
+                .padding(.horizontal, AppTheme.Spacing.sm)
+                .padding(.vertical, AppTheme.Spacing.xs)
+                .background(
+                    Capsule()
+                        .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                )
+            }
+        }
+        .padding(AppTheme.Spacing.md)
+        .background(Color.surfaceBackground)
+    }
+
+    // MARK: - Formatting Toolbar
+    private var formattingToolbar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                // Text formatting
+                FormatButton(icon: "bold", label: "Bold") {
+                    insertMarkdown("**", "**")
+                }
+
+                FormatButton(icon: "italic", label: "Italic") {
+                    insertMarkdown("*", "*")
+                }
+
+                FormatButton(icon: "strikethrough", label: "Strikethrough") {
+                    insertMarkdown("~~", "~~")
+                }
+
+                Divider()
+                    .frame(height: 24)
+
+                // Headers
+                FormatButton(icon: "number", label: "H1") {
+                    insertLinePrefix("# ")
+                }
+
+                FormatButton(icon: "number.square", label: "H2") {
+                    insertLinePrefix("## ")
+                }
+
+                Divider()
+                    .frame(height: 24)
+
+                // Lists
+                FormatButton(icon: "list.bullet", label: "Bullet") {
+                    insertLinePrefix("- ")
+                }
+
+                FormatButton(icon: "list.number", label: "Numbered") {
+                    insertLinePrefix("1. ")
+                }
+
+                FormatButton(icon: "checklist", label: "Checkbox") {
+                    insertLinePrefix("- [ ] ")
+                }
+
+                Divider()
+                    .frame(height: 24)
+
+                // Quote & Link
+                FormatButton(icon: "text.quote", label: "Quote") {
+                    insertLinePrefix("> ")
+                }
+
+                FormatButton(icon: "link", label: "URL Link") {
+                    insertMarkdown("[", "](url)")
+                }
+
+                Divider()
+                    .frame(height: 24)
+
+                // Note linking button
+                Button {
+                    showLinkPicker = true
+                } label: {
+                    HStack(spacing: AppTheme.Spacing.xxs) {
+                        Image(systemName: "link.badge.plus")
+                            .font(Typography.UI.subheadline)
+
+                        if !linkedNoteIds.isEmpty {
+                            Text("\(linkedNoteIds.count)")
+                                .font(Typography.UI.caption2)
+                        }
+                    }
+                    .foregroundStyle(linkedNoteIds.isEmpty ? Color.secondaryText : Color.accentGold)
+                    .frame(height: 32)
+                    .padding(.horizontal, AppTheme.Spacing.xs)
+                    .background(linkedNoteIds.isEmpty ? Color.clear : Color.accentGold.opacity(AppTheme.Opacity.light))
+                    .clipShape(Capsule())
+                }
+                .accessibilityLabel("Link to other notes")
+
+                Divider()
+                    .frame(height: 24)
+
+                // Preview toggle
+                Button {
+                    showPreview.toggle()
+                } label: {
+                    Image(systemName: showPreview ? "pencil" : "eye")
+                        .font(Typography.UI.subheadline)
+                        .foregroundStyle(showPreview ? Color.accentGold : Color.secondaryText)
+                        .frame(width: 32, height: 32)
+                        .background(showPreview ? Color.accentGold.opacity(AppTheme.Opacity.light) : Color.clear)
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
+        }
+        .background(Color.elevatedBackground)
+    }
+
+    // MARK: - Note Content
+    private var noteContent: some View {
+        VStack(spacing: 0) {
+            TextEditor(text: $content)
+                .font(.system(.body, design: .monospaced))
+                .foregroundStyle(Color.primaryText)
+                .scrollContentBackground(.hidden)
+                .padding(AppTheme.Spacing.md)
+                .focused($isContentFocused)
+                .overlay(alignment: .topLeading) {
+                    if content.isEmpty {
+                        Text("Write your thoughts using Markdown...")
+                            .font(Typography.UI.warmBody)
+                            .foregroundStyle(Color.tertiaryText)
+                            .padding(AppTheme.Spacing.md)
+                            .padding(.top, AppTheme.Spacing.sm)
+                            .allowsHitTesting(false)
+                    }
+                }
+
+            // MARK: - Illuminated Character Counter
+            // Displays writing progress with manuscript-inspired aesthetics
+            // State transitions: Subtle → Contemplative Warning → Urgent Reverence
+
+            VStack(spacing: AppTheme.Spacing.xs) {
+                // Progress bar - illuminated gold fill reveals as writing progresses
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Track - subtle vellum background
+                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+                            .fill(Color.monasteryStone.opacity(AppTheme.Opacity.subtle))
+                            .frame(height: AppTheme.Divider.medium + 1)
+
+                        // Fill - divine gold that transforms with state
+                        RoundedRectangle(cornerRadius: AppTheme.Opacity.medium)
+                            .fill(progressBarColor)
+                            .frame(width: progressWidth(in: geometry.size.width), height: AppTheme.Divider.medium + 1)
+                            .shadow(color: progressBarColor.opacity(AppTheme.Opacity.heavy), radius: progressGlowRadius, y: 0)
+                            .animation(AppTheme.Animation.sacredSpring, value: content.count)
+                    }
+                }
+                .frame(height: AppTheme.Divider.thick)
+
+                // Character count text with sacred numerals
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    Spacer()
+
+                    // State icon (appears when approaching/over limit)
+                    if shouldShowStateIcon {
+                        Image(systemName: stateIcon)
+                            .font(Typography.UI.caption2)
+                            .foregroundStyle(characterCountColor)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+
+                    // Count display
+                    Text(characterCountText)
+                        .font(Typography.UI.caption1)  // Slightly larger for better readability
+                        .fontDesign(.serif)  // Manuscript aesthetic
+                        .foregroundStyle(characterCountColor)
+                        .animation(AppTheme.Animation.contemplative, value: characterCountColor)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.top, AppTheme.Spacing.sm)
+            .padding(.bottom, AppTheme.Spacing.md)
+        }
+    }
+
+    // MARK: - Markdown Preview
+    private var markdownPreview: some View {
+        ScrollView {
+            MarkdownRenderer(content: content)
+                .padding(AppTheme.Spacing.md)
+        }
+    }
+
+    // MARK: - Template Picker Sheet
+    private var templatePickerSheet: some View {
+        NavigationStack {
+            List {
+                ForEach(NoteTemplate.allCases, id: \.self) { template in
+                    Button {
+                        if existingNote == nil && content.isEmpty {
+                            // Apply template content for new empty notes
+                            content = template.templateContent
+                        }
+                        selectedTemplate = template
+                        showTemplateSheet = false
+                    } label: {
+                        HStack {
+                            Image(systemName: template.icon)
+                                .font(Typography.UI.title3)
+                                .foregroundStyle(Color.accentGold)
+                                .frame(width: AppTheme.IconContainer.medium)
+
+                            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                                Text(template.displayName)
+                                    .font(Typography.UI.body)
+                                    .foregroundStyle(Color.primaryText)
+
+                                Text(templateDescription(for: template))
+                                    .font(Typography.UI.caption1)
+                                    .foregroundStyle(Color.secondaryText)
+                            }
+
+                            Spacer()
+
+                            if selectedTemplate == template {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(Color.accentGold)
+                            }
+                        }
+                        .padding(.vertical, AppTheme.Spacing.xs)
+                    }
+                }
+            }
+            .navigationTitle("Choose Template")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        showTemplateSheet = false
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+
+    // MARK: - Helpers
+
+    // MARK: - Character Counter Helpers
+
+    /// Warning threshold - show warning state this many characters before limit
+    private static let warningThreshold = 5000
+
+    private var progressFraction: Double {
+        min(Double(content.count) / Double(Note.maxContentLength), 1.0)
+    }
+
+    private func progressWidth(in totalWidth: CGFloat) -> CGFloat {
+        totalWidth * progressFraction
+    }
+
+    private var characterCountText: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = ","
+
+        let current = formatter.string(from: NSNumber(value: content.count)) ?? "\(content.count)"
+        let max = formatter.string(from: NSNumber(value: Note.maxContentLength)) ?? "\(Note.maxContentLength)"
+
+        return "\(current) / \(max)"
+    }
+
+    private var characterCountColor: Color {
+        if content.count > Note.maxContentLength {
+            // Over limit - vermillion red (urgent)
+            return Color.vermillion
+        } else if content.count > Note.maxContentLength - Self.warningThreshold {
+            // Approaching limit - burnished gold (contemplative warning)
+            return Color.burnishedGold
+        } else {
+            // Normal - aged ink (subtle elegance)
+            return Color.agedInk.opacity(AppTheme.Opacity.strong)
+        }
+    }
+
+    private var progressBarColor: Color {
+        if content.count > Note.maxContentLength {
+            // Over limit - vermillion with urgency
+            return Color.vermillion
+        } else if content.count > Note.maxContentLength - Self.warningThreshold {
+            // Approaching - burnished gold with gentle warning
+            return Color.burnishedGold
+        } else if content.count > Note.maxContentLength / 2 {
+            // Halfway - divine gold with confidence
+            return Color.divineGold
+        } else {
+            // Beginning - illuminated gold with gentle encouragement
+            return Color.illuminatedGold.opacity(AppTheme.Opacity.pressed)
+        }
+    }
+
+    private var progressGlowRadius: CGFloat {
+        if content.count > Note.maxContentLength {
+            // Over limit - strong glow for urgency
+            return 4
+        } else if content.count > Note.maxContentLength - Self.warningThreshold {
+            // Approaching - moderate glow for awareness
+            return 3
+        } else {
+            // Normal - subtle glow for elegance
+            return 2
+        }
+    }
+
+    private var shouldShowStateIcon: Bool {
+        content.count > Note.maxContentLength - Self.warningThreshold
+    }
+
+    private var stateIcon: String {
+        if content.count > Note.maxContentLength {
+            return "exclamationmark.triangle.fill"  // Over limit warning
+        } else {
+            return "hourglass"  // Approaching limit indicator
+        }
+    }
+
+    private func templateDescription(for template: NoteTemplate) -> String {
+        switch template {
+        case .freeform: return "Write freely without structure"
+        case .observation: return "What you notice in the text"
+        case .application: return "How to apply this to life"
+        case .questions: return "Questions raised by the passage"
+        case .exegesis: return "Deep study with context and language"
+        case .prayer: return "ACTS prayer framework"
+        }
+    }
+
+    private func insertMarkdown(_ prefix: String, _ suffix: String) {
+        content += prefix + "text" + suffix
+    }
+
+    private func insertLinePrefix(_ prefix: String) {
+        if content.isEmpty || content.hasSuffix("\n") {
+            content += prefix
+        } else {
+            content += "\n" + prefix
+        }
+    }
+}
+
+// MARK: - Format Button
+struct FormatButton: View {
+    let icon: String
+    let label: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(Typography.UI.subheadline)
+                .foregroundStyle(Color.secondaryText)
+                .frame(width: 32, height: 32)
+        }
+        .accessibilityLabel(label)
+    }
+}
+
+// MARK: - Markdown Renderer
+struct MarkdownRenderer: View {
+    let content: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            ForEach(Array(parseLines().enumerated()), id: \.offset) { _, line in
+                renderLine(line)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func parseLines() -> [String] {
+        content.components(separatedBy: "\n")
+    }
+
+    @ViewBuilder
+    private func renderLine(_ line: String) -> some View {
+        if line.hasPrefix("## ") {
+            Text(line.dropFirst(3))
+                .font(Typography.UI.headline)
+                .foregroundStyle(Color.primaryText)
+        } else if line.hasPrefix("# ") {
+            Text(line.dropFirst(2))
+                .font(Typography.UI.title3)
+                .foregroundStyle(Color.primaryText)
+        } else if line.hasPrefix("> ") {
+            HStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color.accentGold)
+                    .frame(width: 3)
+
+                Text(renderInlineMarkdown(String(line.dropFirst(2))))
+                    .font(Typography.UI.body)
+                    .foregroundStyle(Color.secondaryText)
+                    .italic()
+                    .padding(.leading, AppTheme.Spacing.sm)
+            }
+        } else if line.hasPrefix("- [ ] ") {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Image(systemName: "square")
+                    .font(Typography.UI.subheadline)
+                    .foregroundStyle(Color.tertiaryText)
+
+                Text(renderInlineMarkdown(String(line.dropFirst(6))))
+                    .font(Typography.UI.body)
+                    .foregroundStyle(Color.primaryText)
+            }
+        } else if line.hasPrefix("- [x] ") || line.hasPrefix("- [X] ") {
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Image(systemName: "checkmark.square.fill")
+                    .font(Typography.UI.subheadline)
+                    .foregroundStyle(Color.success)
+
+                Text(renderInlineMarkdown(String(line.dropFirst(6))))
+                    .font(Typography.UI.body)
+                    .foregroundStyle(Color.secondaryText)
+                    .strikethrough()
+            }
+        } else if line.hasPrefix("- ") {
+            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+                Circle()
+                    .fill(Color.primaryText)
+                    .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
+                    .padding(.top, AppTheme.Spacing.sm)
+
+                Text(renderInlineMarkdown(String(line.dropFirst(2))))
+                    .font(Typography.UI.body)
+                    .foregroundStyle(Color.primaryText)
+            }
+        } else if let match = line.firstMatch(of: /^(\d+)\. (.*)/) {
+            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+                Text("\(match.1).")
+                    .font(Typography.UI.body)
+                    .foregroundStyle(Color.secondaryText)
+                    .frame(width: 24, alignment: .trailing)
+
+                Text(renderInlineMarkdown(String(match.2)))
+                    .font(Typography.UI.body)
+                    .foregroundStyle(Color.primaryText)
+            }
+        } else if line.hasPrefix("|") && line.hasSuffix("|") {
+            // Table row (simplified rendering)
+            let cells = line.dropFirst().dropLast()
+                .components(separatedBy: "|")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+
+            HStack {
+                ForEach(Array(cells.enumerated()), id: \.offset) { _, cell in
+                    Text(cell)
+                        .font(Typography.UI.caption1)
+                        .foregroundStyle(Color.primaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(.vertical, AppTheme.Spacing.xs)
+            .background(Color.elevatedBackground)
+        } else if !line.isEmpty {
+            Text(renderInlineMarkdown(line))
+                .font(Typography.UI.body)
+                .foregroundStyle(Color.primaryText)
+        } else {
+            Spacer().frame(height: AppTheme.Spacing.sm)
+        }
+    }
+
+    private func renderInlineMarkdown(_ text: String) -> AttributedString {
+        var result = AttributedString(text)
+
+        // Bold (**text**)
+        while let range = result.range(of: "**", options: []) {
+            if let endRange = result[range.upperBound...].range(of: "**") {
+                let contentRange = range.upperBound..<endRange.lowerBound
+                result[contentRange].inlinePresentationIntent = .stronglyEmphasized
+                result.removeSubrange(endRange)
+                result.removeSubrange(range)
+            } else {
+                break
+            }
+        }
+
+        // Italic (*text*)
+        while let range = result.range(of: "*", options: []) {
+            if let endRange = result[range.upperBound...].range(of: "*") {
+                let contentRange = range.upperBound..<endRange.lowerBound
+                result[contentRange].inlinePresentationIntent = .emphasized
+                result.removeSubrange(endRange)
+                result.removeSubrange(range)
+            } else {
+                break
+            }
+        }
+
+        // Strikethrough (~~text~~)
+        while let range = result.range(of: "~~", options: []) {
+            if let endRange = result[range.upperBound...].range(of: "~~") {
+                let contentRange = range.upperBound..<endRange.lowerBound
+                result[contentRange].strikethroughStyle = .single
+                result.removeSubrange(endRange)
+                result.removeSubrange(range)
+            } else {
+                break
+            }
+        }
+
+        return result
+    }
+}
+
+// MARK: - Note Card
+// Displays a note in a list
+
+struct NoteCard: View {
+    let note: Note
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                // Header with reference and template
+                HStack {
+                    Text(note.reference)
+                        .font(Typography.UI.caption1Bold)
+                        .foregroundStyle(Color.accentGold)
+
+                    Spacer()
+
+                    // Linked notes indicator
+                    if note.hasLinks {
+                        HStack(spacing: AppTheme.Spacing.xxs) {
+                            Image(systemName: "link")
+                            Text("\(note.linkedNoteIds.count)")
+                        }
+                        .font(Typography.UI.caption2)
+                        .foregroundStyle(Color.accentBlue)
+                    }
+
+                    // Template badge
+                    HStack(spacing: AppTheme.Spacing.xxs) {
+                        Image(systemName: note.template.icon)
+                        Text(note.template.displayName)
+                    }
+                    .font(Typography.UI.caption2)
+                    .foregroundStyle(Color.tertiaryText)
+                }
+
+                // Preview
+                Text(note.preview)
+                    .font(Typography.UI.body)
+                    .foregroundStyle(Color.primaryText)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+
+                // Date
+                Text(note.updatedAt.formatted(date: .abbreviated, time: .omitted))
+                    .font(Typography.UI.caption2)
+                    .foregroundStyle(Color.tertiaryText)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(AppTheme.Spacing.md)
+            .background(Color.surfaceBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+        }
+    }
+}
+
+// MARK: - Highlight Card
+// Displays a highlight in a list
+
+struct HighlightCard: View {
+    let highlight: Highlight
+    let verseText: String?
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                // Color indicator and reference
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Circle()
+                        .fill(highlight.color.color)
+                        .frame(width: 12, height: 12)
+
+                    Text(highlight.reference)
+                        .font(Typography.UI.caption1Bold)
+                        .foregroundStyle(Color.primaryText)
+                }
+
+                // Verse text preview
+                if let text = verseText {
+                    Text(text)
+                        .font(Typography.Scripture.body())
+                        .foregroundStyle(Color.secondaryText)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+
+                // Date
+                Text(highlight.createdAt.formatted(date: .abbreviated, time: .omitted))
+                    .font(Typography.UI.caption2)
+                    .foregroundStyle(Color.tertiaryText)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(AppTheme.Spacing.md)
+            .background(highlight.color.color.opacity(AppTheme.Opacity.subtle))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+        }
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    VStack {
+        NoteEditor(
+            range: VerseRange(bookId: 1, chapter: 1, verseStart: 1, verseEnd: 3),
+            onSave: { _, _, _ in }
+        )
+    }
+}

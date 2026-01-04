@@ -1,0 +1,87 @@
+# SwiftLint config for testing rules only
+# Copies custom_rules from main config without path restrictions
+
+only_rules:
+  - custom_rules
+
+lenient: true
+reporter: xcode
+
+custom_rules:
+  hardcoded_stack_spacing:
+    name: "Hardcoded Stack Spacing"
+    regex: '(VStack|HStack|LazyVStack|LazyHStack)\s*\([^)]*spacing\s*:\s*\d+'
+    message: "Use AppTheme.Spacing.*"
+    severity: warning
+
+  hardcoded_padding_single:
+    name: "Hardcoded Padding"
+    regex: '\.padding\s*\(\s*\d+\.?\d*\s*\)'
+    message: "Use AppTheme.Spacing.*"
+    severity: warning
+
+  hardcoded_padding_edge:
+    name: "Hardcoded Edge Padding"
+    regex: '\.padding\s*\(\s*\.(horizontal|vertical|top|bottom|leading|trailing)\s*,\s*\d+'
+    message: "Use AppTheme.Spacing.*"
+    severity: warning
+
+  hardcoded_font_system:
+    name: "Hardcoded System Font Size"
+    regex: '\.font\s*\(\s*\.system\s*\(\s*size\s*:'
+    message: "Use Typography.UI.* or Typography.Scripture.*"
+    severity: warning
+
+  hardcoded_font_custom:
+    name: "Hardcoded Custom Font"
+    regex: '\.font\s*\(\s*\.custom\s*\([^)]+,\s*size\s*:'
+    message: "Use Typography constants"
+    severity: warning
+
+  hardcoded_swiftui_text_style:
+    name: "Hardcoded SwiftUI Text Style"
+    regex: '\.font\s*\(\s*\.(largeTitle|title|title2|title3|headline|subheadline|body|callout|footnote|caption|caption2)\s*\)'
+    message: "Use Typography.UI.* instead of SwiftUI text styles"
+    severity: warning
+
+  hardcoded_rounded_rectangle:
+    name: "Hardcoded RoundedRectangle"
+    regex: 'RoundedRectangle\s*\(\s*cornerRadius\s*:\s*\d+'
+    message: "Use AppTheme.CornerRadius.*"
+    severity: warning
+
+  hardcoded_animation_ease:
+    name: "Hardcoded Ease Animation"
+    regex: '\.(easeIn|easeOut|easeInOut|linear)\s*\(\s*duration\s*:'
+    message: "Use AppTheme.Animation.*"
+    severity: warning
+
+  hardcoded_animation_spring:
+    name: "Hardcoded Spring Animation"
+    regex: '\.spring\s*\(\s*(response|duration)\s*:'
+    message: "Use AppTheme.Animation.spring"
+    severity: warning
+
+  hardcoded_opacity:
+    name: "Hardcoded Opacity Value"
+    regex: '\.opacity\s*\(\s*0\.\d+'
+    message: "Use AppTheme.Opacity.*"
+    severity: warning
+
+  hardcoded_scale_reduced:
+    name: "Hardcoded Reduced Scale"
+    regex: '\.scaleEffect\(\s*0\.[0-9]+'
+    message: "Use AppTheme.Scale.*"
+    severity: warning
+
+  hardcoded_scale_enlarged:
+    name: "Hardcoded Enlarged Scale"
+    regex: '\.scaleEffect\(\s*1\.[0-9]+'
+    message: "Use AppTheme.Scale.*"
+    severity: warning
+
+  hardcoded_color_rgb:
+    name: "Hardcoded RGB Color"
+    regex: 'Color\s*\(\s*(red|\.sRGB.*red)\s*:'
+    message: "Use semantic colors from Colors.swift"
+    severity: warning

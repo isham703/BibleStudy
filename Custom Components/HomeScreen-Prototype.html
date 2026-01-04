@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=414, initial-scale=1.0">
+  <title>BibleStudy Home — Illuminated Design</title>
+
+  <!-- Fonts: Distinctive choices that evoke manuscripts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* =====================================================
+       SACRAL LUXE DESIGN SYSTEM
+       BibleStudy iOS App — Home Screen Prototype
+       ===================================================== */
+
+    :root {
+      /* === ILLUMINATED COLOR PALETTE === */
+
+      /* Divine Gold Family - The soul of the design */
+      --gold-divine: #D4A853;
+      --gold-burnished: #C4963E;
+      --gold-pale: #E8D4A8;
+      --gold-glow: rgba(212, 168, 83, 0.25);
+      --gold-shimmer: rgba(212, 168, 83, 0.08);
+
+      /* Vellum & Parchment - Warm paper tones */
+      --vellum-cream: #FAF6F0;
+      --vellum-warm: #F5EDE0;
+      --parchment-aged: #EDE4D3;
+      --parchment-shadow: #DED3BE;
+
+      /* Sacred Inks - Typography colors */
+      --ink-monastery: #2C2419;
+      --ink-warm: #443628;
+      --ink-faded: #6B5B4A;
+      --ink-ghost: #9A8B78;
+
+      /* Jewel Tones - Accent colors */
+      --vermillion: #C54B3C;
+      --lapis-lazuli: #2B5B8A;
+      --malachite: #3D7A5E;
+      --amethyst: #7B5EA7;
+
+      /* === TYPOGRAPHY SCALE === */
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'Spectral', Georgia, serif;
+
+      /* Perfect Fourth Ratio (1.333) */
+      --text-xs: 0.75rem;    /* 12px */
+      --text-sm: 0.875rem;   /* 14px */
+      --text-base: 1rem;     /* 16px */
+      --text-lg: 1.333rem;   /* 21px */
+      --text-xl: 1.777rem;   /* 28px */
+      --text-2xl: 2.369rem;  /* 38px */
+      --text-3xl: 3.157rem;  /* 50px */
+
+      /* === SPACING SCALE === */
+      --space-xxs: 0.125rem;
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 0.75rem;
+      --space-lg: 1rem;
+      --space-xl: 1.5rem;
+      --space-2xl: 2rem;
+      --space-3xl: 3rem;
+
+      /* === EFFECTS === */
+      --shadow-ambient: 0 4px 24px rgba(44, 36, 25, 0.08);
+      --shadow-card: 0 2px 12px rgba(44, 36, 25, 0.06);
+      --shadow-elevated: 0 8px 32px rgba(44, 36, 25, 0.12);
+      --shadow-gold-glow: 0 0 24px rgba(212, 168, 83, 0.2);
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+
+      /* === TRANSITIONS === */
+      --ease-sacred: cubic-bezier(0.4, 0, 0.2, 1);
+      --duration-quick: 150ms;
+      --duration-standard: 300ms;
+      --duration-reverent: 600ms;
+    }
+
+    /* =====================================================
+       BASE STYLES
+       ===================================================== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 400;
+      color: var(--ink-monastery);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* =====================================================
+       PHONE FRAME — For demonstration
+       ===================================================== */
+
+    .phone-frame {
+      width: 414px;
+      min-height: 896px;
+      margin: 40px auto;
+      border-radius: 44px;
+      overflow: hidden;
+      box-shadow:
+        0 50px 100px -20px rgba(44, 36, 25, 0.25),
+        0 30px 60px -30px rgba(44, 36, 25, 0.30),
+        inset 0 0 0 12px #1a1a1a;
+      position: relative;
+      background: #1a1a1a;
+    }
+
+    .phone-screen {
+      width: 390px;
+      height: 844px;
+      margin: 12px;
+      border-radius: 32px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* =====================================================
+       HOME SCREEN CONTAINER
+       ===================================================== */
+
+    .home-screen {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+
+      /* Vellum Background with subtle texture */
+      background:
+        /* Subtle noise texture */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"),
+        /* Warm gradient */
+        linear-gradient(180deg,
+          var(--vellum-cream) 0%,
+          var(--vellum-warm) 30%,
+          var(--parchment-aged) 100%
+        );
+
+      /* Hide scrollbar but allow scrolling */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .home-screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Ambient glow at top for evening warmth */
+    .home-screen::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle,
+        rgba(212, 168, 83, 0.15) 0%,
+        transparent 70%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .home-content {
+      position: relative;
+      z-index: 1;
+      padding: var(--space-xl);
+      padding-top: 60px; /* Safe area */
+      padding-bottom: 100px; /* Tab bar space */
+    }
+
+    /* =====================================================
+       GREETING HEADER
+       ===================================================== */
+
+    .greeting-section {
+      margin-bottom: var(--space-2xl);
+      position: relative;
+    }
+
+    .greeting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .greeting-text {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .greeting-time {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 500;
+      color: var(--ink-monastery);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+
+      /* Subtle text shadow for depth */
+      text-shadow: 0 1px 2px rgba(44, 36, 25, 0.08);
+    }
+
+    .greeting-name {
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--gold-divine);
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+
+      /* Subtle gold glow */
+      text-shadow: 0 0 20px rgba(212, 168, 83, 0.3);
+    }
+
+    /* Streak Badge */
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-md);
+      background: linear-gradient(135deg,
+        rgba(212, 168, 83, 0.15) 0%,
+        rgba(212, 168, 83, 0.08) 100%
+      );
+      border: 1px solid rgba(212, 168, 83, 0.25);
+      border-radius: 20px;
+
+      /* Subtle inner glow */
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.3),
+        0 2px 8px rgba(212, 168, 83, 0.15);
+    }
+
+    .streak-icon {
+      font-size: var(--text-lg);
+      filter: drop-shadow(0 0 4px rgba(212, 168, 83, 0.5));
+    }
+
+    .streak-count {
+      font-family: var(--font-display);
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--ink-monastery);
+    }
+
+    /* =====================================================
+       CARD STYLES — Manuscript Pages
+       ===================================================== */
+
+    .card {
+      background: var(--vellum-cream);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-lg);
+      position: relative;
+
+      /* Layered shadows for depth */
+      box-shadow:
+        var(--shadow-card),
+        0 1px 0 rgba(255, 255, 255, 0.6) inset;
+
+      /* Subtle border */
+      border: 1px solid rgba(107, 91, 74, 0.1);
+
+      /* Transition */
+      transition:
+        transform var(--duration-standard) var(--ease-sacred),
+        box-shadow var(--duration-standard) var(--ease-sacred);
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        var(--shadow-elevated),
+        0 1px 0 rgba(255, 255, 255, 0.6) inset;
+    }
+
+    /* Card with gold accent border */
+    .card--featured {
+      border: 1px solid rgba(212, 168, 83, 0.3);
+      background:
+        linear-gradient(135deg,
+          rgba(212, 168, 83, 0.03) 0%,
+          transparent 50%
+        ),
+        var(--vellum-cream);
+    }
+
+    .card--featured::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        var(--gold-divine) 30%,
+        var(--gold-divine) 70%,
+        transparent 100%
+      );
+      border-radius: 2px;
+    }
+
+    /* Card Label (Category tag) */
+    .card-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gold-burnished);
+      margin-bottom: var(--space-md);
+    }
+
+    .card-label-icon {
+      font-size: var(--text-sm);
+    }
+
+    /* Card Title */
+    .card-title {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--ink-monastery);
+      margin-bottom: var(--space-sm);
+      line-height: 1.3;
+    }
+
+    /* Card Subtitle / Description */
+    .card-subtitle {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--ink-faded);
+      margin-bottom: var(--space-lg);
+      line-height: 1.5;
+    }
+
+    /* Card Footer */
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-meta {
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      color: var(--ink-ghost);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-action {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--gold-burnished);
+      cursor: pointer;
+      transition: color var(--duration-quick) var(--ease-sacred);
+    }
+
+    .card-action:hover {
+      color: var(--gold-divine);
+    }
+
+    .card-action-arrow {
+      font-size: var(--text-sm);
+      transition: transform var(--duration-quick) var(--ease-sacred);
+    }
+
+    .card:hover .card-action-arrow {
+      transform: translateX(3px);
+    }
+
+    /* =====================================================
+       PROGRESS BAR
+       ===================================================== */
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--parchment-shadow);
+      border-radius: 3px;
+      margin-bottom: var(--space-md);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg,
+        var(--gold-burnished) 0%,
+        var(--gold-divine) 100%
+      );
+      border-radius: 3px;
+      position: relative;
+      transition: width var(--duration-reverent) var(--ease-sacred);
+    }
+
+    /* Shimmer effect on progress */
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+      );
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* =====================================================
+       MASTERY BADGES (Memorization)
+       ===================================================== */
+
+    .mastery-badges {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .mastery-badge {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: var(--text-xs);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mastery-badge--learning {
+      background: rgba(43, 91, 138, 0.12);
+      color: var(--lapis-lazuli);
+    }
+
+    .mastery-badge--reviewing {
+      background: rgba(212, 168, 83, 0.15);
+      color: var(--gold-burnished);
+    }
+
+    .mastery-badge--mastered {
+      background: rgba(61, 122, 94, 0.12);
+      color: var(--malachite);
+    }
+
+    /* =====================================================
+       SECTION HEADERS
+       ===================================================== */
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--space-lg);
+      margin-top: var(--space-xl);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--ink-monastery);
+      letter-spacing: 0.02em;
+      position: relative;
+    }
+
+    /* Decorative initial capital effect */
+    .section-title::first-letter {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: var(--gold-divine);
+    }
+
+    .section-see-all {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--ink-ghost);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: color var(--duration-quick) var(--ease-sacred);
+      cursor: pointer;
+    }
+
+    .section-see-all:hover {
+      color: var(--gold-burnished);
+    }
+
+    /* =====================================================
+       DISCOVER CAROUSEL
+       ===================================================== */
+
+    .discover-carousel {
+      display: flex;
+      gap: var(--space-md);
+      overflow-x: auto;
+      margin: 0 calc(var(--space-xl) * -1);
+      padding: 0 var(--space-xl);
+      padding-bottom: var(--space-md);
+      scroll-snap-type: x mandatory;
+
+      /* Hide scrollbar */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .discover-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .discover-card {
+      flex-shrink: 0;
+      width: 160px;
+      height: 180px;
+      background: var(--vellum-cream);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      border: 1px solid rgba(107, 91, 74, 0.1);
+      box-shadow: var(--shadow-card);
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition:
+        transform var(--duration-standard) var(--ease-sacred),
+        box-shadow var(--duration-standard) var(--ease-sacred);
+    }
+
+    .discover-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .discover-card-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: rgba(212, 168, 83, 0.12);
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold-burnished);
+      width: fit-content;
+      margin-bottom: auto;
+    }
+
+    .discover-card-type--story {
+      background: rgba(123, 94, 167, 0.12);
+      color: var(--amethyst);
+    }
+
+    .discover-card-type--topic {
+      background: rgba(43, 91, 138, 0.12);
+      color: var(--lapis-lazuli);
+    }
+
+    .discover-card-title {
+      font-family: var(--font-display);
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--ink-monastery);
+      line-height: 1.3;
+      margin-bottom: var(--space-xs);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .discover-card-subtitle {
+      font-size: var(--text-xs);
+      color: var(--ink-ghost);
+      margin-bottom: var(--space-sm);
+    }
+
+    .discover-card-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: var(--text-xs);
+      color: var(--ink-ghost);
+      margin-top: auto;
+    }
+
+    /* =====================================================
+       AI INSIGHT CARD
+       ===================================================== */
+
+    .insight-card {
+      background:
+        linear-gradient(135deg,
+          rgba(212, 168, 83, 0.06) 0%,
+          rgba(212, 168, 83, 0.02) 50%,
+          transparent 100%
+        ),
+        var(--vellum-cream);
+      border: 1px solid rgba(212, 168, 83, 0.2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      margin-top: var(--space-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative corner flourish */
+    .insight-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      background:
+        radial-gradient(circle at top right,
+          rgba(212, 168, 83, 0.15) 0%,
+          transparent 70%
+        );
+      pointer-events: none;
+    }
+
+    .insight-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    .insight-icon {
+      font-size: var(--text-lg);
+      color: var(--gold-divine);
+      filter: drop-shadow(0 0 6px rgba(212, 168, 83, 0.4));
+    }
+
+    .insight-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gold-burnished);
+    }
+
+    .insight-title {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--ink-monastery);
+      margin-bottom: var(--space-sm);
+      line-height: 1.3;
+    }
+
+    .insight-content {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      color: var(--ink-faded);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .insight-verses {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-lg);
+    }
+
+    .verse-chip {
+      padding: var(--space-xs) var(--space-sm);
+      background: rgba(212, 168, 83, 0.1);
+      border: 1px solid rgba(212, 168, 83, 0.2);
+      border-radius: 12px;
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--gold-burnished);
+    }
+
+    /* =====================================================
+       TAB BAR
+       ===================================================== */
+
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background:
+        linear-gradient(180deg,
+          rgba(250, 246, 240, 0) 0%,
+          rgba(250, 246, 240, 0.95) 20%,
+          var(--vellum-cream) 100%
+        );
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 20px;
+      z-index: 100;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: color var(--duration-quick) var(--ease-sacred);
+    }
+
+    .tab-icon {
+      font-size: 24px;
+      color: var(--ink-ghost);
+      transition:
+        color var(--duration-quick) var(--ease-sacred),
+        filter var(--duration-quick) var(--ease-sacred);
+    }
+
+    .tab-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--ink-ghost);
+      transition: color var(--duration-quick) var(--ease-sacred);
+    }
+
+    .tab-item--active .tab-icon {
+      color: var(--gold-divine);
+      filter: drop-shadow(0 0 8px rgba(212, 168, 83, 0.4));
+    }
+
+    .tab-item--active .tab-label {
+      color: var(--gold-burnished);
+    }
+
+    /* =====================================================
+       ANIMATIONS
+       ===================================================== */
+
+    /* Staggered card entrance */
+    @keyframes cardReveal {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card,
+    .discover-card,
+    .insight-card {
+      animation: cardReveal var(--duration-reverent) var(--ease-sacred) forwards;
+      animation-delay: calc(var(--index, 0) * 100ms);
+    }
+
+    /* Greeting fade in */
+    @keyframes greetingReveal {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .greeting-section {
+      animation: greetingReveal var(--duration-reverent) var(--ease-sacred);
+    }
+
+    /* Gold glow pulse for streak */
+    @keyframes goldPulse {
+      0%, 100% {
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.3),
+          0 2px 8px rgba(212, 168, 83, 0.15);
+      }
+      50% {
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.3),
+          0 2px 16px rgba(212, 168, 83, 0.3);
+      }
+    }
+
+    .streak-badge {
+      animation: goldPulse 3s ease-in-out infinite;
+    }
+
+    /* =====================================================
+       DARK THEME — Candlelit Chapel
+       ===================================================== */
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --vellum-cream: #1C1814;
+        --vellum-warm: #231E19;
+        --parchment-aged: #2A241E;
+        --parchment-shadow: #1A1612;
+
+        --ink-monastery: #E8DFD3;
+        --ink-warm: #D4C8B8;
+        --ink-faded: #A89B8A;
+        --ink-ghost: #6B5F50;
+
+        --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+        --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+
+      .home-screen::before {
+        background: radial-gradient(circle,
+          rgba(212, 168, 83, 0.12) 0%,
+          transparent 70%
+        );
+      }
+
+      .tab-bar {
+        background:
+          linear-gradient(180deg,
+            rgba(28, 24, 20, 0) 0%,
+            rgba(28, 24, 20, 0.95) 20%,
+            var(--vellum-cream) 100%
+          );
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-screen">
+      <div class="home-screen">
+        <div class="home-content">
+
+          <!-- Greeting Section -->
+          <section class="greeting-section">
+            <div class="greeting-row">
+              <div class="greeting-text">
+                <span class="greeting-time">Good Evening,</span>
+                <span class="greeting-name">Sarah</span>
+              </div>
+              <div class="streak-badge">
+                <span class="streak-icon">🔥</span>
+                <span class="streak-count">12</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Today's Practice Card (Featured) -->
+          <article class="card card--featured" style="--index: 1;">
+            <div class="card-label">
+              <span class="card-label-icon">🧠</span>
+              Today's Practice
+            </div>
+            <h2 class="card-title">3 verses due for review</h2>
+            <div style="display: flex; gap: 6px; margin-bottom: 16px;">
+              <div class="mastery-badges">
+                <span class="mastery-badge mastery-badge--learning">
+                  📘 2
+                </span>
+                <span class="mastery-badge mastery-badge--reviewing">
+                  📙 1
+                </span>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="card-meta">~5 min</span>
+              <span class="card-action">
+                Practice Now
+                <span class="card-action-arrow">→</span>
+              </span>
+            </div>
+          </article>
+
+          <!-- Today's Reading Card -->
+          <article class="card" style="--index: 2;">
+            <div class="card-label">
+              <span class="card-label-icon">📖</span>
+              Today's Reading
+            </div>
+            <h2 class="card-title">Gospel of John</h2>
+            <p class="card-subtitle">Day 8 of 21 · John 8:1-59</p>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" style="width: 38%;"></div>
+            </div>
+            <div class="card-footer">
+              <span class="card-meta">38% complete</span>
+              <span class="card-action">
+                Continue
+                <span class="card-action-arrow">→</span>
+              </span>
+            </div>
+          </article>
+
+          <!-- Discover Section -->
+          <div class="section-header">
+            <h3 class="section-title">Discover</h3>
+            <span class="section-see-all">See All →</span>
+          </div>
+
+          <div class="discover-carousel">
+            <article class="discover-card" style="--index: 3;">
+              <span class="discover-card-type discover-card-type--story">
+                📜 Story
+              </span>
+              <h4 class="discover-card-title">The Exodus</h4>
+              <p class="discover-card-subtitle">Moses leads Israel to freedom</p>
+              <div class="discover-card-meta">
+                <span>⏱</span>
+                <span>12 min</span>
+              </div>
+            </article>
+
+            <article class="discover-card" style="--index: 4;">
+              <span class="discover-card-type discover-card-type--topic">
+                🏷 Topic
+              </span>
+              <h4 class="discover-card-title">Faith</h4>
+              <p class="discover-card-subtitle">Trusting God's promises</p>
+              <div class="discover-card-meta">
+                <span>📑</span>
+                <span>47 verses</span>
+              </div>
+            </article>
+
+            <article class="discover-card" style="--index: 5;">
+              <span class="discover-card-type discover-card-type--story">
+                📜 Story
+              </span>
+              <h4 class="discover-card-title">David & Goliath</h4>
+              <p class="discover-card-subtitle">Faith overcomes giants</p>
+              <div class="discover-card-meta">
+                <span>⏱</span>
+                <span>8 min</span>
+              </div>
+            </article>
+
+            <article class="discover-card" style="--index: 6;">
+              <span class="discover-card-type discover-card-type--topic">
+                🏷 Topic
+              </span>
+              <h4 class="discover-card-title">Grace</h4>
+              <p class="discover-card-subtitle">Unmerited divine favor</p>
+              <div class="discover-card-meta">
+                <span>📑</span>
+                <span>32 verses</span>
+              </div>
+            </article>
+          </div>
+
+          <!-- For You / AI Insights Section -->
+          <div class="section-header">
+            <h3 class="section-title">For You</h3>
+            <span class="section-see-all">See All →</span>
+          </div>
+
+          <article class="insight-card" style="--index: 7;">
+            <div class="insight-header">
+              <span class="insight-icon">✨</span>
+              <span class="insight-label">Insight</span>
+            </div>
+            <h3 class="insight-title">A Theme in Your Reading</h3>
+            <p class="insight-content">
+              You've been exploring passages about faith this week. Notice how Hebrews 11 connects to your recent reading in Romans about justification by faith...
+            </p>
+            <div class="insight-verses">
+              <span class="verse-chip">Hebrews 11:1</span>
+              <span class="verse-chip">Romans 5:1</span>
+              <span class="verse-chip">Galatians 3:11</span>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Tab Bar -->
+        <nav class="tab-bar">
+          <div class="tab-item tab-item--active">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label">Home</span>
+          </div>
+          <div class="tab-item">
+            <span class="tab-icon">📖</span>
+            <span class="tab-label">Read</span>
+          </div>
+          <div class="tab-item">
+            <span class="tab-icon">💬</span>
+            <span class="tab-label">Ask</span>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Add hover interactions for cards
+    document.querySelectorAll('.card, .discover-card, .insight-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.cursor = 'pointer';
+      });
+    });
+
+    // Simulate time-based greeting
+    const hour = new Date().getHours();
+    const greetingEl = document.querySelector('.greeting-time');
+
+    if (hour >= 5 && hour < 12) {
+      greetingEl.textContent = 'Good Morning,';
+    } else if (hour >= 12 && hour < 17) {
+      greetingEl.textContent = 'Good Afternoon,';
+    } else if (hour >= 17 && hour < 21) {
+      greetingEl.textContent = 'Good Evening,';
+    } else {
+      greetingEl.textContent = 'Peace be with you,';
+    }
+  </script>
+</body>
+</html>
