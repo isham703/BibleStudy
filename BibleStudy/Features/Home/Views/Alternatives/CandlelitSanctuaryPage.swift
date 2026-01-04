@@ -236,21 +236,6 @@ struct CandlelitSanctuaryPage: View {
                 .offset(y: isVisible ? 0 : 30)
                 .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(1.8), value: isVisible)
             }
-
-            // Row 3: Reader Themes Showcase
-            SanctuaryFeatureCard(
-                icon: "book.pages.fill",
-                label: "READER THEMES",
-                title: "Reading the Bible",
-                subtitle: "Explore reading experiences",
-                isPrimary: false,
-                accentColor: .divineGold
-            ) {
-                ReaderShowcaseDirectoryView()
-            }
-            .opacity(isVisible ? 1 : 0)
-            .offset(y: isVisible ? 0 : 30)
-            .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(1.9), value: isVisible)
         }
     }
 }
