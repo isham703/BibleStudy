@@ -91,7 +91,7 @@ struct ScholarReaderView: View {
                 } label: {
                     Image(systemName: "textformat.size")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(ScholarPalette.ink)
+                        .foregroundStyle(Color.scholarInk)
                 }
             }
         }
@@ -137,7 +137,7 @@ struct ScholarReaderView: View {
         .onTapGesture {
             // Tap outside to dismiss context menu
             if let viewModel = viewModel, viewModel.showContextMenu {
-                withAnimation(ScholarPalette.Animation.selection) {
+                withAnimation(AppTheme.Animation.selection) {
                     viewModel.clearSelection()
                 }
             }
@@ -169,7 +169,7 @@ struct ScholarReaderView: View {
         .onChange(of: viewModel?.flashVerseId) { _, newFlashId in
             if let verseId = newFlashId {
                 // Scroll to the flashed verse
-                withAnimation(ScholarPalette.Animation.cardUnfurl) {
+                withAnimation(AppTheme.Animation.cardUnfurl) {
                     scrollProxy?.scrollTo("verse-\(verseId)", anchor: .center)
                 }
 
@@ -194,7 +194,7 @@ struct ScholarReaderView: View {
     // MARK: - Navigation Buttons
 
     private func navigationButtons(viewModel: ScholarsReaderViewModel) -> some View {
-        HStack(spacing: ScholarPalette.Spacing.sm) {
+        HStack(spacing: AppTheme.Spacing.sm) {
             Button {
                 Task { await viewModel.goToPreviousChapter() }
             } label: {
@@ -218,33 +218,33 @@ struct ScholarReaderView: View {
     // MARK: - Loading View
 
     private var loadingView: some View {
-        VStack(spacing: ScholarPalette.Spacing.lg) {
+        VStack(spacing: AppTheme.Spacing.lg) {
             ProgressView()
-                .tint(ScholarPalette.accent)
+                .tint(Color.scholarIndigo)
 
             Text("Loading...")
                 .font(.custom("CormorantGaramond-Regular", size: 16))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
         }
     }
 
     // MARK: - Error View
 
     private func errorView(_ error: Error, viewModel: ScholarsReaderViewModel) -> some View {
-        VStack(spacing: ScholarPalette.Spacing.lg) {
+        VStack(spacing: AppTheme.Spacing.lg) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 32, weight: .light))
-                .foregroundStyle(ScholarPalette.accent)
+                .foregroundStyle(Color.scholarIndigo)
 
             Text("Unable to load chapter")
                 .font(.custom("CormorantGaramond-SemiBold", size: 18))
-                .foregroundStyle(ScholarPalette.ink)
+                .foregroundStyle(Color.scholarInk)
 
             Text(error.localizedDescription)
                 .font(.system(size: 14))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, ScholarPalette.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
 
             Button {
                 Task { await viewModel.loadChapter() }
@@ -252,9 +252,9 @@ struct ScholarReaderView: View {
                 Text("Try Again")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(Color.white)
-                    .padding(.horizontal, ScholarPalette.Spacing.lg)
-                    .padding(.vertical, ScholarPalette.Spacing.sm)
-                    .background(ScholarPalette.accent)
+                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.vertical, AppTheme.Spacing.sm)
+                    .background(Color.scholarIndigo)
                     .clipShape(Capsule())
             }
         }
@@ -268,16 +268,16 @@ struct ScholarReaderView: View {
                 VStack(spacing: 0) {
                     // Chapter header
                     chapterHeader(viewModel: viewModel)
-                        .padding(.top, ScholarPalette.Spacing.xl)
-                        .padding(.horizontal, ScholarPalette.Spacing.xl)
+                        .padding(.top, AppTheme.Spacing.xl)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
 
                     // Editorial divider
                     editorialDivider
-                        .padding(.vertical, ScholarPalette.Spacing.xl)
+                        .padding(.vertical, AppTheme.Spacing.xl)
 
                     // Verses with inline insight cards
                     versesSection(chapter: chapter, geometry: geometry, viewModel: viewModel)
-                        .padding(.horizontal, ScholarPalette.Spacing.lg)
+                        .padding(.horizontal, AppTheme.Spacing.lg)
 
                     // Bottom spacing
                     Spacer()
@@ -294,12 +294,12 @@ struct ScholarReaderView: View {
     // MARK: - Chapter Header
 
     private func chapterHeader(viewModel: ScholarsReaderViewModel) -> some View {
-        VStack(alignment: .leading, spacing: ScholarPalette.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             // Book name - editorial style
             Text(viewModel.book?.name.uppercased() ?? "")
                 .font(.system(size: 11, weight: .bold))
                 .tracking(2.5)
-                .foregroundStyle(ScholarPalette.accent)
+                .foregroundStyle(Color.scholarIndigo)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.3), value: isVisible)
 
@@ -307,7 +307,7 @@ struct ScholarReaderView: View {
             HStack(spacing: 0) {
                 Text("Chapter \(viewModel.currentLocation.chapter)")
                     .font(.system(size: 28, weight: .bold, design: .serif))
-                    .foregroundStyle(ScholarPalette.ink)
+                    .foregroundStyle(Color.scholarInk)
 
                 Spacer()
             }
@@ -317,7 +317,7 @@ struct ScholarReaderView: View {
 
             // Greek blue underline
             Rectangle()
-                .fill(ScholarPalette.greek)
+                .fill(Color.greekBlue)
                 .frame(height: 2)
                 .frame(maxWidth: 120)
                 .opacity(isVisible ? 1 : 0)
@@ -329,9 +329,9 @@ struct ScholarReaderView: View {
 
     private var editorialDivider: some View {
         Rectangle()
-            .fill(ScholarPalette.ink.opacity(0.1))
+            .fill(Color.scholarInk.opacity(0.1))
             .frame(height: 1)
-            .padding(.horizontal, ScholarPalette.Spacing.xl)
+            .padding(.horizontal, AppTheme.Spacing.xl)
             .opacity(isVisible ? 1 : 0)
             .animation(.easeOut(duration: 0.4).delay(0.3), value: isVisible)
     }
@@ -339,7 +339,7 @@ struct ScholarReaderView: View {
     // MARK: - Verses Section
 
     private func versesSection(chapter: Chapter, geometry: GeometryProxy, viewModel: ScholarsReaderViewModel) -> some View {
-        VStack(alignment: .leading, spacing: ScholarPalette.Spacing.lg) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             ForEach(Array(chapter.verses.enumerated()), id: \.element.id) { index, verse in
                 ScholarVerseRow(
                     verse: verse,
@@ -353,7 +353,7 @@ struct ScholarReaderView: View {
                     lineSpacing: appState.lineSpacing.value,
                     flashOpacity: viewModel.flashVerseId == verse.verse ? flashOpacity : 0,
                     onTap: {
-                        withAnimation(ScholarPalette.Animation.selection) {
+                        withAnimation(AppTheme.Animation.selection) {
                             if viewModel.selectionMode == .range {
                                 viewModel.extendSelection(to: verse.verse)
                             } else {
@@ -363,7 +363,7 @@ struct ScholarReaderView: View {
                         HapticService.shared.lightTap()
                     },
                     onLongPress: {
-                        withAnimation(ScholarPalette.Animation.selection) {
+                        withAnimation(AppTheme.Animation.selection) {
                             viewModel.startRangeSelection(from: verse.verse)
                         }
                         HapticService.shared.mediumTap()
@@ -404,7 +404,7 @@ struct ScholarReaderView: View {
                 viewModel.dismissInlineInsight()
             },
             onRequestScroll: { id in
-                withAnimation(ScholarPalette.Animation.cardUnfurl) {
+                withAnimation(AppTheme.Animation.cardUnfurl) {
                     scrollProxy?.scrollTo(id, anchor: .center)
                 }
             },
@@ -460,7 +460,7 @@ struct ScholarReaderView: View {
                 }
             },
             onStudy: {
-                withAnimation(ScholarPalette.Animation.cardUnfurl) {
+                withAnimation(AppTheme.Animation.cardUnfurl) {
                     viewModel.openInlineInsight()
                 }
             },
@@ -517,34 +517,34 @@ private struct ScholarVerseRow: View {
     private let verseNumberWidth: CGFloat = 28
 
     var body: some View {
-        VStack(alignment: .leading, spacing: ScholarPalette.Spacing.sm) {
-            HStack(alignment: .top, spacing: ScholarPalette.Spacing.md) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
                 // Verse number with selection indicator
                 ZStack(alignment: .trailing) {
                     // Selection range indicator bar
                     if isInRange && selectionMode == .range {
                         Rectangle()
-                            .fill(ScholarPalette.accent)
+                            .fill(Color.scholarIndigo)
                             .frame(width: 3)
                             .offset(x: verseNumberWidth + 2)
                     }
 
                     Text("\(verse.verse)")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(isSelected ? ScholarPalette.accent : ScholarPalette.ink)
+                        .foregroundStyle(isSelected ? Color.scholarIndigo : Color.scholarInk)
                         .frame(width: verseNumberWidth, alignment: .trailing)
                 }
 
                 // Verse text
                 Text(verse.text)
                     .font(.custom("CormorantGaramond-Regular", size: fontSize.rawValue + 1))
-                    .foregroundStyle(ScholarPalette.inkWell)
+                    .foregroundStyle(Color.inkWell)
                     .lineSpacing(lineSpacing)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             if let inlineInsight = inlineInsight {
-                HStack(alignment: .top, spacing: ScholarPalette.Spacing.md) {
+                HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
                     Color.clear
                         .frame(width: verseNumberWidth)
 
@@ -564,12 +564,12 @@ private struct ScholarVerseRow: View {
                 }
             }
         }
-        .padding(ScholarPalette.Spacing.md)
+        .padding(AppTheme.Spacing.md)
         .background(verseBackground)
         .overlay(verseOverlay)
         .overlay(flashOverlay)
         .overlay(spokenUnderline, alignment: .bottomLeading)
-        .clipShape(RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
         .contentShape(Rectangle())
         .scaleEffect(isPressed ? 0.98 : 1)
         .onTapGesture(perform: onTap)
@@ -586,13 +586,13 @@ private struct ScholarVerseRow: View {
 
     @ViewBuilder
     private var verseBackground: some View {
-        RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
             .fill(backgroundColor)
     }
 
     private var backgroundColor: Color {
         if isSelected || isInRange {
-            return ScholarPalette.selectionBackground
+            return Color.scholarIndigo.opacity(0.08)
         } else if isSpokenVerse {
             return Color.accentGold.opacity(0.15)
         } else if let highlight = highlightColor {
@@ -606,15 +606,15 @@ private struct ScholarVerseRow: View {
 
     @ViewBuilder
     private var verseOverlay: some View {
-        RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
             .stroke(overlayColor, lineWidth: isSelected ? 1.5 : 1)
     }
 
     private var overlayColor: Color {
         if isSelected {
-            return ScholarPalette.selectionBorder
+            return Color.scholarIndigo.opacity(0.3)
         } else if isInRange {
-            return ScholarPalette.accent.opacity(0.2)
+            return Color.scholarIndigo.opacity(0.2)
         } else {
             return Color.clear
         }
@@ -624,7 +624,7 @@ private struct ScholarVerseRow: View {
     @ViewBuilder
     private var flashOverlay: some View {
         if flashOpacity > 0 {
-            RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                 .fill(Color.accentGold.opacity(flashOpacity * 0.4))
         }
     }
@@ -633,10 +633,10 @@ private struct ScholarVerseRow: View {
     private var spokenUnderline: some View {
         if isSpokenVerse {
             Rectangle()
-                .fill(ScholarPalette.InlineInsight.spokenUnderline)
+                .fill(AppTheme.InlineInsight.spokenUnderline)
                 .frame(height: 2)
-                .padding(.leading, verseNumberWidth + ScholarPalette.Spacing.md)
-                .padding(.trailing, ScholarPalette.Spacing.sm)
+                .padding(.leading, verseNumberWidth + AppTheme.Spacing.md)
+                .padding(.trailing, AppTheme.Spacing.sm)
                 .padding(.bottom, 2)
         }
     }

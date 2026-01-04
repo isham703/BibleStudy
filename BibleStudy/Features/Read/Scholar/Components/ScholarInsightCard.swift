@@ -32,23 +32,23 @@ struct ScholarInsightCard: View {
             onSelectHighlightColor: onSelectHighlightColor,
             onRemoveHighlight: onRemoveHighlight,
             accentBarWidth: 4,
-            cornerRadius: ScholarPalette.CornerRadius.card
+            cornerRadius: AppTheme.CornerRadius.card
         )
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.card, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card, style: .continuous))
         .overlay(cardBorder)
-        .shadow(color: ScholarPalette.Shadow.card, radius: 8, x: 0, y: 4)
-        .padding(.horizontal, ScholarPalette.Spacing.lg)
-        .padding(.vertical, ScholarPalette.Spacing.sm)
+        .shadow(color: AppTheme.Shadow.cardColor, radius: 8, x: 0, y: 4)
+        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.sm)
     }
 
     private var cardBackground: some View {
-        ScholarPalette.Insight.background
+        AppTheme.InsightCard.background
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.card, style: .continuous)
-            .stroke(ScholarPalette.Insight.border, lineWidth: 1)
+        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card, style: .continuous)
+            .stroke(AppTheme.InsightCard.border, lineWidth: 1)
     }
 }
 

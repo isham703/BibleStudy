@@ -15,7 +15,7 @@ struct ScholarInsightContent: View {
     var onRemoveHighlight: (() -> Void)?
 
     var accentBarWidth: CGFloat = 4
-    var cornerRadius: CGFloat = ScholarPalette.CornerRadius.card
+    var cornerRadius: CGFloat = AppTheme.CornerRadius.card
 
     @State private var isRevealed = false
     @State private var expandedSection: InsightSection?
@@ -47,7 +47,7 @@ struct ScholarInsightContent: View {
                 indigoAccentBar
             }
 
-            VStack(alignment: .leading, spacing: ScholarPalette.Spacing.md) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 headerSection
                 heroSummarySection
 
@@ -71,15 +71,15 @@ struct ScholarInsightContent: View {
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
-            .padding(ScholarPalette.Spacing.lg)
+            .padding(AppTheme.Spacing.lg)
         }
         .opacity(isRevealed ? 1 : 0)
         .scaleEffect(y: isRevealed ? 1 : 0.97, anchor: .top)
         .onAppear {
-            withAnimation(ScholarPalette.Animation.cardUnfurl) {
+            withAnimation(AppTheme.Animation.cardUnfurl) {
                 isRevealed = true
             }
-            withAnimation(ScholarPalette.Animation.chipExpand.delay(0.4)) {
+            withAnimation(AppTheme.Animation.chipExpand.delay(0.4)) {
                 chipsRevealed = true
             }
         }
@@ -89,7 +89,7 @@ struct ScholarInsightContent: View {
         Rectangle()
             .fill(
                 LinearGradient(
-                    colors: ScholarPalette.Insight.barGradient,
+                    colors: AppTheme.InsightCard.barGradient,
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -107,22 +107,22 @@ struct ScholarInsightContent: View {
 
     private var headerSection: some View {
         HStack {
-            HStack(spacing: ScholarPalette.Spacing.xs) {
+            HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "sparkle")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(ScholarPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
 
                 Text("SCHOLARLY INSIGHT")
                     .font(.system(size: 10, weight: .bold))
                     .tracking(1.5)
-                    .foregroundStyle(ScholarPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
             }
 
             Spacer()
 
             Button {
                 HapticService.shared.lightTap()
-                withAnimation(ScholarPalette.Animation.selection) {
+                withAnimation(AppTheme.Animation.selection) {
                     isRevealed = false
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -131,9 +131,9 @@ struct ScholarInsightContent: View {
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(ScholarPalette.footnote)
+                    .foregroundStyle(Color.footnoteGray)
                     .frame(width: 28, height: 28)
-                    .background(ScholarPalette.elevated)
+                    .background(Color.scholarElevatedPaper)
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -145,53 +145,53 @@ struct ScholarInsightContent: View {
         if viewModel.isLimitReached {
             limitReachedSection
         } else if viewModel.isLoadingExplain {
-            HStack(spacing: ScholarPalette.Spacing.sm) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 ProgressView()
                     .scaleEffect(0.8)
-                    .tint(ScholarPalette.accent)
+                    .tint(Color.scholarIndigo)
 
                 Text("Analyzing passage...")
                     .font(.custom("CormorantGaramond-Regular", size: 15))
                     .italic()
-                    .foregroundStyle(ScholarPalette.footnote)
+                    .foregroundStyle(Color.footnoteGray)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, ScholarPalette.Spacing.sm)
+            .padding(.vertical, AppTheme.Spacing.sm)
         } else if let structured = viewModel.structuredExplanation {
             Text(structured.summary)
                 .font(.custom("CormorantGaramond-Regular", size: 17))
-                .foregroundStyle(ScholarPalette.Insight.heroText)
+                .foregroundStyle(AppTheme.InsightCard.heroText)
                 .lineSpacing(5)
                 .fixedSize(horizontal: false, vertical: true)
         } else if let explanation = viewModel.explanation {
             Text(ScholarInsightSummary.heroSummary(from: explanation))
                 .font(.custom("CormorantGaramond-Regular", size: 17))
-                .foregroundStyle(ScholarPalette.Insight.heroText)
+                .foregroundStyle(AppTheme.InsightCard.heroText)
                 .lineSpacing(5)
                 .lineLimit(4)
         } else {
             Text("Tap to explore this passage")
                 .font(.custom("CormorantGaramond-Regular", size: 15))
                 .italic()
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
         }
     }
 
     private var limitReachedSection: some View {
-        VStack(alignment: .leading, spacing: ScholarPalette.Spacing.md) {
-            HStack(spacing: ScholarPalette.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 Image(systemName: "lock.circle.fill")
                     .font(.system(size: 24))
-                    .foregroundStyle(ScholarPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Daily Limit Reached")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(ScholarPalette.ink)
+                        .foregroundStyle(Color.scholarInk)
 
                     Text("Upgrade for unlimited insights")
                         .font(.system(size: 12))
-                        .foregroundStyle(ScholarPalette.footnote)
+                        .foregroundStyle(Color.footnoteGray)
                 }
             }
 
@@ -199,7 +199,7 @@ struct ScholarInsightContent: View {
                 HapticService.shared.lightTap()
                 EntitlementManager.shared.showPaywall(trigger: .aiInsightsLimit)
             } label: {
-                HStack(spacing: ScholarPalette.Spacing.xs) {
+                HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 12, weight: .medium))
 
@@ -212,28 +212,28 @@ struct ScholarInsightContent: View {
                         .font(.system(size: 11, weight: .medium))
                 }
                 .foregroundStyle(.white)
-                .padding(.horizontal, ScholarPalette.Spacing.md)
-                .padding(.vertical, ScholarPalette.Spacing.sm)
+                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.vertical, AppTheme.Spacing.sm)
                 .background(
-                    RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
-                        .fill(ScholarPalette.accent)
+                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                        .fill(Color.scholarIndigo)
                 )
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, ScholarPalette.Spacing.sm)
+        .padding(.vertical, AppTheme.Spacing.sm)
     }
 
     private var chipsSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: ScholarPalette.Spacing.sm) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 ForEach(InsightSection.allCases, id: \.self) { section in
                     ScholarChip(
                         title: section.rawValue,
                         icon: section.icon,
                         isSelected: expandedSection == section
                     ) {
-                        withAnimation(ScholarPalette.Animation.chipExpand) {
+                        withAnimation(AppTheme.Animation.chipExpand) {
                             HapticService.shared.lightTap()
                             if expandedSection == section {
                                 expandedSection = nil
@@ -253,7 +253,7 @@ struct ScholarInsightContent: View {
 
     @ViewBuilder
     private func expandedContent(for section: InsightSection) -> some View {
-        VStack(alignment: .leading, spacing: ScholarPalette.Spacing.md) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             switch section {
             case .keyPoints:
                 keyPointsContent
@@ -265,23 +265,23 @@ struct ScholarInsightContent: View {
                 crossRefsContent
             }
         }
-        .padding(.top, ScholarPalette.Spacing.sm)
+        .padding(.top, AppTheme.Spacing.sm)
     }
 
     @ViewBuilder
     private var keyPointsContent: some View {
         if let structured = viewModel.structuredExplanation, !structured.keyPoints.isEmpty {
-            VStack(alignment: .leading, spacing: ScholarPalette.Spacing.sm) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
                 ForEach(Array(structured.keyPoints.enumerated()), id: \.offset) { _, point in
-                    HStack(alignment: .top, spacing: ScholarPalette.Spacing.sm) {
+                    HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
                         Circle()
-                            .fill(ScholarPalette.accent)
+                            .fill(Color.scholarIndigo)
                             .frame(width: 5, height: 5)
                             .padding(.top, 7)
 
                         Text(point)
                             .font(.custom("CormorantGaramond-Regular", size: 15))
-                            .foregroundStyle(ScholarPalette.ink)
+                            .foregroundStyle(Color.scholarInk)
                             .lineSpacing(4)
                     }
                 }
@@ -289,7 +289,7 @@ struct ScholarInsightContent: View {
         } else {
             Text("Key points will appear here")
                 .font(.system(size: 13))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
         }
     }
 
@@ -299,7 +299,7 @@ struct ScholarInsightContent: View {
             ProgressView("Loading context...")
                 .font(.system(size: 13))
         } else if let context = viewModel.contextInfo {
-            VStack(alignment: .leading, spacing: ScholarPalette.Spacing.sm) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
                 if !context.before.isEmpty {
                     contextBlock(title: "Before", text: context.before)
                 }
@@ -310,7 +310,7 @@ struct ScholarInsightContent: View {
         } else {
             Text("Context information unavailable")
                 .font(.system(size: 13))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
         }
     }
 
@@ -319,11 +319,11 @@ struct ScholarInsightContent: View {
             Text(title.uppercased())
                 .font(.system(size: 10, weight: .bold))
                 .tracking(1)
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
 
             Text(text)
                 .font(.custom("CormorantGaramond-Regular", size: 14))
-                .foregroundStyle(ScholarPalette.ink)
+                .foregroundStyle(Color.scholarInk)
                 .lineLimit(3)
         }
     }
@@ -334,37 +334,37 @@ struct ScholarInsightContent: View {
             ProgressView("Loading word analysis...")
                 .font(.system(size: 13))
         } else if !viewModel.languageTokens.isEmpty {
-            VStack(alignment: .leading, spacing: ScholarPalette.Spacing.sm) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
                 ForEach(Array(viewModel.languageTokens.prefix(3)), id: \.id) { token in
-                    HStack(spacing: ScholarPalette.Spacing.sm) {
+                    HStack(spacing: AppTheme.Spacing.sm) {
                         Text(token.surface)
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(ScholarPalette.greek)
+                            .foregroundStyle(Color.greekBlue)
 
                         Text("(\(token.transliteration))")
                             .font(.system(size: 13))
                             .italic()
-                            .foregroundStyle(ScholarPalette.footnote)
+                            .foregroundStyle(Color.footnoteGray)
 
                         Text("—")
-                            .foregroundStyle(ScholarPalette.footnote)
+                            .foregroundStyle(Color.footnoteGray)
 
                         Text(token.gloss)
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(ScholarPalette.accent)
+                            .foregroundStyle(Color.scholarIndigo)
                     }
                 }
 
                 if viewModel.languageTokens.count > 3 {
                     Text("+ \(viewModel.languageTokens.count - 3) more words")
                         .font(.system(size: 11))
-                        .foregroundStyle(ScholarPalette.footnote)
+                        .foregroundStyle(Color.footnoteGray)
                 }
             }
         } else {
             Text("No language data available")
                 .font(.system(size: 13))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
         }
     }
 
@@ -374,21 +374,21 @@ struct ScholarInsightContent: View {
             ProgressView("Loading cross-references...")
                 .font(.system(size: 13))
         } else if !viewModel.crossRefs.isEmpty {
-            VStack(alignment: .leading, spacing: ScholarPalette.Spacing.sm) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
                 ForEach(Array(viewModel.crossRefs.prefix(3)), id: \.id) { crossRef in
-                    HStack(alignment: .top, spacing: ScholarPalette.Spacing.sm) {
+                    HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
                         Rectangle()
-                            .fill(ScholarPalette.accent.opacity(0.6))
+                            .fill(Color.scholarIndigo.opacity(0.6))
                             .frame(width: 2)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(crossRef.reference)
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(ScholarPalette.accent)
+                                .foregroundStyle(Color.scholarIndigo)
 
                             Text(crossRef.preview)
                                 .font(.custom("CormorantGaramond-Regular", size: 14))
-                                .foregroundStyle(ScholarPalette.ink)
+                                .foregroundStyle(Color.scholarInk)
                                 .lineLimit(2)
                         }
                     }
@@ -397,13 +397,13 @@ struct ScholarInsightContent: View {
                 if viewModel.crossRefs.count > 3 {
                     Text("+ \(viewModel.crossRefs.count - 3) more references")
                         .font(.system(size: 11))
-                        .foregroundStyle(ScholarPalette.footnote)
+                        .foregroundStyle(Color.footnoteGray)
                 }
             }
         } else {
             Text("No cross-references found")
                 .font(.system(size: 13))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
         }
     }
 
@@ -412,7 +412,7 @@ struct ScholarInsightContent: View {
             HapticService.shared.heavyTap()
             onOpenDeepStudy()
         } label: {
-            HStack(spacing: ScholarPalette.Spacing.xs) {
+            HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "book.pages")
                     .font(.system(size: 13, weight: .medium))
 
@@ -424,24 +424,24 @@ struct ScholarInsightContent: View {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .medium))
             }
-            .foregroundStyle(ScholarPalette.accent)
-            .padding(.horizontal, ScholarPalette.Spacing.md)
-            .padding(.vertical, ScholarPalette.Spacing.sm + 2)
+            .foregroundStyle(Color.scholarIndigo)
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm + 2)
             .background(
-                RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
-                    .fill(ScholarPalette.accentSubtle)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                    .fill(Color.scholarIndigoSubtle)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
-                    .stroke(ScholarPalette.accent.opacity(0.15), lineWidth: 1)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                    .stroke(Color.scholarIndigo.opacity(0.15), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
     }
 
     private var bottomActionBar: some View {
-        HStack(spacing: ScholarPalette.Spacing.md) {
-            HStack(spacing: ScholarPalette.Spacing.sm) {
+        HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 scholarIconButton(icon: "doc.on.doc", label: "Copy") {
                     if let onCopy = onCopy {
                         onCopy()
@@ -460,7 +460,7 @@ struct ScholarInsightContent: View {
             }
 
         }
-        .padding(.top, ScholarPalette.Spacing.sm)
+        .padding(.top, AppTheme.Spacing.sm)
     }
 
     private func scholarIconButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
@@ -470,9 +470,9 @@ struct ScholarInsightContent: View {
         } label: {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
                 .frame(width: 36, height: 36)
-                .background(ScholarPalette.elevated)
+                .background(Color.scholarElevatedPaper)
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
@@ -527,7 +527,7 @@ private struct ScholarChip: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: ScholarPalette.Spacing.xs) {
+            HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: icon)
                     .font(.system(size: 11, weight: .medium))
 
@@ -539,17 +539,17 @@ private struct ScholarChip: View {
                         .font(.system(size: 9, weight: .medium))
                 }
             }
-            .foregroundStyle(isSelected ? ScholarPalette.Insight.chipText : ScholarPalette.footnote)
-            .padding(.horizontal, ScholarPalette.Spacing.md)
-            .padding(.vertical, ScholarPalette.Spacing.sm)
+            .foregroundStyle(isSelected ? AppTheme.InsightCard.chipText : Color.footnoteGray)
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? ScholarPalette.Insight.chipSelected : ScholarPalette.Insight.chipBackground)
+                    .fill(isSelected ? AppTheme.InsightCard.chipSelected : AppTheme.InsightCard.chipBackground)
             )
             .overlay(
                 Capsule()
                     .stroke(
-                        isSelected ? ScholarPalette.accent.opacity(0.3) : Color.clear,
+                        isSelected ? Color.scholarIndigo.opacity(0.3) : Color.clear,
                         lineWidth: 1
                     )
             )

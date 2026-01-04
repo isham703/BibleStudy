@@ -16,12 +16,12 @@ struct ScholarInlineInsightPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(ScholarPalette.InlineInsight.divider)
+                .fill(AppTheme.InlineInsight.divider)
                 .frame(height: 1)
 
-            HStack(alignment: .top, spacing: ScholarPalette.Spacing.sm) {
+            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
                 Rectangle()
-                    .fill(ScholarPalette.accent.opacity(0.35))
+                    .fill(Color.scholarIndigo.opacity(0.35))
                     .frame(width: 2)
 
                 ScholarInsightContent(
@@ -39,7 +39,7 @@ struct ScholarInlineInsightPanel: View {
                     cornerRadius: 0
                 )
             }
-            .padding(.top, ScholarPalette.Spacing.xs)
+            .padding(.top, AppTheme.Spacing.xs)
         }
     }
 }

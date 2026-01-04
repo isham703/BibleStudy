@@ -15,24 +15,24 @@ struct ScholarChapterSelector: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: ScholarPalette.Spacing.xs) {
+            HStack(spacing: AppTheme.Spacing.xs) {
                 // Book icon
                 Image(systemName: "book.closed.fill")
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(ScholarPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
 
                 // Reference text
                 Text(reference)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(ScholarPalette.ink)
+                    .foregroundStyle(Color.scholarInk)
 
                 // Dropdown chevron - the key affordance
                 Image(systemName: "chevron.down")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(ScholarPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
             }
-            .padding(.horizontal, ScholarPalette.Spacing.md)
-            .padding(.vertical, ScholarPalette.Spacing.sm)
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
             .background(selectorBackground)
             .clipShape(Capsule())
             .overlay(selectorBorder)
@@ -52,14 +52,14 @@ struct ScholarChapterSelector: View {
     // MARK: - Background
 
     private var selectorBackground: some View {
-        ScholarPalette.accentSubtle
+        Color.scholarIndigoSubtle
     }
 
     // MARK: - Border
 
     private var selectorBorder: some View {
         Capsule()
-            .stroke(ScholarPalette.accent.opacity(0.2), lineWidth: 1)
+            .stroke(Color.scholarIndigo.opacity(0.2), lineWidth: 1)
     }
 }
 
@@ -74,18 +74,18 @@ struct ScholarChapterSelectorCompact: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: ScholarPalette.Spacing.xxs) {
+            HStack(spacing: AppTheme.Spacing.xxs) {
                 Text(reference)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(ScholarPalette.ink)
+                    .foregroundStyle(Color.scholarInk)
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(ScholarPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
             }
-            .padding(.horizontal, ScholarPalette.Spacing.sm)
-            .padding(.vertical, ScholarPalette.Spacing.xs)
-            .background(ScholarPalette.accent.opacity(0.06))
+            .padding(.horizontal, AppTheme.Spacing.sm)
+            .padding(.vertical, AppTheme.Spacing.xs)
+            .background(Color.scholarIndigo.opacity(0.06))
             .clipShape(Capsule())
             .scaleEffect(isPressed ? 0.96 : 1)
         }

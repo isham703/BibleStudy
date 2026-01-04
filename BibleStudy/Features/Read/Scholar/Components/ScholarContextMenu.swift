@@ -67,7 +67,7 @@ struct ScholarContextMenu: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .onAppear {
-            withAnimation(ScholarPalette.Animation.menuAppear) {
+            withAnimation(AppTheme.Animation.menuAppear) {
                 isAppearing = true
             }
         }
@@ -89,9 +89,9 @@ struct ScholarContextMenu: View {
             highlightRow
         }
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.menu, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous))
         .overlay(cardBorder)
-        .shadow(color: ScholarPalette.Shadow.menu, radius: 16, x: 0, y: 6)
+        .shadow(color: AppTheme.Shadow.menuColor, radius: 16, x: 0, y: 6)
         .frame(width: menuWidth)
         .opacity(isAppearing ? 1 : 0)
         .scaleEffect(isAppearing ? 1 : 0.92)
@@ -101,16 +101,16 @@ struct ScholarContextMenu: View {
     // MARK: - Card Background & Border
 
     private var cardBackground: some View {
-        ScholarPalette.Menu.background
+        AppTheme.Menu.background
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.menu, style: .continuous)
+        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous)
             .stroke(
                 LinearGradient(
                     colors: [
-                        ScholarPalette.accent.opacity(0.25),
-                        ScholarPalette.accent.opacity(0.1)
+                        Color.scholarIndigo.opacity(0.25),
+                        Color.scholarIndigo.opacity(0.1)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -123,15 +123,15 @@ struct ScholarContextMenu: View {
 
     private var scholarDivider: some View {
         Rectangle()
-            .fill(ScholarPalette.Menu.divider)
+            .fill(AppTheme.Menu.divider)
             .frame(height: 1)
-            .padding(.horizontal, ScholarPalette.Spacing.md)
+            .padding(.horizontal, AppTheme.Spacing.md)
     }
 
     // MARK: - Action Row
 
     private var actionRow: some View {
-        HStack(spacing: ScholarPalette.Spacing.xs) {
+        HStack(spacing: AppTheme.Spacing.xs) {
             ScholarActionButton(
                 icon: "doc.on.doc",
                 label: "Copy"
@@ -158,7 +158,7 @@ struct ScholarContextMenu: View {
 
             // Vertical separator
             Rectangle()
-                .fill(ScholarPalette.Menu.divider)
+                .fill(AppTheme.Menu.divider)
                 .frame(width: 1, height: 32)
 
             // Study button with indigo accent
@@ -167,14 +167,14 @@ struct ScholarContextMenu: View {
                 onStudy()
             }
         }
-        .padding(.horizontal, ScholarPalette.Spacing.md)
-        .padding(.vertical, ScholarPalette.Spacing.sm)
+        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, AppTheme.Spacing.sm)
     }
 
     // MARK: - Highlight Row
 
     private var highlightRow: some View {
-        HStack(spacing: ScholarPalette.Spacing.sm) {
+        HStack(spacing: AppTheme.Spacing.sm) {
             ForEach(HighlightColor.allCases, id: \.self) { color in
                 ScholarColorDot(
                     color: color,
@@ -195,14 +195,14 @@ struct ScholarContextMenu: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(ScholarPalette.footnote)
+                        .foregroundStyle(Color.footnoteGray)
                 }
                 .buttonStyle(PlainButtonStyle())
                 .transition(.opacity.combined(with: .scale))
             }
         }
-        .padding(.horizontal, ScholarPalette.Spacing.lg)
-        .padding(.vertical, ScholarPalette.Spacing.sm + 2)
+        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.sm + 2)
     }
 
     // MARK: - Measurement
@@ -226,14 +226,14 @@ private struct ScholarActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: ScholarPalette.Spacing.xs - 2) {
+            VStack(spacing: AppTheme.Spacing.xs - 2) {
                 Image(systemName: icon)
                     .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(ScholarPalette.ink.opacity(0.7))
+                    .foregroundStyle(Color.scholarInk.opacity(0.7))
 
                 Text(label)
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(ScholarPalette.footnote)
+                    .foregroundStyle(Color.footnoteGray)
             }
             .frame(width: 48, height: 44)
         }
@@ -256,19 +256,19 @@ private struct ScholarStudyButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: ScholarPalette.Spacing.xs) {
+            HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "sparkle")
                     .font(.system(size: 14, weight: .semibold))
 
                 Text("Study")
                     .font(.system(size: 12, weight: .semibold))
             }
-            .foregroundStyle(ScholarPalette.accent)
-            .padding(.horizontal, ScholarPalette.Spacing.md)
-            .padding(.vertical, ScholarPalette.Spacing.sm)
+            .foregroundStyle(Color.scholarIndigo)
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(ScholarPalette.accentSubtle)
+                    .fill(Color.scholarIndigoSubtle)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -296,7 +296,7 @@ private struct ScholarColorDot: View {
                 .overlay(
                     Circle()
                         .stroke(
-                            isSelected ? ScholarPalette.accent : Color.clear,
+                            isSelected ? Color.scholarIndigo : Color.clear,
                             lineWidth: 2
                         )
                         .padding(-3)

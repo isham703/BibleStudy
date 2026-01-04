@@ -45,7 +45,7 @@ struct ScholarBookPickerView: View {
             }
         }
         .onAppear {
-            withAnimation(ScholarPalette.Animation.cardUnfurl.delay(0.1)) {
+            withAnimation(AppTheme.Animation.cardUnfurl.delay(0.1)) {
                 isAppeared = true
             }
         }
@@ -68,31 +68,31 @@ private struct ScholarBookSelectionPhase: View {
             VStack(spacing: 0) {
                 // Search bar
                 searchBar
-                    .padding(.horizontal, ScholarPalette.Spacing.lg)
-                    .padding(.top, ScholarPalette.Spacing.sm)
+                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.top, AppTheme.Spacing.sm)
 
                 // Testament toggle
                 testamentPicker
-                    .padding(.horizontal, ScholarPalette.Spacing.lg)
-                    .padding(.top, ScholarPalette.Spacing.md)
+                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.top, AppTheme.Spacing.md)
 
                 // Books content
                 booksContent
-                    .padding(.bottom, ScholarPalette.Spacing.xxl)
+                    .padding(.bottom, AppTheme.Spacing.xxl)
             }
         }
         .scrollDismissesKeyboard(.interactively)
-        .background(ScholarPalette.vellum)
+        .background(Color.vellumCream)
         .navigationTitle("Select Book")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(ScholarPalette.vellum, for: .navigationBar)
+        .toolbarBackground(Color.vellumCream, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
                     onDismiss()
                 }
-                .foregroundStyle(ScholarPalette.accent)
+                .foregroundStyle(Color.scholarIndigo)
             }
         }
     }
@@ -100,37 +100,37 @@ private struct ScholarBookSelectionPhase: View {
     // MARK: - Search Bar
 
     private var searchBar: some View {
-        HStack(spacing: ScholarPalette.Spacing.sm) {
+        HStack(spacing: AppTheme.Spacing.sm) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
 
             TextField("Search books...", text: $searchText)
                 .font(.system(size: 15))
-                .foregroundStyle(ScholarPalette.ink)
+                .foregroundStyle(Color.scholarInk)
                 .autocorrectionDisabled()
 
             if !searchText.isEmpty {
                 Button {
-                    withAnimation(ScholarPalette.Animation.selection) {
+                    withAnimation(AppTheme.Animation.selection) {
                         searchText = ""
                     }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 14))
-                        .foregroundStyle(ScholarPalette.footnote)
+                        .foregroundStyle(Color.footnoteGray)
                 }
             }
         }
-        .padding(.horizontal, ScholarPalette.Spacing.md)
-        .padding(.vertical, ScholarPalette.Spacing.sm + 2)
+        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, AppTheme.Spacing.sm + 2)
         .background(
-            RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                 .fill(Color.white)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
-                .stroke(ScholarPalette.accent.opacity(0.15), lineWidth: 1)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                .stroke(Color.scholarIndigo.opacity(0.15), lineWidth: 1)
         )
     }
 
@@ -140,7 +140,7 @@ private struct ScholarBookSelectionPhase: View {
         HStack(spacing: 0) {
             ForEach([Testament.old, Testament.new], id: \.self) { testament in
                 Button {
-                    withAnimation(ScholarPalette.Animation.chipExpand) {
+                    withAnimation(AppTheme.Animation.chipExpand) {
                         selectedTestament = testament
                     }
                     HapticService.shared.lightTap()
@@ -150,15 +150,15 @@ private struct ScholarBookSelectionPhase: View {
                         .foregroundStyle(
                             selectedTestament == testament
                                 ? Color.white
-                                : ScholarPalette.footnote
+                                : Color.footnoteGray
                         )
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, ScholarPalette.Spacing.sm + 2)
+                        .padding(.vertical, AppTheme.Spacing.sm + 2)
                         .background(
                             Group {
                                 if selectedTestament == testament {
-                                    RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small - 2)
-                                        .fill(ScholarPalette.accent)
+                                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small - 2)
+                                        .fill(Color.scholarIndigo)
                                 }
                             }
                         )
@@ -166,14 +166,14 @@ private struct ScholarBookSelectionPhase: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(ScholarPalette.Spacing.xs)
+        .padding(AppTheme.Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                 .fill(Color.white)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
-                .stroke(ScholarPalette.accent.opacity(0.1), lineWidth: 1)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                .stroke(Color.scholarIndigo.opacity(0.1), lineWidth: 1)
         )
     }
 
@@ -182,7 +182,7 @@ private struct ScholarBookSelectionPhase: View {
     @ViewBuilder
     private var booksContent: some View {
         if searchText.isEmpty {
-            LazyVStack(spacing: ScholarPalette.Spacing.lg, pinnedViews: [.sectionHeaders]) {
+            LazyVStack(spacing: AppTheme.Spacing.lg, pinnedViews: [.sectionHeaders]) {
                 ForEach(categoriesForTestament, id: \.self) { category in
                     Section {
                         bookGrid(for: category)
@@ -192,9 +192,9 @@ private struct ScholarBookSelectionPhase: View {
                     }
                 }
             }
-            .padding(.top, ScholarPalette.Spacing.md)
+            .padding(.top, AppTheme.Spacing.md)
         } else {
-            LazyVStack(spacing: ScholarPalette.Spacing.sm) {
+            LazyVStack(spacing: AppTheme.Spacing.sm) {
                 ForEach(filteredBooks, id: \.id) { book in
                     ScholarSearchResultRow(
                         book: book,
@@ -209,18 +209,18 @@ private struct ScholarBookSelectionPhase: View {
                     emptySearchState
                 }
             }
-            .padding(.horizontal, ScholarPalette.Spacing.lg)
-            .padding(.top, ScholarPalette.Spacing.md)
+            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.top, AppTheme.Spacing.md)
         }
     }
 
     private func bookGrid(for category: BookCategory) -> some View {
         let books = Book.books(inCategory: category)
         let columns = [
-            GridItem(.adaptive(minimum: 95, maximum: 110), spacing: ScholarPalette.Spacing.sm)
+            GridItem(.adaptive(minimum: 95, maximum: 110), spacing: AppTheme.Spacing.sm)
         ]
 
-        return LazyVGrid(columns: columns, spacing: ScholarPalette.Spacing.sm) {
+        return LazyVGrid(columns: columns, spacing: AppTheme.Spacing.sm) {
             ForEach(Array(books.enumerated()), id: \.element.id) { index, book in
                 ScholarBookGridItem(
                     book: book,
@@ -233,25 +233,25 @@ private struct ScholarBookSelectionPhase: View {
                 }
             }
         }
-        .padding(.horizontal, ScholarPalette.Spacing.lg)
+        .padding(.horizontal, AppTheme.Spacing.lg)
     }
 
     private var emptySearchState: some View {
-        VStack(spacing: ScholarPalette.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             Image(systemName: "text.book.closed")
                 .font(.system(size: 32, weight: .light))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
 
             Text("No books found")
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(ScholarPalette.ink)
+                .foregroundStyle(Color.scholarInk)
 
             Text("Try a different search term")
                 .font(.system(size: 13))
-                .foregroundStyle(ScholarPalette.footnote)
+                .foregroundStyle(Color.footnoteGray)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, ScholarPalette.Spacing.xxl)
+        .padding(.vertical, AppTheme.Spacing.xxl)
     }
 
     // MARK: - Computed Properties
@@ -288,38 +288,38 @@ private struct ScholarChapterSelectionPhase: View {
     @State private var selectedChapter: Int = 1
 
     private let columns = [
-        GridItem(.adaptive(minimum: 52, maximum: 64), spacing: ScholarPalette.Spacing.sm)
+        GridItem(.adaptive(minimum: 52, maximum: 64), spacing: AppTheme.Spacing.sm)
     ]
 
     var body: some View {
         let stickyButtonPadding: CGFloat = 100
 
         ScrollView {
-            VStack(spacing: ScholarPalette.Spacing.xl) {
+            VStack(spacing: AppTheme.Spacing.xl) {
                 // Book header card
                 bookHeader
-                    .padding(.horizontal, ScholarPalette.Spacing.lg)
-                    .padding(.top, ScholarPalette.Spacing.md)
+                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.top, AppTheme.Spacing.md)
 
                 // Chapter grid
                 chapterGrid
-                    .padding(.horizontal, ScholarPalette.Spacing.lg)
+                    .padding(.horizontal, AppTheme.Spacing.lg)
             }
             .padding(.bottom, stickyButtonPadding)
         }
-        .background(ScholarPalette.vellum)
+        .background(Color.vellumCream)
         .safeAreaInset(edge: .bottom) {
             confirmButton
         }
         .navigationTitle(book.name)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(ScholarPalette.vellum, for: .navigationBar)
+        .toolbarBackground(Color.vellumCream, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
             if book.id == currentBookId {
                 selectedChapter = currentChapter
             }
-            withAnimation(ScholarPalette.Animation.cardUnfurl.delay(0.15)) {
+            withAnimation(AppTheme.Animation.cardUnfurl.delay(0.15)) {
                 isAppeared = true
             }
         }
@@ -328,45 +328,45 @@ private struct ScholarChapterSelectionPhase: View {
     // MARK: - Book Header
 
     private var bookHeader: some View {
-        VStack(spacing: ScholarPalette.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Book icon/initial
             ZStack {
                 Circle()
-                    .fill(ScholarPalette.accentSubtle)
+                    .fill(Color.scholarIndigoSubtle)
                     .frame(width: 64, height: 64)
 
                 Text(String(book.name.prefix(1)))
                     .font(.custom("CormorantGaramond-SemiBold", size: 28))
-                    .foregroundStyle(ScholarPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
             }
             .matchedGeometryEffect(id: "book-\(book.id)", in: namespace)
 
-            VStack(spacing: ScholarPalette.Spacing.xs) {
+            VStack(spacing: AppTheme.Spacing.xs) {
                 Text(book.name)
                     .font(.custom("CormorantGaramond-SemiBold", size: 20))
-                    .foregroundStyle(ScholarPalette.ink)
+                    .foregroundStyle(Color.scholarInk)
 
                 Text("\(book.chapters) chapters")
                     .font(.system(size: 13))
-                    .foregroundStyle(ScholarPalette.footnote)
+                    .foregroundStyle(Color.footnoteGray)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, ScholarPalette.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .fill(Color.white)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.card)
-                .stroke(ScholarPalette.accent.opacity(0.1), lineWidth: 1)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                .stroke(Color.scholarIndigo.opacity(0.1), lineWidth: 1)
         )
     }
 
     // MARK: - Chapter Grid
 
     private var chapterGrid: some View {
-        LazyVGrid(columns: columns, spacing: ScholarPalette.Spacing.sm) {
+        LazyVGrid(columns: columns, spacing: AppTheme.Spacing.sm) {
             ForEach(1...book.chapters, id: \.self) { chapter in
                 ScholarChapterCell(
                     chapter: chapter,
@@ -375,7 +375,7 @@ private struct ScholarChapterSelectionPhase: View {
                     animationDelay: isAppeared ? Double(chapter) * 0.008 : 0
                 ) {
                     HapticService.shared.lightTap()
-                    withAnimation(ScholarPalette.Animation.selection) {
+                    withAnimation(AppTheme.Animation.selection) {
                         selectedChapter = chapter
                     }
                 }
@@ -390,7 +390,7 @@ private struct ScholarChapterSelectionPhase: View {
             HapticService.shared.mediumTap()
             onChapterSelected(selectedChapter)
         } label: {
-            HStack(spacing: ScholarPalette.Spacing.sm) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 Text("Go to \(book.abbreviation) \(selectedChapter)")
                     .font(.system(size: 16, weight: .semibold))
 
@@ -399,18 +399,18 @@ private struct ScholarChapterSelectionPhase: View {
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, ScholarPalette.Spacing.md + 2)
+            .padding(.vertical, AppTheme.Spacing.md + 2)
             .background(
-                RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.card)
-                    .fill(ScholarPalette.accent)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                    .fill(Color.scholarIndigo)
             )
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, ScholarPalette.Spacing.lg)
-        .padding(.vertical, ScholarPalette.Spacing.md)
+        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.md)
         .background(
-            ScholarPalette.vellum
-                .shadow(color: ScholarPalette.Shadow.elevated, radius: 8, x: 0, y: -4)
+            Color.vellumCream
+                .shadow(color: AppTheme.Shadow.elevatedColor, radius: 8, x: 0, y: -4)
         )
     }
 }
@@ -425,13 +425,13 @@ private struct ScholarCategoryHeader: View {
             Text(category.rawValue.uppercased())
                 .font(.system(size: 11, weight: .bold))
                 .tracking(1.5)
-                .foregroundStyle(ScholarPalette.accent)
+                .foregroundStyle(Color.scholarIndigo)
 
             Spacer()
         }
-        .padding(.horizontal, ScholarPalette.Spacing.lg)
-        .padding(.vertical, ScholarPalette.Spacing.sm)
-        .background(ScholarPalette.vellum)
+        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.sm)
+        .background(Color.vellumCream)
     }
 }
 
@@ -447,35 +447,35 @@ private struct ScholarBookGridItem: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: ScholarPalette.Spacing.xs) {
+            VStack(spacing: AppTheme.Spacing.xs) {
                 // Book initial circle
                 ZStack {
                     Circle()
-                        .fill(isCurrent ? ScholarPalette.accent : ScholarPalette.accentSubtle)
+                        .fill(isCurrent ? Color.scholarIndigo : Color.scholarIndigoSubtle)
                         .frame(width: 44, height: 44)
 
                     Text(String(book.name.prefix(1)))
                         .font(.custom("CormorantGaramond-SemiBold", size: 18))
-                        .foregroundStyle(isCurrent ? .white : ScholarPalette.accent)
+                        .foregroundStyle(isCurrent ? .white : Color.scholarIndigo)
                 }
                 .matchedGeometryEffect(id: "book-\(book.id)", in: namespace)
 
                 // Book name
                 Text(book.abbreviation)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(isCurrent ? ScholarPalette.accent : ScholarPalette.ink)
+                    .foregroundStyle(isCurrent ? Color.scholarIndigo : Color.scholarInk)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, ScholarPalette.Spacing.sm)
+            .padding(.vertical, AppTheme.Spacing.sm)
             .background(
-                RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                     .fill(Color.white)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                     .stroke(
-                        isCurrent ? ScholarPalette.accent.opacity(0.3) : ScholarPalette.accent.opacity(0.08),
+                        isCurrent ? Color.scholarIndigo.opacity(0.3) : Color.scholarIndigo.opacity(0.08),
                         lineWidth: 1
                     )
             )
@@ -490,7 +490,7 @@ private struct ScholarBookGridItem: View {
             }
         }, perform: {})
         .onAppear {
-            withAnimation(ScholarPalette.Animation.cardUnfurl.delay(animationDelay)) {
+            withAnimation(AppTheme.Animation.cardUnfurl.delay(animationDelay)) {
                 isAppeared = true
             }
         }
@@ -504,26 +504,26 @@ private struct ScholarSearchResultRow: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: ScholarPalette.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 // Book initial
                 ZStack {
                     Circle()
-                        .fill(isCurrent ? ScholarPalette.accent : ScholarPalette.accentSubtle)
+                        .fill(isCurrent ? Color.scholarIndigo : Color.scholarIndigoSubtle)
                         .frame(width: 36, height: 36)
 
                     Text(String(book.name.prefix(1)))
                         .font(.custom("CormorantGaramond-SemiBold", size: 16))
-                        .foregroundStyle(isCurrent ? .white : ScholarPalette.accent)
+                        .foregroundStyle(isCurrent ? .white : Color.scholarIndigo)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(book.name)
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(ScholarPalette.ink)
+                        .foregroundStyle(Color.scholarInk)
 
                     Text("\(book.chapters) chapters")
                         .font(.system(size: 12))
-                        .foregroundStyle(ScholarPalette.footnote)
+                        .foregroundStyle(Color.footnoteGray)
                 }
 
                 Spacer()
@@ -531,27 +531,27 @@ private struct ScholarSearchResultRow: View {
                 if isCurrent {
                     Text("Current")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(ScholarPalette.accent)
-                        .padding(.horizontal, ScholarPalette.Spacing.sm)
-                        .padding(.vertical, ScholarPalette.Spacing.xs)
+                        .foregroundStyle(Color.scholarIndigo)
+                        .padding(.horizontal, AppTheme.Spacing.sm)
+                        .padding(.vertical, AppTheme.Spacing.xs)
                         .background(
                             Capsule()
-                                .fill(ScholarPalette.accentSubtle)
+                                .fill(Color.scholarIndigoSubtle)
                         )
                 }
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(ScholarPalette.footnote)
+                    .foregroundStyle(Color.footnoteGray)
             }
-            .padding(ScholarPalette.Spacing.md)
+            .padding(AppTheme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                     .fill(Color.white)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
-                    .stroke(ScholarPalette.accent.opacity(0.08), lineWidth: 1)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                    .stroke(Color.scholarIndigo.opacity(0.08), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
@@ -575,7 +575,7 @@ private struct ScholarChapterCell: View {
                 .foregroundStyle(foregroundColor)
                 .frame(width: 52, height: 52)
                 .background(backgroundColor)
-                .clipShape(RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
                 .overlay(borderOverlay)
                 .scaleEffect(isPressed ? 0.92 : 1)
                 .opacity(isAppeared ? 1 : 0)
@@ -588,7 +588,7 @@ private struct ScholarChapterCell: View {
             }
         }, perform: {})
         .onAppear {
-            withAnimation(ScholarPalette.Animation.chipExpand.delay(animationDelay)) {
+            withAnimation(AppTheme.Animation.chipExpand.delay(animationDelay)) {
                 isAppeared = true
             }
         }
@@ -598,17 +598,17 @@ private struct ScholarChapterCell: View {
         if isSelected {
             return .white
         } else if isCurrent {
-            return ScholarPalette.accent
+            return Color.scholarIndigo
         } else {
-            return ScholarPalette.ink
+            return Color.scholarInk
         }
     }
 
     private var backgroundColor: Color {
         if isSelected {
-            return ScholarPalette.accent
+            return Color.scholarIndigo
         } else if isCurrent {
-            return ScholarPalette.accentSubtle
+            return Color.scholarIndigoSubtle
         } else {
             return Color.white
         }
@@ -616,9 +616,9 @@ private struct ScholarChapterCell: View {
 
     @ViewBuilder
     private var borderOverlay: some View {
-        RoundedRectangle(cornerRadius: ScholarPalette.CornerRadius.small)
+        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
             .stroke(
-                isSelected ? Color.clear : (isCurrent ? ScholarPalette.accent.opacity(0.3) : ScholarPalette.accent.opacity(0.08)),
+                isSelected ? Color.clear : (isCurrent ? Color.scholarIndigo.opacity(0.3) : Color.scholarIndigo.opacity(0.08)),
                 lineWidth: 1
             )
     }
