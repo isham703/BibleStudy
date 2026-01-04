@@ -513,7 +513,7 @@ extension MasteryLevel {
     var uiColor: Color {
         switch self {
         case .learning: return .accentBlue
-        case .reviewing: return .accentGold
+        case .reviewing: return .scholarAccent
         case .mastered: return .highlightGreen
         }
     }

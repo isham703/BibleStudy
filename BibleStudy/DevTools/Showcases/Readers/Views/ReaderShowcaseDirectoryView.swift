@@ -28,18 +28,18 @@ struct ReaderShowcaseDirectoryView: View {
                 VStack(spacing: 0) {
                     // Header
                     headerSection
-                        .padding(.top, SanctuaryTheme.Spacing.xl)
+                        .padding(.top, AppTheme.Spacing.xl)
 
                     // Divider
                     headerDivider
-                        .padding(.vertical, SanctuaryTheme.Spacing.xxl)
+                        .padding(.vertical, AppTheme.Spacing.xxl)
 
                     // Card list
                     cardList
-                        .padding(.horizontal, SanctuaryTheme.Spacing.lg)
+                        .padding(.horizontal, AppTheme.Spacing.lg)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xxxl)
+                        .frame(height: AppTheme.Spacing.xxxl)
                 }
             }
         }
@@ -55,7 +55,7 @@ struct ReaderShowcaseDirectoryView: View {
     // MARK: - Header Section
 
     private var headerSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Decorative icon
             Image(systemName: "book.pages.fill")
                 .font(.system(size: 32, weight: .light))
@@ -116,7 +116,7 @@ struct ReaderShowcaseDirectoryView: View {
                 )
                 .frame(height: 1)
         }
-        .padding(.horizontal, SanctuaryTheme.Spacing.xxxl)
+        .padding(.horizontal, AppTheme.Spacing.xxxl)
         .opacity(isVisible ? 1 : 0)
         .animation(.easeOut(duration: 0.6).delay(0.4), value: isVisible)
     }
@@ -124,7 +124,7 @@ struct ReaderShowcaseDirectoryView: View {
     // MARK: - Card List
 
     private var cardList: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(spacing: AppTheme.Spacing.lg) {
             ForEach(Array(ReaderVariant.allCases.enumerated()), id: \.element.id) { index, variant in
                 ShowcaseReaderCard(variant: variant) {
                     destinationView(for: variant)

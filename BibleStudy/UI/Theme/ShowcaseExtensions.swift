@@ -54,7 +54,7 @@ extension View {
     /// Apply showcase card styling
     func showcaseCard(
         cornerRadius: CGFloat = AppTheme.CornerRadius.lg,
-        borderColor: Color = .accentGold,
+        borderColor: Color = .scholarAccent,
         borderOpacity: Double = 0.15
     ) -> some View {
         self
@@ -73,7 +73,7 @@ extension View {
 
     /// Apply gold glow shadow effect
     func goldGlow(radius: CGFloat = 20, opacity: Double = 0.1) -> some View {
-        self.shadow(color: Color.accentGold.opacity(opacity), radius: radius, y: 8)
+        self.shadow(color: Color.scholarAccent.opacity(opacity), radius: radius, y: 8)
     }
 
     /// Apply pressed scale effect
@@ -121,7 +121,7 @@ enum ShowcaseBackground {
 
 /// A simple ornamental line divider
 struct ShowcaseDivider: View {
-    var color: Color = .accentGold
+    var color: Color = .scholarAccent
     var opacity: Double = 0.2
     var height: CGFloat = 1
     var leadingPadding: CGFloat = 0
@@ -143,7 +143,7 @@ struct GoldShimmerOverlay: View {
             LinearGradient(
                 colors: [
                     Color.clear,
-                    Color.accentGold.opacity(0.1),
+                    Color.scholarAccent.opacity(0.1),
                     Color.clear
                 ],
                 startPoint: .leading,

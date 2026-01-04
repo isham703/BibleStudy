@@ -59,7 +59,7 @@ struct ReasoningPointView: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "text.quote")
                     .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("\"\(point.phrase)\"")
                     .font(Typography.UI.caption1Bold)
                     .foregroundStyle(Color.primaryText)
@@ -183,10 +183,10 @@ struct TranslationNotesSection: View {
             } label: {
                 HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: "character.book.closed")
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                     Text("Translation differences")
                         .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                     Spacer()
                     Text("\(notes.count)")
                         .font(Typography.UI.caption2)
@@ -195,7 +195,7 @@ struct TranslationNotesSection: View {
                         .padding(.vertical, AppTheme.Spacing.xxs)
                         .background(
                             Capsule()
-                                .fill(Color.accentGold.opacity(AppTheme.Opacity.lightMedium))
+                                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
                         )
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(Typography.UI.caption2)
@@ -227,7 +227,7 @@ struct TranslationNoteCard: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "text.quote")
                     .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("\"\(note.phrase)\"")
                     .font(Typography.UI.caption1Bold)
                     .foregroundStyle(Color.primaryText)
@@ -239,7 +239,7 @@ struct TranslationNoteCard: View {
                 ForEach(note.translations, id: \.self) { translation in
                     HStack(spacing: AppTheme.Spacing.xs) {
                         Circle()
-                            .fill(Color.accentGold)
+                            .fill(Color.scholarAccent)
                             .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
                         Text(translation)
                             .font(Typography.UI.caption1)

@@ -98,7 +98,7 @@ struct MemorizeView: View {
     private var masteryColor: Color {
         switch item.masteryLevel {
         case .learning: return .accentBlue
-        case .reviewing: return .accentGold
+        case .reviewing: return .scholarAccent
         case .mastered: return .success
         }
     }
@@ -189,7 +189,7 @@ struct MemorizeView: View {
         HStack(spacing: AppTheme.Spacing.xs) {
             ForEach(0..<maxHintLevels, id: \.self) { level in
                 Circle()
-                    .fill(level <= hintLevel ? Color.accentGold : Color.cardBorder)
+                    .fill(level <= hintLevel ? Color.scholarAccent : Color.cardBorder)
                     .frame(width: AppTheme.ComponentSize.indicator, height: AppTheme.ComponentSize.indicator)
             }
         }
@@ -293,7 +293,7 @@ struct MemorizeView: View {
             }
 
             HStack(spacing: AppTheme.Spacing.sm) {
-                qualityButton(.correctWithHesitation, color: .accentGold)
+                qualityButton(.correctWithHesitation, color: .scholarAccent)
                 qualityButton(.perfectRecall, color: .success)
             }
         }

@@ -116,7 +116,7 @@ struct AddToCollectionSheet: View {
 
                         if collection.contains(verseRange: range) {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                         }
                     }
                 }

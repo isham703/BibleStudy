@@ -29,7 +29,7 @@ struct DailyVerseCard: View {
     // MARK: - Minimal Style
 
     private var minimalStyle: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.xl) {
+        VStack(spacing: AppTheme.Spacing.xl) {
             // Top hairline
             goldHairline
 
@@ -53,7 +53,7 @@ struct DailyVerseCard: View {
             // Bottom hairline
             goldHairline
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.xxl)
+        .padding(.vertical, AppTheme.Spacing.xxl)
         .onAppear {
             isVisible = true
         }
@@ -70,7 +70,7 @@ struct DailyVerseCard: View {
     // MARK: - Standard Style
 
     private var standardStyle: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             Text("\"\(verse.text)\"")
                 .font(.system(size: 17, weight: .regular, design: .serif))
                 .foregroundStyle(Color.moonlitParchment)
@@ -81,14 +81,14 @@ struct DailyVerseCard: View {
                 .foregroundStyle(Color.divineGold)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(SanctuaryTheme.Spacing.lg)
+        .padding(AppTheme.Spacing.lg)
         .glassCard()
     }
 
     // MARK: - Narrative Style
 
     private var narrativeStyle: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(spacing: AppTheme.Spacing.lg) {
             // Decorative open quote
             Text("❝")
                 .font(SanctuaryTypography.Narrative.decorativeQuote)
@@ -114,7 +114,7 @@ struct DailyVerseCard: View {
                 .tracking(4)
                 .foregroundStyle(Color.divineGold)
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.xxl)
+        .padding(.vertical, AppTheme.Spacing.xxl)
     }
 }
 

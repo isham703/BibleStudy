@@ -39,7 +39,7 @@ struct StreakBadge: View {
         )
         .shadow(color: streakColor.opacity(0.4), radius: isPulsing ? 10 : 6)
         .onAppear {
-            withAnimation(SanctuaryTheme.Animation.pulse) {
+            withAnimation(AppTheme.Animation.pulse) {
                 isPulsing = true
             }
         }

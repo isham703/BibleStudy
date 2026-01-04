@@ -54,7 +54,7 @@ struct CrossRefPeekSheet: View {
                 Text(crossRef.reference)
                     .font(Typography.UI.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
 
                 // Direction indicator
                 HStack(spacing: AppTheme.Spacing.xs) {
@@ -188,7 +188,7 @@ struct CrossRefPeekSheet: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
             )
         }
         .buttonStyle(.plain)

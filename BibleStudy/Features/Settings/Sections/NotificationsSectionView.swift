@@ -28,7 +28,7 @@ struct NotificationsSectionView: View {
                     label: "Daily Reading Reminder",
                     description: nil,
                     icon: "bell.fill",
-                    iconColor: .accentGold
+                    iconColor: .scholarAccent
                 )
 
                 if viewModel.dailyReminderEnabled {
@@ -78,7 +78,7 @@ struct NotificationsSectionView: View {
                 displayedComponents: .hourAndMinute
             )
             .labelsHidden()
-            .tint(Color.accentGold)
+            .tint(Color.scholarAccent)
         }
         .padding(.leading, AppTheme.Spacing.xxxl - 12) // Align with toggle content
     }
@@ -103,12 +103,12 @@ struct NotificationsSectionView: View {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle + 0.02))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: "bell.badge")
                     .font(.system(size: Typography.Scale.xl + 6, weight: .light))
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
             }
 
             // Description
@@ -134,7 +134,7 @@ struct NotificationsSectionView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, AppTheme.Spacing.md)
-                    .background(Color.accentGold)
+                    .background(Color.scholarAccent)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
             }
         }

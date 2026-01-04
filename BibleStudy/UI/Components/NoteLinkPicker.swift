@@ -118,13 +118,13 @@ struct LinkedNoteRow: View {
                 // Link status indicator
                 Image(systemName: isLinked ? "link.circle.fill" : "link.circle")
                     .font(Typography.UI.title2)
-                    .foregroundStyle(isLinked ? Color.accentGold : Color.tertiaryText)
+                    .foregroundStyle(isLinked ? Color.scholarAccent : Color.tertiaryText)
 
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
                     // Reference
                     Text(note.reference)
                         .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
 
                     // Preview
                     Text(note.preview)
@@ -145,7 +145,7 @@ struct LinkedNoteRow: View {
 
                 if isLinked {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
             }
             .padding(.vertical, AppTheme.Spacing.xs)
@@ -186,12 +186,12 @@ struct LinkedNotesDisplay: View {
                     } label: {
                         HStack(spacing: AppTheme.Spacing.sm) {
                             Circle()
-                                .fill(Color.accentGold.opacity(AppTheme.Opacity.lightMedium))
+                                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
                                 .frame(width: AppTheme.ComponentSize.indicator, height: AppTheme.ComponentSize.indicator)
 
                             Text(note.reference)
                                 .font(Typography.UI.caption1Bold)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
 
                             Text(note.preview)
                                 .font(Typography.UI.caption1)
@@ -239,12 +239,12 @@ struct NoteLinkButton: View {
                         .font(Typography.UI.caption2)
                 }
             }
-            .foregroundStyle(linkedCount > 0 ? Color.accentGold : Color.secondaryText)
+            .foregroundStyle(linkedCount > 0 ? Color.scholarAccent : Color.secondaryText)
             .padding(.horizontal, AppTheme.Spacing.sm)
             .padding(.vertical, AppTheme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(linkedCount > 0 ? Color.accentGold.opacity(AppTheme.Opacity.light) : Color.elevatedBackground)
+                    .fill(linkedCount > 0 ? Color.scholarAccent.opacity(AppTheme.Opacity.light) : Color.elevatedBackground)
             )
         }
     }

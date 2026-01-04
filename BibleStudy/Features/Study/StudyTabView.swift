@@ -85,7 +85,7 @@ struct StudySectionButton: View {
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.accentGold : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()

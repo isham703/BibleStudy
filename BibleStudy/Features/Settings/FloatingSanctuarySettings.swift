@@ -7,20 +7,30 @@ import SwiftUI
 
 struct FloatingSanctuarySettings: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var appState
+    @State private var viewModel = SettingsViewModel()
+
     @State private var activeSection: SanctuarySection = .ai
     @State private var scrollOffset: CGFloat = 0
     @State private var showQuickNav = true
+    @State private var showAIPreferences = false
 
-    // Settings State
+    // AI Preferences (local state until wired to AppState)
     @State private var aiInsightsEnabled = true
     @State private var scholarModeEnabled = false
     @State private var voiceGuidanceEnabled = false
+
+    // Reading Preferences (local state until wired to AppState)
     @State private var fontSize: Double = 18
-    @State private var selectedTheme: AppThemeOption = .dark
-    @State private var hapticFeedback = true
+
+    // Account Preferences (local state until wired to AppState)
     @State private var cloudSyncEnabled = true
-    @State private var notificationsEnabled = true
+
+    // Notification Preferences (local state until wired to AppState)
     @State private var dailyVerseEnabled = true
+
+    // Interaction Preferences (local state until wired to AppState)
+    @State private var hapticFeedback = true
 
     var body: some View {
         ZStack {
@@ -87,7 +97,16 @@ struct FloatingSanctuarySettings: View {
             }
         }
         .navigationBarHidden(true)
-        .preferredColorScheme(.dark)
+        .toolbar(.hidden, for: .navigationBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .preferredColorScheme(appState.colorScheme)
+        .sheet(isPresented: $showAIPreferences) {
+            AIPreferencesDetailView(
+                scholarModeEnabled: $scholarModeEnabled,
+                aiInsightsEnabled: $aiInsightsEnabled,
+                voiceGuidanceEnabled: $voiceGuidanceEnabled
+            )
+        }
     }
 
     // MARK: - Section Anchor
@@ -96,6 +115,22 @@ struct FloatingSanctuarySettings: View {
         Color.clear
             .frame(height: 1)
             .id(section)
+    }
+
+    // MARK: - Computed Properties
+
+    private var userInitials: String {
+        guard let name = viewModel.displayName, !name.isEmpty else {
+            return "G"
+        }
+        let components = name.split(separator: " ")
+        if components.count >= 2 {
+            let first = String(components[0].prefix(1))
+            let last = String(components[1].prefix(1))
+            return first + last
+        } else {
+            return String(name.prefix(2))
+        }
     }
 
     // MARK: - Ambient Background
@@ -127,38 +162,42 @@ struct FloatingSanctuarySettings: View {
     // MARK: - Top Navigation Bar
 
     private var topNavBar: some View {
-        HStack {
-            Button {
-                dismiss()
-            } label: {
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .medium))
-                    Text("Back")
-                        .font(Typography.body)
+        VStack(spacing: 0) {
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: AppTheme.Spacing.xs) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .medium))
+                        Text("Back")
+                            .font(Typography.body)
+                    }
+                    .foregroundStyle(Color.scholarAccent)
                 }
-                .foregroundStyle(Color.accentGold)
+
+                Spacer()
+
+                Text("Settings")
+                    .font(.custom("Cinzel-Regular", size: 18))
+                    .foregroundStyle(Color.primaryText)
+
+                Spacer()
+
+                // Placeholder for balance
+                Color.clear.frame(width: 60)
             }
-
-            Spacer()
-
-            Text("Settings")
-                .font(.custom("Cinzel-Regular", size: 18))
-                .foregroundStyle(Color.primaryText)
-
-            Spacer()
-
-            // Placeholder for balance
-            Color.clear.frame(width: 60)
+            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.top, AppTheme.Spacing.sm)
+            .padding(.bottom, AppTheme.Spacing.md)
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
         .background {
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .opacity(scrollOffset < -50 ? 1 : 0)
-                .ignoresSafeArea()
+                .ignoresSafeArea(edges: .top)
         }
+        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - Header Section
@@ -171,8 +210,8 @@ struct FloatingSanctuarySettings: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.accentGold.opacity(0.3),
-                                Color.accentGold.opacity(0.0)
+                                Color.scholarAccent.opacity(0.3),
+                                Color.scholarAccent.opacity(0.0)
                             ],
                             center: .center,
                             startRadius: 30,
@@ -185,15 +224,15 @@ struct FloatingSanctuarySettings: View {
                     .fill(Color(hex: "1A1816"))
                     .frame(width: 80, height: 80)
                     .overlay {
-                        Text("JS")
+                        Text(userInitials)
                             .font(.custom("Cinzel-Regular", size: 28))
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                     }
                     .overlay {
                         Circle()
                             .strokeBorder(
                                 LinearGradient(
-                                    colors: [Color.accentGold.opacity(0.6), Color.accentGold.opacity(0.2)],
+                                    colors: [Color.scholarAccent.opacity(0.6), Color.scholarAccent.opacity(0.2)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
@@ -203,18 +242,18 @@ struct FloatingSanctuarySettings: View {
             }
 
             VStack(spacing: AppTheme.Spacing.xs) {
-                Text("John Smith")
+                Text(viewModel.displayName ?? "Guest")
                     .font(.custom("Cinzel-Regular", size: 22))
                     .foregroundStyle(Color.primaryText)
 
-                Text("Premium Member")
+                Text(viewModel.tierDisplayName)
                     .font(Typography.caption)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .padding(.horizontal, AppTheme.Spacing.md)
                     .padding(.vertical, AppTheme.Spacing.xxs)
                     .background(
                         Capsule()
-                            .fill(Color.accentGold.opacity(0.15))
+                            .fill(Color.scholarAccent.opacity(0.15))
                     )
             }
         }
@@ -227,7 +266,7 @@ struct FloatingSanctuarySettings: View {
         FloatingSectionCard(
             title: "AI & Insights",
             icon: "sparkles",
-            accentColor: .accentGold
+            accentColor: .scholarAccent
         ) {
             VStack(spacing: 0) {
                 FloatingToggleRow(
@@ -257,11 +296,34 @@ struct FloatingSanctuarySettings: View {
 
                 FloatingDivider()
 
-                FloatingNavigationRow(
-                    title: "AI Preferences",
-                    subtitle: "Customize insight types and depth",
-                    icon: "slider.horizontal.3"
-                )
+                Button {
+                    showAIPreferences = true
+                } label: {
+                    HStack(spacing: AppTheme.Spacing.md) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color.secondaryText)
+                            .frame(width: 32)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("AI Preferences")
+                                .font(Typography.body)
+                                .foregroundStyle(Color.primaryText)
+
+                            Text("Customize insight types and depth")
+                                .font(Typography.caption)
+                                .foregroundStyle(Color.tertiaryText)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Color.tertiaryText)
+                    }
+                    .padding(.vertical, AppTheme.Spacing.sm)
+                    .contentShape(Rectangle())
+                }
             }
         }
     }
@@ -323,10 +385,10 @@ struct FloatingSanctuarySettings: View {
                         ForEach(AppThemeOption.allCases) { theme in
                             ThemePill(
                                 theme: theme,
-                                isSelected: selectedTheme == theme
+                                isSelected: AppThemeOption(from: appState.preferredTheme) == theme
                             ) {
                                 withAnimation(.spring(response: 0.3)) {
-                                    selectedTheme = theme
+                                    appState.preferredTheme = theme.toAppThemeMode
                                 }
                             }
                         }
@@ -411,7 +473,7 @@ struct FloatingSanctuarySettings: View {
                     title: "Notifications",
                     subtitle: "Reading reminders and updates",
                     icon: "bell.badge.fill",
-                    isOn: $notificationsEnabled
+                    isOn: $viewModel.dailyReminderEnabled
                 )
 
                 FloatingDivider()
@@ -449,7 +511,7 @@ struct FloatingSanctuarySettings: View {
         VStack(spacing: AppTheme.Spacing.lg) {
             OrnamentalDivider(style: .simple)
                 .frame(width: 40)
-                .foregroundStyle(Color.accentGold.opacity(0.3))
+                .foregroundStyle(Color.scholarAccent.opacity(0.3))
 
             Text("Bible Study • Floating Sanctuary")
                 .font(Typography.caption)
@@ -475,12 +537,12 @@ struct FloatingSanctuarySettings: View {
                         Text(section.shortTitle)
                             .font(.system(size: 10, weight: .medium))
                     }
-                    .foregroundStyle(activeSection == section ? Color.accentGold : Color.secondaryText)
+                    .foregroundStyle(activeSection == section ? Color.scholarAccent : Color.secondaryText)
                     .frame(width: 56, height: 50)
                     .background {
                         if activeSection == section {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.accentGold.opacity(0.15))
+                                .fill(Color.scholarAccent.opacity(0.15))
                         }
                     }
                 }
@@ -493,7 +555,7 @@ struct FloatingSanctuarySettings: View {
                 .fill(.ultraThinMaterial)
                 .overlay {
                     Capsule()
-                        .strokeBorder(Color.accentGold.opacity(0.2), lineWidth: 0.5)
+                        .strokeBorder(Color.scholarAccent.opacity(0.2), lineWidth: 0.5)
                 }
         }
         .shadow(color: .black.opacity(0.4), radius: 20, y: 10)
@@ -528,7 +590,7 @@ enum SanctuarySection: String, CaseIterable, Identifiable {
 
     var accentColor: Color {
         switch self {
-        case .ai: return .accentGold
+        case .ai: return .scholarAccent
         case .reading: return Color(hex: "6B8E9F")
         case .account: return Color(hex: "7A9E7A")
         case .more: return Color(hex: "9E7A8E")
@@ -694,7 +756,7 @@ struct FloatingSlider: View {
                 Capsule()
                     .fill(
                         LinearGradient(
-                            colors: [Color.accentGold.opacity(0.8), Color.accentGold],
+                            colors: [Color.scholarAccent.opacity(0.8), Color.scholarAccent],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -705,7 +767,7 @@ struct FloatingSlider: View {
                 Circle()
                     .fill(Color.white)
                     .frame(width: 24, height: 24)
-                    .shadow(color: Color.accentGold.opacity(0.4), radius: 8)
+                    .shadow(color: Color.scholarAccent.opacity(0.4), radius: 8)
                     .offset(x: thumbPosition(in: geometry.size.width) - 12)
                     .gesture(
                         DragGesture()
@@ -742,21 +804,21 @@ struct ThemePill: View {
                     .overlay {
                         Circle()
                             .strokeBorder(
-                                isSelected ? Color.accentGold : Color.white.opacity(0.2),
+                                isSelected ? Color.scholarAccent : Color.white.opacity(0.2),
                                 lineWidth: isSelected ? 2 : 1
                             )
                     }
 
                 Text(theme.name)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(isSelected ? Color.accentGold : Color.secondaryText)
+                    .foregroundStyle(isSelected ? Color.scholarAccent : Color.secondaryText)
             }
             .padding(.vertical, AppTheme.Spacing.sm)
             .padding(.horizontal, AppTheme.Spacing.md)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.accentGold.opacity(0.1))
+                        .fill(Color.scholarAccent.opacity(0.1))
                 }
             }
         }
@@ -767,12 +829,13 @@ struct ThemePill: View {
 // MARK: - App Theme Option
 
 enum AppThemeOption: String, CaseIterable, Identifiable {
-    case light, dark, sepia, oled
+    case system, light, dark, sepia, oled
 
     var id: String { rawValue }
 
     var name: String {
         switch self {
+        case .system: return "System"
         case .light: return "Light"
         case .dark: return "Dark"
         case .sepia: return "Sepia"
@@ -782,10 +845,33 @@ enum AppThemeOption: String, CaseIterable, Identifiable {
 
     var previewColor: Color {
         switch self {
+        case .system: return Color(hex: "8B7355")
         case .light: return Color(hex: "FBF7F0")
         case .dark: return Color(hex: "1A1816")
         case .sepia: return Color(hex: "F5EDE0")
         case .oled: return Color(hex: "000000")
+        }
+    }
+
+    // MARK: - Conversion to AppThemeMode
+
+    var toAppThemeMode: AppThemeMode {
+        switch self {
+        case .system: return .system
+        case .light: return .light
+        case .dark: return .dark
+        case .sepia: return .sepia
+        case .oled: return .oled
+        }
+    }
+
+    init(from mode: AppThemeMode) {
+        switch mode {
+        case .system: self = .system
+        case .light: self = .light
+        case .dark: self = .dark
+        case .sepia: self = .sepia
+        case .oled: self = .oled
         }
     }
 }
@@ -799,7 +885,7 @@ struct GoldToggleStyle: ToggleStyle {
 
             ZStack {
                 Capsule()
-                    .fill(configuration.isOn ? Color.accentGold : Color.white.opacity(0.15))
+                    .fill(configuration.isOn ? Color.scholarAccent : Color.white.opacity(0.15))
                     .frame(width: 50, height: 30)
 
                 Circle()
@@ -826,7 +912,7 @@ struct FloatingSanctuaryParticles: View {
         GeometryReader { geometry in
             ForEach(particles) { particle in
                 Circle()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: particle.size, height: particle.size)
                     .position(
                         x: particle.x * geometry.size.width,

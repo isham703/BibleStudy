@@ -4,12 +4,22 @@ import SwiftUI
 // MARK: - DESIGN TOKEN SYSTEM
 // MARK: - ═══════════════════════════════════════════════════════════════
 //
-// Primary design token system for the Bible Study app
+// Color system for the Bible Study app
 // Illuminated manuscript aesthetics fused with Apple Books elegance
-// All colors verified for WCAG 4.5:1 contrast compliance
+// All colors verified for WCAG 4.5:1+ contrast compliance
 //
-// Primary accent: Color.scholarIndigo (migrated from gold)
-// Asset catalog colorsets provide light/dark mode support
+// COLOR ORGANIZATION:
+// 1. Illumination Gold Palette - Decorative elements (chapter headers, ornaments)
+// 2. Scholar Brand Colors - Interactive UI (buttons, links, CTAs) - PRIMARY: scholarIndigo
+// 3. Theme Base Colors - Light/Dark/Sepia/OLED theme mode backgrounds & text
+// 4. Liturgical Palettes - Time-aware sanctuary colors (Dawn, Meridian, Vespers)
+// 5. Asset Catalog Colors - Auto-adaptive UI (primaryText, surfaceBackground, etc.)
+//
+// ⚠️ USAGE GUIDE:
+// - Interactive UI: Use Color.scholarIndigo (NOT decorative gold)
+// - Adaptive UI: Use asset catalog colors (Color.primaryText, Color.surfaceBackground)
+// - Decorative elements: Use Illumination Gold Palette (divineGold, illuminatedGold)
+// - Theme modes: Use theme-specific colors (freshVellum, candlelitStone, etc.)
 
 extension Color {
 
@@ -17,63 +27,77 @@ extension Color {
     // MARK: - CORE DESIGN TOKENS
     // MARK: - ═══════════════════════════════════════════════════════════════
 
-    // MARK: - Primary Gold Family
-    // The heart of the illuminated aesthetic - warm, rich golds
+    // MARK: - Illumination Gold Palette (Decorative)
+    // Sacred manuscript aesthetics - warm, rich golds for decorative elements
+    // ⚠️ NOT for interactive UI - use Color.scholarIndigo for buttons/CTAs
+    // Used for: Chapter headers, ornaments, sacred animations, spiritual effects
 
-    /// Primary accent color for CTAs and primary actions
-    /// Hex: #D4A853 - Warm, aged gold leaf
+    /// Divine Gold - Primary illumination gold (#D4A853)
+    /// Used for: Sacred ornaments, illuminated chapter headers, decorative elements
+    /// Examples: IlluminatedChapterHeader, section headers in SanctuaryTypography
     static let divineGold = Color(hex: "D4A853")
 
-    /// Pressed/active state for gold elements
-    /// Hex: #C9943D - Slightly darker, burnished
+    /// Burnished Gold - Darker variant (#C9943D)
+    /// Used for: Depth, shadows, aged manuscript look, gradient endpoints
+    /// Examples: IlluminatedChapterHeader gradients, decorative borders
     static let burnishedGold = Color(hex: "C9943D")
 
-    /// Highlights, glows, and luminous effects
-    /// Hex: #E8C978 - Bright, illuminated gold
+    /// Illuminated Gold - Highlight variant (#E8C978)
+    /// Used for: Glow effects, light rays, emphasis, luminous decorations
+    /// Examples: Golden gradient animations, atmospheric effects, divine highlights
     static let illuminatedGold = Color(hex: "E8C978")
 
-    /// Dark mode accent gold
-    /// Hex: #8B6914 - Deep, antique gold
+    /// Ancient Gold - Deep gold for dark themes (#8B6914)
+    /// Used for: Dark mode decorative elements, antique manuscript aesthetic
     static let ancientGold = Color(hex: "8B6914")
 
-    /// Subtle gold tints for backgrounds
-    /// Hex: #F5E6B8 - Whisper of gold leaf
+    /// Gold Leaf Shimmer - Subtle gold tint (#F5E6B8)
+    /// Used for: Background tints, whisper-light decorative elements
     static let goldLeafShimmer = Color(hex: "F5E6B8")
 
-    /// Accessible gold for text on light backgrounds
-    /// Hex: #A67C00 - Rich ochre with 4.5:1+ contrast on freshVellum
+    /// Accessible Gold - WCAG compliant variant (#A67C00)
+    /// Used for: Text on light backgrounds, 4.5:1+ contrast ratio on freshVellum
+    /// Use this when gold text must meet accessibility standards
     static let accessibleGold = Color(hex: "A67C00")
 
-    // MARK: - Vellum & Parchment
+    // MARK: - Vellum & Parchment (Theme Base Colors)
     // Reading surfaces inspired by aged manuscript materials
+    // These support the Light/Sepia theme modes (NOT adaptive light/dark)
+    // For adaptive colors, use Color.appBackground, Color.surfaceBackground from asset catalog
 
-    /// Light mode primary background - fresh, clean vellum
-    /// Hex: #FBF7F0 - Warm white with cream undertone
+    /// Fresh Vellum - Light mode base (#FBF7F0)
+    /// Used for: Light theme base background in AppTheme.lightBackground
+    /// Warm white with cream undertone - fresh, clean manuscript surface
     static let freshVellum = Color(hex: "FBF7F0")
 
-    /// Sepia theme background - aged parchment
-    /// Hex: #F5EDE0 - Warm, tea-stained paper
+    /// Aged Parchment - Sepia theme base (#F5EDE0)
+    /// Used for: Sepia theme background in AppTheme.sepiaBackground
+    /// Warm, tea-stained paper - aged manuscript aesthetic
     static let agedParchment = Color(hex: "F5EDE0")
 
-    /// Card and elevated surface backgrounds
-    /// Hex: #E5DBC8 - Stone-like monastery warmth
+    /// Monastery Stone - Elevated surfaces (#E5DBC8)
+    /// Used for: Cards, elevated backgrounds in Light/Sepia modes
+    /// Stone-like warmth - monastery scriptorium feel
     static let monasteryStone = Color(hex: "E5DBC8")
 
-    // MARK: - Sacred Inks
+    // MARK: - Sacred Inks (Theme Text Colors)
     // Text colors inspired by traditional manuscript inks
+    // These support specific theme modes (NOT adaptive)
+    // For adaptive text, use Color.primaryText, Color.secondaryText from asset catalog
 
-    /// Primary text for light backgrounds
-    /// Hex: #1C1917 - Deep, rich black ink
-    /// Contrast ratio vs Fresh Vellum: ~15:1 (exceeds WCAG AAA)
+    /// Monastery Black - Primary ink (#1C1917)
+    /// Used for: Primary text in Light theme
+    /// Deep, rich black ink - Contrast: ~15:1 vs freshVellum (WCAG AAA ✅)
     static let monasteryBlack = Color(hex: "1C1917")
 
-    /// Secondary text, subtitles
-    /// Hex: #3D3531 - Slightly faded ink
+    /// Aged Ink - Secondary ink (#3D3531)
+    /// Used for: Secondary text, slightly faded appearance
+    /// Contrast: ~9:1 vs freshVellum (WCAG AAA ✅)
     static let agedInk = Color(hex: "3D3531")
 
-    /// Sepia theme text color
-    /// Hex: #4A3728 - Warm brown ink
-    /// Contrast ratio vs Aged Parchment: ~8:1 (exceeds WCAG AAA)
+    /// Sepia Ink - Sepia theme text (#4A3728)
+    /// Used for: Primary text in Sepia theme
+    /// Warm brown ink - Contrast: ~8:1 vs agedParchment (WCAG AAA ✅)
     static let sepiaInk = Color(hex: "4A3728")
 
     // MARK: - Jewel Tones
@@ -113,24 +137,29 @@ extension Color {
     /// Hex: #736152 - Faded sepia ink
     static let sepiaInkSecondary = Color(hex: "736152")
 
-    // MARK: - Candlelit Chapel (Dark Mode)
+    // MARK: - Candlelit Chapel (Dark Theme Mode)
     // Dark mode colors inspired by candlelit monastery interiors
+    // These support the Dark theme mode (NOT adaptive - that's in asset catalog)
+    // For adaptive dark mode, use Color.appBackground, Color.primaryText from asset catalog
 
-    /// Dark mode primary background
-    /// Hex: #1A1816 - Deep stone in candlelight
+    /// Candlelit Stone - Dark theme base (#1A1816)
+    /// Used for: Dark theme base background in AppTheme.darkBackground
+    /// Deep stone in candlelight - warm, intimate darkness
     static let candlelitStone = Color(hex: "1A1816")
 
-    /// Dark mode elevated surfaces
-    /// Hex: #252220 - Slightly lighter chapel shadow
+    /// Chapel Shadow - Dark theme elevated (#252220)
+    /// Used for: Elevated surfaces, cards in Dark theme
+    /// Slightly lighter chapel shadow - subtle depth
     static let chapelShadow = Color(hex: "252220")
 
-    /// Dark mode primary text
-    /// Hex: #E8E4DC - Moonlit parchment glow
-    /// Contrast ratio vs Candlelit Stone: ~12:1 (exceeds WCAG AAA)
+    /// Moonlit Parchment - Dark theme primary text (#E8E4DC)
+    /// Used for: Primary text in Dark theme
+    /// Moonlit parchment glow - Contrast: ~12:1 vs candlelitStone (WCAG AAA ✅)
     static let moonlitParchment = Color(hex: "E8E4DC")
 
-    /// Dark mode secondary text
-    /// Hex: #A8A29E - Faded moonlight
+    /// Faded Moonlight - Dark theme secondary text (#A8A29E)
+    /// Used for: Secondary text in Dark theme
+    /// Soft, faded moonlight - gentle hierarchy
     static let fadedMoonlight = Color(hex: "A8A29E")
 
     // MARK: - OLED Black (True Black Theme)
@@ -167,6 +196,7 @@ extension Color {
 
     /// Scholar elevated paper surface
     /// Hex: #f8f5f0 - Slightly elevated warm paper
+    @available(*, deprecated, message: "Use Color.surfaceBackground instead - supports light/dark mode")
     static let scholarElevatedPaper = Color(hex: "f8f5f0")
 
     /// Meridian background warm vellum
@@ -370,51 +400,68 @@ extension Color {
     // MARK: - Scholar's Atrium Palette (Manuscript)
 
     /// Vellum Cream - warm paper background
+    @available(*, deprecated, message: "Use Color.appBackground instead - supports light/dark mode")
     static let vellumCream = Color(hex: "fefdfb")
 
     /// Scholar Ink - rich black-brown text
+    @available(*, deprecated, message: "Use Color.primaryText instead - supports light/dark mode")
     static let scholarInk = Color(hex: "1c1917")
 
     /// Ink Well - soft black for body
+    @available(*, deprecated, message: "Use Color.primaryText instead - supports light/dark mode")
     static let inkWell = Color(hex: "292524")
 
     /// Margin Red - traditional annotation red
     static let marginRed = Color(hex: "dc2626")
 
     /// Footnote Gray - stone gray secondary
+    @available(*, deprecated, message: "Use Color.tertiaryText instead - supports light/dark mode")
     static let footnoteGray = Color(hex: "78716c")
 
-    // MARK: - Scholar Supporting Colors (Asset Catalog)
-    // These colors are defined in Assets.xcassets with light/dark variants:
-    // - GreekBlue: #2563EB (light) / #60A5FA (dark) - original language annotations
-    // - TheologyGreen: #059669 (light) / #34D399 (dark) - doctrinal notes
-    // - ConnectionAmber: #D97706 (light) / #FBBF24 (dark) - cross-references
-    // - PersonalRose: #DB2777 (light) / #F472B6 (dark) - reflective questions
-    // Access via: Color.greekBlue, Color.theologyGreen, Color.connectionAmber, Color.personalRose
+    // MARK: - Scholar Brand Colors (Interactive UI)
+    // Primary interactive accent colors for buttons, CTAs, links, and active states
+    // ⚠️ Use these for interactive UI - NOT decorative gold (see Illumination Gold Palette)
+    // Migrated from gold to indigo for better accessibility and modern design
 
-    /// Scholar Indigo - primary accent
-    /// Light: #4F46E5, Dark: #6366F1 (auto-switches via asset catalog)
+    /// Scholar Indigo - Primary interactive accent (Asset Catalog: AccentIndigo)
+    /// Used for: Buttons, CTAs, links, primary actions, all interactive UI elements
+    /// Light: #4F46E5, Dark: #6366F1 (auto-adaptive via asset catalog)
+    /// **This is the PRIMARY brand accent** - replaces legacy warmGold
     static let scholarIndigo = Color("AccentIndigo")
 
-    /// Scholar Indigo Pressed - darker pressed/active state
-    /// Hex: #4338CA - Deeper indigo for interaction feedback
+    /// Scholar Indigo Pressed - Active/pressed state (#4338CA)
+    /// Used for: Button pressed state, active selections, touch feedback
+    /// Deeper indigo for clear interaction affordance
     static let scholarIndigoPressed = Color(hex: "4338CA")
 
-    /// Scholar Indigo Light - lighter variant for hovers/highlights
-    /// Hex: #818CF8 - Luminous indigo for glows and highlights
+    /// Scholar Indigo Light - Hover/highlight variant (#818CF8)
+    /// Used for: Hover states (Mac/iPad), glows, highlights, subtle emphasis
+    /// Luminous indigo for gentle interaction hints
     static let scholarIndigoLight = Color(hex: "818CF8")
 
-    /// Scholar Indigo Dark - brighter for dark mode visibility
-    /// Hex: #6366F1 - Vibrant indigo that reads well on dark backgrounds
+    /// Scholar Indigo Dark - Dark mode enhanced (#6366F1)
+    /// Used for: Dark backgrounds requiring extra vibrancy
+    /// Vibrant indigo optimized for dark theme visibility
     static let scholarIndigoDark = Color(hex: "6366F1")
 
-    /// Scholar Indigo Subtle - very faint for backgrounds
-    /// Hex: #EEF2FF - Whisper of indigo for subtle tints
+    /// Scholar Indigo Subtle - Background tint (Deprecated - use opacity)
+    /// Hex: #EEF2FF - Use scholarIndigo.opacity(0.1) for adaptive tints
+    @available(*, deprecated, message: "Use scholarIndigo.opacity(0.1) instead for adaptive opacity")
     static let scholarIndigoSubtle = Color(hex: "EEF2FF")
 
-    /// Scholar Indigo Accessible - meets WCAG 4.5:1 on light backgrounds
-    /// Hex: #4338CA - Same as pressed, verified for text accessibility
+    /// Scholar Indigo Accessible - WCAG compliant text (#4338CA)
+    /// Used for: Text links, text buttons on light backgrounds
+    /// Meets WCAG 4.5:1 contrast ratio on light surfaces
     static let scholarIndigoAccessible = Color(hex: "4338CA")
+
+    // MARK: - Scholar Supporting Colors (Asset Catalog - Auto-Adaptive)
+    // Annotation and semantic colors with light/dark variants
+    // Access via: Color.greekBlue, Color.theologyGreen, Color.connectionAmber, Color.personalRose
+    //
+    // - GreekBlue: #2563EB (light) / #60A5FA (dark) - Original language annotations
+    // - TheologyGreen: #059669 (light) / #34D399 (dark) - Doctrinal study notes
+    // - ConnectionAmber: #D97706 (light) / #FBBF24 (dark) - Cross-references
+    // - PersonalRose: #DB2777 (light) / #F472B6 (dark) - Reflective questions
 
     // MARK: - Sacred Threshold Palette (Chromatic Journey)
 
@@ -750,7 +797,7 @@ extension Color {
     static var paperGradient: LinearGradient {
         LinearGradient(
             colors: [
-                vellumCream,
+                freshVellum,
                 paperSubtle
             ],
             startPoint: .top,
@@ -993,6 +1040,7 @@ extension Color {
     // MARK: - Asset Catalog Accent Colors
     // These reference the colorsets in Assets.xcassets for light/dark mode support
     // Note: accentBlue and accentRose are auto-generated from asset catalog
+    @available(*, deprecated, message: "Use Color.scholarAccent for interactive UI, or Color.divineGold for decorative elements")
     static let accentGold = Color("AccentIndigo") // Migrated to indigo, alias kept for compatibility
 
     // MARK: - Light Mode (Fresh Vellum)
@@ -1010,7 +1058,7 @@ extension Color {
     static let scholarAccent = Color.scholarIndigo
     static let scholarAccentLight = Color.scholarIndigoLight
     static let scholarAccentDark = Color.scholarIndigoDark
-    static let scholarAccentSubtle = Color.scholarIndigoSubtle
+    static let scholarAccentSubtle = Color.scholarIndigo.opacity(0.1)
     static let scholarAccentPressed = Color.scholarIndigoPressed
 
     // MARK: - Legacy Gold Aliases (Deprecated)
@@ -1035,6 +1083,11 @@ extension Color {
     // MARK: - OLED Theme (True Black)
     static let oledText = Color.moonlitParchment
     static let oledSecondaryText = Color.fadedMoonlight
+
+    // MARK: - Interactive States
+    // These colors are auto-generated from Assets.xcassets/Colors/States/
+    // Available colors: pressedBackground, hoverBackground, disabledBackground,
+    // disabledText, placeholderText, focusRing
 }
 
 // MARK: - ═══════════════════════════════════════════════════════════════
@@ -1151,7 +1204,7 @@ extension Color {
     static var indigoGlowColor: Color { .scholarIndigo.opacity(0.3) }
 
     /// Ambient background tint (indigo-based)
-    static var ambientCoolColor: Color { .scholarIndigoSubtle }
+    static var ambientCoolColor: Color { .scholarIndigo.opacity(0.1) }
 
     // MARK: - Legacy Aliases (Deprecated)
 

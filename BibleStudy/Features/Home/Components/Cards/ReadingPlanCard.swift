@@ -10,7 +10,7 @@ struct ReadingPlanCard: View {
     @State private var shimmerOffset: CGFloat = -200
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             // Header row
             HStack {
                 Text(plan.title)
@@ -34,7 +34,7 @@ struct ReadingPlanCard: View {
                 Text("\"\(plan.previewQuote)\"")
                     .font(.system(size: 14, weight: .regular, design: .serif).italic())
                     .foregroundStyle(Color.fadedMoonlight.opacity(0.8))
-                    .padding(.top, SanctuaryTheme.Spacing.xs)
+                    .padding(.top, AppTheme.Spacing.xs)
             }
 
             // Progress bar with shimmer
@@ -92,7 +92,7 @@ struct ReadingPlanCard: View {
                 }
             }
         }
-        .padding(SanctuaryTheme.Spacing.lg)
+        .padding(AppTheme.Spacing.lg)
         .glassCard()
         .onAppear {
             withAnimation(

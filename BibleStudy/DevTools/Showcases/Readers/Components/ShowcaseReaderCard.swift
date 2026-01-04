@@ -33,12 +33,12 @@ struct ShowcaseReaderCard<Destination: View>: View {
     // MARK: - Card Content
 
     private var cardContent: some View {
-        HStack(spacing: SanctuaryTheme.Spacing.lg) {
+        HStack(spacing: AppTheme.Spacing.lg) {
             // Icon
             iconView
 
             // Text content
-            VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 // Title
                 Text(variant.displayName)
                     .font(.system(size: 18, weight: .semibold))
@@ -51,7 +51,7 @@ struct ShowcaseReaderCard<Destination: View>: View {
 
                 // Reading mode badge
                 readingModeBadge
-                    .padding(.top, SanctuaryTheme.Spacing.xxs)
+                    .padding(.top, AppTheme.Spacing.xxs)
             }
 
             Spacer()
@@ -61,7 +61,7 @@ struct ShowcaseReaderCard<Destination: View>: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Color.showcaseTertiaryText)
         }
-        .padding(SanctuaryTheme.Spacing.lg)
+        .padding(AppTheme.Spacing.lg)
         .background(cardBackground)
         .overlay(cardBorder)
         .shadow(
@@ -116,10 +116,10 @@ struct ShowcaseReaderCard<Destination: View>: View {
     // MARK: - Card Background
 
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
             .fill(Color.white.opacity(0.05))
             .background(
-                RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                     .fill(Color.showcaseCard)
             )
     }
@@ -127,7 +127,7 @@ struct ShowcaseReaderCard<Destination: View>: View {
     // MARK: - Card Border
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
             .stroke(
                 LinearGradient(
                     colors: [

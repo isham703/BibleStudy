@@ -239,14 +239,14 @@ struct CollectionItemRow: View {
             } else {
                 Image(systemName: "highlighter")
                     .font(Typography.UI.subheadline)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .frame(width: AppTheme.IconContainer.small)
             }
 
         case .note:
             Image(systemName: note?.template.icon ?? "note.text")
                 .font(Typography.UI.subheadline)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .frame(width: AppTheme.IconContainer.small)
         }
     }

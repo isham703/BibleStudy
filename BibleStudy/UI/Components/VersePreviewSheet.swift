@@ -21,7 +21,7 @@ struct VersePreviewSheet: View {
                         if let book = verseRange.book {
                             Text(book.name)
                                 .font(Typography.UI.caption1)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                                 .textCase(.uppercase)
                                 .tracking(1)
                         }
@@ -96,7 +96,7 @@ struct VersePreviewSheet: View {
                 Task { await loadVerses() }
             }
             .font(Typography.UI.caption1Bold)
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.scholarAccent)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, AppTheme.Spacing.xl)

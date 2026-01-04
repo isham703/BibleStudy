@@ -118,7 +118,7 @@ struct VerseText: View {
         // Priority 3: Preserved highlight (temporary fading context)
         else if preservedHighlightOpacity > 0 {
             // Fading indigo highlight for context preservation after insight sheet dismiss
-            return Color.scholarIndigoSubtle.opacity(preservedHighlightOpacity)
+            return Color.scholarIndigo.opacity(0.1 * preservedHighlightOpacity)
         }
         // Priority 4: Saved highlight (persistent user annotation)
         // This is the key fix - highlights now display when no temporary state is active

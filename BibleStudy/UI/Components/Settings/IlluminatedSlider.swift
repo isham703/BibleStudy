@@ -22,7 +22,7 @@ struct IlluminatedSlider: View {
         tickMarks: [Double]? = nil,
         label: String,
         icon: String? = nil,
-        iconColor: Color = .accentGold,
+        iconColor: Color = .scholarAccent,
         valueFormatter: @escaping (Double) -> String = { "\(Int($0))" }
     ) {
         self._value = value
@@ -54,12 +54,12 @@ struct IlluminatedSlider: View {
                 // Current value
                 Text(valueFormatter(value))
                     .font(Typography.UI.subheadline.monospacedDigit())
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .padding(.horizontal, AppTheme.Spacing.sm)
                     .padding(.vertical, AppTheme.Spacing.xxs)
                     .background(
                         Capsule()
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle + 0.02))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
                     )
             }
 
@@ -78,8 +78,8 @@ struct IlluminatedSlider: View {
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        Color.accentGold.opacity(AppTheme.Opacity.overlay),
-                                        Color.accentGold
+                                        Color.scholarAccent.opacity(AppTheme.Opacity.overlay),
+                                        Color.scholarAccent
                                     ],
                                     startPoint: .leading,
                                     endPoint: .trailing
@@ -94,12 +94,12 @@ struct IlluminatedSlider: View {
                             .frame(width: 24, height: 24)
                             .overlay(
                                 Circle()
-                                    .fill(Color.accentGold)
+                                    .fill(Color.scholarAccent)
                                     .frame(width: AppTheme.ComponentSize.indicator + 2, height: AppTheme.ComponentSize.indicator + 2)
                             )
                             .overlay(
                                 Circle()
-                                    .stroke(Color.accentGold.opacity(isDragging ? AppTheme.Opacity.medium : 0), lineWidth: AppTheme.Blur.medium)
+                                    .stroke(Color.scholarAccent.opacity(isDragging ? AppTheme.Opacity.medium : 0), lineWidth: AppTheme.Blur.medium)
                                     .blur(radius: AppTheme.Blur.subtle)
                             )
                             .offset(x: thumbOffset(in: geometry.size.width))
@@ -170,12 +170,12 @@ struct IlluminatedSlider: View {
 
                     VStack(spacing: AppTheme.Spacing.xxs) {
                         Rectangle()
-                            .fill(isActive ? Color.accentGold : Color.divider.opacity(AppTheme.Opacity.heavy))
+                            .fill(isActive ? Color.scholarAccent : Color.divider.opacity(AppTheme.Opacity.heavy))
                             .frame(width: AppTheme.Border.thin, height: AppTheme.Divider.heavy)
 
                         Text("\(Int(tickValue))")
                             .font(.system(size: Typography.Scale.xs - 2, weight: .medium))
-                            .foregroundStyle(isActive ? Color.accentGold : Color.tertiaryText)
+                            .foregroundStyle(isActive ? Color.scholarAccent : Color.tertiaryText)
                     }
                     .position(
                         x: tickX,

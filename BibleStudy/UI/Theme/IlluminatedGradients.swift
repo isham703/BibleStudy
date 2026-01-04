@@ -84,7 +84,7 @@ enum IlluminatedGradients {
         RadialGradient(
             colors: [
                 Color.scholarIndigoLight.opacity(0.15),
-                Color.scholarIndigoSubtle.opacity(0.05),
+                Color.scholarIndigo.opacity(0.05),
                 Color.clear
             ],
             center: .center,
@@ -101,8 +101,8 @@ enum IlluminatedGradients {
     static var subtleLight: LinearGradient {
         LinearGradient(
             colors: [
-                Color.scholarIndigoSubtle.opacity(AppTheme.Opacity.medium),
-                Color.scholarIndigoSubtle.opacity(AppTheme.Opacity.subtle),
+                Color.scholarIndigo.opacity(AppTheme.Opacity.medium),
+                Color.scholarIndigo.opacity(AppTheme.Opacity.subtle),
                 Color.clear
             ],
             startPoint: .top,
@@ -163,9 +163,9 @@ enum IlluminatedGradients {
     static var shimmerBorder: LinearGradient {
         LinearGradient(
             colors: [
-                Color.scholarIndigoSubtle.opacity(0.6),
+                Color.scholarIndigo.opacity(0.6),
                 Color.scholarIndigo.opacity(0.8),
-                Color.scholarIndigoSubtle.opacity(0.6)
+                Color.scholarIndigo.opacity(0.6)
             ],
             startPoint: .leading,
             endPoint: .trailing
@@ -279,9 +279,9 @@ struct IndigoShimmerView: View {
     var body: some View {
         LinearGradient(
             colors: [
-                Color.scholarIndigoSubtle.opacity(0.3),
+                Color.scholarIndigo.opacity(0.3),
                 Color.scholarIndigoLight.opacity(0.6),
-                Color.scholarIndigoSubtle.opacity(0.3)
+                Color.scholarIndigo.opacity(0.3)
             ],
             startPoint: animating ? .leading : .trailing,
             endPoint: animating ? .trailing : .leading

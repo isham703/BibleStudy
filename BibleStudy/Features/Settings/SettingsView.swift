@@ -45,7 +45,7 @@ struct SettingsView: View {
                         dismiss()
                     }
                     .font(Typography.UI.body)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 }
             }
             .sheet(isPresented: $viewModel.showPaywall) {
@@ -74,7 +74,7 @@ struct SettingsView: View {
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.clear, Color.accentGold.opacity(AppTheme.Opacity.medium)],
+                            colors: [Color.clear, Color.scholarAccent.opacity(AppTheme.Opacity.medium)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -82,13 +82,13 @@ struct SettingsView: View {
                     .frame(height: AppTheme.Divider.thin)
 
                 Diamond()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: AppTheme.ComponentSize.indicator, height: AppTheme.ComponentSize.indicator)
 
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.accentGold.opacity(AppTheme.Opacity.medium), Color.clear],
+                            colors: [Color.scholarAccent.opacity(AppTheme.Opacity.medium), Color.clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )

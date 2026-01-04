@@ -100,7 +100,7 @@ struct TranslationRow: View {
                 // Selection indicator
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                         .font(Typography.UI.title3)
                 }
             }
@@ -111,7 +111,7 @@ struct TranslationRow: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(isSelected ? Color.accentGold : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: AppTheme.Border.thin)
             )
             .opacity(isDisabled ? 0.6 : 1.0)
         }
@@ -123,14 +123,14 @@ struct TranslationRow: View {
         if isDisabled {
             return Color.tertiaryText
         }
-        return isSelected ? .white : Color.accentGold
+        return isSelected ? .white : Color.scholarAccent
     }
 
     private var badgeBackgroundColor: Color {
         if isDisabled {
             return Color.surfaceBackground
         }
-        return isSelected ? Color.accentGold : Color.accentGold.opacity(AppTheme.Opacity.light)
+        return isSelected ? Color.scholarAccent : Color.scholarAccent.opacity(AppTheme.Opacity.light)
     }
 }
 

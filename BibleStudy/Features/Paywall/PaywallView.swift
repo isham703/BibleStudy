@@ -69,12 +69,12 @@ struct PaywallView: View {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.lightMedium))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
                     .frame(width: 80, height: 80)
 
                 Image(systemName: "sparkles")
                     .font(Typography.UI.largeTitle)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
             }
             .padding(.top, AppTheme.Spacing.xl)
 
@@ -138,7 +138,7 @@ struct PaywallView: View {
         VStack(spacing: AppTheme.Spacing.md) {
             if storeManager.isLoading && storeManager.products.isEmpty {
                 ProgressView()
-                    .tint(Color.accentGold)
+                    .tint(Color.scholarAccent)
                     .padding()
             } else {
                 ForEach(storeManager.products, id: \.id) { product in
@@ -163,7 +163,7 @@ struct PaywallView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, AppTheme.Spacing.md)
-                    .background(Color.accentGold)
+                    .background(Color.scholarAccent)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
                 }
                 .disabled(selectedProduct == nil || isPurchasing)
@@ -283,7 +283,7 @@ private struct FeatureRow: View {
         HStack(spacing: AppTheme.Spacing.md) {
             Image(systemName: icon)
                 .font(Typography.UI.body)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .frame(width: AppTheme.IconContainer.small)
 
             Text(text)
@@ -322,7 +322,7 @@ private struct ProductCard: View {
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, AppTheme.Spacing.xs)
                                 .padding(.vertical, AppTheme.Spacing.xxs)
-                                .background(Color.accentGold)
+                                .background(Color.scholarAccent)
                                 .clipShape(Capsule())
                         }
                     }
@@ -348,11 +348,11 @@ private struct ProductCard: View {
             .padding(AppTheme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .fill(isSelected ? Color.accentGold.opacity(AppTheme.Opacity.subtle) : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle) : Color.surfaceBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(isSelected ? Color.accentGold : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)

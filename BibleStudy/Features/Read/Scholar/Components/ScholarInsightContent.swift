@@ -113,8 +113,7 @@ struct ScholarInsightContent: View {
                     .foregroundStyle(Color.scholarIndigo)
 
                 Text("SCHOLARLY INSIGHT")
-                    .font(.system(size: 10, weight: .bold))
-                    .tracking(1.5)
+                    .editorialLabel()
                     .foregroundStyle(Color.scholarIndigo)
             }
 
@@ -131,9 +130,9 @@ struct ScholarInsightContent: View {
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
                     .frame(width: 28, height: 28)
-                    .background(Color.scholarElevatedPaper)
+                    .background(Color.surfaceBackground)
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -151,29 +150,25 @@ struct ScholarInsightContent: View {
                     .tint(Color.scholarIndigo)
 
                 Text("Analyzing passage...")
-                    .font(.custom("CormorantGaramond-Regular", size: 15))
-                    .italic()
-                    .foregroundStyle(Color.footnoteGray)
+                    .insightItalic()
+                    .foregroundStyle(Color.tertiaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, AppTheme.Spacing.sm)
         } else if let structured = viewModel.structuredExplanation {
             Text(structured.summary)
-                .font(.custom("CormorantGaramond-Regular", size: 17))
+                .insightHeroSummary()
                 .foregroundStyle(AppTheme.InsightCard.heroText)
-                .lineSpacing(5)
                 .fixedSize(horizontal: false, vertical: true)
         } else if let explanation = viewModel.explanation {
             Text(ScholarInsightSummary.heroSummary(from: explanation))
-                .font(.custom("CormorantGaramond-Regular", size: 17))
+                .insightHeroSummary()
                 .foregroundStyle(AppTheme.InsightCard.heroText)
-                .lineSpacing(5)
                 .lineLimit(4)
         } else {
             Text("Tap to explore this passage")
-                .font(.custom("CormorantGaramond-Regular", size: 15))
-                .italic()
-                .foregroundStyle(Color.footnoteGray)
+                .insightItalic()
+                .foregroundStyle(Color.tertiaryText)
         }
     }
 
@@ -187,11 +182,11 @@ struct ScholarInsightContent: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Daily Limit Reached")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.scholarInk)
+                        .foregroundStyle(Color.primaryText)
 
                     Text("Upgrade for unlimited insights")
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
             }
 
@@ -280,16 +275,15 @@ struct ScholarInsightContent: View {
                             .padding(.top, 7)
 
                         Text(point)
-                            .font(.custom("CormorantGaramond-Regular", size: 15))
-                            .foregroundStyle(Color.scholarInk)
-                            .lineSpacing(4)
+                            .insightBody()
+                            .foregroundStyle(Color.primaryText)
                     }
                 }
             }
         } else {
             Text("Key points will appear here")
                 .font(.system(size: 13))
-                .foregroundStyle(Color.footnoteGray)
+                .foregroundStyle(Color.tertiaryText)
         }
     }
 
@@ -310,20 +304,19 @@ struct ScholarInsightContent: View {
         } else {
             Text("Context information unavailable")
                 .font(.system(size: 13))
-                .foregroundStyle(Color.footnoteGray)
+                .foregroundStyle(Color.tertiaryText)
         }
     }
 
     private func contextBlock(title: String, text: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .bold))
-                .tracking(1)
-                .foregroundStyle(Color.footnoteGray)
+            Text(title)
+                .editorialLabel()
+                .foregroundStyle(Color.tertiaryText)
 
             Text(text)
-                .font(.custom("CormorantGaramond-Regular", size: 14))
-                .foregroundStyle(Color.scholarInk)
+                .insightBody()
+                .foregroundStyle(Color.primaryText)
                 .lineLimit(3)
         }
     }
@@ -344,10 +337,10 @@ struct ScholarInsightContent: View {
                         Text("(\(token.transliteration))")
                             .font(.system(size: 13))
                             .italic()
-                            .foregroundStyle(Color.footnoteGray)
+                            .foregroundStyle(Color.tertiaryText)
 
                         Text("—")
-                            .foregroundStyle(Color.footnoteGray)
+                            .foregroundStyle(Color.tertiaryText)
 
                         Text(token.gloss)
                             .font(.system(size: 13, weight: .medium))
@@ -358,13 +351,13 @@ struct ScholarInsightContent: View {
                 if viewModel.languageTokens.count > 3 {
                     Text("+ \(viewModel.languageTokens.count - 3) more words")
                         .font(.system(size: 11))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
             }
         } else {
             Text("No language data available")
                 .font(.system(size: 13))
-                .foregroundStyle(Color.footnoteGray)
+                .foregroundStyle(Color.tertiaryText)
         }
     }
 
@@ -387,8 +380,8 @@ struct ScholarInsightContent: View {
                                 .foregroundStyle(Color.scholarIndigo)
 
                             Text(crossRef.preview)
-                                .font(.custom("CormorantGaramond-Regular", size: 14))
-                                .foregroundStyle(Color.scholarInk)
+                                .insightBody()
+                                .foregroundStyle(Color.primaryText)
                                 .lineLimit(2)
                         }
                     }
@@ -397,13 +390,13 @@ struct ScholarInsightContent: View {
                 if viewModel.crossRefs.count > 3 {
                     Text("+ \(viewModel.crossRefs.count - 3) more references")
                         .font(.system(size: 11))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
             }
         } else {
             Text("No cross-references found")
                 .font(.system(size: 13))
-                .foregroundStyle(Color.footnoteGray)
+                .foregroundStyle(Color.tertiaryText)
         }
     }
 
@@ -429,7 +422,7 @@ struct ScholarInsightContent: View {
             .padding(.vertical, AppTheme.Spacing.sm + 2)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .fill(Color.scholarIndigoSubtle)
+                    .fill(Color.scholarIndigo.opacity(0.1))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
@@ -470,9 +463,9 @@ struct ScholarInsightContent: View {
         } label: {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.footnoteGray)
+                .foregroundStyle(Color.tertiaryText)
                 .frame(width: 36, height: 36)
-                .background(Color.scholarElevatedPaper)
+                .background(Color.surfaceBackground)
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
@@ -539,7 +532,7 @@ private struct ScholarChip: View {
                         .font(.system(size: 9, weight: .medium))
                 }
             }
-            .foregroundStyle(isSelected ? AppTheme.InsightCard.chipText : Color.footnoteGray)
+            .foregroundStyle(isSelected ? AppTheme.InsightCard.chipText : Color.tertiaryText)
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(

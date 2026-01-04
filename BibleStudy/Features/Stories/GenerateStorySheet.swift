@@ -70,7 +70,7 @@ struct GenerateStorySheet: View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text(verseRange.reference)
                 .font(Typography.UI.headline)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
 
             Text(verseText)
                 .font(Typography.Scripture.body())
@@ -154,7 +154,7 @@ struct GenerateStorySheet: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.accentGold)
+            .background(Color.scholarAccent)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
         }
         .disabled(viewModel.isGenerating)

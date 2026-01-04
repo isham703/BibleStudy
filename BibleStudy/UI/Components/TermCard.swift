@@ -47,10 +47,10 @@ struct TermCard: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "equal.circle")
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text(token.gloss)
                     .font(Typography.Language.gloss)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
             }
 
             // Plain English Morphology - the main feature
@@ -140,10 +140,10 @@ struct TermCard: View {
                     HStack(spacing: AppTheme.Spacing.xs) {
                         Image(systemName: "sparkles")
                             .font(Typography.UI.caption1)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                         Text("In Context")
                             .font(Typography.UI.caption1Bold)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                     }
 
                     Text(explanation)
@@ -171,12 +171,12 @@ struct TermCard: View {
                         Text("Explain in context")
                     }
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .padding(.horizontal, AppTheme.Spacing.md)
                     .padding(.vertical, AppTheme.Spacing.sm)
                     .background(
                         Capsule()
-                            .stroke(Color.accentGold.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
+                            .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
                     )
                 }
                 .disabled(isLoadingExplanation)
@@ -206,7 +206,7 @@ struct LanguageBadge: View {
     }
 
     var color: Color {
-        language == "hebrew" ? Color.accentGold : Color.accentBlue
+        language == "hebrew" ? Color.scholarAccent : Color.accentBlue
     }
 
     var body: some View {

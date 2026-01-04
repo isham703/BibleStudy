@@ -26,7 +26,7 @@ struct NarrativeHomePage: View {
                     .offset(y: scrollOffset * 0.5) // Parallax effect
 
                 // Content
-                VStack(spacing: SanctuaryTheme.Spacing.xxxl) {
+                VStack(spacing: AppTheme.Spacing.xxxl) {
                     // Today's Word
                     verseSection
 
@@ -39,9 +39,9 @@ struct NarrativeHomePage: View {
                     // Insight For You
                     insightSection
                 }
-                .padding(.top, SanctuaryTheme.Spacing.xxxl)
-                .padding(.bottom, SanctuaryTheme.Spacing.huge)
-                .padding(.horizontal, SanctuaryTheme.Spacing.lg)
+                .padding(.top, AppTheme.Spacing.xxxl)
+                .padding(.bottom, AppTheme.Spacing.huge)
+                .padding(.horizontal, AppTheme.Spacing.lg)
             }
         }
         .background(Color.candlelitStone)
@@ -56,7 +56,7 @@ struct NarrativeHomePage: View {
             animateTitleTyping()
 
             // CTA glow pulse
-            withAnimation(SanctuaryTheme.Animation.pulse) {
+            withAnimation(AppTheme.Animation.pulse) {
                 ctaGlowOpacity = 0.6
             }
         }
@@ -103,7 +103,7 @@ struct NarrativeHomePage: View {
             )
 
             // Content
-            VStack(spacing: SanctuaryTheme.Spacing.lg) {
+            VStack(spacing: AppTheme.Spacing.lg) {
                 Spacer()
                     .frame(height: 60)
 
@@ -125,7 +125,7 @@ struct NarrativeHomePage: View {
                     .animation(.easeOut(duration: 0.6).delay(0.8), value: isVisible)
 
                 // Stats row
-                HStack(spacing: SanctuaryTheme.Spacing.lg) {
+                HStack(spacing: AppTheme.Spacing.lg) {
                     Text("Day \(plan.currentDay) of John")
                         .font(SanctuaryTypography.Narrative.heroStats)
                         .foregroundStyle(Color.fadedMoonlight)
@@ -145,7 +145,7 @@ struct NarrativeHomePage: View {
                 .animation(.easeOut(duration: 0.5).delay(1.0), value: isVisible)
 
                 Spacer()
-                    .frame(height: SanctuaryTheme.Spacing.xl)
+                    .frame(height: AppTheme.Spacing.xl)
 
                 // CTA Button with glow
                 Button(action: {}) {
@@ -157,10 +157,10 @@ struct NarrativeHomePage: View {
                             .font(.system(size: 14, weight: .semibold))
                     }
                     .foregroundStyle(Color.candlelitStone)
-                    .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                    .padding(.vertical, SanctuaryTheme.Spacing.md)
+                    .padding(.horizontal, AppTheme.Spacing.xl)
+                    .padding(.vertical, AppTheme.Spacing.md)
                     .background(
-                        RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.small)
+                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                             .fill(Color.divineGold)
                     )
                     .shadow(color: Color.divineGold.opacity(ctaGlowOpacity), radius: 16)
@@ -170,11 +170,11 @@ struct NarrativeHomePage: View {
                 .animation(.spring(duration: 0.5).delay(1.2), value: isVisible)
 
                 Spacer()
-                    .frame(height: SanctuaryTheme.Spacing.xxxl)
+                    .frame(height: AppTheme.Spacing.xxxl)
             }
-            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+            .padding(.horizontal, AppTheme.Spacing.xl)
         }
-        .frame(height: SanctuaryTheme.Size.heroHeight)
+        .frame(height: AppTheme.Size.heroHeight)
     }
 
     private var grainOverlay: some View {
@@ -197,7 +197,7 @@ struct NarrativeHomePage: View {
     // MARK: - Verse Section
 
     private var verseSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.xl) {
+        VStack(spacing: AppTheme.Spacing.xl) {
             // Header
             VStack(spacing: 4) {
                 Text("T O D A Y ' S")
@@ -217,7 +217,7 @@ struct NarrativeHomePage: View {
     // MARK: - Story Section
 
     private var storySection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             // Header
             VStack(alignment: .leading, spacing: 4) {
                 Text("C O N T I N U E   Y O U R")
@@ -240,7 +240,7 @@ struct NarrativeHomePage: View {
     // MARK: - Discover Section
 
     private var discoverSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             Text("D I S C O V E R")
                 .narrativeHeader()
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -251,13 +251,13 @@ struct NarrativeHomePage: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(2.1), value: isVisible)
         }
-        .padding(.horizontal, -SanctuaryTheme.Spacing.lg)
+        .padding(.horizontal, -AppTheme.Spacing.lg)
     }
 
     // MARK: - Insight Section
 
     private var insightSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             Text("I N S I G H T   F O R   Y O U")
                 .narrativeHeader()
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -288,7 +288,7 @@ struct NarrativeStoryCard: View {
     @State private var isPressed = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             // Play icon
             HStack {
                 Image(systemName: "play.fill")
@@ -337,10 +337,10 @@ struct NarrativeStoryCard: View {
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(Color.divineGold)
         }
-        .padding(SanctuaryTheme.Spacing.xl)
+        .padding(AppTheme.Spacing.xl)
         .background(
             ZStack {
-                RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.large)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
                     .fill(Color.chapelShadow)
 
                 // Subtle gradient overlay
@@ -352,11 +352,11 @@ struct NarrativeStoryCard: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                .clipShape(RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.large))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
             }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.large)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
                 .stroke(Color.divineGold.opacity(0.2), lineWidth: 1)
         )
         .shadow(color: .black.opacity(0.3), radius: 16, y: 8)

@@ -71,18 +71,18 @@ struct AchievementCelebration: View {
                 HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: "star.fill")
                         .font(Typography.UI.subheadline)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
 
                     Text("+\(achievement.xpReward) XP")
                         .font(Typography.UI.headline.monospacedDigit())
                         .fontWeight(.bold)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
                 .padding(.horizontal, AppTheme.Spacing.lg)
                 .padding(.vertical, AppTheme.Spacing.sm)
                 .background(
                     Capsule()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
                 )
                 .transition(.scale.combined(with: .opacity))
             }
@@ -98,7 +98,7 @@ struct AchievementCelebration: View {
         case .reading: return .accentBlue
         case .memorization: return .highlightPurple
         case .streaks: return .orange
-        case .study: return .accentGold
+        case .study: return .scholarAccent
         case .milestones: return .highlightGreen
         }
     }
@@ -324,7 +324,7 @@ extension UserLevel {
         switch self {
         case .novice: return .secondaryText
         case .apprentice: return .accentBlue
-        case .scholar: return .accentGold
+        case .scholar: return .scholarAccent
         case .master: return .highlightPurple
         case .sage: return .highlightGreen
         }

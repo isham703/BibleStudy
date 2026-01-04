@@ -59,7 +59,7 @@ struct SubscriptionSectionView: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, AppTheme.Spacing.sm - 2)
                             .padding(.vertical, AppTheme.Spacing.xxs)
-                            .background(Capsule().fill(Color.accentGold))
+                            .background(Capsule().fill(Color.scholarAccent))
                     }
                 }
 
@@ -95,7 +95,7 @@ struct SubscriptionSectionView: View {
                 .padding(.vertical, AppTheme.Spacing.xs)
                 .background(
                     Capsule()
-                        .fill(Color.accentGold)
+                        .fill(Color.scholarAccent)
                 )
         }
     }
@@ -143,7 +143,7 @@ struct SubscriptionSectionView: View {
         HStack(spacing: AppTheme.Spacing.sm) {
             Image(systemName: icon)
                 .font(Typography.UI.iconXs)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .frame(width: 20)
 
             Text(text)
@@ -223,12 +223,12 @@ struct SubscriptionSectionView: View {
                 Text("Manage Subscription")
                     .font(Typography.UI.subheadline)
             }
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.scholarAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(Color.accentGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                    .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
             )
         }
     }
@@ -259,8 +259,8 @@ struct SubscriptionSectionView: View {
     private var tierColor: Color {
         switch viewModel.currentTier {
         case .free: return Color.secondaryText
-        case .premium: return Color.accentGold
-        case .scholar: return Color.accentGold
+        case .premium: return Color.scholarAccent
+        case .scholar: return Color.scholarAccent
         }
     }
 
@@ -269,7 +269,7 @@ struct SubscriptionSectionView: View {
             // Scholar tier: Subtle gold hint without heavy layering
             return LinearGradient(
                 colors: [
-                    Color.accentGold.opacity(AppTheme.Opacity.faint - 0.04),
+                    Color.scholarAccent.opacity(AppTheme.Opacity.faint - 0.04),
                     Color.clear
                 ],
                 startPoint: .topLeading,
@@ -279,7 +279,7 @@ struct SubscriptionSectionView: View {
             // Premium tier: Very subtle warmth
             return LinearGradient(
                 colors: [
-                    Color.accentGold.opacity(AppTheme.Opacity.faint - 0.05),
+                    Color.scholarAccent.opacity(AppTheme.Opacity.faint - 0.05),
                     Color.clear
                 ],
                 startPoint: .topLeading,

@@ -72,7 +72,7 @@ struct StoryReadingLevelButton: View {
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.accentGold : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
@@ -101,7 +101,7 @@ struct StoryReadingLevelInfoSheet: View {
                             HStack(spacing: AppTheme.Spacing.sm) {
                                 Image(systemName: level.icon)
                                     .font(Typography.UI.title3)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                                     .frame(width: AppTheme.IconContainer.medium)
 
                                 Text(level.displayName)

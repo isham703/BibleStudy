@@ -238,7 +238,7 @@ struct ScrollModeReaderContent: View {
     private func flashOverlay(for verse: Verse) -> some View {
         if viewModel.flashVerseId == verse.verse {
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                .fill(Color.accentGold.opacity(flashOpacity * 0.4))
+                .fill(Color.scholarAccent.opacity(flashOpacity * 0.4))
                 .onAppear {
                     flashOpacity = 1.0
                     withAnimation(AppTheme.Animation.slow) {

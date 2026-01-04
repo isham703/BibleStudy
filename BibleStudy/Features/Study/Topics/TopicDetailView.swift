@@ -118,7 +118,7 @@ struct TopicVerseCard: View {
             HStack {
                 Text(verse.reference)
                     .font(Typography.UI.caption1Bold)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
 
                 Spacer()
 

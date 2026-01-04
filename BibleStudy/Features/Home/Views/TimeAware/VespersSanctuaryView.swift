@@ -23,38 +23,38 @@ struct VespersSanctuaryView: View {
                     VStack(spacing: 0) {
                         // Header
                         headerSection
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                            .padding(.top, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
+                            .padding(.top, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl)
+                            .frame(height: AppTheme.Spacing.xxxl)
 
                         // Evening verse
                         verseSection
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxl)
+                            .frame(height: AppTheme.Spacing.xxl)
 
                         // Primary CTA - Evening Prayer
                         primaryCard
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.lg)
+                            .frame(height: AppTheme.Spacing.lg)
 
                         // Feature Grid
                         featureGrid
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl)
+                            .frame(height: AppTheme.Spacing.xxxl)
 
                         // Transition hint to Compline
                         complineHint
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl)
+                            .frame(height: AppTheme.Spacing.xxxl)
                     }
                     .frame(minHeight: geometry.size.height)
                 }
@@ -115,7 +115,7 @@ struct VespersSanctuaryView: View {
     // MARK: - Verse Section
 
     private var verseSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.xl) {
+        VStack(spacing: AppTheme.Spacing.xl) {
             // Top divider
             VespersDivider()
                 .opacity(isVisible ? 1 : 0)
@@ -134,7 +134,7 @@ struct VespersSanctuaryView: View {
                 .foregroundStyle(Color.vespersText)
                 .multilineTextAlignment(.center)
                 .lineSpacing(8)
-                .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 10)
                 .animation(.easeOut(duration: 0.7).delay(0.6), value: isVisible)
@@ -152,7 +152,7 @@ struct VespersSanctuaryView: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.6).delay(1.0), value: isVisible)
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.lg)
     }
 
     // MARK: - Primary Card
@@ -171,9 +171,9 @@ struct VespersSanctuaryView: View {
     // MARK: - Feature Grid
 
     private var featureGrid: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Row 1
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 VespersFeatureCard(
                     feature: .prayersFromDeep,
                     isPrimary: false,
@@ -194,7 +194,7 @@ struct VespersSanctuaryView: View {
             }
 
             // Row 2
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 VespersFeatureCard(
                     feature: .livingCommentary,
                     isPrimary: false,

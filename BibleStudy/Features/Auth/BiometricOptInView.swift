@@ -102,7 +102,7 @@ struct BiometricOptInView: View {
 
             // Glow ring
             Circle()
-                .fill(Color.Glow.goldAmbient)
+                .fill(Color.Glow.indigoAmbient)
                 .frame(width: 90, height: 90)
                 .blur(radius: AppTheme.Blur.heavy)
                 .scaleEffect(isAnimating ? 1.1 : 0.9)

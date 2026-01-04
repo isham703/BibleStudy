@@ -54,7 +54,7 @@ struct InlineErrorView: View {
             if let retryAction = retryAction {
                 Button("Retry", action: retryAction)
                     .font(Typography.UI.warmSubheadline)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
             }
         }
         .padding()

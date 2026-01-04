@@ -590,6 +590,13 @@ enum ContentWidth: String, CaseIterable {
         }
     }
 
+    func resolvedWidth(for availableWidth: CGFloat) -> CGFloat {
+        guard let maxWidth = maxWidth else {
+            return availableWidth
+        }
+        return min(maxWidth, availableWidth)
+    }
+
     var description: String {
         switch self {
         case .compact: return "Narrow column, optimal for reading"

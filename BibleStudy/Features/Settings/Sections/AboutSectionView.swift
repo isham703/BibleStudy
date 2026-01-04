@@ -64,7 +64,7 @@ struct AboutSectionView: View {
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium + 2)
                 .fill(
                     LinearGradient(
-                        colors: [Color.accentGold, Color.accentGold.opacity(AppTheme.Opacity.overlay)],
+                        colors: [Color.scholarAccent, Color.scholarAccent.opacity(AppTheme.Opacity.overlay)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -125,7 +125,7 @@ struct AboutSectionView: View {
 
     private var colophonFooter: some View {
         VStack(spacing: AppTheme.Spacing.md) {
-            OrnamentalDivider(style: .sectionBreak, color: Color.accentGold.opacity(AppTheme.Opacity.disabled))
+            OrnamentalDivider(style: .sectionBreak, color: Color.scholarAccent.opacity(AppTheme.Opacity.disabled))
 
             VStack(spacing: AppTheme.Spacing.xs) {
                 Text("Made with care for Scripture study")
@@ -135,7 +135,7 @@ struct AboutSectionView: View {
                 // Small decorative cross or ornament
                 Image(systemName: "cross.fill")
                     .font(Typography.UI.iconXxxs)
-                    .foregroundStyle(Color.accentGold.opacity(AppTheme.Opacity.disabled))
+                    .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.disabled))
             }
         }
         .padding(.top, AppTheme.Spacing.lg)

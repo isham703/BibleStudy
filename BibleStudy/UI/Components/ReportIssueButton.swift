@@ -62,7 +62,7 @@ struct ReportIssueSheet: View {
 
                                 if selectedReason == reason {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.accentGold)
+                                        .foregroundStyle(Color.scholarAccent)
                                 }
                             }
                         }

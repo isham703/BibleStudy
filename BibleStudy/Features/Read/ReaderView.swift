@@ -375,10 +375,8 @@ struct ReaderView: View {
                 }
             }
         }
-        .sheet(isPresented: $showAppSettings) {
-            NavigationStack {
-                SettingsView()
-            }
+        .fullScreenCover(isPresented: $showAppSettings) {
+            FloatingSanctuarySettings()
         }
         .onReceive(NotificationCenter.default.publisher(for: .deepLinkSearchRequested)) { notification in
             // Open search sheet, optionally with a pre-filled query
@@ -439,7 +437,7 @@ struct ReaderView: View {
                 Image(systemName: "chevron.right")
                     .font(Typography.UI.iconXxs)
             }
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.scholarAccent)
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
@@ -450,7 +448,7 @@ struct ReaderView: View {
                 Capsule()
                     .stroke(Color.divineGold, lineWidth: AppTheme.Border.thin)
             )
-            .shadow(AppTheme.Shadow.goldGlow)
+            .shadow(AppTheme.Shadow.indigoGlow)
         }
         .accessibilityLabel("Return to insights")
         .accessibilityHint("Reopens the insight sheet for the previously selected verses")

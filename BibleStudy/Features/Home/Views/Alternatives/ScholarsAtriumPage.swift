@@ -18,46 +18,45 @@ struct ScholarsAtriumPage: View {
                 VStack(spacing: 0) {
                     // Header
                     headerSection
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                        .padding(.top, SanctuaryTheme.Spacing.lg)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
+                        .padding(.top, AppTheme.Spacing.lg)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xxl)
+                        .frame(height: AppTheme.Spacing.xxl)
 
                     // Today's Study Card
                     todayStudyCard
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xxl)
+                        .frame(height: AppTheme.Spacing.xxl)
 
                     // Deepen Understanding Section
                     deepenSection
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.lg)
+                        .frame(height: AppTheme.Spacing.lg)
 
                     // Feature Grid
                     featureGrid
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xxl)
+                        .frame(height: AppTheme.Spacing.xxl)
 
                     // Evening Practices
                     eveningSection
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xxxl)
+                        .frame(height: AppTheme.Spacing.xxxl)
                 }
                 .frame(minHeight: geometry.size.height)
             }
         }
-        .background(Color.vellumCream.ignoresSafeArea())
+        .background(Color.appBackground.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.light)
         .onAppear {
             withAnimation(.spring(response: 0.4, dampingFraction: 1.0)) {
                 isVisible = true
@@ -73,11 +72,11 @@ struct ScholarsAtriumPage: View {
                 Text("BIBLESTUDY")
                     .font(SanctuaryTypography.Scholar.header)
                     .tracking(1.5)
-                    .foregroundStyle(Color.scholarInk)
+                    .foregroundStyle(Color.primaryText)
 
                 Text(HomeShowcaseMockData.formattedDate)
                     .font(SanctuaryTypography.Scholar.date)
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
             }
             .opacity(isVisible ? 1 : 0)
             .animation(.easeOut(duration: 0.3), value: isVisible)
@@ -88,7 +87,7 @@ struct ScholarsAtriumPage: View {
                 Button(action: settingsAction) {
                     Image(systemName: "gearshape")
                         .font(.system(size: 18, weight: .regular))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
 
                 // Streak badge (dark variant for light mode)
@@ -98,7 +97,7 @@ struct ScholarsAtriumPage: View {
                         .foregroundStyle(Color.connectionAmber)
                     Text("\(user.currentStreak)")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.scholarInk)
+                        .foregroundStyle(Color.primaryText)
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
@@ -118,26 +117,25 @@ struct ScholarsAtriumPage: View {
         VStack(alignment: .leading, spacing: 16) {
             // Section header
             Text("TODAY'S STUDY")
-                .font(SanctuaryTypography.Scholar.sectionHeader)
-                .tracking(2.5)
+                .editorialSectionHeader()
                 .foregroundStyle(Color.scholarIndigo)
 
             // Scripture card
             VStack(alignment: .leading, spacing: 12) {
                 // Reference
                 Text(plan.todayReference)
-                    .font(SanctuaryTypography.Scholar.scriptureRef)
-                    .foregroundStyle(Color.scholarInk)
+                    .font(Typography.Editorial.referenceHero)
+                    .foregroundStyle(Color.primaryText)
 
                 // Divider line
                 Rectangle()
-                    .fill(Color.scholarInk.opacity(0.1))
+                    .fill(Color.primaryText.opacity(0.1))
                     .frame(height: 1)
 
                 // Scripture preview with underline hints
                 Text(plan.previewQuote)
-                    .font(SanctuaryTypography.Scholar.scriptureText)
-                    .foregroundStyle(Color.inkWell)
+                    .font(CustomFonts.cormorantRegular(size: 19))
+                    .foregroundStyle(Color.primaryText)
                     .lineSpacing(8)
                     .overlay(alignment: .bottomLeading) {
                         // Underline hint on first phrase
@@ -160,11 +158,11 @@ struct ScholarsAtriumPage: View {
                 }
             }
             .padding(20)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.scholarInk.opacity(0.08), lineWidth: 1)
+                    .stroke(Color.primaryText.opacity(0.08), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
         }
@@ -178,8 +176,7 @@ struct ScholarsAtriumPage: View {
     private var deepenSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("DEEPEN YOUR UNDERSTANDING")
-                .font(SanctuaryTypography.Scholar.sectionHeader)
-                .tracking(2)
+                .editorialSectionHeader()
                 .foregroundStyle(Color.scholarIndigo)
 
             // Living Commentary marginalia card
@@ -198,7 +195,7 @@ struct ScholarsAtriumPage: View {
     // MARK: - Feature Grid
 
     private var featureGrid: some View {
-        HStack(spacing: SanctuaryTheme.Spacing.md) {
+        HStack(spacing: AppTheme.Spacing.md) {
             // Memory Palace
             ScholarFeatureCard(
                 feature: .memoryPalace,
@@ -228,11 +225,10 @@ struct ScholarsAtriumPage: View {
     private var eveningSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("EVENING PRACTICES")
-                .font(SanctuaryTypography.Scholar.sectionHeader)
-                .tracking(2)
-                .foregroundStyle(Color.footnoteGray)
+                .editorialSectionHeader()
+                .foregroundStyle(Color.tertiaryText)
 
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 // Compline
                 ScholarFeatureCard(
                     feature: .compline,
@@ -302,8 +298,8 @@ private struct MarginaliaCard: View {
 
                     // Description
                     Text(description)
-                        .font(SanctuaryTypography.Scholar.marginBody)
-                        .foregroundStyle(Color.inkWell)
+                        .font(CustomFonts.cormorantRegular(size: 15))
+                        .foregroundStyle(Color.primaryText)
                         .lineSpacing(4)
 
                     // Tags
@@ -323,11 +319,11 @@ private struct MarginaliaCard: View {
                 }
                 .padding(16)
             }
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.scholarInk.opacity(0.08), lineWidth: 1)
+                    .stroke(Color.primaryText.opacity(0.08), lineWidth: 1)
             )
             .shadow(
                 color: Color.black.opacity(isPressed ? 0.02 : 0.05),
@@ -397,7 +393,7 @@ private struct ScholarFeatureCard: View {
                 // Description
                 Text(description)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(Color.inkWell)
+                    .foregroundStyle(Color.primaryText)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -405,16 +401,16 @@ private struct ScholarFeatureCard: View {
                 if let detail = detail {
                     Text(detail)
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(16)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.scholarInk.opacity(0.08), lineWidth: 1)
+                    .stroke(Color.primaryText.opacity(0.08), lineWidth: 1)
             )
             .shadow(
                 color: Color.black.opacity(isPressed ? 0.02 : 0.05),

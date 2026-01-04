@@ -2,6 +2,18 @@ import SwiftUI
 
 // MARK: - Home Showcase Typography
 // Font definitions for the Home Page Showcase app
+//
+// **Purpose**: Variant-specific typography for home page showcases
+//
+// **Strategy**:
+// - References global Typography tokens where patterns align (e.g., Scholar.sectionHeader → Typography.Editorial.sectionHeader)
+// - Uses CustomFonts helpers for centralized font loading
+// - Keeps only variant-specific customizations (unique sizes, decorative elements)
+//
+// **Guidelines**:
+// - For new typography needs, check global Typography first
+// - Only add variant-specific tokens here if they differ from global patterns
+// - Document why each token is variant-specific (e.g., "variant-specific 72pt decorative quote")
 
 enum SanctuaryTypography {
 
@@ -34,20 +46,14 @@ enum SanctuaryTypography {
         /// Greeting - whisper weight
         static let greeting = Font.system(size: 14, weight: .light)
 
-        /// Verse text - elegant serif
+        /// Verse text - elegant serif (variant-specific 28pt italic)
         static var verse: Font {
-            if let _ = UIFont(name: cormorantItalic, size: 28) {
-                return Font.custom(cormorantItalic, size: 28)
-            }
-            return Font.system(size: 28, weight: .regular, design: .serif).italic()
+            CustomFonts.cormorantItalic(size: 28)
         }
 
-        /// Reference - tracked Cinzel
+        /// Reference - tracked Cinzel (variant-specific 12pt)
         static var reference: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 12) {
-                return Font.custom(cinzelRegular, size: 12)
-            }
-            return Font.system(size: 12, weight: .medium)
+            CustomFonts.cinzelRegular(size: 12)
         }
 
         /// Action text - medium weight
@@ -55,10 +61,7 @@ enum SanctuaryTypography {
 
         /// Section header - uppercase tracked
         static var sectionHeader: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 11) {
-                return Font.custom(cinzelRegular, size: 11)
-            }
-            return Font.system(size: 11, weight: .medium)
+            CustomFonts.cinzelRegular(size: 11)
         }
     }
 
@@ -96,20 +99,14 @@ enum SanctuaryTypography {
     // MARK: - Narrative Typography (Cinematic)
 
     enum Narrative {
-        /// Hero title - tracked Cinzel
+        /// Hero title - tracked Cinzel (variant-specific 13pt)
         static var heroTitle: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 13) {
-                return Font.custom(cinzelRegular, size: 13)
-            }
-            return Font.system(size: 13, weight: .medium)
+            CustomFonts.cinzelRegular(size: 13)
         }
 
-        /// Hero greeting - large Cormorant
+        /// Hero greeting - large Cormorant (variant-specific 32pt)
         static var heroGreeting: Font {
-            if let _ = UIFont(name: cormorantSemiBold, size: 32) {
-                return Font.custom(cormorantSemiBold, size: 32)
-            }
-            return Font.system(size: 32, weight: .semibold, design: .serif)
+            CustomFonts.cormorantSemiBold(size: 32)
         }
 
         /// Hero stats
@@ -117,26 +114,17 @@ enum SanctuaryTypography {
 
         /// Section header - tracked Cinzel
         static var sectionHeader: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 11) {
-                return Font.custom(cinzelRegular, size: 11)
-            }
-            return Font.system(size: 11, weight: .medium)
+            CustomFonts.cinzelRegular(size: 11)
         }
 
-        /// Verse text - italic Cormorant
+        /// Verse text - italic Cormorant (variant-specific 24pt)
         static var verse: Font {
-            if let _ = UIFont(name: cormorantItalic, size: 24) {
-                return Font.custom(cormorantItalic, size: 24)
-            }
-            return Font.system(size: 24, weight: .regular, design: .serif).italic()
+            CustomFonts.cormorantItalic(size: 24)
         }
 
-        /// Decorative quote mark
+        /// Decorative quote mark (variant-specific 72pt)
         static var decorativeQuote: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 72) {
-                return Font.custom(cinzelRegular, size: 72)
-            }
-            return Font.system(size: 72, weight: .light, design: .serif)
+            CustomFonts.cinzelRegular(size: 72)
         }
 
         /// Card title - bold
@@ -178,55 +166,37 @@ enum SanctuaryTypography {
     // Whisper-weight hierarchy - everything feels hushed
 
     enum Candlelit {
-        /// Greeting - whisper light
+        /// Greeting - whisper light (variant-specific 15pt Cormorant)
         static var greeting: Font {
-            if let _ = UIFont(name: cormorantRegular, size: 15) {
-                return Font.custom(cormorantRegular, size: 15)
-            }
-            return Font.system(size: 15, weight: .light, design: .serif)
+            CustomFonts.cormorantRegular(size: 15)
         }
 
-        /// Verse text - elegant italic
+        /// Verse text - elegant italic (variant-specific 26pt)
         static var verse: Font {
-            if let _ = UIFont(name: cormorantItalic, size: 26) {
-                return Font.custom(cormorantItalic, size: 26)
-            }
-            return Font.system(size: 26, weight: .regular, design: .serif).italic()
+            CustomFonts.cormorantItalic(size: 26)
         }
 
         /// Reference - tracked Cinzel uppercase
         static var reference: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 11) {
-                return Font.custom(cinzelRegular, size: 11)
-            }
-            return Font.system(size: 11, weight: .medium)
+            CustomFonts.cinzelRegular(size: 11)
         }
 
-        /// Feature label - small tracked Cinzel
+        /// Feature label - small tracked Cinzel (variant-specific 10pt)
         static var featureLabel: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 10) {
-                return Font.custom(cinzelRegular, size: 10)
-            }
-            return Font.system(size: 10, weight: .medium)
+            CustomFonts.cinzelRegular(size: 10)
         }
 
-        /// Feature title - Cormorant semibold
+        /// Feature title - Cormorant semibold (variant-specific 18pt)
         static var featureTitle: Font {
-            if let _ = UIFont(name: cormorantSemiBold, size: 18) {
-                return Font.custom(cormorantSemiBold, size: 18)
-            }
-            return Font.system(size: 18, weight: .semibold, design: .serif)
+            CustomFonts.cormorantSemiBold(size: 18)
         }
 
         /// Feature subtitle - system light
         static let featureSubtitle = Font.system(size: 13, weight: .light)
 
-        /// Duration text - small Cinzel
+        /// Duration text - small Cinzel (variant-specific 9pt)
         static var duration: Font {
-            if let _ = UIFont(name: cinzelRegular, size: 9) {
-                return Font.custom(cinzelRegular, size: 9)
-            }
-            return Font.system(size: 9, weight: .regular)
+            CustomFonts.cinzelRegular(size: 9)
         }
     }
 
@@ -241,28 +211,26 @@ enum SanctuaryTypography {
         static let date = Font.system(size: 14, weight: .regular)
 
         /// Section header - bold tracked uppercase
-        static let sectionHeader = Font.system(size: 11, weight: .bold)
+        /// References global Typography.Editorial.sectionHeader
+        static let sectionHeader = Typography.Editorial.sectionHeader
 
         /// Scripture reference - semibold
-        static let scriptureRef = Font.system(size: 14, weight: .semibold, design: .serif)
+        /// References global Typography.Editorial.referenceHero
+        static let scriptureRef = Typography.Editorial.referenceHero
 
-        /// Scripture text - regular serif
+        /// Scripture text - regular serif (variant-specific 19pt size)
+        /// Uses CustomFonts helper for centralized font loading
         static var scriptureText: Font {
-            if let _ = UIFont(name: cormorantRegular, size: 19) {
-                return Font.custom(cormorantRegular, size: 19)
-            }
-            return Font.system(size: 19, weight: .regular, design: .serif)
+            CustomFonts.cormorantRegular(size: 19)
         }
 
         /// Marginalia label - small bold tracked
         static let marginLabel = Font.system(size: 9, weight: .bold)
 
         /// Marginalia body - regular serif
+        /// Uses CustomFonts helper for centralized font loading
         static var marginBody: Font {
-            if let _ = UIFont(name: cormorantRegular, size: 15) {
-                return Font.custom(cormorantRegular, size: 15)
-            }
-            return Font.system(size: 15, weight: .regular, design: .serif)
+            CustomFonts.cormorantRegular(size: 15)
         }
 
         /// Chip text - medium

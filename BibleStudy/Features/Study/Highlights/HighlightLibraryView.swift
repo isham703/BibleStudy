@@ -228,11 +228,11 @@ struct HighlightFilterChip: View {
             .padding(.vertical, AppTheme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? (color?.color.opacity(AppTheme.Opacity.lightMedium) ?? Color.accentGold.opacity(AppTheme.Opacity.lightMedium)) : Color.surfaceBackground)
+                    .fill(isSelected ? (color?.color.opacity(AppTheme.Opacity.lightMedium) ?? Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium)) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? (color?.color ?? Color.accentGold) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? (color?.color ?? Color.scholarAccent) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
             )
         }
         .buttonStyle(.plain)
@@ -480,7 +480,7 @@ struct SortOptionsSheet: View {
                                 Spacer()
                                 if sortOption == option {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.accentGold)
+                                        .foregroundStyle(Color.scholarAccent)
                                 }
                             }
                             .foregroundStyle(Color.primaryText)
@@ -500,7 +500,7 @@ struct SortOptionsSheet: View {
                                 Spacer()
                                 if groupOption == option {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.accentGold)
+                                        .foregroundStyle(Color.scholarAccent)
                                 }
                             }
                             .foregroundStyle(Color.primaryText)

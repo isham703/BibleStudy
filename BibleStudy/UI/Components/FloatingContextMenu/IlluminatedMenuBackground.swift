@@ -84,7 +84,7 @@ struct IlluminatedMenuBackground: View {
                     .fill(Color.clear)
                     .frame(height: menuHeight)
                     .shadow(
-                        color: Color.Glow.goldAmbient,
+                        color: Color.Glow.indigoAmbient,
                         radius: 8,
                         x: 0,
                         y: 4
@@ -179,7 +179,7 @@ struct IlluminatedMenuBackground: View {
                     .fill(Color.divineGold)
                     .frame(width: flourishSize, height: flourishSize)
                     .shadow(
-                        color: Color.Glow.goldBright,
+                        color: Color.Glow.indigoBright,
                         radius: 3,
                         x: 0,
                         y: 0

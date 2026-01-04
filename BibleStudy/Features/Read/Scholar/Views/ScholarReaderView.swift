@@ -31,12 +31,8 @@ struct ScholarReaderView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Background - clean vellum cream
-                Color.vellumCream
-                    .ignoresSafeArea()
-
-                // Subtle paper gradient
-                Color.paperGradient
+                // Background - adaptive semantic color
+                Color.appBackground
                     .ignoresSafeArea()
 
                 // Main content
@@ -63,7 +59,6 @@ struct ScholarReaderView: View {
             .coordinateSpace(name: "scholarReader")
         }
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.light)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 if let viewModel = viewModel {
@@ -91,7 +86,7 @@ struct ScholarReaderView: View {
                 } label: {
                     Image(systemName: "textformat.size")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(Color.scholarInk)
+                        .foregroundStyle(Color.primaryText)
                 }
             }
         }
@@ -200,7 +195,7 @@ struct ScholarReaderView: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(viewModel.canGoBack ? Color.scholarInk : Color.scholarInk.opacity(0.3))
+                    .foregroundStyle(viewModel.canGoBack ? Color.primaryText : Color.primaryText.opacity(0.3))
             }
             .disabled(!viewModel.canGoBack)
 
@@ -209,7 +204,7 @@ struct ScholarReaderView: View {
             } label: {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(viewModel.canGoForward ? Color.scholarInk : Color.scholarInk.opacity(0.3))
+                    .foregroundStyle(viewModel.canGoForward ? Color.primaryText : Color.primaryText.opacity(0.3))
             }
             .disabled(!viewModel.canGoForward)
         }
@@ -223,8 +218,8 @@ struct ScholarReaderView: View {
                 .tint(Color.scholarIndigo)
 
             Text("Loading...")
-                .font(.custom("CormorantGaramond-Regular", size: 16))
-                .foregroundStyle(Color.footnoteGray)
+                .insightBody()
+                .foregroundStyle(Color.tertiaryText)
         }
     }
 
@@ -237,12 +232,12 @@ struct ScholarReaderView: View {
                 .foregroundStyle(Color.scholarIndigo)
 
             Text("Unable to load chapter")
-                .font(.custom("CormorantGaramond-SemiBold", size: 18))
-                .foregroundStyle(Color.scholarInk)
+                .insightEmphasis()
+                .foregroundStyle(Color.primaryText)
 
             Text(error.localizedDescription)
-                .font(.system(size: 14))
-                .foregroundStyle(Color.footnoteGray)
+                .font(Typography.UI.footnote)
+                .foregroundStyle(Color.tertiaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppTheme.Spacing.xl)
 
@@ -263,7 +258,9 @@ struct ScholarReaderView: View {
     // MARK: - Content View
 
     private func contentView(chapter: Chapter, geometry: GeometryProxy, viewModel: ScholarsReaderViewModel) -> some View {
-        ScrollViewReader { proxy in
+        let contentWidth = appState.contentWidth.resolvedWidth(for: geometry.size.width)
+
+        return ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     // Chapter header
@@ -277,12 +274,13 @@ struct ScholarReaderView: View {
 
                     // Verses with inline insight cards
                     versesSection(chapter: chapter, geometry: geometry, viewModel: viewModel)
-                        .padding(.horizontal, AppTheme.Spacing.lg)
 
                     // Bottom spacing
                     Spacer()
                         .frame(height: 120)
                 }
+                .frame(width: contentWidth)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .frame(minHeight: geometry.size.height)
             }
             .onAppear {
@@ -296,9 +294,8 @@ struct ScholarReaderView: View {
     private func chapterHeader(viewModel: ScholarsReaderViewModel) -> some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             // Book name - editorial style
-            Text(viewModel.book?.name.uppercased() ?? "")
-                .font(.system(size: 11, weight: .bold))
-                .tracking(2.5)
+            Text(viewModel.book?.name ?? "")
+                .editorialSectionHeader()
                 .foregroundStyle(Color.scholarIndigo)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.3), value: isVisible)
@@ -306,8 +303,8 @@ struct ScholarReaderView: View {
             // Chapter number
             HStack(spacing: 0) {
                 Text("Chapter \(viewModel.currentLocation.chapter)")
-                    .font(.system(size: 28, weight: .bold, design: .serif))
-                    .foregroundStyle(Color.scholarInk)
+                    .readingChapterNumber()
+                    .foregroundStyle(Color.primaryText)
 
                 Spacer()
             }
@@ -329,7 +326,7 @@ struct ScholarReaderView: View {
 
     private var editorialDivider: some View {
         Rectangle()
-            .fill(Color.scholarInk.opacity(0.1))
+            .fill(Color.primaryText.opacity(0.1))
             .frame(height: 1)
             .padding(.horizontal, AppTheme.Spacing.xl)
             .opacity(isVisible ? 1 : 0)
@@ -339,6 +336,19 @@ struct ScholarReaderView: View {
     // MARK: - Verses Section
 
     private func versesSection(chapter: Chapter, geometry: GeometryProxy, viewModel: ScholarsReaderViewModel) -> some View {
+        Group {
+            if appState.paragraphMode {
+                paragraphModeContent(chapter: chapter, viewModel: viewModel)
+            } else {
+                verseModeContent(chapter: chapter, geometry: geometry, viewModel: viewModel)
+            }
+        }
+        .padding(.horizontal, AppTheme.Spacing.lg)
+    }
+
+    // MARK: - Verse Mode Content
+
+    private func verseModeContent(chapter: Chapter, geometry: GeometryProxy, viewModel: ScholarsReaderViewModel) -> some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             ForEach(Array(chapter.verses.enumerated()), id: \.element.id) { index, verse in
                 ScholarVerseRow(
@@ -350,6 +360,7 @@ struct ScholarReaderView: View {
                     inlineInsight: inlineInsightPayload(for: verse, viewModel: viewModel),
                     isSpokenVerse: currentPlayingVerse == verse.verse,
                     fontSize: appState.scriptureFontSize,
+                    scriptureFont: appState.scriptureFont,
                     lineSpacing: appState.lineSpacing.value,
                     flashOpacity: viewModel.flashVerseId == verse.verse ? flashOpacity : 0,
                     onTap: {
@@ -384,6 +395,29 @@ struct ScholarReaderView: View {
                 )
             }
         }
+    }
+
+    // MARK: - Paragraph Mode Content
+
+    private func paragraphModeContent(chapter: Chapter, viewModel: ScholarsReaderViewModel) -> some View {
+        ParagraphModeView(
+            verses: chapter.verses,
+            selectedVerses: viewModel.selectedVerses,
+            fontSize: appState.scriptureFontSize,
+            lineSpacing: appState.lineSpacing.value,
+            onSelectVerse: { verseNum in
+                withAnimation(AppTheme.Animation.selection) {
+                    viewModel.selectVerse(verseNum)
+                }
+                HapticService.shared.lightTap()
+            },
+            getHighlightColor: { verseNum in
+                viewModel.highlightColor(for: verseNum)
+            }
+        )
+        .opacity(isVisible ? 1 : 0)
+        .offset(y: isVisible ? 0 : 20)
+        .animation(.spring(response: 0.4, dampingFraction: 1.0).delay(0.4), value: isVisible)
     }
 
     private func inlineInsightPayload(for verse: Verse, viewModel: ScholarsReaderViewModel) -> ScholarInlineInsightPayload? {
@@ -507,6 +541,7 @@ private struct ScholarVerseRow: View {
     let inlineInsight: ScholarInlineInsightPayload?
     let isSpokenVerse: Bool
     let fontSize: ScriptureFontSize
+    let scriptureFont: ScriptureFont
     let lineSpacing: CGFloat
     let flashOpacity: Double
     let onTap: () -> Void
@@ -530,16 +565,15 @@ private struct ScholarVerseRow: View {
                     }
 
                     Text("\(verse.verse)")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(isSelected ? Color.scholarIndigo : Color.scholarInk)
+                        .readingVerseNumber()
+                        .foregroundStyle(isSelected ? Color.scholarIndigo : Color.primaryText)
                         .frame(width: verseNumberWidth, alignment: .trailing)
                 }
 
                 // Verse text
                 Text(verse.text)
-                    .font(.custom("CormorantGaramond-Regular", size: fontSize.rawValue + 1))
-                    .foregroundStyle(Color.inkWell)
-                    .lineSpacing(lineSpacing)
+                    .readingVerse(size: fontSize, font: scriptureFont, lineSpacing: lineSpacing)
+                    .foregroundStyle(Color.primaryText)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -594,7 +628,7 @@ private struct ScholarVerseRow: View {
         if isSelected || isInRange {
             return Color.scholarIndigo.opacity(0.08)
         } else if isSpokenVerse {
-            return Color.accentGold.opacity(0.15)
+            return Color.scholarAccent.opacity(0.15)
         } else if let highlight = highlightColor {
             return highlight.color.opacity(0.15)
         } else {
@@ -625,7 +659,7 @@ private struct ScholarVerseRow: View {
     private var flashOverlay: some View {
         if flashOpacity > 0 {
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                .fill(Color.accentGold.opacity(flashOpacity * 0.4))
+                .fill(Color.scholarAccent.opacity(flashOpacity * 0.4))
         }
     }
 

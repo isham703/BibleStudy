@@ -8,7 +8,7 @@ struct ChatEntryButton: View {
     @State private var isPressed = false
 
     var body: some View {
-        HStack(spacing: SanctuaryTheme.Spacing.sm) {
+        HStack(spacing: AppTheme.Spacing.sm) {
             Image(systemName: "bubble.left.fill")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.divineGold)
@@ -19,8 +19,8 @@ struct ChatEntryButton: View {
 
             Spacer()
         }
-        .padding(.horizontal, SanctuaryTheme.Spacing.lg)
-        .padding(.vertical, SanctuaryTheme.Spacing.md)
+        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.md)
         .background(
             Capsule()
                 .fill(.ultraThinMaterial.opacity(0.5))
@@ -43,7 +43,7 @@ struct ChatEntryButton: View {
         .offset(y: floatOffset)
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .onAppear {
-            withAnimation(SanctuaryTheme.Animation.float) {
+            withAnimation(AppTheme.Animation.float) {
                 floatOffset = 3
             }
         }
@@ -75,7 +75,7 @@ struct MockMetricPill: View {
     }
 
     var body: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.xs) {
+        VStack(spacing: AppTheme.Spacing.xs) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.system(size: 14, weight: .medium))
@@ -98,17 +98,17 @@ struct MockMetricPill: View {
                 .foregroundStyle(Color.fadedMoonlight)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, SanctuaryTheme.Spacing.md)
+        .padding(.vertical, AppTheme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .fill(.ultraThinMaterial.opacity(0.3))
         )
         .background(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .fill(Color.glassOverlay)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
         )
         .onAppear {
@@ -135,7 +135,7 @@ struct MockMetricPill: View {
             ChatEntryButton()
                 .padding(.horizontal)
 
-            HStack(spacing: SanctuaryTheme.Spacing.sm) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 MockMetricPill(
                     icon: "flame.fill",
                     value: "14",

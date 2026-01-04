@@ -138,7 +138,7 @@ struct VerseContextMenu: View {
                 actionRow(
                     icon: "sparkles",
                     label: "Interpret",
-                    accentColor: .accentGold,
+                    accentColor: .scholarAccent,
                     isFirst: true
                 ) {
                     HapticService.shared.buttonPress()

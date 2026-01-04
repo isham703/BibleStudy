@@ -56,7 +56,7 @@ struct AIConsentView: View {
         VStack(spacing: AppTheme.Spacing.md) {
             Image(systemName: "sparkles")
                 .font(Typography.UI.largeTitle)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
 
             Text("Before You Begin")
                 .font(Typography.Display.title2)
@@ -100,7 +100,7 @@ struct AIConsentView: View {
             Text("Your questions are sent to OpenAI's servers to generate responses. OpenAI processes this data according to their **API Data Usage Policy**, which states that API data is not used to train their models.")
                 .font(Typography.UI.warmBody)
                 .foregroundStyle(Color.secondaryText)
-                .tint(Color.accentGold)
+                .tint(Color.scholarAccent)
         }
         .padding(AppTheme.Spacing.md)
         .background(Color.surfaceBackground)
@@ -132,7 +132,7 @@ struct AIConsentView: View {
             Text("Read our full **Privacy Policy**")
                 .font(Typography.UI.caption1)
                 .foregroundStyle(Color.tertiaryText)
-                .tint(Color.accentGold)
+                .tint(Color.scholarAccent)
 
             Spacer()
         }
@@ -169,7 +169,7 @@ struct AIConsentView: View {
     private func sectionHeader(icon: String, title: String) -> some View {
         HStack(spacing: AppTheme.Spacing.sm) {
             Image(systemName: icon)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
             Text(title)
                 .font(Typography.Display.headline)
                 .foregroundStyle(Color.primaryText)
@@ -179,7 +179,7 @@ struct AIConsentView: View {
     private func bulletPoint(_ text: String) -> some View {
         HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
             Circle()
-                .fill(Color.accentGold)
+                .fill(Color.scholarAccent)
                 .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
                 .padding(.top, AppTheme.Spacing.sm)
 

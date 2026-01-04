@@ -14,8 +14,8 @@ struct SanctuaryHomeView: View {
                 .onSettingsTapped {
                     showSettings = true
                 }
-                .sheet(isPresented: $showSettings) {
-                    SettingsView()
+                .fullScreenCover(isPresented: $showSettings) {
+                    FloatingSanctuarySettings()
                 }
         }
         .task {

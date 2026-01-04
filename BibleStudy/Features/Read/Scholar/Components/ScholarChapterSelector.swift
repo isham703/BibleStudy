@@ -24,7 +24,7 @@ struct ScholarChapterSelector: View {
                 // Reference text
                 Text(reference)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Color.scholarInk)
+                    .foregroundStyle(Color.primaryText)
 
                 // Dropdown chevron - the key affordance
                 Image(systemName: "chevron.down")
@@ -52,7 +52,7 @@ struct ScholarChapterSelector: View {
     // MARK: - Background
 
     private var selectorBackground: some View {
-        Color.scholarIndigoSubtle
+        Color.scholarIndigo.opacity(0.1)
     }
 
     // MARK: - Border
@@ -77,7 +77,7 @@ struct ScholarChapterSelectorCompact: View {
             HStack(spacing: AppTheme.Spacing.xxs) {
                 Text(reference)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color.scholarInk)
+                    .foregroundStyle(Color.primaryText)
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 9, weight: .bold))
@@ -184,9 +184,9 @@ struct ScholarChapterSelectorCompact: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(Color.vellumCream)
+            .background(Color.appBackground)
         }
     }
     .padding()
-    .background(Color.vellumCream)
+    .background(Color.appBackground)
 }

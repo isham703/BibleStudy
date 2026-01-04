@@ -21,8 +21,8 @@ struct PrayerTraditionSelector: View {
                         .tracking(2)
                         .foregroundStyle(
                             selectedTradition == tradition
-                            ? Color.prayerCandlelight
-                            : Color.prayerUmber
+                            ? Color.surfaceBackground
+                            : Color.primaryText
                         )
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
@@ -30,22 +30,22 @@ struct PrayerTraditionSelector: View {
                             Capsule()
                                 .fill(
                                     selectedTradition == tradition
-                                    ? Color.prayerVermillion
-                                    : Color.prayerVellum
+                                    ? Color.vermillion
+                                    : Color.appBackground
                                 )
                         )
                         .overlay(
                             Capsule()
                                 .stroke(
                                     selectedTradition == tradition
-                                    ? Color.prayerGold
-                                    : Color.prayerOxide.opacity(0.5),
+                                    ? Color.divineGold
+                                    : Color.tertiaryText.opacity(0.5),
                                     lineWidth: 1
                                 )
                         )
                         .shadow(
                             color: selectedTradition == tradition
-                            ? Color.prayerGold.opacity(0.3)
+                            ? Color.divineGold.opacity(0.3)
                             : Color.clear,
                             radius: 4
                         )
@@ -61,7 +61,7 @@ struct PrayerTraditionSelector: View {
 
 #Preview {
     ZStack {
-        Color.prayerVellum.ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
         PrayerTraditionSelector(
             selectedTradition: .constant(.psalmicLament)
         )

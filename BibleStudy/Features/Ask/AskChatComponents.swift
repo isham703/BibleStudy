@@ -42,7 +42,7 @@ struct ChatBubble: View {
     private var bubbleContent: some View {
         Text(message.content)
             .font(Typography.UI.body)
-            .foregroundStyle(message.isUser ? ScholarAskPalette.userText : ScholarAskPalette.aiText)
+            .foregroundStyle(message.isUser ? Color.white : Color.primaryText)
             .padding(AppTheme.Spacing.md)
             .background(bubbleBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md, style: .continuous))
@@ -77,7 +77,7 @@ struct ChatBubble: View {
     }
 
     private var bubbleBackground: Color {
-        message.isUser ? ScholarAskPalette.userBubble : ScholarAskPalette.aiBubble
+        message.isUser ? Color.scholarIndigo : Color.surfaceBackground
     }
 
     // MARK: - Citations
@@ -109,10 +109,10 @@ struct CitationButton: View {
                 Text(citation.shortReference)
                     .font(Typography.UI.caption2)
             }
-            .foregroundStyle(ScholarAskPalette.accent)
+            .foregroundStyle(Color.scholarIndigo)
             .padding(.horizontal, AppTheme.Spacing.sm)
             .padding(.vertical, AppTheme.Spacing.xs)
-            .background(ScholarAskPalette.accentSubtle)
+            .background(Color.scholarIndigo.opacity(0.1))
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -149,7 +149,7 @@ struct TypingIndicator: View {
         HStack(spacing: AppTheme.Spacing.xxs) {
             ForEach(0..<3, id: \.self) { index in
                 Circle()
-                    .fill(ScholarAskPalette.tertiaryText)
+                    .fill(Color.tertiaryText)
                     .frame(
                         width: AppTheme.ComponentSize.indicator,
                         height: AppTheme.ComponentSize.indicator
@@ -158,7 +158,7 @@ struct TypingIndicator: View {
             }
         }
         .padding(AppTheme.Spacing.md)
-        .background(ScholarAskPalette.surface)
+        .background(Color.surfaceBackground)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md, style: .continuous))
         .onAppear(perform: startAnimation)
     }
@@ -512,12 +512,12 @@ struct FollowUpButton: View {
         Button(action: action) {
             Text(question)
                 .font(Typography.UI.caption1)
-                .foregroundStyle(ScholarAskPalette.accent)
+                .foregroundStyle(Color.scholarIndigo)
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.vertical, AppTheme.Spacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium, style: .continuous)
-                        .stroke(ScholarAskPalette.accent.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
+                        .stroke(Color.scholarIndigo.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
                 )
         }
         .buttonStyle(.plain)
@@ -535,25 +535,25 @@ struct AnchorHeader: View {
         Button(action: onTap) {
             HStack {
                 Image(systemName: "book.closed.fill")
-                    .foregroundStyle(ScholarAskPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
 
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
                     Text("Anchored to:")
                         .font(Typography.UI.caption2)
-                        .foregroundStyle(ScholarAskPalette.tertiaryText)
+                        .foregroundStyle(Color.tertiaryText)
                     Text(anchor.reference)
                         .font(Typography.UI.bodyBold)
-                        .foregroundStyle(ScholarAskPalette.primaryText)
+                        .foregroundStyle(Color.primaryText)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(ScholarAskPalette.tertiaryText)
+                    .foregroundStyle(Color.tertiaryText)
             }
             .padding(AppTheme.Spacing.md)
-            .background(ScholarAskPalette.surface)
+            .background(Color.surfaceBackground)
         }
         .buttonStyle(.plain)
     }

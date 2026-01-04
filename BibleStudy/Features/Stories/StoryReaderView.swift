@@ -354,7 +354,7 @@ struct StoryInfoSheet: View {
                             ForEach(story.verseAnchors, id: \.id) { anchor in
                                 Text(anchor.reference)
                                     .font(Typography.UI.body)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                             }
                         }
                     }

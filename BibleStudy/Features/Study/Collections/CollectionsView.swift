@@ -132,7 +132,7 @@ struct CollectionsView: View {
                 Text("Pinned")
                     .font(Typography.UI.caption1Bold)
             }
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.scholarAccent)
             .padding(.horizontal, AppTheme.Spacing.md)
 
             ForEach(viewModel.pinnedCollections) { collection in
@@ -218,7 +218,7 @@ struct CollectionCard: View {
                         if collection.isPinned {
                             Image(systemName: "pin.fill")
                                 .font(Typography.UI.caption2)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                         }
                     }
 
@@ -276,7 +276,7 @@ struct FilterChip: View {
             .padding(.vertical, AppTheme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.accentGold : Color.elevatedBackground)
+                    .fill(isSelected ? Color.scholarAccent : Color.elevatedBackground)
             )
             .foregroundStyle(isSelected ? Color.appBackground : Color.primaryText)
         }
@@ -313,7 +313,7 @@ struct NewCollectionSheet: View {
                         } label: {
                             HStack {
                                 Image(systemName: type.icon)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                                     .frame(width: AppTheme.IconContainer.small)
 
                                 VStack(alignment: .leading) {
@@ -328,7 +328,7 @@ struct NewCollectionSheet: View {
 
                                 if selectedType == type {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.accentGold)
+                                        .foregroundStyle(Color.scholarAccent)
                                 }
                             }
                         }

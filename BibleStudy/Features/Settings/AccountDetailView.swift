@@ -38,7 +38,7 @@ struct AccountDetailView: View {
                             label: viewModel.biometricType.displayName,
                             description: "Sign in quickly and securely",
                             icon: viewModel.biometricType.systemImage,
-                            iconColor: .accentGold
+                            iconColor: .scholarAccent
                         )
                     }
                 }
@@ -100,7 +100,7 @@ struct AccountDetailView: View {
             ZStack {
                 // Outer glow ring (pulses subtly)
                 Circle()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                     .blur(radius: AppTheme.Blur.medium)
                     .frame(width: 72, height: 72)
 
@@ -192,7 +192,7 @@ struct AccountDetailView: View {
     private var badgeColor: Color {
         switch viewModel.currentTier {
         case .free: return Color.secondaryText
-        case .premium, .scholar: return Color.accentGold
+        case .premium, .scholar: return Color.scholarAccent
         }
     }
 
@@ -207,11 +207,11 @@ struct AccountDetailView: View {
                 // Quill icon
                 Image(systemName: "pencil.line")
                     .font(Typography.UI.iconSm.weight(.medium))
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .frame(width: 28, height: 28)
                     .background(
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle + 0.02))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
                     )
 
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
@@ -334,7 +334,7 @@ struct AccountDetailView: View {
 
     private var membershipFooter: some View {
         VStack(spacing: AppTheme.Spacing.sm) {
-            OrnamentalDivider(style: .sectionBreak, color: Color.accentGold.opacity(AppTheme.Opacity.disabled))
+            OrnamentalDivider(style: .sectionBreak, color: Color.scholarAccent.opacity(AppTheme.Opacity.disabled))
 
             Text("Member since \(memberSinceDate)")
                 .font(Typography.Codex.italicTiny)
@@ -383,7 +383,7 @@ struct EditNameSheet: View {
                                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                                     .stroke(
                                         isFocused
-                                            ? Color.accentGold
+                                            ? Color.scholarAccent
                                             : Color.cardBorder.opacity(AppTheme.Opacity.disabled),
                                         lineWidth: isFocused ? AppTheme.Border.regular : AppTheme.Border.thin
                                     )
@@ -391,7 +391,7 @@ struct EditNameSheet: View {
                     )
                     .shadow(
                         color: isFocused
-                            ? Color.accentGold.opacity(AppTheme.Opacity.subtle)
+                            ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle)
                             : .clear,
                         radius: isFocused ? AppTheme.Blur.medium : 0
                     )
@@ -415,7 +415,7 @@ struct EditNameSheet: View {
                         dismiss()
                     }
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .disabled(name.isEmpty)
                 }
             }
@@ -474,7 +474,7 @@ struct DeleteAccountInfoSheet: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
             }
         }

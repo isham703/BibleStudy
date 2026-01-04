@@ -195,7 +195,7 @@ struct ScholarContextMenu: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
                 .buttonStyle(PlainButtonStyle())
                 .transition(.opacity.combined(with: .scale))
@@ -229,11 +229,11 @@ private struct ScholarActionButton: View {
             VStack(spacing: AppTheme.Spacing.xs - 2) {
                 Image(systemName: icon)
                     .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(Color.scholarInk.opacity(0.7))
+                    .foregroundStyle(Color.primaryText.opacity(0.7))
 
                 Text(label)
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
             }
             .frame(width: 48, height: 44)
         }
@@ -268,7 +268,7 @@ private struct ScholarStudyButton: View {
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(Color.scholarIndigoSubtle)
+                    .fill(Color.scholarIndigo.opacity(0.1))
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -319,11 +319,11 @@ private struct ScholarColorDot: View {
 
 #Preview("Scholar Context Menu") {
     ZStack {
-        Color.vellumCream.ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
 
         VStack {
             Text("10  For we are his workmanship, created in Christ Jesus unto good works.")
-                .font(.custom("CormorantGaramond-Regular", size: 18))
+                .readingVerse(size: .medium, font: .newYork)
                 .padding()
                 .background(Color.scholarIndigo.opacity(0.08))
                 .padding(.top, 180)
@@ -350,7 +350,7 @@ private struct ScholarColorDot: View {
 
 #Preview("Scholar Context Menu - With Highlight") {
     ZStack {
-        Color.vellumCream.ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
 
         ScholarContextMenu(
             verseRange: VerseRange(bookId: 1, chapter: 1, verseStart: 1, verseEnd: 3),

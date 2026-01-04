@@ -25,7 +25,7 @@ struct QuickInsightCard: View {
             HStack {
                 HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: "sparkles")
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                         .font(Typography.UI.caption1)
                         .opacity(showIcon ? 1 : 0)
                         .scaleEffect(showIcon ? 1 : 0.5)
@@ -137,7 +137,7 @@ struct QuickInsightCard: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Text(term)
                     .font(Typography.UI.caption1Bold)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("—")
                     .foregroundStyle(Color.tertiaryText)
                 Text(meaning)

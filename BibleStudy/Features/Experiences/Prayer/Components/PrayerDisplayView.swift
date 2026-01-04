@@ -12,7 +12,7 @@ struct PrayerDisplayView: View {
             // Cross ornament
             Text("✝")
                 .font(.system(size: 28))
-                .foregroundStyle(Color.prayerGold.opacity(0.6))
+                .foregroundStyle(Color.divineGold.opacity(0.6))
 
             // Prayer with drop cap
             ManuscriptPrayerText(prayer: prayer)
@@ -24,13 +24,13 @@ struct PrayerDisplayView: View {
             // Tradition note
             Text("In the tradition of \(tradition.rawValue)")
                 .font(.custom("CormorantGaramond-Italic", size: 13))
-                .foregroundStyle(Color.prayerOxide.opacity(0.7))
+                .foregroundStyle(Color.tertiaryText.opacity(0.7))
 
             // Amen
             Text(prayer.amen)
                 .font(.custom("Cinzel-Regular", size: 14))
                 .tracking(6)
-                .foregroundStyle(Color.prayerVermillion)
+                .foregroundStyle(Color.vermillion)
         }
     }
 }
@@ -51,19 +51,19 @@ private struct ManuscriptPrayerText: View {
                 .font(.custom("Cinzel-Regular", size: 72))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.prayerGold, .prayerOxide],
+                        colors: [.divineGold, .tertiaryText],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
-                .shadow(color: .prayerUmber.opacity(0.3), radius: 2, x: 1, y: 2)
+                .shadow(color: .primaryText.opacity(0.3), radius: 2, x: 1, y: 2)
                 .scaleEffect(showDropCap ? 1 : 0)
                 .animation(.spring(response: 0.8, dampingFraction: 0.6), value: showDropCap)
 
             // Rest of prayer
             Text(restOfText)
                 .font(.custom("CormorantGaramond-SemiBold", size: 20))
-                .foregroundStyle(Color.prayerUmber)
+                .foregroundStyle(Color.primaryText)
                 .lineSpacing(10)
                 .multilineTextAlignment(.leading)
         }
@@ -85,7 +85,7 @@ private struct PrayerOrnamentalDivider: View {
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [.clear, .prayerGold],
+                        colors: [.clear, .divineGold],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -94,14 +94,14 @@ private struct PrayerOrnamentalDivider: View {
 
             // Center ornament
             Circle()
-                .fill(Color.prayerGold)
+                .fill(Color.divineGold)
                 .frame(width: 6, height: 6)
 
             // Right line
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [.prayerGold, .clear],
+                        colors: [.divineGold, .clear],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -116,7 +116,7 @@ private struct PrayerOrnamentalDivider: View {
 #Preview {
     ScrollView {
         ZStack {
-            Color.prayerVellum.ignoresSafeArea()
+            Color.appBackground.ignoresSafeArea()
             PrayerDisplayView(
                 prayer: MockPrayer.psalmicLament,
                 tradition: .psalmicLament

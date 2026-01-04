@@ -42,7 +42,7 @@ struct StoryCard: View {
             if let subtitle = story.subtitle {
                 Text(subtitle)
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .lineLimit(1)
             }
 
@@ -62,7 +62,7 @@ struct StoryCard: View {
                     let percent = Int(progress.progressPercentage(totalSegments: story.segments.count) * 100)
                     Text("\(percent)% complete")
                         .font(Typography.UI.caption2.monospacedDigit())
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 } else {
                     HStack(spacing: AppTheme.Spacing.xs) {
                         Image(systemName: "clock")
@@ -82,7 +82,7 @@ struct StoryCard: View {
             // Progress bar (if in progress)
             if let progress = progress, isInProgress, !story.segments.isEmpty {
                 ProgressView(value: progress.progressPercentage(totalSegments: story.segments.count))
-                    .tint(Color.accentGold)
+                    .tint(Color.scholarAccent)
                     .frame(height: AppTheme.Divider.thick)
             }
         }
@@ -107,12 +107,12 @@ struct ContinueBadge: View {
             Text("Continue")
                 .font(Typography.UI.caption2)
         }
-        .foregroundStyle(Color.accentGold)
+        .foregroundStyle(Color.scholarAccent)
         .padding(.horizontal, AppTheme.Spacing.sm)
         .padding(.vertical, AppTheme.Spacing.xxs)
         .background(
             Capsule()
-                .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
         )
     }
 }

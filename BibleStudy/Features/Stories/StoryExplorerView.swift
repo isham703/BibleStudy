@@ -189,7 +189,7 @@ struct StoryFilterChip: View {
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.accentGold : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
@@ -214,7 +214,7 @@ struct FeaturedStoryCard: View {
                     VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                         Text(progress != nil ? "Continue Reading" : "Featured Story")
                             .font(Typography.UI.caption1Bold)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                             .textCase(.uppercase)
                             .tracking(1.2)
 
@@ -227,14 +227,14 @@ struct FeaturedStoryCard: View {
 
                     Image(systemName: "chevron.right.circle.fill")
                         .font(Typography.UI.title2)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
 
                 // Subtitle
                 if let subtitle = story.subtitle {
                     Text(subtitle)
                         .font(Typography.UI.subheadline)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
 
                 // Description
@@ -254,7 +254,7 @@ struct FeaturedStoryCard: View {
                             Spacer()
                         }
                         ProgressView(value: percentage)
-                            .tint(Color.accentGold)
+                            .tint(Color.scholarAccent)
                     }
                 }
             }
@@ -263,7 +263,7 @@ struct FeaturedStoryCard: View {
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .stroke(Color.accentGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                    .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
             )
         }
     }

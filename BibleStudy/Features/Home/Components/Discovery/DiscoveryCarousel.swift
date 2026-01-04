@@ -25,12 +25,12 @@ struct DiscoveryCarousel: View {
 
     private var compactCarousel: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 ForEach(items) { item in
                     CompactDiscoveryCard(item: item)
                 }
             }
-            .padding(.horizontal, SanctuaryTheme.Spacing.lg)
+            .padding(.horizontal, AppTheme.Spacing.lg)
         }
     }
 
@@ -39,7 +39,7 @@ struct DiscoveryCarousel: View {
     @State private var currentPage = 0
 
     private var cinematicCarousel: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             TabView(selection: $currentPage) {
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     CinematicDiscoveryCard(item: item)
@@ -50,7 +50,7 @@ struct DiscoveryCarousel: View {
             .frame(height: 160)
 
             // Page dots
-            HStack(spacing: SanctuaryTheme.Spacing.sm) {
+            HStack(spacing: AppTheme.Spacing.sm) {
                 ForEach(0..<items.count, id: \.self) { index in
                     Circle()
                         .fill(index == currentPage ? Color.divineGold : Color.fadedMoonlight.opacity(0.3))
@@ -69,7 +69,7 @@ struct CompactDiscoveryCard: View {
     @State private var isPressed = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             // Type badge
             HStack(spacing: 4) {
                 Image(systemName: item.type.iconName)
@@ -106,13 +106,13 @@ struct CompactDiscoveryCard: View {
                 .foregroundStyle(Color.mutedStone)
         }
         .frame(width: 140, height: 140)
-        .padding(SanctuaryTheme.Spacing.md)
+        .padding(AppTheme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .fill(Color.chapelShadow)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .stroke(Color.white.opacity(0.05), lineWidth: 1)
         )
         .scaleEffect(isPressed ? 0.97 : 1.0)
@@ -140,7 +140,7 @@ struct CinematicDiscoveryCard: View {
     let item: MockDiscoveryItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             Spacer()
 
             // Title
@@ -159,7 +159,7 @@ struct CinematicDiscoveryCard: View {
                 .foregroundStyle(Color.mutedStone)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(SanctuaryTheme.Spacing.xl)
+        .padding(AppTheme.Spacing.xl)
         .background(
             ZStack {
                 // Gradient background
@@ -175,9 +175,9 @@ struct CinematicDiscoveryCard: View {
                 // Subtle pattern overlay could go here
             }
         )
-        .clipShape(RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.large))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
         .shadow(color: .black.opacity(0.3), radius: 12, y: 6)
-        .padding(.horizontal, SanctuaryTheme.Spacing.lg)
+        .padding(.horizontal, AppTheme.Spacing.lg)
     }
 }
 

@@ -337,7 +337,7 @@ struct PremiumFeatureLock: View {
             .foregroundStyle(.white)
             .padding(.horizontal, AppTheme.Spacing.lg)
             .padding(.vertical, AppTheme.Spacing.sm)
-            .background(Color.accentGold)
+            .background(Color.scholarAccent)
             .clipShape(Capsule())
         }
         .frame(maxWidth: .infinity)
@@ -362,12 +362,12 @@ struct UsageBadge: View {
                 .font(Typography.UI.caption2)
                 .fontWeight(.medium)
         }
-        .foregroundStyle(remaining > 0 ? Color.accentGold : Color.error)
+        .foregroundStyle(remaining > 0 ? Color.scholarAccent : Color.error)
         .padding(.horizontal, AppTheme.Spacing.sm)
         .padding(.vertical, AppTheme.Spacing.xxs)
         .background(
             Capsule()
-                .fill(remaining > 0 ? Color.accentGold.opacity(AppTheme.Opacity.subtle) : Color.error.opacity(AppTheme.Opacity.subtle))
+                .fill(remaining > 0 ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle) : Color.error.opacity(AppTheme.Opacity.subtle))
         )
     }
 }

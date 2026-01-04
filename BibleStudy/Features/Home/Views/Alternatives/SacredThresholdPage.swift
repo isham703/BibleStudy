@@ -32,11 +32,11 @@ struct SacredThresholdPage: View {
                 VStack(spacing: 0) {
                     // Header
                     headerSection
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                        .padding(.top, SanctuaryTheme.Spacing.lg)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
+                        .padding(.top, AppTheme.Spacing.lg)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xl)
+                        .frame(height: AppTheme.Spacing.xl)
 
                     // Room indicators
                     roomIndicators
@@ -44,13 +44,13 @@ struct SacredThresholdPage: View {
                         .animation(.easeOut(duration: 0.4).delay(0.6), value: isVisible)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.lg)
+                        .frame(height: AppTheme.Spacing.lg)
 
                     // Paging carousel
                     roomCarousel(geometry: geometry)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.lg)
+                        .frame(height: AppTheme.Spacing.lg)
 
                     // Swipe hints
                     swipeHints
@@ -58,7 +58,7 @@ struct SacredThresholdPage: View {
                         .animation(.easeOut(duration: 0.4).delay(0.8), value: isVisible)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xl)
+                        .frame(height: AppTheme.Spacing.xl)
 
                     // Mini room icons
                     miniRoomIcons
@@ -66,7 +66,7 @@ struct SacredThresholdPage: View {
                         .animation(.easeOut(duration: 0.4).delay(0.9), value: isVisible)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.xxl)
+                        .frame(height: AppTheme.Spacing.xxl)
                 }
             }
         }
@@ -133,7 +133,7 @@ struct SacredThresholdPage: View {
             ForEach(SacredRoom.allCases, id: \.self) { room in
                 RoomCard(room: room, isVisible: isVisible)
                     .tag(room)
-                    .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                    .padding(.horizontal, AppTheme.Spacing.xl)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
@@ -182,7 +182,7 @@ struct SacredThresholdPage: View {
                 Spacer().frame(width: 80)
             }
         }
-        .padding(.horizontal, SanctuaryTheme.Spacing.xxl)
+        .padding(.horizontal, AppTheme.Spacing.xxl)
     }
 
     // MARK: - Mini Room Icons
@@ -216,7 +216,7 @@ struct SacredThresholdPage: View {
                         .id(room)
                     }
                 }
-                .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
             }
             .onChange(of: currentRoom) { _, newRoom in
                 withAnimation(.spring(response: 0.3)) {
@@ -338,7 +338,7 @@ private struct RoomCard: View {
 
     var body: some View {
         NavigationLink(destination: room.aiFeature.destinationView) {
-            VStack(spacing: SanctuaryTheme.Spacing.xl) {
+            VStack(spacing: AppTheme.Spacing.xl) {
                 // Icon
                 Image(systemName: room.icon)
                     .font(.system(size: 48, weight: .medium))
@@ -358,7 +358,7 @@ private struct RoomCard: View {
                     .foregroundStyle(Color.white.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
-                    .padding(.horizontal, SanctuaryTheme.Spacing.lg)
+                    .padding(.horizontal, AppTheme.Spacing.lg)
 
                 // Progress (if any)
                 if let progress = room.progress {
@@ -377,7 +377,7 @@ private struct RoomCard: View {
                                 }
                             }
                             .frame(height: 8)
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xxl)
+                            .padding(.horizontal, AppTheme.Spacing.xxl)
 
                             Text(progress)
                                 .font(SanctuaryTypography.Threshold.progressText)
@@ -391,7 +391,7 @@ private struct RoomCard: View {
                 }
 
                 Spacer()
-                    .frame(height: SanctuaryTheme.Spacing.md)
+                    .frame(height: AppTheme.Spacing.md)
 
                 // CTA Button
                 HStack(spacing: 8) {
@@ -410,7 +410,7 @@ private struct RoomCard: View {
                 .shadow(color: room.primaryColor.opacity(0.4), radius: 12, y: 4)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, SanctuaryTheme.Spacing.xxl)
+            .padding(.vertical, AppTheme.Spacing.xxl)
             .background(cardBackground)
             .overlay(cardBorder)
         }

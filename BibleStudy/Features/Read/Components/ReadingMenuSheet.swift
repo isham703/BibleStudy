@@ -39,7 +39,7 @@ struct ReadingMenuSheet: View {
                 // Contents - Most frequent: navigation
                 ReadingMenuItem(
                     icon: "book",
-                    iconColor: .accentGold,
+                    iconColor: .scholarAccent,
                     title: "Contents",
                     subtitle: "\(bookName) \(chapterNumber) • v.\(currentVerse) of \(totalVerses)",
                     showChevron: true,
@@ -88,7 +88,7 @@ struct ReadingMenuSheet: View {
                 // Audio - Medium: listen
                 ReadingMenuItem(
                     icon: isAudioPlaying ? "speaker.wave.2.fill" : "speaker.wave.2",
-                    iconColor: isAudioPlaying ? .accentGold : .primaryText,
+                    iconColor: isAudioPlaying ? .scholarAccent : .primaryText,
                     title: isAudioPlaying ? "Pause Audio" : "Play Audio",
                     subtitle: nil,
                     showChevron: false

@@ -13,7 +13,7 @@ struct AIInsightCard: View {
     var body: some View {
         ZStack {
             // Rotating gold gradient border
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .stroke(
                     AngularGradient(
                         colors: [.divineGold, .illuminatedGold, .burnishedGold, .divineGold],
@@ -24,9 +24,9 @@ struct AIInsightCard: View {
                 )
 
             // Content
-            VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 // Header
-                HStack(spacing: SanctuaryTheme.Spacing.sm) {
+                HStack(spacing: AppTheme.Spacing.sm) {
                     if showRadiantStar {
                         radiantStar
                     } else {
@@ -53,28 +53,28 @@ struct AIInsightCard: View {
                     Text("Explore")
                         .font(SanctuaryTypography.Dashboard.button)
                         .foregroundStyle(Color.divineGold)
-                        .padding(.horizontal, SanctuaryTheme.Spacing.lg)
-                        .padding(.vertical, SanctuaryTheme.Spacing.sm)
+                        .padding(.horizontal, AppTheme.Spacing.lg)
+                        .padding(.vertical, AppTheme.Spacing.sm)
                         .background(
-                            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.small)
+                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                                 .stroke(Color.divineGold, lineWidth: 1)
                         )
                 }
             }
-            .padding(SanctuaryTheme.Spacing.lg)
+            .padding(AppTheme.Spacing.lg)
             .background(
-                RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                     .fill(Color.candlelitStone)
             )
         }
         // Gold glow
         .shadow(color: Color.divineGold.opacity(isGlowing ? 0.4 : 0.2), radius: isGlowing ? 16 : 8)
         .onAppear {
-            withAnimation(SanctuaryTheme.Animation.gradientRotation) {
+            withAnimation(AppTheme.Animation.gradientRotation) {
                 rotationAngle = 360
             }
 
-            withAnimation(SanctuaryTheme.Animation.pulse) {
+            withAnimation(AppTheme.Animation.pulse) {
                 isGlowing = true
             }
         }

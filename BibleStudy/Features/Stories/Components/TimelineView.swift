@@ -76,7 +76,7 @@ enum TimelineNodeState {
     var circleColor: Color {
         switch self {
         case .upcoming: return Color.surfaceBackground
-        case .current: return Color.accentGold
+        case .current: return Color.scholarAccent
         case .completed: return Color.highlightGreen
         }
     }
@@ -84,7 +84,7 @@ enum TimelineNodeState {
     var borderColor: Color {
         switch self {
         case .upcoming: return Color.cardBorder
-        case .current: return Color.accentGold
+        case .current: return Color.scholarAccent
         case .completed: return Color.highlightGreen
         }
     }

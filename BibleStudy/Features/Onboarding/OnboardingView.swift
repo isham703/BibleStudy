@@ -201,7 +201,7 @@ struct ValuePropsView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AppTheme.Spacing.md)
-                        .background(Color.accentGold)
+                        .background(Color.scholarAccent)
                         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
                 }
                 .padding(.horizontal, AppTheme.Spacing.xl)
@@ -319,12 +319,12 @@ struct NameEntryView: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                         .frame(width: 120, height: 120)
 
                     Image(systemName: "person.fill")
                         .font(.system(size: Typography.Scale.xxxl + 6))
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
 
                 // Title
@@ -357,7 +357,7 @@ struct NameEntryView: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
                                 .stroke(
-                                    isNameFieldFocused ? Color.accentGold : Color.cardBorder,
+                                    isNameFieldFocused ? Color.scholarAccent : Color.cardBorder,
                                     lineWidth: isNameFieldFocused ? 2 : 1
                                 )
                         )
@@ -379,7 +379,7 @@ struct NameEntryView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, AppTheme.Spacing.md)
-                    .background(Color.accentGold)
+                    .background(Color.scholarAccent)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
             }
             .padding(.horizontal, AppTheme.Spacing.xl)

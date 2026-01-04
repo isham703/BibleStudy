@@ -25,31 +25,31 @@ struct AfternoonSanctuaryView: View {
                     VStack(spacing: 0) {
                         // Header
                         headerSection
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                            .padding(.top, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
+                            .padding(.top, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl)
+                            .frame(height: AppTheme.Spacing.xxxl)
 
                         // Selah moment - central focus
                         selahSection
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxl)
+                            .frame(height: AppTheme.Spacing.xxl)
 
                         // Primary CTA
                         primaryCard
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.lg)
+                            .frame(height: AppTheme.Spacing.lg)
 
                         // Feature Grid
                         featureGrid
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl * 1.5)
+                            .frame(height: AppTheme.Spacing.xxxl * 1.5)
                     }
                     .frame(minHeight: geometry.size.height)
                 }
@@ -118,7 +118,7 @@ struct AfternoonSanctuaryView: View {
     // MARK: - Selah Section
 
     private var selahSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(spacing: AppTheme.Spacing.lg) {
             // Selah label - refined typography
             Text("SELAH")
                 .font(.custom("Cinzel-Regular", size: 13))
@@ -170,7 +170,7 @@ struct AfternoonSanctuaryView: View {
                 .foregroundStyle(Color.afternoonEspresso)
                 .multilineTextAlignment(.center)
                 .lineSpacing(12)
-                .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 1.0).delay(0.8), value: isVisible)
 
@@ -189,7 +189,7 @@ struct AfternoonSanctuaryView: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.6).delay(1.4), value: isVisible)
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.xl)
+        .padding(.vertical, AppTheme.Spacing.xl)
     }
 
     // MARK: - Primary Card
@@ -208,9 +208,9 @@ struct AfternoonSanctuaryView: View {
     // MARK: - Feature Grid
 
     private var featureGrid: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Row 1
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 AfternoonFeatureCard(
                     feature: .livingScripture,
                     isPrimary: false,
@@ -231,7 +231,7 @@ struct AfternoonSanctuaryView: View {
             }
 
             // Row 2
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 AfternoonFeatureCard(
                     feature: .prayersFromDeep,
                     isPrimary: false,

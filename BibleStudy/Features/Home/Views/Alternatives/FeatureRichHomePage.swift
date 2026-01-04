@@ -17,7 +17,7 @@ struct FeatureRichHomePage: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.xl) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
                 // Header
                 headerSection
 
@@ -42,8 +42,8 @@ struct FeatureRichHomePage: View {
                 // Chat Entry
                 chatSection
             }
-            .padding(.horizontal, SanctuaryTheme.Spacing.lg)
-            .padding(.vertical, SanctuaryTheme.Spacing.xl)
+            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.vertical, AppTheme.Spacing.xl)
         }
         .background(Color.candlelitStone)
         .navigationBarTitleDisplayMode(.inline)
@@ -96,7 +96,7 @@ struct FeatureRichHomePage: View {
     // MARK: - Metrics Section
 
     private var metricsSection: some View {
-        HStack(spacing: SanctuaryTheme.Spacing.sm) {
+        HStack(spacing: AppTheme.Spacing.sm) {
             MockMetricPill(
                 icon: "flame.fill",
                 value: "\(user.currentStreak)",
@@ -132,7 +132,7 @@ struct FeatureRichHomePage: View {
     // MARK: - Verse Section
 
     private var verseSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("TODAY'S VERSE")
                 .dashboardHeader()
                 .opacity(isVisible ? 1 : 0)
@@ -148,7 +148,7 @@ struct FeatureRichHomePage: View {
     // MARK: - Reading Section
 
     private var readingSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("TODAY'S READING")
                 .dashboardHeader()
                 .opacity(isVisible ? 1 : 0)
@@ -164,7 +164,7 @@ struct FeatureRichHomePage: View {
     // MARK: - Discover Section
 
     private var discoverSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             HStack {
                 Text("DISCOVER")
                     .dashboardHeader()
@@ -192,13 +192,13 @@ struct FeatureRichHomePage: View {
             .offset(x: isVisible ? 0 : 50)
             .animation(.spring(duration: 0.5).delay(0.55), value: isVisible)
         }
-        .padding(.horizontal, -SanctuaryTheme.Spacing.lg) // Allow carousel to bleed
+        .padding(.horizontal, -AppTheme.Spacing.lg) // Allow carousel to bleed
     }
 
     // MARK: - Practice Section
 
     private var practiceSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("TODAY'S PRACTICE")
                 .dashboardHeader()
                 .opacity(isVisible ? 1 : 0)
@@ -214,7 +214,7 @@ struct FeatureRichHomePage: View {
     // MARK: - AI Section
 
     private var aiSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("FOR YOU")
                 .dashboardHeader()
                 .opacity(isVisible ? 1 : 0)

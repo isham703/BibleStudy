@@ -183,7 +183,7 @@ struct OptionButton: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(isSelected ? Color.accentGold : Color.surfaceBackground)
+                        .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
                         .frame(width: 44, height: 44)
 
                     Image(systemName: option.icon)
@@ -208,17 +208,17 @@ struct OptionButton: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(Typography.UI.title3)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
             }
             .padding(AppTheme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(isSelected ? Color.accentGold.opacity(AppTheme.Opacity.subtle) : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle) : Color.surfaceBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .stroke(isSelected ? Color.accentGold : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -248,7 +248,7 @@ struct ProgressBar: View {
 
                     // Progress
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                        .fill(Color.accentGold)
+                        .fill(Color.scholarAccent)
                         .frame(width: geometry.size.width * progress, height: 8)
                         .animation(AppTheme.Animation.spring, value: progress)
                 }

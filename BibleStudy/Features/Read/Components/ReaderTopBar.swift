@@ -211,7 +211,7 @@ struct ReaderTopBar: View {
                         .font(Typography.UI.headline)
                         .foregroundStyle(.white)
                         .padding()
-                        .background(Capsule().fill(Color.accentGold))
+                        .background(Capsule().fill(Color.scholarAccent))
                 }
                 .padding(.bottom, AppTheme.Spacing.xxxl + 2)
             }

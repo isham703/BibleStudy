@@ -34,23 +34,23 @@ private struct ManuscriptActionButton: View {
             VStack(spacing: 8) {
                 ZStack {
                     Circle()
-                        .stroke(Color.prayerGold, lineWidth: 1.5)
+                        .stroke(Color.divineGold, lineWidth: 1.5)
                         .frame(width: 48, height: 48)
 
                     Image(systemName: icon)
                         .font(.system(size: 20))
-                        .foregroundStyle(Color.prayerGold)
+                        .foregroundStyle(Color.divineGold)
                 }
                 .scaleEffect(isPressed ? 0.95 : 1.0)
                 .shadow(
-                    color: isPressed ? Color.prayerGold.opacity(0.4) : Color.clear,
+                    color: isPressed ? Color.divineGold.opacity(0.4) : Color.clear,
                     radius: 8
                 )
 
                 Text(label)
                     .font(.custom("Cinzel-Regular", size: 10))
                     .tracking(1)
-                    .foregroundStyle(Color.prayerOxide)
+                    .foregroundStyle(Color.tertiaryText)
             }
         }
         .buttonStyle(.plain)
@@ -70,12 +70,12 @@ struct PrayerToast: View {
     var body: some View {
         Text(message)
             .font(.system(size: 14, weight: .medium))
-            .foregroundStyle(Color.prayerUmber)
+            .foregroundStyle(Color.primaryText)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
             .background(
                 Capsule()
-                    .fill(Color.prayerCandlelight)
+                    .fill(Color.surfaceBackground)
                     .shadow(color: .black.opacity(0.2), radius: 10, y: 4)
             )
     }
@@ -85,7 +85,7 @@ struct PrayerToast: View {
 
 #Preview {
     ZStack {
-        Color.prayerVellum.ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
         VStack {
             Spacer()
             PrayerActionToolbar(

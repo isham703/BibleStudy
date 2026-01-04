@@ -92,7 +92,7 @@ private struct BookSelectionPhase: View {
                 Button("Cancel") {
                     onDismiss()
                 }
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
             }
         }
     }
@@ -157,7 +157,7 @@ private struct BookSelectionPhase: View {
                             Group {
                                 if selectedTestament == testament {
                                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium - 2)
-                                        .fill(Color.accentGold)
+                                        .fill(Color.scholarAccent)
                                 }
                             }
                         )
@@ -337,12 +337,12 @@ private struct ChapterSelectionPhase: View {
             // Book icon/initial
             ZStack {
                 Circle()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                     .frame(width: 64, height: 64)
 
                 Text(String(book.name.prefix(1)))
                     .font(Typography.Codex.bookInitial)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
             }
             .matchedGeometryEffect(id: "book-\(book.id)", in: namespace)
 
@@ -359,12 +359,12 @@ private struct ChapterSelectionPhase: View {
             // Category badge
             Text(book.category.rawValue)
                 .font(Typography.UI.caption2)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.vertical, AppTheme.Spacing.xs)
                 .background(
                     Capsule()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                 )
         }
         .frame(maxWidth: .infinity)
@@ -405,12 +405,12 @@ private struct ChapterSelectionPhase: View {
                         Text("Read All")
                             .font(Typography.UI.caption1)
                     }
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .padding(.horizontal, AppTheme.Spacing.sm)
                     .padding(.vertical, AppTheme.Spacing.xs)
                     .background(
                         Capsule()
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                     )
                 }
                 .buttonStyle(.plain)
@@ -452,9 +452,9 @@ private struct ChapterSelectionPhase: View {
             .padding(.vertical, AppTheme.Spacing.md + 2)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .shadow(
-                        color: Color.accentGold.opacity(AppTheme.Opacity.medium),
+                        color: Color.scholarAccent.opacity(AppTheme.Opacity.medium),
                         radius: 8,
                         x: 0,
                         y: 4
@@ -490,7 +490,7 @@ private struct CategoryHeader: View {
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [.clear, Color.accentGold.opacity(AppTheme.Opacity.disabled)],
+                        colors: [.clear, Color.scholarAccent.opacity(AppTheme.Opacity.disabled)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -500,12 +500,12 @@ private struct CategoryHeader: View {
             Text(category.rawValue.uppercased())
                 .font(Typography.Codex.sectionLabel)
                 .tracking(Typography.Codex.headerTracking)
-                .foregroundStyle(Color.accentGold.opacity(AppTheme.Opacity.pressed))
+                .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.pressed))
 
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [Color.accentGold.opacity(AppTheme.Opacity.disabled), .clear],
+                        colors: [Color.scholarAccent.opacity(AppTheme.Opacity.disabled), .clear],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -581,7 +581,7 @@ private struct ChapterGridItem: View {
                 Circle()
                     .fill(backgroundColor)
                     .shadow(
-                        color: isSelected ? Color.accentGold.opacity(AppTheme.Opacity.quarter) : .clear,
+                        color: isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.quarter) : .clear,
                         radius: 6,
                         x: 0,
                         y: 2
@@ -591,7 +591,7 @@ private struct ChapterGridItem: View {
                 if !isSelected {
                     Circle()
                         .stroke(
-                            isCurrent ? Color.accentGold : Color.cardBorder,
+                            isCurrent ? Color.scholarAccent : Color.cardBorder,
                             lineWidth: isCurrent ? AppTheme.Border.medium : AppTheme.Border.thin
                         )
                 }
@@ -615,7 +615,7 @@ private struct ChapterGridItem: View {
 
     private var backgroundColor: Color {
         if isSelected {
-            return Color.accentGold
+            return Color.scholarAccent
         } else {
             return Color.surfaceBackground
         }
@@ -635,12 +635,12 @@ private struct SearchResultRow: View {
                 // Book initial
                 ZStack {
                     Circle()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                         .frame(width: 40, height: 40)
 
                     Text(String(book.name.prefix(1)))
                         .font(Typography.Codex.inlineInitial)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
 
                 // Book info
@@ -653,12 +653,12 @@ private struct SearchResultRow: View {
                         if isCurrent {
                             Text("Current")
                                 .font(Typography.UI.caption2)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                                 .padding(.horizontal, AppTheme.Spacing.xs)
                                 .padding(.vertical, AppTheme.Spacing.xxs)
                                 .background(
                                     Capsule()
-                                        .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                                 )
                         }
                     }
@@ -732,7 +732,7 @@ struct BookButton: View {
             .padding(.vertical, AppTheme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .fill(isSelected ? Color.accentGold : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
@@ -758,7 +758,7 @@ struct ChapterButton: View {
                 .frame(width: 44, height: 44)
                 .background(
                     Circle()
-                        .fill(isSelected ? Color.accentGold : Color.surfaceBackground)
+                        .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
                 )
                 .overlay(
                     Circle()

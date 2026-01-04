@@ -32,7 +32,7 @@ struct UsageRow: View {
         used: Int,
         total: Int,
         icon: String,
-        iconColor: Color = .accentGold,
+        iconColor: Color = .scholarAccent,
         onTap: (() -> Void)? = nil
     ) {
         self.label = label
@@ -211,7 +211,7 @@ struct UsageStatisticsView: View {
                     used: aiInsightsUsed,
                     total: aiInsightsTotal,
                     icon: "sparkles",
-                    iconColor: .accentGold,
+                    iconColor: .scholarAccent,
                     onTap: { if aiInsightsUsed >= aiInsightsTotal { onUpgrade() } }
                 )
 

@@ -192,12 +192,12 @@ struct TranslationCard: View {
                         if isCurrent {
                             Text("Current")
                                 .font(Typography.UI.caption2)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                                 .padding(.horizontal, AppTheme.Spacing.xs)
                                 .padding(.vertical, AppTheme.Spacing.xxs)
                                 .background(
                                     Capsule()
-                                        .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                                 )
                         }
                     }
@@ -232,7 +232,7 @@ struct TranslationCard: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(isCurrent ? Color.accentGold.opacity(AppTheme.Opacity.medium) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                .stroke(isCurrent ? Color.scholarAccent.opacity(AppTheme.Opacity.medium) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
         )
     }
 }

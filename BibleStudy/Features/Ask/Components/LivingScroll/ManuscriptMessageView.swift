@@ -44,7 +44,7 @@ private struct UserMessageView: View {
 
             Text(content)
                 .font(Typography.UI.body)
-                .foregroundStyle(ScholarAskPalette.userText)
+                .foregroundStyle(Color.white)
                 .padding(AppTheme.Spacing.md)
                 .background(messageBackground)
                 .rotation3DEffect(
@@ -63,16 +63,16 @@ private struct UserMessageView: View {
 
     private var messageBackground: some View {
         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large, style: .continuous)
-            .fill(ScholarAskPalette.userBubble)
+            .fill(Color.scholarIndigo)
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large, style: .continuous)
                     .strokeBorder(
-                        ScholarAskPalette.accent.opacity(AppTheme.Opacity.medium + borderGlow * 0.3),
+                        Color.scholarIndigo.opacity(AppTheme.Opacity.medium + borderGlow * 0.3),
                         lineWidth: AppTheme.Border.thin + (borderGlow * 1)
                     )
             )
             .shadow(
-                color: ScholarAskPalette.accent.opacity(borderGlow * 0.2),
+                color: Color.scholarIndigo.opacity(borderGlow * 0.2),
                 radius: 8 * borderGlow,
                 y: 2
             )
@@ -170,8 +170,8 @@ private struct AIMessageView: View {
             .fill(
                 RadialGradient(
                     colors: [
-                        ScholarAskPalette.accent.opacity(AppTheme.Opacity.medium),
-                        ScholarAskPalette.accent.opacity(AppTheme.Opacity.subtle),
+                        Color.scholarIndigo.opacity(AppTheme.Opacity.medium),
+                        Color.scholarIndigo.opacity(AppTheme.Opacity.subtle),
                         Color.clear
                     ],
                     center: .center,
@@ -322,7 +322,7 @@ private struct SequentialGoldenThread: View {
             }
             .trim(from: 0, to: threadLength)
             .stroke(
-                ScholarAskPalette.accent.opacity(AppTheme.Opacity.strong),
+                Color.scholarIndigo.opacity(AppTheme.Opacity.strong),
                 style: StrokeStyle(
                     lineWidth: AppTheme.Border.thin,
                     lineCap: .round,
@@ -332,7 +332,7 @@ private struct SequentialGoldenThread: View {
 
             // Connection node
             Circle()
-                .fill(ScholarAskPalette.accent)
+                .fill(Color.scholarIndigo)
                 .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
                 .position(x: geometry.size.width * 0.15, y: 0)
                 .opacity(threadLength > 0 ? AppTheme.Opacity.pressed : 0)
@@ -451,7 +451,7 @@ private struct ManuscriptUncertaintyBanner: View {
 
             Text(level.message)
                 .font(Typography.UI.caption1)
-                .foregroundStyle(ScholarAskPalette.secondaryText)
+                .foregroundStyle(Color.secondaryText)
 
             Spacer()
         }

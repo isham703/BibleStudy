@@ -22,21 +22,21 @@ struct IlluminatedScriptoriumReaderView: View {
                     VStack(spacing: 0) {
                         // Chapter header
                         chapterHeader
-                            .padding(.top, SanctuaryTheme.Spacing.xxxl)
+                            .padding(.top, AppTheme.Spacing.xxxl)
 
                         // Ornamental divider
                         ScriptoriumDivider()
-                            .padding(.vertical, SanctuaryTheme.Spacing.xl)
+                            .padding(.vertical, AppTheme.Spacing.xl)
                             .opacity(isVisible ? 1 : 0)
                             .animation(.easeOut(duration: 0.6).delay(0.3), value: isVisible)
 
                         // Verses
                         versesSection
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         // Bottom spacing
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl * 2)
+                            .frame(height: AppTheme.Spacing.xxxl * 2)
                     }
                     .frame(minHeight: geometry.size.height)
                 }
@@ -62,7 +62,7 @@ struct IlluminatedScriptoriumReaderView: View {
     // MARK: - Chapter Header
 
     private var chapterHeader: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.sm) {
+        VStack(spacing: AppTheme.Spacing.sm) {
             // Book name
             Text(passage.bookName.uppercased())
                 .font(.custom("Cinzel-Regular", size: 11))
@@ -84,7 +84,7 @@ struct IlluminatedScriptoriumReaderView: View {
     // MARK: - Verses Section
 
     private var versesSection: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
             ForEach(Array(passage.verses.enumerated()), id: \.element.id) { index, verse in
                 ScriptoriumVerseText(
                     verse: verse,
@@ -127,15 +127,15 @@ private struct ScriptoriumVerseText: View {
             // Verse content
             verseContent
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.sm)
-        .padding(.horizontal, SanctuaryTheme.Spacing.md)
+        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, AppTheme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.small)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                 .fill(isSelected ? Color.meridianIllumination.opacity(0.1) : Color.clear)
         )
         .overlay(
             // Gold shimmer on selection
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.small)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                 .stroke(
                     isSelected ? Color.meridianGilded.opacity(0.4) : Color.clear,
                     lineWidth: 1
@@ -163,7 +163,7 @@ private struct ScriptoriumVerseText: View {
                 )
             )
             .frame(width: 60, alignment: .center)
-            .padding(.trailing, SanctuaryTheme.Spacing.sm)
+            .padding(.trailing, AppTheme.Spacing.sm)
             .shadow(color: Color.meridianIllumination.opacity(0.3), radius: 8)
     }
 
@@ -172,7 +172,7 @@ private struct ScriptoriumVerseText: View {
     private var verseContent: some View {
         let text = isFirstVerse ? String(verse.text.dropFirst()) : verse.text
 
-        return HStack(alignment: .firstTextBaseline, spacing: SanctuaryTheme.Spacing.sm) {
+        return HStack(alignment: .firstTextBaseline, spacing: AppTheme.Spacing.sm) {
             // Verse number (ornamental style)
             if !isFirstVerse {
                 Text("\(verse.id)")

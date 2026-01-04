@@ -11,7 +11,7 @@ struct LoadingView: View {
         VStack(spacing: AppTheme.Spacing.lg) {
             ProgressView()
                 .scaleEffect(AppTheme.Scale.enlarged)
-                .tint(Color.accentGold)
+                .tint(Color.scholarAccent)
 
             Text(message)
                 .font(Typography.UI.warmSubheadline)
@@ -29,7 +29,7 @@ struct InlineLoadingView: View {
     var body: some View {
         HStack(spacing: AppTheme.Spacing.md) {
             ProgressView()
-                .tint(Color.accentGold)
+                .tint(Color.scholarAccent)
 
             Text(message)
                 .font(Typography.UI.warmSubheadline)
@@ -70,7 +70,7 @@ struct AILoadingView: View {
             // AI Icon with animation
             Image(systemName: "sparkles")
                 .font(Typography.UI.title1)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .symbolEffect(.pulse)
 
             Text(message + String(repeating: ".", count: dotCount))
@@ -99,7 +99,7 @@ struct DataLoadingProgressView: View {
             // App icon placeholder
             Image(systemName: "book.closed.fill")
                 .font(Typography.UI.largeTitle)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .symbolEffect(.pulse.byLayer, isActive: phase.isLoading)
 
             // Title
@@ -123,7 +123,7 @@ struct DataLoadingProgressView: View {
         case let .loading(description, progress):
             VStack(spacing: AppTheme.Spacing.md) {
                 ProgressView(value: progress)
-                    .tint(Color.accentGold)
+                    .tint(Color.scholarAccent)
                     .frame(width: 200)
 
                 Text(description)
@@ -187,7 +187,7 @@ struct FirstLaunchOverlay: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, AppTheme.Spacing.xl)
                             .padding(.vertical, AppTheme.Spacing.md)
-                            .background(Color.accentGold)
+                            .background(Color.scholarAccent)
                             .clipShape(Capsule())
                     }
                     .padding(.bottom, AppTheme.Spacing.xxxl)

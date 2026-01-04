@@ -63,7 +63,7 @@ struct ScholarReadingMenuSheet: View {
                 }
             }
             .geometryGroup()
-            .background(Color.vellumCream)
+            .background(Color.appBackground)
         }
         .presentationDragIndicator(.visible)
     }
@@ -114,7 +114,7 @@ struct ScholarReadingMenuSheet: View {
                 }
             }
             .padding(AppTheme.Spacing.md)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
@@ -132,12 +132,12 @@ struct ScholarReadingMenuSheet: View {
         HStack {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
                 Text("Reading Options")
-                    .font(.custom("CormorantGaramond-SemiBold", size: 22))
-                    .foregroundStyle(Color.scholarInk)
+                    .font(CustomFonts.cormorantSemiBold(size: 22))
+                    .foregroundStyle(Color.primaryText)
 
                 Text("Customize your experience")
                     .font(.system(size: 13))
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
             }
 
             Spacer()
@@ -149,7 +149,7 @@ struct ScholarReadingMenuSheet: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
             }
         }
     }
@@ -239,8 +239,8 @@ struct ScholarReadingMenuSheet: View {
             Spacer()
 
             Text(title)
-                .font(.custom("CormorantGaramond-SemiBold", size: 18))
-                .foregroundStyle(Color.scholarInk)
+                .font(CustomFonts.cormorantSemiBold(size: 18))
+                .foregroundStyle(Color.primaryText)
 
             Spacer()
 
@@ -251,7 +251,7 @@ struct ScholarReadingMenuSheet: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
             }
         }
     }
@@ -261,8 +261,7 @@ struct ScholarReadingMenuSheet: View {
     private var themeCardsSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("APPEARANCE")
-                .font(.system(size: 10, weight: .bold))
-                .tracking(1.2)
+                .editorialLabel()
                 .foregroundStyle(Color.scholarIndigo)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -288,14 +287,13 @@ struct ScholarReadingMenuSheet: View {
     private var fontSizeSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("TEXT SIZE")
-                .font(.system(size: 10, weight: .bold))
-                .tracking(1.2)
+                .editorialLabel()
                 .foregroundStyle(Color.scholarIndigo)
 
             HStack(spacing: AppTheme.Spacing.md) {
                 Text("A")
-                    .font(.custom("CormorantGaramond-Regular", size: 14))
-                    .foregroundStyle(Color.footnoteGray)
+                    .font(CustomFonts.cormorantRegular(size: 14))
+                    .foregroundStyle(Color.tertiaryText)
 
                 ScholarFontSizeSlider(
                     selectedSize: Binding(
@@ -308,11 +306,11 @@ struct ScholarReadingMenuSheet: View {
                 )
 
                 Text("A")
-                    .font(.custom("CormorantGaramond-Regular", size: 24))
-                    .foregroundStyle(Color.footnoteGray)
+                    .font(CustomFonts.cormorantRegular(size: 24))
+                    .foregroundStyle(Color.tertiaryText)
             }
             .padding(AppTheme.Spacing.md)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
@@ -326,8 +324,7 @@ struct ScholarReadingMenuSheet: View {
     private var readingModeSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("READING MODE")
-                .font(.system(size: 10, weight: .bold))
-                .tracking(1.2)
+                .editorialLabel()
                 .foregroundStyle(Color.scholarIndigo)
 
             Picker("Reading Mode", selection: $usePagedReader) {
@@ -336,7 +333,7 @@ struct ScholarReadingMenuSheet: View {
             }
             .pickerStyle(.segmented)
             .padding(AppTheme.Spacing.md)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
@@ -360,8 +357,7 @@ struct ScholarReadingMenuSheet: View {
                         .foregroundStyle(Color.scholarIndigo)
 
                     Text("ADVANCED")
-                        .font(.system(size: 10, weight: .bold))
-                        .tracking(1.2)
+                        .editorialLabel()
                         .foregroundStyle(Color.scholarIndigo)
 
                     Spacer()
@@ -439,12 +435,12 @@ struct ScholarReadingMenuSheet: View {
                     )) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Paragraph Mode")
-                                .font(.custom("CormorantGaramond-SemiBold", size: 16))
-                                .foregroundStyle(Color.scholarInk)
+                                .font(CustomFonts.cormorantSemiBold(size: 16))
+                                .foregroundStyle(Color.primaryText)
 
                             Text("Show verses as continuous prose")
                                 .font(.system(size: 11))
-                                .foregroundStyle(Color.footnoteGray)
+                                .foregroundStyle(Color.tertiaryText)
                         }
                     }
                     .tint(Color.scholarIndigo)
@@ -452,7 +448,7 @@ struct ScholarReadingMenuSheet: View {
                     .opacity(usePagedReader ? 0.5 : 1.0)
                     .padding(AppTheme.Spacing.md)
                 }
-                .background(Color.white)
+                .background(Color.surfaceBackground)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
                 .overlay(
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
@@ -475,8 +471,7 @@ struct ScholarReadingMenuSheet: View {
     private var previewSection: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("PREVIEW")
-                .font(.system(size: 10, weight: .bold))
-                .tracking(1.2)
+                .editorialLabel()
                 .foregroundStyle(Color.scholarIndigo)
 
             VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
@@ -486,14 +481,13 @@ struct ScholarReadingMenuSheet: View {
                         .foregroundStyle(Color.scholarIndigo)
 
                     Text("In the beginning God created the heaven and the earth.")
-                        .font(.custom("CormorantGaramond-Regular", size: appState.scriptureFontSize.rawValue))
-                        .lineSpacing(appState.lineSpacing.value)
-                        .foregroundStyle(Color.inkWell)
+                        .readingVerse(size: appState.scriptureFontSize, font: appState.scriptureFont)
+                        .foregroundStyle(Color.primaryText)
                 }
             }
             .padding(AppTheme.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
@@ -507,10 +501,10 @@ struct ScholarReadingMenuSheet: View {
     private var searchBar: some View {
         HStack(spacing: AppTheme.Spacing.md) {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.footnoteGray)
+                .foregroundStyle(Color.tertiaryText)
 
             TextField("John 3:16 or search words...", text: $query)
-                .font(.custom("CormorantGaramond-Regular", size: 17))
+                .font(CustomFonts.cormorantRegular(size: 17))
                 .textFieldStyle(.plain)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -528,13 +522,13 @@ struct ScholarReadingMenuSheet: View {
                     results = []
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
             }
         }
         .padding(.horizontal, AppTheme.Spacing.md)
         .padding(.vertical, AppTheme.Spacing.md)
-        .background(Color.white)
+        .background(Color.surfaceBackground)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
@@ -551,7 +545,7 @@ struct ScholarReadingMenuSheet: View {
                     .tint(Color.scholarIndigo)
                 Text("Searching...")
                     .font(.system(size: 14))
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
             }
             .frame(height: 60)
         } else if query.isEmpty {
@@ -567,7 +561,7 @@ struct ScholarReadingMenuSheet: View {
             // No results
             Text("No results for \"\(query)\"")
                 .font(.system(size: 14))
-                .foregroundStyle(Color.footnoteGray)
+                .foregroundStyle(Color.tertiaryText)
                 .frame(height: 60)
         }
     }
@@ -575,8 +569,7 @@ struct ScholarReadingMenuSheet: View {
     private var searchHints: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text("QUICK EXAMPLES")
-                .font(.system(size: 10, weight: .bold))
-                .tracking(1.2)
+                .editorialLabel()
                 .foregroundStyle(Color.scholarIndigo)
 
             HStack(spacing: AppTheme.Spacing.sm) {
@@ -621,12 +614,12 @@ struct ScholarReadingMenuSheet: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Go to \(ref.displayText)")
-                        .font(.custom("CormorantGaramond-SemiBold", size: 17))
-                        .foregroundStyle(Color.scholarInk)
+                        .font(CustomFonts.cormorantSemiBold(size: 17))
+                        .foregroundStyle(Color.primaryText)
 
                     Text("Jump to this reference")
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
 
                 Spacer()
@@ -657,19 +650,19 @@ struct ScholarReadingMenuSheet: View {
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(result.verse.reference)
-                                    .font(.custom("CormorantGaramond-SemiBold", size: 14))
-                                    .foregroundStyle(Color.scholarInk)
+                                    .font(CustomFonts.cormorantSemiBold(size: 14))
+                                    .foregroundStyle(Color.primaryText)
 
                                 Text(result.highlightedSnippet)
                                     .font(.system(size: 13))
-                                    .foregroundStyle(Color.inkWell)
+                                    .foregroundStyle(Color.primaryText)
                                     .lineLimit(2)
                             }
 
                             Spacer()
                         }
                         .padding(AppTheme.Spacing.sm)
-                        .background(Color.white)
+                        .background(Color.surfaceBackground)
                         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
                     }
                     .buttonStyle(.plain)
@@ -678,7 +671,7 @@ struct ScholarReadingMenuSheet: View {
                 if results.count > 5 {
                     Text("+ \(results.count - 5) more results")
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.footnoteGray)
+                        .foregroundStyle(Color.tertiaryText)
                 }
             }
         }
@@ -794,13 +787,13 @@ private struct ScholarMenuRow: View {
                 // Text content
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.custom("CormorantGaramond-SemiBold", size: 17))
-                        .foregroundStyle(Color.scholarInk)
+                        .font(CustomFonts.cormorantSemiBold(size: 17))
+                        .foregroundStyle(Color.primaryText)
 
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(.system(size: 12))
-                            .foregroundStyle(Color.footnoteGray)
+                            .foregroundStyle(Color.tertiaryText)
                     }
                 }
 
@@ -809,7 +802,7 @@ private struct ScholarMenuRow: View {
                 // Chevron
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color.footnoteGray)
+                    .foregroundStyle(Color.tertiaryText)
             }
             .padding(.vertical, AppTheme.Spacing.sm)
             .padding(.horizontal, AppTheme.Spacing.xs)
@@ -863,7 +856,7 @@ private struct ScholarThemeCard: View {
                 // Theme name
                 Text(theme.displayName)
                     .font(.system(size: 11))
-                    .foregroundStyle(isSelected ? Color.scholarIndigo : Color.scholarInk)
+                    .foregroundStyle(isSelected ? Color.scholarIndigo : Color.primaryText)
 
                 // Selection indicator
                 if isSelected {
@@ -937,8 +930,8 @@ private struct ScholarSettingsRow<Content: View>: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.custom("CormorantGaramond-SemiBold", size: 16))
-                .foregroundStyle(Color.scholarInk)
+                .font(CustomFonts.cormorantSemiBold(size: 16))
+                .foregroundStyle(Color.primaryText)
 
             Spacer()
 
@@ -955,7 +948,7 @@ private struct ScholarSettingsRow<Content: View>: View {
         @State private var showSheet = true
 
         var body: some View {
-            Color.vellumCream
+            Color.appBackground
                 .ignoresSafeArea()
                 .sheet(isPresented: $showSheet) {
                     ScholarReadingMenuSheet(

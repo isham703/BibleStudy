@@ -88,10 +88,10 @@ struct TodayReadingCard: View {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 HStack {
                     Image(systemName: "book.fill")
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                     Text("Today's Reading")
                         .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                         .textCase(.uppercase)
                         .tracking(1.2)
                 }
@@ -108,7 +108,7 @@ struct TodayReadingCard: View {
 
                 // Progress bar
                 ProgressView(value: plan.progressPercentage)
-                    .tint(Color.accentGold)
+                    .tint(Color.scholarAccent)
 
                 HStack {
                     Text("\(Int(plan.progressPercentage * 100))%")
@@ -119,10 +119,10 @@ struct TodayReadingCard: View {
 
                     Text("Continue")
                         .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                     Image(systemName: "arrow.right")
                         .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
             }
             .padding(AppTheme.Spacing.lg)
@@ -149,7 +149,7 @@ struct PlanCard: View {
                     .foregroundStyle(Color.secondaryText)
 
                 ProgressView(value: plan.progressPercentage)
-                    .tint(plan.isCompleted ? Color.success : Color.accentGold)
+                    .tint(plan.isCompleted ? Color.success : Color.scholarAccent)
             }
             .padding(AppTheme.Spacing.md)
             .background(Color.secondaryBackground)
@@ -225,7 +225,7 @@ struct PlanDetailSheet: View {
                             .font(Typography.Display.headline)
 
                         ProgressView(value: plan.progressPercentage)
-                            .tint(Color.accentGold)
+                            .tint(Color.scholarAccent)
 
                         Text("\(plan.completedDays) of \(plan.totalDays) days completed")
                             .font(Typography.UI.caption1.monospacedDigit())
@@ -251,7 +251,7 @@ struct PlanDetailSheet: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(AppTheme.Spacing.md)
-                                .background(Color.accentGold)
+                                .background(Color.scholarAccent)
                                 .foregroundStyle(.white)
                                 .font(Typography.UI.bodyBold)
                                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))

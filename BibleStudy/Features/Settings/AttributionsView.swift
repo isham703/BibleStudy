@@ -127,12 +127,12 @@ struct AttributionRow: View {
 
                 Text(license)
                     .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .padding(.horizontal, AppTheme.Spacing.sm)
                     .padding(.vertical, AppTheme.Spacing.xxs)
                     .background(
                         Capsule()
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                     )
             }
 

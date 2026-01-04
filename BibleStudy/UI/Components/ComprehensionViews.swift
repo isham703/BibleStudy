@@ -53,7 +53,7 @@ struct SimplifyPassageView: View {
                         VStack(spacing: AppTheme.Spacing.md) {
                             Image(systemName: "text.redaction")
                                 .font(Typography.UI.largeTitle)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
 
                             Text("Tap a reading level above to see this passage simplified")
                                 .font(Typography.UI.warmBody)
@@ -187,15 +187,15 @@ struct ReadingLevelButton: View {
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .fill(isSelected ? Color.accentGold.opacity(AppTheme.Opacity.light) : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.light) : Color.surfaceBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(isSelected ? Color.accentGold : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: AppTheme.Border.thin)
             )
         }
         .buttonStyle(.plain)
-        .foregroundStyle(isSelected ? Color.accentGold : Color.primaryText)
+        .foregroundStyle(isSelected ? Color.scholarAccent : Color.primaryText)
     }
 }
 
@@ -211,10 +211,10 @@ struct SimplifiedOutputSection: View {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                     HStack(spacing: AppTheme.Spacing.xs) {
                         Image(systemName: "text.bubble")
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                         Text("In one sentence")
                             .font(Typography.UI.caption1Bold)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                     }
 
                     Text(output.oneLineSummary)
@@ -308,7 +308,7 @@ struct ErrorSection: View {
 
             Button("Try Again", action: onRetry)
                 .font(Typography.UI.body)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, AppTheme.Spacing.xxxl)
@@ -337,7 +337,7 @@ struct ComprehensionQuestionsView: View {
                     // Passage reference
                     HStack {
                         Image(systemName: "book")
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                         Text(verseRange.reference)
                             .font(Typography.UI.headline)
                             .foregroundStyle(Color.primaryText)
@@ -448,16 +448,16 @@ struct PassageTypeChip: View {
             Text(type.displayName)
                 .font(Typography.UI.caption1)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .foregroundStyle(isSelected ? Color.accentGold : Color.secondaryText)
+                .foregroundStyle(isSelected ? Color.scholarAccent : Color.secondaryText)
                 .padding(.horizontal, AppTheme.Spacing.md)
                 .padding(.vertical, AppTheme.Spacing.sm)
                 .background(
                     Capsule()
-                        .fill(isSelected ? Color.accentGold.opacity(AppTheme.Opacity.light) : Color.surfaceBackground)
+                        .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.light) : Color.surfaceBackground)
                 )
                 .overlay(
                     Capsule()
-                        .stroke(isSelected ? Color.accentGold : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                        .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: AppTheme.Border.thin)
                 )
         }
         .buttonStyle(.plain)
@@ -500,7 +500,7 @@ struct QuestionCard: View {
     var typeColor: Color {
         switch questionType {
         case .observation: return Color.accentBlue
-        case .interpretation: return Color.accentGold
+        case .interpretation: return Color.scholarAccent
         case .application: return Color.accentRose
         }
     }
@@ -587,7 +587,7 @@ struct PhraseSelectorSheet: View {
                     // Instructions
                     HStack(spacing: AppTheme.Spacing.sm) {
                         Image(systemName: "hand.tap")
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                         Text("Tap any word or phrase to get a quick explanation")
                             .font(Typography.UI.subheadline)
                             .foregroundStyle(Color.secondaryText)
@@ -596,7 +596,7 @@ struct PhraseSelectorSheet: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
                     )
 
                     // Reference
@@ -683,7 +683,7 @@ struct TappableWord: View {
             .padding(.vertical, AppTheme.Spacing.xxs)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .fill(isPressed ? Color.accentGold.opacity(AppTheme.Opacity.lightMedium) : Color.surfaceBackground)
+                    .fill(isPressed ? Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium) : Color.surfaceBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
@@ -731,13 +731,13 @@ struct PhraseClarificationSheet: View {
                         Text("\"\(phrase)\"")
                             .font(Typography.Scripture.body())
                             .fontWeight(.medium)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                             .italic()
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
                                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                                    .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+                                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
                             )
                     }
 
@@ -815,10 +815,10 @@ struct ClarificationContent: View {
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                     HStack(spacing: AppTheme.Spacing.xs) {
                         Image(systemName: "text.bubble")
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                         Text("In simple terms")
                             .font(Typography.UI.caption1Bold)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                     }
 
                     Text(output.simpleVersion)
@@ -897,7 +897,7 @@ struct PhraseClarificationView: View {
                         HStack(alignment: .top, spacing: AppTheme.Spacing.xs) {
                             Image(systemName: "text.bubble")
                                 .font(Typography.UI.caption1)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                             Text("Simply put: \(output.simpleVersion)")
                                 .font(Typography.UI.caption1)
                                 .foregroundStyle(Color.secondaryText)

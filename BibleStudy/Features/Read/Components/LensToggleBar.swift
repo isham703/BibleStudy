@@ -50,7 +50,7 @@ struct LensButton: View {
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isActive ? Color.accentGold : Color.surfaceBackground)
+                    .fill(isActive ? Color.scholarAccent : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()

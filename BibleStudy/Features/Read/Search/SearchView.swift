@@ -65,10 +65,10 @@ struct SearchView: View {
             // Translation badge
             Text(bibleService.currentTranslation?.abbreviation ?? "KJV")
                 .font(Typography.UI.caption1Bold)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .padding(.horizontal, AppTheme.Spacing.sm)
                 .padding(.vertical, AppTheme.Spacing.xxs)
-                .background(Color.accentGold.opacity(AppTheme.Opacity.light))
+                .background(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                 .clipShape(Capsule())
 
             Text("•")
@@ -413,7 +413,7 @@ struct SearchResultCard: View {
         if result.verse.bookId <= 39 {
             return Color.accentBlue.opacity(AppTheme.Opacity.pressed) // OT
         } else {
-            return Color.accentGold.opacity(AppTheme.Opacity.pressed) // NT
+            return Color.scholarAccent.opacity(AppTheme.Opacity.pressed) // NT
         }
     }
 }
@@ -430,7 +430,7 @@ struct ReferenceGoToCard: View {
                 // Icon
                 Image(systemName: "arrow.right.circle.fill")
                     .font(Typography.UI.title2)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
 
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
                     Text("Go to")
@@ -449,11 +449,11 @@ struct ReferenceGoToCard: View {
                     .foregroundStyle(Color.tertiaryText)
             }
             .padding(AppTheme.Spacing.md)
-            .background(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+            .background(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                    .stroke(Color.accentGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                    .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
             )
         }
         .buttonStyle(.plain)
@@ -484,11 +484,11 @@ struct BookFilterChip: View {
             .padding(.vertical, AppTheme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.accentGold.opacity(AppTheme.Opacity.lightMedium) : Color.surfaceBackground)
+                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.accentGold : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: AppTheme.Border.thin)
             )
         }
         .buttonStyle(.plain)
@@ -517,7 +517,7 @@ struct BookFilterSheet: View {
                         Spacer()
                         if selectedBook == nil {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                         }
                     }
                 }
@@ -561,7 +561,7 @@ struct BookFilterSheet: View {
                 Spacer()
                 if selectedBook?.id == book.id {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
             }
         }

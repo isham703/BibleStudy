@@ -24,22 +24,22 @@ struct MinimalistHomePage: View {
                 VStack(spacing: 0) {
                     // Header
                     headerSection
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                        .padding(.top, SanctuaryTheme.Spacing.xl)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
+                        .padding(.top, AppTheme.Spacing.xl)
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.huge)
+                        .frame(height: AppTheme.Spacing.huge)
 
                     // Daily Verse - The hero moment
                     verseSection
 
                     Spacer()
-                        .frame(height: SanctuaryTheme.Spacing.huge)
+                        .frame(height: AppTheme.Spacing.huge)
 
                     // Action Cards
                     actionSection
-                        .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                        .padding(.bottom, SanctuaryTheme.Spacing.xxxl)
+                        .padding(.horizontal, AppTheme.Spacing.xl)
+                        .padding(.bottom, AppTheme.Spacing.xxxl)
                 }
                 .frame(minHeight: geometry.size.height - 100)
             }
@@ -89,7 +89,7 @@ struct MinimalistHomePage: View {
     // MARK: - Verse Section
 
     private var verseSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.xxl) {
+        VStack(spacing: AppTheme.Spacing.xxl) {
             // Top hairline
             goldHairline(delay: 0.3)
 
@@ -99,7 +99,7 @@ struct MinimalistHomePage: View {
                 .foregroundStyle(Color.moonlitParchment)
                 .multilineTextAlignment(.center)
                 .lineSpacing(10)
-                .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.8).delay(0.5), value: isVisible)
 
@@ -114,7 +114,7 @@ struct MinimalistHomePage: View {
             // Bottom hairline
             goldHairline(delay: 1.0)
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.xl)
+        .padding(.vertical, AppTheme.Spacing.xl)
     }
 
     private func goldHairline(delay: Double) -> some View {
@@ -128,7 +128,7 @@ struct MinimalistHomePage: View {
     // MARK: - Action Section
 
     private var actionSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Continue Reading
             MinimalistActionCard(
                 title: "Continue Reading",
@@ -141,7 +141,7 @@ struct MinimalistHomePage: View {
             Rectangle()
                 .fill(Color.mutedStone.opacity(0.2))
                 .frame(height: 0.5)
-                .padding(.horizontal, SanctuaryTheme.Spacing.lg)
+                .padding(.horizontal, AppTheme.Spacing.lg)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.4).delay(1.3), value: isVisible)
 
@@ -194,7 +194,7 @@ struct MinimalistActionCard: View {
                     .offset(x: isPressed ? 4 : 0)
                     .animation(.spring(response: 0.3), value: isPressed)
             }
-            .padding(.vertical, SanctuaryTheme.Spacing.lg)
+            .padding(.vertical, AppTheme.Spacing.lg)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

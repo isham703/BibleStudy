@@ -192,10 +192,10 @@ struct ThemesSettingsSheet: View {
                         } label: {
                             HStack {
                                 Text(appState.lineSpacing.displayName)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.UI.caption2)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                             }
                         }
                     }
@@ -224,10 +224,10 @@ struct ThemesSettingsSheet: View {
                         } label: {
                             HStack {
                                 Text(appState.contentWidth.displayName)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.UI.caption2)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                             }
                         }
                     }
@@ -252,7 +252,7 @@ struct ThemesSettingsSheet: View {
                                 .foregroundStyle(Color.secondaryText)
                         }
                     }
-                    .tint(Color.accentGold)
+                    .tint(Color.scholarAccent)
                     .disabled(usePagedReader)
                     .opacity(usePagedReader ? 0.5 : 1.0)
                     .padding()
@@ -343,19 +343,19 @@ struct ThemeCard: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                            .stroke(isSelected ? Color.accentGold : Color.cardBorder, lineWidth: isSelected ? AppTheme.Border.regular : AppTheme.Border.thin)
+                            .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: isSelected ? AppTheme.Border.regular : AppTheme.Border.thin)
                     )
 
                 // Theme name
                 Text(theme.displayName)
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(isSelected ? Color.accentGold : Color.primaryText)
+                    .foregroundStyle(isSelected ? Color.scholarAccent : Color.primaryText)
 
                 // Selection indicator
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 } else {
                     Circle()
                         .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
@@ -390,12 +390,12 @@ struct FontSizeSlider: View {
 
                 // Filled portion
                 RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: stepWidth * CGFloat(currentIndex), height: AppTheme.Divider.thick)
 
                 // Thumb
                 Circle()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: 24, height: 24)
                     .shadow(AppTheme.Shadow.small)
                     .offset(x: stepWidth * CGFloat(currentIndex) - 12)

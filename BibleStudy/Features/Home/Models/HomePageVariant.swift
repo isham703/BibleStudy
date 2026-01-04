@@ -95,7 +95,7 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
         case .candlelitSanctuary:
             return [.candleAmber, .roseIncense, .nightVoid, .starlight][index]
         case .scholarsAtrium:
-            return [.scholarIndigo, .theologyGreen, .vellumCream, .scholarInk][index]
+            return [.scholarIndigo, .theologyGreen, .appBackground, .primaryText][index]
         case .sacredThreshold:
             return [.thresholdPurple, .thresholdGold, .thresholdRose, .thresholdBlue][index]
         }

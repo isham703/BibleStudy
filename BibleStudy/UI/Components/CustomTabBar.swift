@@ -135,12 +135,12 @@ private struct TabBarButton: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 24, height: 24)
-                    .foregroundStyle(isSelected ? Color.accentGold : Color.secondaryText)
+                    .foregroundStyle(isSelected ? Color.scholarAccent : Color.secondaryText)
                     .scaleEffect(isSelected ? 1.1 : 1.0)
 
                 // Selection indicator bar
                 Capsule()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: isSelected ? 20 : 0, height: 3)
                     .opacity(isSelected ? 1 : 0)
             }

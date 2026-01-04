@@ -58,7 +58,7 @@ struct AccountSectionView: View {
         ZStack {
             // Gold glow
             Circle()
-                .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                 .blur(radius: AppTheme.Blur.light + 1)
                 .frame(width: 56, height: 56)
 
@@ -67,8 +67,8 @@ struct AccountSectionView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.accentGold.opacity(AppTheme.Opacity.lightMedium),
-                            Color.accentGold.opacity(AppTheme.Opacity.subtle)
+                            Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium),
+                            Color.scholarAccent.opacity(AppTheme.Opacity.subtle)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -79,16 +79,16 @@ struct AccountSectionView: View {
             // Avatar icon
             Image(systemName: "person.fill")
                 .font(Typography.UI.iconXl.weight(.medium))
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
 
             // Gold border
             Circle()
                 .stroke(
                     LinearGradient(
                         colors: [
-                            Color.accentGold.opacity(AppTheme.Opacity.strong),
-                            Color.accentGold.opacity(AppTheme.Opacity.medium),
-                            Color.accentGold.opacity(AppTheme.Opacity.strong)
+                            Color.scholarAccent.opacity(AppTheme.Opacity.strong),
+                            Color.scholarAccent.opacity(AppTheme.Opacity.medium),
+                            Color.scholarAccent.opacity(AppTheme.Opacity.strong)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -120,7 +120,7 @@ struct AccountSectionView: View {
     private var badgeColor: Color {
         switch viewModel.currentTier {
         case .free: return Color.secondaryText
-        case .premium, .scholar: return Color.accentGold
+        case .premium, .scholar: return Color.scholarAccent
         }
     }
 
@@ -134,12 +134,12 @@ struct AccountSectionView: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle + 0.02))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
                         .frame(width: 52, height: 52)
 
                     Image(systemName: "person.circle")
                         .font(.system(size: Typography.Scale.xl + 6, weight: .light))
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
 
                 // Text content

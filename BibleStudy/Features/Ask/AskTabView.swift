@@ -72,7 +72,7 @@ struct AskTabContentView: View {
                     .opacity(contentAppeared ? 1 : 0)
                 }
             }
-            .background(ScholarAskPalette.background)
+            .background(Color.appBackground)
             .safeAreaInset(edge: .bottom) {
                 // Animated Input Bar with expandable actions
                 if hasAIConsent {
@@ -392,7 +392,7 @@ private struct HistorySectionHeader: View {
                 .foregroundStyle(Color.divineGold)
 
             Text(section.title)
-                .font(Typography.Illuminated.footnote)
+                .font(Typography.UI.footnote)
                 .foregroundStyle(Color.secondaryText)
                 .textCase(nil)
 

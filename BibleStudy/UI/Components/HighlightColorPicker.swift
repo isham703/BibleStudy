@@ -134,7 +134,7 @@ struct CategoryPickerSheet: View {
 
                             if selectedCategory == category {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                             }
                         }
                         .padding(.vertical, AppTheme.Spacing.xs)

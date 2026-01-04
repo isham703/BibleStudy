@@ -151,12 +151,12 @@ struct NoteEditor: View {
                             Text(note.reference)
                                 .font(Typography.UI.caption2)
                         }
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                         .padding(.horizontal, AppTheme.Spacing.sm)
                         .padding(.vertical, AppTheme.Spacing.xs)
                         .background(
                             Capsule()
-                                .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                         )
                     }
                 }
@@ -193,12 +193,12 @@ struct NoteEditor: View {
                     Text(selectedTemplate.displayName)
                 }
                 .font(Typography.UI.caption1)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .padding(.horizontal, AppTheme.Spacing.sm)
                 .padding(.vertical, AppTheme.Spacing.xs)
                 .background(
                     Capsule()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                 )
             }
         }
@@ -279,10 +279,10 @@ struct NoteEditor: View {
                                 .font(Typography.UI.caption2)
                         }
                     }
-                    .foregroundStyle(linkedNoteIds.isEmpty ? Color.secondaryText : Color.accentGold)
+                    .foregroundStyle(linkedNoteIds.isEmpty ? Color.secondaryText : Color.scholarAccent)
                     .frame(height: 32)
                     .padding(.horizontal, AppTheme.Spacing.xs)
-                    .background(linkedNoteIds.isEmpty ? Color.clear : Color.accentGold.opacity(AppTheme.Opacity.light))
+                    .background(linkedNoteIds.isEmpty ? Color.clear : Color.scholarAccent.opacity(AppTheme.Opacity.light))
                     .clipShape(Capsule())
                 }
                 .accessibilityLabel("Link to other notes")
@@ -296,9 +296,9 @@ struct NoteEditor: View {
                 } label: {
                     Image(systemName: showPreview ? "pencil" : "eye")
                         .font(Typography.UI.subheadline)
-                        .foregroundStyle(showPreview ? Color.accentGold : Color.secondaryText)
+                        .foregroundStyle(showPreview ? Color.scholarAccent : Color.secondaryText)
                         .frame(width: 32, height: 32)
-                        .background(showPreview ? Color.accentGold.opacity(AppTheme.Opacity.light) : Color.clear)
+                        .background(showPreview ? Color.scholarAccent.opacity(AppTheme.Opacity.light) : Color.clear)
                         .clipShape(Circle())
                 }
             }
@@ -401,7 +401,7 @@ struct NoteEditor: View {
                         HStack {
                             Image(systemName: template.icon)
                                 .font(Typography.UI.title3)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                                 .frame(width: AppTheme.IconContainer.medium)
 
                             VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
@@ -418,7 +418,7 @@ struct NoteEditor: View {
 
                             if selectedTemplate == template {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                             }
                         }
                         .padding(.vertical, AppTheme.Spacing.xs)
@@ -589,7 +589,7 @@ struct MarkdownRenderer: View {
         } else if line.hasPrefix("> ") {
             HStack(spacing: 0) {
                 Rectangle()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: 3)
 
                 Text(renderInlineMarkdown(String(line.dropFirst(2))))
@@ -723,7 +723,7 @@ struct NoteCard: View {
                 HStack {
                     Text(note.reference)
                         .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
 
                     Spacer()
 

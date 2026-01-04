@@ -7,7 +7,7 @@ struct PracticeCard: View {
     let practice: MockPracticeData
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SanctuaryTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
             // Header
             HStack {
                 Text("\(practice.dueCount) verses due")
@@ -23,7 +23,7 @@ struct PracticeCard: View {
             }
 
             // Breakdown
-            HStack(spacing: SanctuaryTheme.Spacing.lg) {
+            HStack(spacing: AppTheme.Spacing.lg) {
                 HStack(spacing: 4) {
                     Circle()
                         .fill(Color.malachite)
@@ -50,18 +50,18 @@ struct PracticeCard: View {
                 Text("Start Practice")
                     .font(SanctuaryTypography.Dashboard.button)
                     .foregroundStyle(Color.candlelitStone)
-                    .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                    .padding(.vertical, SanctuaryTheme.Spacing.md)
+                    .padding(.horizontal, AppTheme.Spacing.xl)
+                    .padding(.vertical, AppTheme.Spacing.md)
                     .background(
-                        RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.small)
+                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
                             .fill(Color.divineGold)
                     )
 
                 Spacer()
             }
-            .padding(.top, SanctuaryTheme.Spacing.xs)
+            .padding(.top, AppTheme.Spacing.xs)
         }
-        .padding(SanctuaryTheme.Spacing.lg)
+        .padding(AppTheme.Spacing.lg)
         .glassCard()
     }
 }
@@ -91,7 +91,7 @@ struct PracticeCardCompact: View {
                 .foregroundStyle(Color.divineGold)
                 .offset(x: isPressed ? 4 : 0)
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.lg)
         .contentShape(Rectangle())
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
             withAnimation(.spring(response: 0.3)) {

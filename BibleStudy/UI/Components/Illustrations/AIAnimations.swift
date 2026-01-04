@@ -199,29 +199,29 @@ struct AIInlineThinking: View {
             // Mini network
             HStack(spacing: AppTheme.Spacing.xxs) {
                 Circle()
-                    .fill(ScholarAskPalette.accent.opacity(currentDot == 0 ? 1.0 : 0.3))
+                    .fill(Color.scholarIndigo.opacity(currentDot == 0 ? 1.0 : 0.3))
                     .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
 
                 Rectangle()
-                    .fill(ScholarAskPalette.accent.opacity(AppTheme.Opacity.heavy))
+                    .fill(Color.scholarIndigo.opacity(AppTheme.Opacity.heavy))
                     .frame(width: 8, height: 1)
 
                 Circle()
-                    .fill(ScholarAskPalette.accent.opacity(currentDot == 1 ? 1.0 : 0.3))
+                    .fill(Color.scholarIndigo.opacity(currentDot == 1 ? 1.0 : 0.3))
                     .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
 
                 Rectangle()
-                    .fill(ScholarAskPalette.accent.opacity(AppTheme.Opacity.heavy))
+                    .fill(Color.scholarIndigo.opacity(AppTheme.Opacity.heavy))
                     .frame(width: 8, height: 1)
 
                 Circle()
-                    .fill(ScholarAskPalette.accent.opacity(currentDot == 2 ? 1.0 : 0.3))
+                    .fill(Color.scholarIndigo.opacity(currentDot == 2 ? 1.0 : 0.3))
                     .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
             }
 
             Text("Thinking")
                 .font(Typography.UI.subheadline)
-                .foregroundStyle(ScholarAskPalette.secondaryText)
+                .foregroundStyle(Color.secondaryText)
         }
         .onReceive(timer) { _ in
             guard !respectsReducedMotion else { return }

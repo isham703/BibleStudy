@@ -98,7 +98,7 @@ struct AuthView: View {
             Image(systemName: "book.closed.fill")
                 .font(Typography.UI.largeTitle)
                 .imageScale(.large)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
 
             Text("Bible Study")
                 .font(Typography.Scripture.title)
@@ -196,7 +196,7 @@ struct AuthView: View {
                         viewModel.showResetPassword = true
                     }
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 }
             }
 
@@ -220,7 +220,7 @@ struct AuthView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(AppTheme.Spacing.md)
-                .background(viewModel.canSubmit ? Color.accentGold : Color.tertiaryText)
+                .background(viewModel.canSubmit ? Color.scholarAccent : Color.tertiaryText)
                 .foregroundStyle(.white)
                 .font(Typography.UI.bodyBold)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
@@ -336,7 +336,7 @@ struct AuthView: View {
                 viewModel.toggleMode()
             }
             .font(Typography.UI.bodyBold)
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.scholarAccent)
         }
         .padding(.bottom, AppTheme.Spacing.lg)
     }
@@ -379,7 +379,7 @@ struct AuthView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(AppTheme.Spacing.md)
-                    .background(Color.accentGold)
+                    .background(Color.scholarAccent)
                     .foregroundStyle(.white)
                     .font(Typography.UI.bodyBold)
                     .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
@@ -439,7 +439,7 @@ struct ScribeFocusStyle: TextFieldStyle {
                     // Focused glow layer - warm gold ambient
                     if isFocused {
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                            .fill(Color.Glow.goldAmbient)
+                            .fill(Color.Glow.indigoAmbient)
                             .blur(radius: AppTheme.Blur.medium)
                             .offset(y: 2)
                     }

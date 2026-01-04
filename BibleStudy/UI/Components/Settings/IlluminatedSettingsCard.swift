@@ -43,7 +43,7 @@ struct IlluminatedSettingsCard<Content: View>: View {
 
             // Optional decorative divider below
             if showDivider {
-                OrnamentalDivider(style: .geometric, color: Color.accentGold.opacity(AppTheme.Opacity.disabled))
+                OrnamentalDivider(style: .geometric, color: Color.scholarAccent.opacity(AppTheme.Opacity.disabled))
                     .padding(.top, AppTheme.Spacing.xl)
                     .padding(.horizontal, AppTheme.Spacing.xxl)
             }
@@ -57,13 +57,13 @@ struct IlluminatedSettingsCard<Content: View>: View {
             // Vertical ornament
             VStack(spacing: AppTheme.Spacing.xs) {
                 Diamond()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
                 Rectangle()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.medium))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.medium))
                     .frame(width: AppTheme.Border.thin, height: AppTheme.Spacing.lg)
                 Diamond()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
             }
 
@@ -71,13 +71,13 @@ struct IlluminatedSettingsCard<Content: View>: View {
                 if let icon = icon {
                     Image(systemName: icon)
                         .font(Typography.UI.iconXxs.weight(.medium))
-                        .foregroundStyle(Color.accentGold.opacity(AppTheme.Opacity.overlay))
+                        .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.overlay))
                 }
 
                 Text(title.uppercased())
                     .font(Typography.UI.caption2.weight(.medium))
                     .tracking(3)
-                    .foregroundStyle(Color.accentGold.opacity(AppTheme.Opacity.pressed))
+                    .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.pressed))
             }
         }
     }
@@ -98,7 +98,7 @@ struct IlluminatedSettingsCard<Content: View>: View {
                 LinearGradient(
                     colors: [
                         Color.cardBorder.opacity(AppTheme.Opacity.disabled),
-                        Color.accentGold.opacity(AppTheme.Opacity.quarter),
+                        Color.scholarAccent.opacity(AppTheme.Opacity.quarter),
                         Color.cardBorder.opacity(AppTheme.Opacity.disabled)
                     ],
                     startPoint: .topLeading,
@@ -125,7 +125,7 @@ struct IlluminatedSettingsRow<Accessory: View>: View {
 
     init(
         icon: String,
-        iconColor: Color = .accentGold,
+        iconColor: Color = .scholarAccent,
         title: String,
         subtitle: String? = nil,
         @ViewBuilder accessory: @escaping () -> Accessory
@@ -196,7 +196,7 @@ struct SettingsDivider: View {
                 VStack(spacing: AppTheme.Spacing.md) {
                     IlluminatedSettingsRow(
                         icon: "person.circle.fill",
-                        iconColor: .accentGold,
+                        iconColor: .scholarAccent,
                         title: "Bible Student",
                         subtitle: "user@example.com"
                     ) {
@@ -230,7 +230,7 @@ struct SettingsDivider: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, AppTheme.Spacing.sm)
                             .padding(.vertical, AppTheme.Spacing.xxs)
-                            .background(Capsule().fill(Color.accentGold))
+                            .background(Capsule().fill(Color.scholarAccent))
                     }
                 }
             }

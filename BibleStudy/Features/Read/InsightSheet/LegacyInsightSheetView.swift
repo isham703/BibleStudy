@@ -157,12 +157,12 @@ struct ConsolidatedTabButton: View {
                     .font(Typography.UI.subheadline)
                     .fontWeight(isSelected ? .semibold : .regular)
             }
-            .foregroundStyle(isSelected ? Color.accentGold : Color.secondaryText)
+            .foregroundStyle(isSelected ? Color.scholarAccent : Color.secondaryText)
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 isSelected ?
-                Color.accentGold.opacity(AppTheme.Opacity.light) :
+                Color.scholarAccent.opacity(AppTheme.Opacity.light) :
                 Color.clear
             )
             .clipShape(Capsule())
@@ -333,16 +333,16 @@ struct InsightModePill: View {
                     .font(Typography.UI.caption1)
                     .fontWeight(isSelected ? .semibold : .regular)
             }
-            .foregroundStyle(isSelected ? Color.accentGold : Color.tertiaryText)
+            .foregroundStyle(isSelected ? Color.scholarAccent : Color.tertiaryText)
             .padding(.horizontal, AppTheme.Spacing.sm)
             .padding(.vertical, AppTheme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.accentGold.opacity(AppTheme.Opacity.light) : Color.elevatedBackground)
+                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.light) : Color.elevatedBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.accentGold.opacity(AppTheme.Opacity.medium) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.medium) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
             )
         }
         .buttonStyle(.plain)
@@ -423,7 +423,7 @@ struct UnderstandModeContent: View {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 HStack(spacing: AppTheme.Spacing.xs) {
                     Image(systemName: "graduationcap")
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                     Text("Reading Comprehension")
                         .font(Typography.Display.headline)
                         .foregroundStyle(Color.primaryText)
@@ -448,12 +448,12 @@ struct UnderstandModeContent: View {
                         Text("Get One-Sentence Summary")
                     }
                     .font(Typography.UI.subheadline)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
                     )
                 }
                 .buttonStyle(.plain)
@@ -586,7 +586,7 @@ struct MergedContextTabContent: View {
             // Section header
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "text.alignleft")
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("Passage Context")
                     .font(Typography.Display.headline)
                     .foregroundStyle(Color.primaryText)
@@ -616,12 +616,12 @@ struct MergedContextTabContent: View {
                         Text("Load Context")
                     }
                     .font(Typography.UI.subheadline)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
                     )
                 }
                 .buttonStyle(.plain)
@@ -715,10 +715,10 @@ struct ExplanationSummaryCard: View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "text.quote")
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("Summary")
                     .font(Typography.UI.caption1Bold)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
             }
 
             Text(summary)
@@ -735,7 +735,7 @@ struct ExplanationSummaryCard: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(Color.accentGold.opacity(AppTheme.Opacity.lightMedium), lineWidth: AppTheme.Border.thin)
+                .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium), lineWidth: AppTheme.Border.thin)
         )
     }
 }
@@ -883,7 +883,7 @@ struct LanguageTabHeader: View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "character.book.closed")
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("Original Language Analysis")
                     .font(Typography.Display.headline)
                     .foregroundStyle(Color.primaryText)
@@ -1087,10 +1087,10 @@ struct PassageSummaryCard: View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "text.bubble.fill")
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("In One Sentence")
                     .font(Typography.UI.caption1Bold)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Spacer()
                 Text(summary.theme)
                     .font(Typography.UI.caption2)

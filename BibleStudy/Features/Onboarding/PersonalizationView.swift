@@ -46,12 +46,12 @@ struct PersonalizationView: View {
                                 ZStack {
                                     if index < currentStep {
                                         Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(Color.accentGold)
+                                            .foregroundStyle(Color.scholarAccent)
                                             .transition(.scale.combined(with: .opacity))
                                     } else if index == currentStep {
                                         ProgressView()
                                             .scaleEffect(AppTheme.Scale.reduced)
-                                            .tint(Color.accentGold)
+                                            .tint(Color.scholarAccent)
                                     } else {
                                         Circle()
                                             .stroke(Color.cardBorder, lineWidth: AppTheme.Border.regular)
@@ -77,7 +77,7 @@ struct PersonalizationView: View {
                     VStack(spacing: AppTheme.Spacing.md) {
                         HStack(spacing: AppTheme.Spacing.sm) {
                             Image(systemName: onboardingData.recommendedMode.icon)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                             Text(onboardingData.recommendedMode.displayName)
                                 .font(Typography.UI.headline)
                                 .foregroundStyle(Color.primaryText)
@@ -160,7 +160,7 @@ struct PersonalizationAnimation: View {
                 let radius: CGFloat = 70 + progress * 20
 
                 Circle()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.strong * particleOpacity))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.strong * particleOpacity))
                     .frame(width: 8 + progress * 4, height: 8 + progress * 4)
                     .blur(radius: AppTheme.Blur.subtle - 1)
                     .offset(
@@ -171,7 +171,7 @@ struct PersonalizationAnimation: View {
 
             // Outer glow
             Circle()
-                .fill(Color.accentGold.opacity(AppTheme.Opacity.lightMedium * progress))
+                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium * progress))
                 .frame(width: 120, height: 120)
                 .blur(radius: AppTheme.Blur.heavy)
 

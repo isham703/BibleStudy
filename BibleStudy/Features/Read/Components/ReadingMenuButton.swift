@@ -54,7 +54,7 @@ struct ReadingMenuButton: View {
             // Pulse ring for discoverability (first-time users only)
             if showPulse && !hasUsedReadingMenu {
                 Circle()
-                    .stroke(Color.accentGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.regular)
+                    .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.regular)
                     .frame(width: 52, height: 52)
                     .scaleEffect(showPulse ? 1.3 : 1.0)
                     .opacity(showPulse ? 0 : 0.5)

@@ -42,7 +42,7 @@ struct SelectionToolbar: View {
                 ToolbarButton(
                     icon: AppIcons.Action.study,
                     label: "Study",
-                    color: .accentGold,
+                    color: .scholarAccent,
                     action: onStudy
                 )
 
@@ -50,7 +50,7 @@ struct SelectionToolbar: View {
                 ToolbarButton(
                     icon: AppIcons.Action.highlight,
                     label: "Highlight",
-                    color: .accentGold,
+                    color: .scholarAccent,
                     action: onHighlight
                 )
 

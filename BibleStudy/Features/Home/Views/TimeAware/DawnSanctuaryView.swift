@@ -24,31 +24,31 @@ struct DawnSanctuaryView: View {
                     VStack(spacing: 0) {
                         // Header
                         headerSection
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                            .padding(.top, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
+                            .padding(.top, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl)
+                            .frame(height: AppTheme.Spacing.xxxl)
 
                         // Morning verse - hero element
                         verseSection
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxl)
+                            .frame(height: AppTheme.Spacing.xxl)
 
                         // Primary CTA - Morning Devotion
                         primaryCard
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.lg)
+                            .frame(height: AppTheme.Spacing.lg)
 
                         // Feature Grid
                         featureGrid
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl * 1.5)
+                            .frame(height: AppTheme.Spacing.xxxl * 1.5)
                     }
                     .frame(minHeight: geometry.size.height)
                 }
@@ -113,7 +113,7 @@ struct DawnSanctuaryView: View {
     // MARK: - Verse Section
 
     private var verseSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.xl) {
+        VStack(spacing: AppTheme.Spacing.xl) {
             // Top divider - aurora-inspired
             AuroraDivider()
                 .opacity(isVisible ? 1 : 0)
@@ -125,7 +125,7 @@ struct DawnSanctuaryView: View {
                 .foregroundStyle(Color.dawnSlate)
                 .multilineTextAlignment(.center)
                 .lineSpacing(10)
-                .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : -15)
                 .animation(.easeOut(duration: 0.8).delay(0.6), value: isVisible)
@@ -143,7 +143,7 @@ struct DawnSanctuaryView: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.6).delay(1.0), value: isVisible)
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.lg)
     }
 
     // MARK: - Primary Card
@@ -162,9 +162,9 @@ struct DawnSanctuaryView: View {
     // MARK: - Feature Grid
 
     private var featureGrid: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Row 1
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 DawnFeatureCard(
                     feature: .livingScripture,
                     isPrimary: false,
@@ -185,7 +185,7 @@ struct DawnSanctuaryView: View {
             }
 
             // Row 2
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 DawnFeatureCard(
                     feature: .prayersFromDeep,
                     isPrimary: false,

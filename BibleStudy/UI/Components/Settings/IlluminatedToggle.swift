@@ -18,7 +18,7 @@ struct IlluminatedToggle: View {
         label: String,
         description: String? = nil,
         icon: String? = nil,
-        iconColor: Color = .accentGold
+        iconColor: Color = .scholarAccent
     ) {
         self._isOn = isOn
         self.label = label
@@ -84,7 +84,7 @@ struct IlluminatedToggle: View {
             // Glow effect (behind the toggle)
             if !AppTheme.Animation.isReduceMotionEnabled {
                 Circle()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
                     .blur(radius: glowRadius)
                     .opacity(glowOpacity)
                     .frame(width: 40, height: 40)
@@ -92,12 +92,12 @@ struct IlluminatedToggle: View {
 
             // Toggle track
             Capsule()
-                .fill(isOn ? Color.accentGold : Color.divider.opacity(AppTheme.Opacity.heavy))
+                .fill(isOn ? Color.scholarAccent : Color.divider.opacity(AppTheme.Opacity.heavy))
                 .frame(width: 51, height: 31)
                 .overlay(
                     Capsule()
                         .stroke(
-                            isOn ? Color.accentGold.opacity(AppTheme.Opacity.medium) : Color.clear,
+                            isOn ? Color.scholarAccent.opacity(AppTheme.Opacity.medium) : Color.clear,
                             lineWidth: AppTheme.Border.regular
                         )
                         .blur(radius: AppTheme.Blur.subtle)
@@ -150,7 +150,7 @@ struct IlluminatedToggleRow: View {
     init(
         isOn: Binding<Bool>,
         icon: String,
-        iconColor: Color = .accentGold,
+        iconColor: Color = .scholarAccent,
         title: String,
         subtitle: String? = nil
     ) {
@@ -189,7 +189,7 @@ struct IlluminatedToggleRow: View {
                             label: "Daily Reading Reminder",
                             description: "Get reminded at your chosen time",
                             icon: "bell.fill",
-                            iconColor: .accentGold
+                            iconColor: .scholarAccent
                         )
 
                         SettingsDivider()
@@ -208,7 +208,7 @@ struct IlluminatedToggleRow: View {
                             isOn: $toggle3,
                             label: "Devotional Mode",
                             icon: "sparkles",
-                            iconColor: .accentGold
+                            iconColor: .scholarAccent
                         )
                     }
                 }

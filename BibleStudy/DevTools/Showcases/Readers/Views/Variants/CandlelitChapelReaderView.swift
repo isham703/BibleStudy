@@ -23,21 +23,21 @@ struct CandlelitChapelReaderView: View {
                     VStack(spacing: 0) {
                         // Chapter header
                         chapterHeader
-                            .padding(.top, SanctuaryTheme.Spacing.xxxl)
+                            .padding(.top, AppTheme.Spacing.xxxl)
 
                         // Ornamental divider
                         ChapelDivider()
-                            .padding(.vertical, SanctuaryTheme.Spacing.xxl)
+                            .padding(.vertical, AppTheme.Spacing.xxl)
                             .opacity(isVisible ? 1 : 0)
                             .animation(.easeOut(duration: 0.6).delay(0.3), value: isVisible)
 
                         // Paragraph content
                         paragraphSection
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         // Bottom spacing for candle
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl * 3)
+                            .frame(height: AppTheme.Spacing.xxxl * 3)
                     }
                     .frame(minHeight: geometry.size.height)
                 }
@@ -112,7 +112,7 @@ struct CandlelitChapelReaderView: View {
     // MARK: - Chapter Header
 
     private var chapterHeader: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Book name
             Text(passage.bookName.uppercased())
                 .font(.custom("Cinzel-Regular", size: 11))
@@ -144,13 +144,13 @@ struct CandlelitChapelReaderView: View {
                 .opacity(isVisible ? breathingOpacity : 0)
                 .animation(.easeOut(duration: 0.8).delay(0.5), value: isVisible)
         }
-        .padding(SanctuaryTheme.Spacing.lg)
+        .padding(AppTheme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .fill(Color.white.opacity(0.03))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: SanctuaryTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
                 .stroke(Color.candleAmber.opacity(0.15), lineWidth: 0.5)
         )
     }

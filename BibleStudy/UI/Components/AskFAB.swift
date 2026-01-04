@@ -49,7 +49,7 @@ struct AskFAB: View {
                         )
                     )
                     .frame(width: fabSize, height: fabSize)
-                    .shadow(AppTheme.Shadow.goldGlow)
+                    .shadow(AppTheme.Shadow.indigoGlow)
                     .shadow(AppTheme.Shadow.medium)
 
                 // Ask icon (Streamline asset)

@@ -67,7 +67,7 @@ struct SegmentContentView: View {
             if let label = segment.timelineLabel {
                 Text(label)
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                     .textCase(.uppercase)
                     .tracking(1)
             }
@@ -127,7 +127,7 @@ struct KeyTermCard: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "character.book.closed")
                     .font(Typography.UI.subheadline)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 Text("Key Term")
                     .font(Typography.UI.caption1Bold)
                     .foregroundStyle(Color.secondaryText)
@@ -142,7 +142,7 @@ struct KeyTermCard: View {
                     if let original = keyTerm.originalWord {
                         Text(original)
                             .font(Typography.Language.transliteration)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.scholarAccent)
                     }
                 }
 
@@ -159,7 +159,7 @@ struct KeyTermCard: View {
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .stroke(Color.accentGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
         )
     }
 }
@@ -183,9 +183,9 @@ struct VerseAnchorButton: View {
                 Image(systemName: "chevron.right")
                     .font(Typography.UI.caption1)
             }
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.scholarAccent)
             .padding(AppTheme.Spacing.md)
-            .background(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+            .background(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
         }
         .buttonStyle(.plain)

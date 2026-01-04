@@ -23,31 +23,31 @@ struct ComplineSanctuaryView: View {
                     VStack(spacing: 0) {
                         // Header
                         headerSection
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
-                            .padding(.top, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
+                            .padding(.top, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl)
+                            .frame(height: AppTheme.Spacing.xxxl)
 
                         // Tonight's Verse
                         verseSection
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxl)
+                            .frame(height: AppTheme.Spacing.xxl)
 
                         // Primary CTA - Compline
                         complineCard
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.lg)
+                            .frame(height: AppTheme.Spacing.lg)
 
                         // Feature Grid
                         featureGrid
-                            .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                            .padding(.horizontal, AppTheme.Spacing.xl)
 
                         Spacer()
-                            .frame(height: SanctuaryTheme.Spacing.xxxl)
+                            .frame(height: AppTheme.Spacing.xxxl)
 
                         // Bottom spacing for candle
                         Spacer()
@@ -122,7 +122,7 @@ struct ComplineSanctuaryView: View {
     // MARK: - Verse Section
 
     private var verseSection: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.xl) {
+        VStack(spacing: AppTheme.Spacing.xl) {
             // Top ornamental divider
             OrnamentalDivider()
                 .opacity(isVisible ? 1 : 0)
@@ -134,7 +134,7 @@ struct ComplineSanctuaryView: View {
                 .foregroundStyle(Color.starlight)
                 .multilineTextAlignment(.center)
                 .lineSpacing(10)
-                .padding(.horizontal, SanctuaryTheme.Spacing.xl)
+                .padding(.horizontal, AppTheme.Spacing.xl)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 1.0).delay(0.8), value: isVisible)
 
@@ -151,7 +151,7 @@ struct ComplineSanctuaryView: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.8).delay(1.3), value: isVisible)
         }
-        .padding(.vertical, SanctuaryTheme.Spacing.lg)
+        .padding(.vertical, AppTheme.Spacing.lg)
     }
 
     // MARK: - Compline Card (Primary CTA)
@@ -170,9 +170,9 @@ struct ComplineSanctuaryView: View {
     // MARK: - Feature Grid
 
     private var featureGrid: some View {
-        VStack(spacing: SanctuaryTheme.Spacing.md) {
+        VStack(spacing: AppTheme.Spacing.md) {
             // Row 1: Prayers from Deep + Living Scripture
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 ComplineFeatureCard(
                     feature: .prayersFromDeep,
                     isPrimary: false,
@@ -193,7 +193,7 @@ struct ComplineSanctuaryView: View {
             }
 
             // Row 2: Commentary + Memory Palace
-            HStack(spacing: SanctuaryTheme.Spacing.md) {
+            HStack(spacing: AppTheme.Spacing.md) {
                 ComplineFeatureCard(
                     feature: .livingCommentary,
                     isPrimary: false,

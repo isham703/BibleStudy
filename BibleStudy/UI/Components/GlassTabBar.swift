@@ -90,7 +90,7 @@ private struct GlassSegmentedControl: UIViewRepresentable {
     var size: CGSize
     var activeTint: Color = .primary
     var inactiveTint: Color = .primary.opacity(AppTheme.Opacity.midHeavy)
-    var barTint: Color = Color.accentGold.opacity(AppTheme.Opacity.quarter)
+    var barTint: Color = Color.scholarAccent.opacity(AppTheme.Opacity.quarter)
     @Binding var selectedTab: Tab
 
     func makeCoordinator() -> Coordinator {
@@ -167,7 +167,7 @@ private struct GlassSegmentedControl: UIViewRepresentable {
                 .font(Typography.UI.tabLabel)
                 .fontWeight(.medium)
         }
-        .foregroundStyle(selectedTab == tab ? Color.accentGold : Color.secondaryText)
+        .foregroundStyle(selectedTab == tab ? Color.scholarAccent : Color.secondaryText)
     }
 
     // MARK: - Coordinator

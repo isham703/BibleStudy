@@ -369,13 +369,13 @@ struct NotificationPermissionView: View {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.lightMedium))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "bell.badge.fill")
                     // swiftlint:disable:next hardcoded_font_system
                     .font(.system(size: AppTheme.IconSize.xxl))
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
             }
 
             // Title
@@ -418,7 +418,7 @@ struct NotificationPermissionView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AppTheme.Spacing.md)
-                        .background(Color.accentGold)
+                        .background(Color.scholarAccent)
                         .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
                 }
 
@@ -450,7 +450,7 @@ private struct NotificationFeatureRow: View {
         HStack(spacing: AppTheme.Spacing.md) {
             Image(systemName: icon)
                 .font(Typography.UI.body)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .frame(width: AppTheme.IconContainer.small)
 
             Text(text)

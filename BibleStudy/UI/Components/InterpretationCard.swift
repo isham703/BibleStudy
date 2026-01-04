@@ -157,7 +157,7 @@ struct ModeButton: View {
                 .padding(.vertical, AppTheme.Spacing.sm)
                 .background(
                     Capsule()
-                        .fill(isSelected ? Color.accentGold : Color.surfaceBackground)
+                        .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
                 )
                 .overlay(
                     Capsule()
@@ -194,7 +194,7 @@ struct SectionHeader: View {
     var body: some View {
         HStack(spacing: AppTheme.Spacing.xs) {
             Image(systemName: icon)
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
             Text(title)
                 .font(Typography.Display.headline)
                 .foregroundStyle(Color.secondaryText)
@@ -230,12 +230,12 @@ struct CrossRefChip: View {
     var body: some View {
         Text(reference)
             .font(Typography.UI.caption1)
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.scholarAccent)
             .padding(.horizontal, AppTheme.Spacing.sm)
             .padding(.vertical, AppTheme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
             )
     }
 }

@@ -117,7 +117,7 @@ struct LivingScrollView: View {
                     RadialGradient(
                         colors: [
                             Color.clear,
-                            ScholarAskPalette.background.opacity(vignetteIntensity)
+                            Color.appBackground.opacity(vignetteIntensity)
                         ],
                         center: .center,
                         startRadius: geometry.size.width * 0.4,
@@ -141,17 +141,17 @@ struct LivingScrollView: View {
         } label: {
             ZStack {
                 Circle()
-                    .fill(ScholarAskPalette.accentSubtle)
+                    .fill(Color.scholarIndigo.opacity(0.1))
                     .frame(width: 44, height: 44)
                     .overlay(
                         Circle()
                             .strokeBorder(
-                                ScholarAskPalette.accent.opacity(AppTheme.Opacity.medium),
+                                Color.scholarIndigo.opacity(AppTheme.Opacity.medium),
                                 lineWidth: AppTheme.Border.thin
                             )
                     )
                     .shadow(
-                        color: ScholarAskPalette.accent.opacity(AppTheme.Opacity.lightMedium),
+                        color: Color.scholarIndigo.opacity(AppTheme.Opacity.lightMedium),
                         radius: 8,
                         y: 2
                     )
@@ -159,7 +159,7 @@ struct LivingScrollView: View {
                 Image(systemName: "chevron.down")
                     .font(Typography.UI.callout)
                     .fontWeight(.semibold)
-                    .foregroundStyle(ScholarAskPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
             }
         }
         .padding(.bottom, AppTheme.Spacing.lg)
@@ -218,21 +218,21 @@ private struct LivingScrollUncertaintyBanner: View {
         HStack(spacing: AppTheme.Spacing.sm) {
             Image(systemName: "sparkles")
                 .font(Typography.UI.caption1)
-                .foregroundStyle(ScholarAskPalette.accent)
+                .foregroundStyle(Color.scholarIndigo)
 
             Text(level.displayText)
                 .font(Typography.Illuminated.quote(size: Typography.Scale.xs))
-                .foregroundStyle(ScholarAskPalette.secondaryText)
+                .foregroundStyle(Color.secondaryText)
 
             Spacer()
         }
         .padding(AppTheme.Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .fill(ScholarAskPalette.accentSubtle)
+                .fill(Color.scholarIndigo.opacity(0.1))
                 .overlay(
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                        .strokeBorder(ScholarAskPalette.accent.opacity(AppTheme.Opacity.light), lineWidth: AppTheme.Border.thin)
+                        .strokeBorder(Color.scholarIndigo.opacity(AppTheme.Opacity.light), lineWidth: AppTheme.Border.thin)
                 )
         )
         .padding(.horizontal, AppTheme.Spacing.md)
@@ -259,11 +259,11 @@ private struct LivingScrollFollowUps: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "arrow.turn.down.right")
                     .font(Typography.UI.caption2)
-                    .foregroundStyle(ScholarAskPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
 
                 Text("Continue exploring")
                     .font(Typography.Illuminated.quote(size: Typography.Scale.xs))
-                    .foregroundStyle(ScholarAskPalette.tertiaryText)
+                    .foregroundStyle(Color.tertiaryText)
             }
             .padding(.leading, AppTheme.Spacing.md)
             .opacity(headerVisible ? 1 : 0)
@@ -337,7 +337,7 @@ private struct LivingScrollFollowUpButton: View {
                 // Ripple effect layer
                 if rippleScale > 0 {
                     Capsule()
-                        .fill(ScholarAskPalette.accent.opacity(AppTheme.Opacity.medium))
+                        .fill(Color.scholarIndigo.opacity(AppTheme.Opacity.medium))
                         .scaleEffect(rippleScale)
                         .opacity(rippleOpacity)
                 }
@@ -345,7 +345,7 @@ private struct LivingScrollFollowUpButton: View {
                 // Button content
                 Text(question)
                     .font(Typography.Illuminated.footnote)
-                    .foregroundStyle(ScholarAskPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
                     .padding(.horizontal, AppTheme.Spacing.md)
                     .padding(.vertical, AppTheme.Spacing.sm)
                     .background(buttonBackground)
@@ -371,16 +371,16 @@ private struct LivingScrollFollowUpButton: View {
 
     private var buttonBackground: some View {
         Capsule()
-            .fill(ScholarAskPalette.accentSubtle.opacity(Double(1.0 + glowIntensity * 0.1)))
+            .fill(Color.scholarIndigo.opacity(0.1).opacity(Double(1.0 + glowIntensity * 0.1)))
             .overlay(
                 Capsule()
                     .strokeBorder(
-                        ScholarAskPalette.accent.opacity(AppTheme.Opacity.light + glowIntensity * 0.3),
+                        Color.scholarIndigo.opacity(AppTheme.Opacity.light + glowIntensity * 0.3),
                         lineWidth: AppTheme.Border.thin
                     )
             )
             .shadow(
-                color: ScholarAskPalette.accent.opacity(glowIntensity * 0.2),
+                color: Color.scholarIndigo.opacity(glowIntensity * 0.2),
                 radius: 6 * glowIntensity
             )
     }
@@ -442,11 +442,11 @@ private struct LivingScrollFollowUpsStaggered: View {
             HStack(spacing: AppTheme.Spacing.xs) {
                 Image(systemName: "arrow.turn.down.right")
                     .font(Typography.UI.caption2)
-                    .foregroundStyle(ScholarAskPalette.accent)
+                    .foregroundStyle(Color.scholarIndigo)
 
                 Text("Continue exploring")
                     .font(Typography.Illuminated.quote(size: Typography.Scale.xs))
-                    .foregroundStyle(ScholarAskPalette.tertiaryText)
+                    .foregroundStyle(Color.tertiaryText)
             }
             .padding(.leading, AppTheme.Spacing.md)
 
@@ -513,8 +513,8 @@ private struct EnhancedSacredGeometryThinking: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            ScholarAskPalette.accent.opacity(AppTheme.Opacity.light),
-                            ScholarAskPalette.accent.opacity(AppTheme.Opacity.faint),
+                            Color.scholarIndigo.opacity(AppTheme.Opacity.light),
+                            Color.scholarIndigo.opacity(AppTheme.Opacity.faint),
                             Color.clear
                         ],
                         center: .center,

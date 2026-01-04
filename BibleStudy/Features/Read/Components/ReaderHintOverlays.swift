@@ -22,7 +22,7 @@ struct SwipeHintOverlay: View {
                         .fontWeight(.medium)
                         .opacity(AppTheme.Opacity.strong)
                 }
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .offset(x: animateLeft ? 8 : 0)
                 .animation(
                     AppTheme.Animation.reduced(AppTheme.Animation.slow.repeatForever(autoreverses: true)),
@@ -53,7 +53,7 @@ struct SwipeHintOverlay: View {
                         .font(Typography.UI.title3)
                         .fontWeight(.semibold)
                 }
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .offset(x: animateRight ? -8 : 0)
                 .animation(
                     AppTheme.Animation.reduced(AppTheme.Animation.slow.repeatForever(autoreverses: true)),
@@ -95,14 +95,14 @@ struct InsightHintOverlay: View {
                 // Animated tap icon
                 ZStack {
                     Circle()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
                         .frame(width: 60, height: 60)
                         .scaleEffect(animateTap ? 1.3 : 1.0)
                         .opacity(animateTap ? 0 : 0.5)
 
                     Image(systemName: "hand.tap.fill")
                         .font(Typography.UI.title1)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                         .offset(y: animateTap ? -4 : 0)
                 }
                 .animation(
@@ -161,7 +161,7 @@ struct ReadingMenuHintOverlay: View {
                         HStack(spacing: AppTheme.Spacing.sm) {
                             Image(systemName: "hand.point.down.fill")
                                 .font(Typography.UI.title2)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                                 .scaleEffect(animatePulse ? 1.1 : 1.0)
                                 .animation(
                                     AppTheme.Animation.reduced(AppTheme.Animation.slow.repeatForever(autoreverses: true)),
@@ -189,7 +189,7 @@ struct ReadingMenuHintOverlay: View {
                     // Arrow pointing down-right to the button
                     Image(systemName: "arrow.turn.right.down")
                         .font(Typography.UI.title2)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                         .padding(.trailing, AppTheme.Spacing.xl)
                 }
                 .padding(.trailing, AppTheme.Spacing.lg)

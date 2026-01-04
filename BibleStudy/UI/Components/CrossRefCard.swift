@@ -18,7 +18,7 @@ struct CrossRefCard: View {
             HStack {
                 Text(crossRef.reference)
                     .font(Typography.Display.headline)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
 
                 Spacer()
 
@@ -67,7 +67,7 @@ struct CrossRefCard: View {
                         Text("Why linked?")
                     }
                     .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.scholarAccent)
                 }
                 .disabled(isLoadingWhy)
             }
@@ -91,7 +91,7 @@ struct RelevanceIndicator: View {
     let weight: Double
 
     var color: Color {
-        if weight >= 0.9 { return .accentGold }
+        if weight >= 0.9 { return .scholarAccent }
         if weight >= 0.7 { return .secondaryText }
         return .tertiaryText
     }

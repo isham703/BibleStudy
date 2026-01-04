@@ -29,7 +29,7 @@ struct SacredGeometryThinking: View {
             // Thinking text
             Text("Contemplating...")
                 .font(Typography.UI.subheadline)
-                .foregroundStyle(ScholarAskPalette.secondaryText)
+                .foregroundStyle(Color.secondaryText)
         }
         .onAppear {
             startAnimations()
@@ -60,7 +60,7 @@ struct SacredGeometryThinking: View {
 
     private func sacredCircle(at position: CGPoint, index: Int) -> some View {
         Circle()
-            .stroke(ScholarAskPalette.accent, lineWidth: AppTheme.Border.medium)
+            .stroke(Color.scholarIndigo, lineWidth: AppTheme.Border.medium)
             .frame(width: circleRadius * 2, height: circleRadius * 2)
             .opacity(circleOpacities[index])
             .offset(x: position.x, y: position.y)
@@ -72,7 +72,7 @@ struct SacredGeometryThinking: View {
             let angle = (Double(index) * 60.0 + 30.0) * .pi / 180.0
             let distance = patternRadius * 0.5
             Circle()
-                .fill(ScholarAskPalette.accent)
+                .fill(Color.scholarIndigo)
                 .frame(width: 3, height: 3)
                 .opacity(AppTheme.Opacity.strong)
                 .offset(
@@ -138,7 +138,7 @@ struct CompactSacredGeometry: View {
             ForEach(0..<3, id: \.self) { index in
                 let angle = Double(index) * 120.0 * .pi / 180.0
                 Circle()
-                    .stroke(ScholarAskPalette.accent, lineWidth: AppTheme.Border.thin)
+                    .stroke(Color.scholarIndigo, lineWidth: AppTheme.Border.thin)
                     .frame(width: 16, height: 16)
                     .offset(
                         x: 8 * cos(angle),
@@ -148,7 +148,7 @@ struct CompactSacredGeometry: View {
 
             // Center point
             Circle()
-                .fill(ScholarAskPalette.accent)
+                .fill(Color.scholarIndigo)
                 .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
         }
         .frame(width: 32, height: 32)
@@ -194,9 +194,9 @@ struct DivineLightDivider: View {
             .fill(
                 LinearGradient(
                     colors: [
-                        ScholarAskPalette.accent.opacity(0),
-                        ScholarAskPalette.accent.opacity(AppTheme.Opacity.medium + shimmerPosition * AppTheme.Opacity.lightMedium),
-                        ScholarAskPalette.accent.opacity(0)
+                        Color.scholarIndigo.opacity(0),
+                        Color.scholarIndigo.opacity(AppTheme.Opacity.medium + shimmerPosition * AppTheme.Opacity.lightMedium),
+                        Color.scholarIndigo.opacity(0)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing

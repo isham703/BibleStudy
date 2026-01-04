@@ -61,7 +61,7 @@ struct MiniatureActionsView<Actions: View, Background: View>: View {
                             Image(systemName: "sparkles")
                                 .font(Typography.UI.caption2)
                                 .fontWeight(.medium)
-                                .foregroundStyle(Color.accentGold)
+                                .foregroundStyle(Color.scholarAccent)
                                 .offset(x: 12, y: -10)
                                 .transition(.scale.combined(with: .opacity))
                         }
@@ -104,7 +104,7 @@ struct MiniatureActionsBackground: View {
         ZStack {
             Capsule()
                 .fill(isAIMode
-                    ? Color.accentGold.opacity(colorScheme == .dark ? 0.15 : 0.1)
+                    ? Color.scholarAccent.opacity(colorScheme == .dark ? 0.15 : 0.1)
                     : Color.elevatedBackground
                 )
 

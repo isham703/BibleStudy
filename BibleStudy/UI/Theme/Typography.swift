@@ -107,9 +107,204 @@ struct Typography {
         static let small: Font = .system(size: 11, design: .monospaced)
     }
 
+    // MARK: - Reading Typography (NEW - Modern Scripture)
+    // Verse content and biblical text with user-customizable fonts
+    // Replaces Scripture + Illuminated.body* tokens
+
+    struct Reading {
+        // MARK: - Verse Text (User-Customizable Font)
+
+        /// Primary verse text - respects user's font preference
+        /// Example: Verse display in Scholar Reader, reading modes
+        static func verse(size: ScriptureFontSize = .medium, font: ScriptureFont = .newYork) -> Font {
+            font.font(size: size.rawValue)
+        }
+
+        /// Poetic verse text - italic variant for poetry, quoted speech
+        /// Example: Psalms, quoted passages, Words of Christ
+        static func verseItalic(size: ScriptureFontSize = .medium, font: ScriptureFont = .newYork) -> Font {
+            font.font(size: size.rawValue).italic()
+        }
+
+        /// Verse emphasis - semibold for red letter editions
+        /// Example: Words of Christ when emphasis needed
+        static func verseEmphasis(size: ScriptureFontSize = .medium, font: ScriptureFont = .newYork) -> Font {
+            font.font(size: size.rawValue).weight(.semibold)
+        }
+
+        // MARK: - Chapter Headers
+
+        /// Large chapter number - editorial bold serif
+        /// Example: "Chapter 1" in reader headers
+        static let chapterNumber: Font = .system(size: 28, weight: .bold, design: .serif)
+
+        /// Chapter label - small tracked uppercase
+        /// Example: "CHAPTER" text above number
+        static let chapterLabel: Font = .system(size: 11, weight: .bold)
+
+        // MARK: - Verse Numbers
+
+        /// Standard verse number - bold system
+        /// Example: Default verse number style
+        static let verseNumber: Font = .system(size: 14, weight: .bold)
+
+        /// Subtle verse number - light weight
+        /// Example: Minimal verse number style
+        static let verseNumberSubtle: Font = .system(size: 12, weight: .regular)
+
+        // MARK: - Line Spacing
+
+        /// Standard verse line spacing
+        static let verseLineSpacing: CGFloat = 8
+
+        /// Poetic verse line spacing (more generous)
+        static let poeticLineSpacing: CGFloat = 10
+    }
+
+    // MARK: - Editorial Typography (NEW - Scholar Patterns)
+    // Metadata, labels, references following editorial/newspaper conventions
+    // Distinctive patterns for scholarly precision
+
+    struct Editorial {
+        // MARK: - Headers & Labels (Tracked Uppercase)
+
+        /// Section headers - bold tracked uppercase
+        /// Example: "TODAY'S STUDY", "DEEPEN YOUR UNDERSTANDING"
+        /// Use with: .tracking(Editorial.sectionTracking).textCase(.uppercase)
+        static let sectionHeader: Font = .system(size: 11, weight: .bold)
+
+        /// Small label - medium tracked uppercase
+        /// Example: "SCHOLARLY INSIGHT", "CONNECTION"
+        /// Use with: .tracking(Editorial.labelTracking).textCase(.uppercase)
+        static let label: Font = .system(size: 10, weight: .bold)
+
+        /// Tiny label - for compact spaces
+        /// Example: Chip labels, tags, badges
+        static let labelSmall: Font = .system(size: 9, weight: .bold)
+
+        // MARK: - References (Cinzel + Tracking)
+
+        /// Scripture reference - Cinzel with tracking
+        /// Example: "Gen 1:1", "Eph 2:20"
+        /// Use with: .tracking(Editorial.referenceTracking)
+        static var reference: Font {
+            CustomFonts.cinzelRegular(size: 11)
+        }
+
+        /// Large reference - for hero displays
+        /// Example: Main passage reference in study cards
+        static let referenceHero: Font = .system(size: 14, weight: .semibold, design: .serif)
+
+        /// Display reference - large decorative Cinzel
+        /// Example: 72pt decorative quotes in home variants
+        static var referenceDisplay: Font {
+            CustomFonts.cinzelRegular(size: 32)
+        }
+
+        // MARK: - Tracking Constants (Liturgical Spacing: 20-30%)
+
+        /// Section header tracking (~23% on 11pt)
+        /// Creates contemplative, architectural spacing
+        static let sectionTracking: CGFloat = 2.5
+
+        /// Label tracking (~15% on 10pt)
+        /// Legibility in small sizes
+        static let labelTracking: CGFloat = 1.5
+
+        /// Reference tracking (~27% on 11pt)
+        /// Inscriptional quality for citations
+        static let referenceTracking: CGFloat = 3.0
+    }
+
+    // MARK: - Insight Typography (NEW - AI Content)
+    // AI-generated content (insights, commentary, chat)
+    // Replaces Codex.* tokens with better fallback support
+
+    struct Insight {
+        // MARK: - Headers (Cinzel for Manuscript Feel)
+
+        /// Insight card header - small Cinzel uppercase
+        /// Example: "SCHOLARLY INSIGHT", "ILLUMINATED INSIGHT"
+        static var header: Font {
+            CustomFonts.cinzelRegular(size: 11)
+        }
+
+        /// Section title within insight
+        /// Example: "Key Points", "Context", "Words"
+        static var sectionTitle: Font {
+            CustomFonts.cinzelRegular(size: 10)
+        }
+
+        // MARK: - Body (Cormorant for Readability)
+
+        /// Hero summary - primary insight text
+        /// Example: Main insight summary, chat responses
+        static var heroSummary: Font {
+            CustomFonts.cormorantRegular(size: 17)
+        }
+
+        /// Standard body text
+        /// Example: Expanded content, detailed explanations
+        static var body: Font {
+            CustomFonts.cormorantRegular(size: 15)
+        }
+
+        /// Small body - compact displays
+        /// Example: Dense content areas
+        static var bodySmall: Font {
+            CustomFonts.cormorantRegular(size: 14)
+        }
+
+        // MARK: - Emphasis Variants
+
+        /// Italic - for marginalia, quotes, loading states
+        static var italic: Font {
+            CustomFonts.cormorantItalic(size: 15)
+        }
+
+        /// Emphasis - semibold for key points
+        static var emphasis: Font {
+            CustomFonts.cormorantSemiBold(size: 15)
+        }
+
+        // MARK: - Cross-References
+
+        /// Reference in insight content
+        static var reference: Font {
+            CustomFonts.cormorantSemiBold(size: 14)
+        }
+
+        /// Quote preview
+        static var quote: Font {
+            CustomFonts.cormorantItalic(size: 15)
+        }
+
+        // MARK: - Line Spacing
+
+        /// Hero summary line spacing
+        static let heroLineSpacing: CGFloat = 6
+
+        /// Body line spacing
+        static let bodyLineSpacing: CGFloat = 5
+
+        /// Caption line spacing
+        static let captionLineSpacing: CGFloat = 3
+    }
+
     // MARK: - Illuminated Manuscript Typography
     // Premium typography for the illuminated manuscript theme
     // Uses custom fonts with system fallbacks
+    //
+    // ⚠️ **DEPRECATED**: This struct is being phased out in favor of semantic tokens.
+    //
+    // **Migration Guide**:
+    // - `Illuminated.body()` → Use `Typography.Reading.verse()` for scripture text
+    // - `Illuminated.bodyWithSize()` → Use `Typography.Reading.verse(size:font:)` with ScriptureFontSize
+    // - `Illuminated.footnote` → Use `Typography.UI.footnote` for standard footnotes
+    // - `Illuminated.quote()` → Use `Typography.Reading.verseItalic()` for poetic/quoted passages
+    // - Drop caps and decorative elements → Keep using Illuminated tokens (feature-specific)
+    //
+    // See Typography.Reading and TypographyModifiers.swift for new patterns
 
     struct Illuminated {
 
@@ -226,6 +421,18 @@ struct Typography {
     // Dedicated typography for Illuminated Insight cards, Deep Study Sheet, and Context Menu
     // Uses Cinzel for headers (Roman inscriptional) and CormorantGaramond for body (humanist serif)
     // Creates authentic manuscript aesthetic with intentional hierarchy
+    //
+    // ⚠️ **DEPRECATED**: This struct is being replaced by Typography.Insight with semantic tokens.
+    //
+    // **Migration Guide**:
+    // - `Codex.heroSummary` → Use `Typography.Insight.heroSummary` or `.insightHeroSummary()` modifier
+    // - `Codex.body` → Use `Typography.Insight.body` or `.insightBody()` modifier
+    // - `Codex.emphasis` → Use `Typography.Insight.emphasis` or `.insightEmphasis()` modifier
+    // - `Codex.italic` → Use `Typography.Insight.italic` or `.insightItalic()` modifier
+    // - `Codex.illuminatedHeader` → Use `Typography.Insight.header` or `.insightHeader()` modifier
+    // - `Codex.sectionLabel` → Use `Typography.Editorial.label` or `.editorialLabel()` modifier
+    //
+    // See Typography.Insight and TypographyModifiers.swift for new patterns
 
     struct Codex {
         // MARK: - Headers (Cinzel - Roman Capitals)

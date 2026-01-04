@@ -38,7 +38,7 @@ struct ReadingSectionView: View {
                         label: "Devotional Mode",
                         description: "Larger text with generous spacing for meditation",
                         icon: "sparkles",
-                        iconColor: .accentGold
+                        iconColor: .scholarAccent
                     )
                 }
             }
@@ -135,18 +135,18 @@ struct ReadingSectionView: View {
                 ZStack {
                     if isAppearanceExpanded {
                         Circle()
-                            .fill(Color.accentGold.opacity(AppTheme.Opacity.light))
+                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
                             .frame(width: 36, height: 36)
                             .blur(radius: AppTheme.Blur.light)
                     }
 
                     Image(systemName: "paintpalette.fill")
                         .font(Typography.UI.iconSm.weight(.medium))
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                         .frame(width: 28, height: 28)
                         .background(
                             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                                .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle + 0.02))
+                                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
                         )
                 }
 
@@ -167,7 +167,7 @@ struct ReadingSectionView: View {
                 // Rotating chevron
                 Image(systemName: "chevron.right")
                     .font(Typography.UI.iconXxxs.weight(.semibold))
-                    .foregroundStyle(isAppearanceExpanded ? Color.accentGold : Color.tertiaryText)
+                    .foregroundStyle(isAppearanceExpanded ? Color.scholarAccent : Color.tertiaryText)
                     .rotationEffect(.degrees(isAppearanceExpanded ? 90 : 0))
             }
         }
@@ -313,10 +313,10 @@ struct ReadingSectionView: View {
                         } label: {
                             HStack(spacing: AppTheme.Spacing.xxs) {
                                 Text(appState.lineSpacing.displayName)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.UI.iconXxs)
-                                    .foregroundStyle(Color.accentGold.opacity(AppTheme.Opacity.overlay))
+                                    .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.overlay))
                             }
                         }
                     }
@@ -346,10 +346,10 @@ struct ReadingSectionView: View {
                         } label: {
                             HStack(spacing: AppTheme.Spacing.xxs) {
                                 Text(appState.contentWidth.displayName)
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.scholarAccent)
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.UI.iconXxs)
-                                    .foregroundStyle(Color.accentGold.opacity(AppTheme.Opacity.overlay))
+                                    .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.overlay))
                             }
                         }
                     }
@@ -378,7 +378,7 @@ struct ReadingSectionView: View {
                                 saveParagraphMode(newValue)
                             }
                         ))
-                        .tint(Color.accentGold)
+                        .tint(Color.scholarAccent)
                         .labelsHidden()
                     }
                     .padding(.vertical, AppTheme.Spacing.sm)
@@ -469,11 +469,11 @@ struct ReadingSectionView: View {
             // Icon
             Image(systemName: "book.closed.fill")
                 .font(Typography.UI.iconSm.weight(.medium))
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .frame(width: 28, height: 28)
                 .background(
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle + 0.02))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
                 )
 
             // Label
@@ -508,7 +508,7 @@ struct ReadingSectionView: View {
             .padding(.vertical, AppTheme.Spacing.xxs)
             .background(
                 Capsule()
-                    .fill(Color.accentGold)
+                    .fill(Color.scholarAccent)
             )
         }
         .contentShape(Rectangle())
@@ -527,11 +527,11 @@ struct ReadingSectionView: View {
             // Icon
             Image(systemName: "internaldrive.fill")
                 .font(Typography.UI.iconSm.weight(.medium))
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.scholarAccent)
                 .frame(width: 28, height: 28)
                 .background(
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle + 0.02))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
                 )
 
             // Label
@@ -566,17 +566,17 @@ struct ReadingSectionView: View {
                     Text(viewModel.audioCacheSizeOptions.first { $0.mb == viewModel.audioCacheLimitMB }?.label ?? "\(viewModel.audioCacheLimitMB) MB")
                         .font(Typography.UI.caption1)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
 
                     Image(systemName: "chevron.up.chevron.down")
                         .font(Typography.UI.iconXxxs)
-                        .foregroundStyle(Color.accentGold.opacity(AppTheme.Opacity.pressed))
+                        .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.pressed))
                 }
                 .padding(.horizontal, AppTheme.Spacing.sm)
                 .padding(.vertical, AppTheme.Spacing.xxs)
                 .background(
                     Capsule()
-                        .fill(Color.accentGold.opacity(AppTheme.Opacity.subtle))
+                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
                 )
             }
         }
@@ -698,12 +698,12 @@ struct InlineThemeCard: View {
                     // Selection ring
                     if isSelected {
                         RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                            .stroke(Color.accentGold, lineWidth: AppTheme.Border.regular)
+                            .stroke(Color.scholarAccent, lineWidth: AppTheme.Border.regular)
                             .frame(width: 52, height: 36)
                     }
                 }
                 .shadow(
-                    color: isSelected ? Color.accentGold.opacity(AppTheme.Opacity.medium) : .clear,
+                    color: isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.medium) : .clear,
                     radius: 4
                 )
 
@@ -711,7 +711,7 @@ struct InlineThemeCard: View {
                 Text(theme.displayName)
                     .font(Typography.UI.caption2)
                     .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundStyle(isSelected ? Color.accentGold : Color.secondaryText)
+                    .foregroundStyle(isSelected ? Color.scholarAccent : Color.secondaryText)
             }
             .padding(.vertical, AppTheme.Spacing.xs)
             .padding(.horizontal, AppTheme.Spacing.xxs)

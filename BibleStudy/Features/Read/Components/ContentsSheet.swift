@@ -103,7 +103,7 @@ struct ContentsSheet: View {
 
                             // Progress
                             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
-                                .fill(Color.accentGold)
+                                .fill(Color.scholarAccent)
                                 .frame(width: geometry.size.width * progressFraction, height: 8)
                         }
                     }

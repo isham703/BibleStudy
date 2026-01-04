@@ -52,7 +52,7 @@ struct EmailConfirmationView: View {
                 Button(action: onChangeEmail) {
                     Text("Use a different email")
                         .font(Typography.UI.body)
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.scholarAccent)
                 }
             }
             .padding(.bottom, AppTheme.Spacing.xl)
@@ -73,7 +73,7 @@ struct EmailConfirmationView: View {
         ZStack {
             // Outer glow ring
             Circle()
-                .fill(Color.Glow.goldAmbient)
+                .fill(Color.Glow.indigoAmbient)
                 .frame(width: 120, height: 120)
                 .blur(radius: AppTheme.Blur.heavy)
 
@@ -154,7 +154,7 @@ struct EmailConfirmationView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(AppTheme.Spacing.md)
-            .background(secondsRemaining > 0 ? Color.secondaryBackground : Color.accentGold)
+            .background(secondsRemaining > 0 ? Color.secondaryBackground : Color.scholarAccent)
             .foregroundStyle(secondsRemaining > 0 ? Color.tertiaryText : .white)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
             .overlay(

@@ -14,14 +14,14 @@ struct PrayerInputField: View {
             if text.isEmpty {
                 Text(placeholder)
                     .font(.custom("CormorantGaramond-Italic", size: 17))
-                    .foregroundStyle(Color.prayerOxide.opacity(0.6))
+                    .foregroundStyle(Color.tertiaryText.opacity(0.6))
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
             }
 
             TextEditor(text: $text)
                 .font(.custom("CormorantGaramond-Italic", size: 17))
-                .foregroundStyle(Color.prayerUmber)
+                .foregroundStyle(Color.primaryText)
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -30,13 +30,13 @@ struct PrayerInputField: View {
         .frame(height: 140)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.prayerVellum.opacity(0.5))
+                .fill(Color.appBackground.opacity(0.5))
         )
         .overlay(
             ManuscriptBorder(isFocused: isFocused)
         )
         .shadow(
-            color: isFocused ? Color.prayerGold.opacity(0.2) : Color.clear,
+            color: isFocused ? Color.divineGold.opacity(0.2) : Color.clear,
             radius: 12
         )
     }
@@ -60,7 +60,7 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: 0, y: 0))
                     path.addLine(to: CGPoint(x: cornerLength, y: 0))
                 }
-                .stroke(Color.prayerGold, lineWidth: 2)
+                .stroke(Color.divineGold, lineWidth: 2)
 
                 // Top-right corner
                 Path { path in
@@ -68,7 +68,7 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: width, y: 0))
                     path.addLine(to: CGPoint(x: width, y: cornerLength))
                 }
-                .stroke(Color.prayerGold, lineWidth: 2)
+                .stroke(Color.divineGold, lineWidth: 2)
 
                 // Bottom-left corner
                 Path { path in
@@ -76,7 +76,7 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: 0, y: height))
                     path.addLine(to: CGPoint(x: cornerLength, y: height))
                 }
-                .stroke(Color.prayerGold, lineWidth: 2)
+                .stroke(Color.divineGold, lineWidth: 2)
 
                 // Bottom-right corner
                 Path { path in
@@ -84,7 +84,7 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: width, y: height))
                     path.addLine(to: CGPoint(x: width, y: height - cornerLength))
                 }
-                .stroke(Color.prayerGold, lineWidth: 2)
+                .stroke(Color.divineGold, lineWidth: 2)
             }
             .animation(.easeOut(duration: 0.3), value: isFocused)
         }
@@ -98,7 +98,7 @@ private struct ManuscriptBorder: View {
     @Previewable @FocusState var focused: Bool
 
     ZStack {
-        Color.prayerVellum.ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
         PrayerInputField(
             text: $text,
             placeholder: "What's on your heart?",

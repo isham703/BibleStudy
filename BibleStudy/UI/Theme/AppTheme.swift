@@ -15,6 +15,7 @@ struct AppTheme {
         static let xl: CGFloat = 24
         static let xxl: CGFloat = 32
         static let xxxl: CGFloat = 48
+        static let huge: CGFloat = 64  // Extra large spacing for hero sections
     }
 
     // MARK: - Corner Radius
@@ -30,6 +31,7 @@ struct AppTheme {
         static let card: CGFloat = 12
         static let sheet: CGFloat = 20
         static let menu: CGFloat = 14  // Floating context menus
+        static let pill: CGFloat = 100  // Fully rounded pill shape
     }
 
     // MARK: - Animation
@@ -94,9 +96,21 @@ struct AppTheme {
         /// Use for: audio loading spinners, progress indicators
         static let celestialRotation: SwiftUI.Animation = .linear(duration: 8).repeatForever(autoreverses: false)
 
+        /// Gradient Rotation - for rotating gradient backgrounds (alias for celestialRotation)
+        /// Use for: gradient shimmer effects, ambient background rotations
+        static let gradientRotation: SwiftUI.Animation = .linear(duration: 8).repeatForever(autoreverses: false)
+
         /// Breathing Pulse - gentle scale animation for ambient effects
         /// Use for: glowing elements, breathing animations, focus indicators
         static let breathingPulse: SwiftUI.Animation = .easeInOut(duration: 2).repeatForever(autoreverses: true)
+
+        /// Cinematic - dramatic entrance animation with bounce
+        /// Use for: hero sections, feature reveals, narrative moments
+        static let cinematic: SwiftUI.Animation = .spring(duration: 0.6, bounce: 0.2)
+
+        /// Float - slow floating animation for ambient elements
+        /// Use for: floating UI elements, breath-like movements, chat pills
+        static let float: SwiftUI.Animation = .easeInOut(duration: 4).repeatForever(autoreverses: true)
 
         /// Shimmer Continuous - linear shimmer for gold leaf effects
         /// Use for: shimmer overlays, light sweeps, metallic highlights
@@ -148,6 +162,18 @@ struct AppTheme {
         static func accessible(_ animation: SwiftUI.Animation) -> SwiftUI.Animation {
             isReduceMotionEnabled ? .easeInOut(duration: 0.1) : animation
         }
+
+        /// Stagger delay helper for sequential animations
+        /// Use for: list item entrances, cascading reveals
+        static func stagger(index: Int, delay: Double = 0.08) -> SwiftUI.Animation {
+            .spring(duration: 0.5, bounce: 0.15).delay(Double(index) * delay)
+        }
+
+        /// Staggered entrance with sacred timing for reverent reveals
+        /// Use for: narrative entrances, contemplative UI reveals
+        static func staggeredEntrance(index: Int, baseDelay: Double = 0.1) -> SwiftUI.Animation {
+            sacredSpring.delay(Double(index) * baseDelay)
+        }
     }
 
     // MARK: - Shadows
@@ -187,19 +213,19 @@ struct AppTheme {
     /// Context menu colors
     enum Menu {
         /// Menu background
-        static var background: Color { .white }
+        static var background: Color { Color.surfaceBackground }
 
         /// Menu border
         static var border: Color { Color.scholarIndigo.opacity(0.15) }
 
         /// Divider lines between menu sections
-        static var divider: Color { Color.scholarInk.opacity(0.08) }
+        static var divider: Color { Color.primaryText.opacity(0.08) }
 
         /// Button hover/pressed background
         static var buttonHover: Color { Color.scholarIndigo.opacity(0.06) }
 
         /// Action button text
-        static var actionText: Color { Color.scholarInk.opacity(0.8) }
+        static var actionText: Color { Color.primaryText.opacity(0.8) }
     }
 
     /// Insight card colors (expandable verse insight panels)
@@ -227,10 +253,10 @@ struct AppTheme {
         static var chipText: Color { Color.scholarIndigo }
 
         /// Hero summary text
-        static var heroText: Color { Color.scholarInk }
+        static var heroText: Color { Color.primaryText }
 
         /// Supporting/secondary text
-        static var supportText: Color { Color.footnoteGray }
+        static var supportText: Color { Color.tertiaryText }
     }
 
     /// Inline insight panel colors (embedded in verse rows)
@@ -239,7 +265,7 @@ struct AppTheme {
         static var background: Color { Color.scholarIndigo.opacity(0.04) }
 
         /// Divider between verse text and insight
-        static var divider: Color { Color.scholarInk.opacity(0.08) }
+        static var divider: Color { Color.primaryText.opacity(0.08) }
 
         /// Subtle border for inline panel
         static var border: Color { Color.scholarIndigo.opacity(0.1) }
@@ -396,7 +422,21 @@ struct AppTheme {
         static let avatar: CGFloat = 40      // User avatars
         static let thumbnail: CGFloat = 64   // Thumbnails
         static let preview: CGFloat = 120    // Preview cards
+
+        // Home page specific sizes
+        static let iconSmall: CGFloat = 16          // Small icons
+        static let iconMedium: CGFloat = 24         // Medium icons (same as icon)
+        static let iconLarge: CGFloat = 32          // Large icons
+        static let touchTarget: CGFloat = 44        // Minimum touch target (Apple HIG)
+        static let cardMinHeight: CGFloat = 120     // Minimum card height
+        static let cardMaxWidth: CGFloat = 400      // Maximum card width
+        static let heroHeight: CGFloat = 380        // Hero section height
+        static let metricPillHeight: CGFloat = 72   // Metric pill height
+        static let streakBadgeWidth: CGFloat = 60   // Streak badge width
     }
+
+    /// Alias for ComponentSize for backward compatibility
+    typealias Size = ComponentSize
 
     // MARK: - Input Bar (Animated Ask Input)
     struct InputBar {
@@ -518,4 +558,28 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
 
 extension ButtonStyle where Self == SecondaryButtonStyle {
     static var secondary: SecondaryButtonStyle { SecondaryButtonStyle() }
+}
+
+// MARK: - View Modifiers
+
+extension View {
+    /// Apply glass card style with material background and subtle highlights
+    /// Use for: floating cards, elevated surfaces, glassy UI elements
+    func glassCard() -> some View {
+        self
+            .background(.ultraThinMaterial.opacity(0.3))
+            .background(
+                LinearGradient(
+                    colors: [Color.white.opacity(0.08), Color.white.opacity(0.02)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+            )
+            .shadow(color: .black.opacity(0.2), radius: 20, y: 10)
+    }
 }

@@ -50,7 +50,7 @@ struct MemorizationQueueView: View {
                             .fontWeight(.semibold)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(.accentGold)
+                        .tint(.scholarAccent)
                     }
                 }
             }
@@ -89,7 +89,7 @@ struct MemorizationQueueView: View {
                 icon: "flame.fill",
                 value: "\(memorizationService.dueCount)",
                 label: "Due Today",
-                color: memorizationService.dueCount > 0 ? .accentGold : .secondaryText
+                color: memorizationService.dueCount > 0 ? .scholarAccent : .secondaryText
             )
 
             statCard(
@@ -169,7 +169,7 @@ struct MemorizationQueueView: View {
             .padding(.vertical, AppTheme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(selectedFilter == filter ? Color.accentGold : Color.clear)
+                    .fill(selectedFilter == filter ? Color.scholarAccent : Color.clear)
             )
             .overlay(
                 Capsule()
@@ -438,7 +438,7 @@ struct MemorizationItemRow: View {
                     Text(dueDateText)
                         .font(Typography.UI.caption1)
                 }
-                .foregroundStyle(item.isDueForReview ? Color.accentGold : Color.tertiaryText)
+                .foregroundStyle(item.isDueForReview ? Color.scholarAccent : Color.tertiaryText)
 
                 Spacer()
 
@@ -456,7 +456,7 @@ struct MemorizationItemRow: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(item.isDueForReview ? Color.accentGold.opacity(AppTheme.Opacity.heavy) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                .stroke(item.isDueForReview ? Color.scholarAccent.opacity(AppTheme.Opacity.heavy) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
         )
         .padding(.horizontal)
         .padding(.vertical, AppTheme.Spacing.xs)
@@ -480,7 +480,7 @@ struct MemorizationItemRow: View {
     private var masteryColor: Color {
         switch item.masteryLevel {
         case .learning: return .accentBlue
-        case .reviewing: return .accentGold
+        case .reviewing: return .scholarAccent
         case .mastered: return .success
         }
     }
