@@ -1,8 +1,8 @@
 import SwiftUI
 
-// MARK: - Showcase Typography Extensions
-// Convenience aliases for the Settings Showcase feature
-// These map to the nested Typography structures for cleaner usage
+// MARK: - Showcase Extensions
+// Reusable theme extensions used across the app's showcase and home variants
+// Includes Typography, Animation, View modifiers, and utility components
 
 extension Typography {
     /// Body text for settings and UI elements
