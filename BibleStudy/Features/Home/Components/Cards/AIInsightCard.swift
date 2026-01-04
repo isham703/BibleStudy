@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Mock AI Insight Card
 // Displays AI-generated insight with rotating gold border
 
-struct MockAIInsightCard: View {
+struct AIInsightCard: View {
     let insight: MockAIInsight
     var showRadiantStar: Bool = false
 
@@ -106,9 +106,9 @@ struct MockAIInsightCard: View {
         Color.candlelitStone.ignoresSafeArea()
 
         VStack(spacing: 20) {
-            MockAIInsightCard(insight: HomeShowcaseMockData.currentInsight)
+            AIInsightCard(insight: HomeShowcaseMockData.currentInsight)
 
-            MockAIInsightCard(
+            AIInsightCard(
                 insight: HomeShowcaseMockData.currentInsight,
                 showRadiantStar: true
             )

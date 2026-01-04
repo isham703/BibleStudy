@@ -113,7 +113,7 @@ struct ComplineSanctuaryView: View {
             .animation(.easeOut(duration: 0.5).delay(0.5), value: isVisible)
 
             // Streak badge
-            MockStreakBadge(count: user.currentStreak)
+            StreakBadge(count: user.currentStreak)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(0.6), value: isVisible)
         }

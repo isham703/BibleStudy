@@ -9,7 +9,7 @@ enum VerseCardStyle {
     case narrative    // Large decorative quote, dramatic typography
 }
 
-struct MockDailyVerseCard: View {
+struct DailyVerseCard: View {
     let verse: MockDailyVerse
     let style: VerseCardStyle
 
@@ -124,7 +124,7 @@ struct MockDailyVerseCard: View {
     ZStack {
         Color.deepVellumBlack.ignoresSafeArea()
 
-        MockDailyVerseCard(
+        DailyVerseCard(
             verse: HomeShowcaseMockData.dailyVerse,
             style: .minimal
         )
@@ -136,7 +136,7 @@ struct MockDailyVerseCard: View {
     ZStack {
         Color.candlelitStone.ignoresSafeArea()
 
-        MockDailyVerseCard(
+        DailyVerseCard(
             verse: HomeShowcaseMockData.dailyVerse,
             style: .standard
         )
@@ -148,7 +148,7 @@ struct MockDailyVerseCard: View {
     ZStack {
         Color.candlelitStone.ignoresSafeArea()
 
-        MockDailyVerseCard(
+        DailyVerseCard(
             verse: HomeShowcaseMockData.dailyVerse,
             style: .narrative
         )

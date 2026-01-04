@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Mock Reading Plan Card
 // Displays current reading plan progress with shimmer effect
 
-struct MockReadingPlanCard: View {
+struct ReadingPlanCard: View {
     let plan: MockReadingPlan
     var showPreviewQuote: Bool = false
 
@@ -113,9 +113,9 @@ struct MockReadingPlanCard: View {
         Color.candlelitStone.ignoresSafeArea()
 
         VStack(spacing: 20) {
-            MockReadingPlanCard(plan: HomeShowcaseMockData.activePlan)
+            ReadingPlanCard(plan: HomeShowcaseMockData.activePlan)
 
-            MockReadingPlanCard(
+            ReadingPlanCard(
                 plan: HomeShowcaseMockData.activePlan,
                 showPreviewQuote: true
             )

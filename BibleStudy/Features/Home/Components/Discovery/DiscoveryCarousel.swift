@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Mock Discovery Carousel
 // Horizontal scrolling carousel for stories and topics
 
-struct MockDiscoveryCarousel: View {
+struct DiscoveryCarousel: View {
     let items: [MockDiscoveryItem]
     var style: CarouselStyle = .compact
 
@@ -187,7 +187,7 @@ struct CinematicDiscoveryCard: View {
     ZStack {
         Color.candlelitStone.ignoresSafeArea()
 
-        MockDiscoveryCarousel(
+        DiscoveryCarousel(
             items: HomeShowcaseMockData.allDiscoveryItems,
             style: .compact
         )
@@ -198,7 +198,7 @@ struct CinematicDiscoveryCard: View {
     ZStack {
         Color.candlelitStone.ignoresSafeArea()
 
-        MockDiscoveryCarousel(
+        DiscoveryCarousel(
             items: HomeShowcaseMockData.featuredStories,
             style: .cinematic
         )

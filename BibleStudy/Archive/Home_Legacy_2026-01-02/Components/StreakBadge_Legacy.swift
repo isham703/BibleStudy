@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Streak Badge
 // Displays current streak with color progression and subtle pulse animation
 
-struct StreakBadge: View {
+struct StreakBadge_Legacy: View {
     let currentStreak: Int
     let graceDayUsed: Bool
 
@@ -89,26 +89,26 @@ struct StreakBadge: View {
 
 // MARK: - Preview
 
-#Preview("Low Streak") {
-    StreakBadge(currentStreak: 3, graceDayUsed: false)
+#Preview("Low Streak Legacy") {
+    StreakBadge_Legacy(currentStreak: 3, graceDayUsed: false)
         .padding()
         .background(Color.appBackground)
 }
 
-#Preview("Week Milestone") {
-    StreakBadge(currentStreak: 7, graceDayUsed: false)
+#Preview("Week Milestone Legacy") {
+    StreakBadge_Legacy(currentStreak: 7, graceDayUsed: false)
         .padding()
         .background(Color.appBackground)
 }
 
-#Preview("Month Streak") {
-    StreakBadge(currentStreak: 42, graceDayUsed: true)
+#Preview("Month Streak Legacy") {
+    StreakBadge_Legacy(currentStreak: 42, graceDayUsed: true)
         .padding()
         .background(Color.appBackground)
 }
 
-#Preview("High Streak") {
-    StreakBadge(currentStreak: 120, graceDayUsed: false)
+#Preview("High Streak Legacy") {
+    StreakBadge_Legacy(currentStreak: 120, graceDayUsed: false)
         .padding()
         .background(Color.appBackground)
 }

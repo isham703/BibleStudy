@@ -208,7 +208,7 @@ struct NarrativeHomePage: View {
             .opacity(isVisible ? 1 : 0)
             .animation(.easeOut(duration: 0.4).delay(1.4), value: isVisible)
 
-            MockDailyVerseCard(verse: verse, style: .narrative)
+            DailyVerseCard(verse: verse, style: .narrative)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(1.5), value: isVisible)
         }
@@ -247,7 +247,7 @@ struct NarrativeHomePage: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.4).delay(2.0), value: isVisible)
 
-            MockDiscoveryCarousel(items: stories, style: .cinematic)
+            DiscoveryCarousel(items: stories, style: .cinematic)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(2.1), value: isVisible)
         }
@@ -264,7 +264,7 @@ struct NarrativeHomePage: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.4).delay(2.3), value: isVisible)
 
-            MockAIInsightCard(insight: insight, showRadiantStar: true)
+            AIInsightCard(insight: insight, showRadiantStar: true)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(2.4), value: isVisible)
         }

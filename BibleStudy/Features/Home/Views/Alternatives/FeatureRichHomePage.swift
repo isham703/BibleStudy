@@ -87,7 +87,7 @@ struct FeatureRichHomePage: View {
             .opacity(isVisible ? 1 : 0)
             .animation(.easeOut(duration: 0.3).delay(0.05), value: isVisible)
 
-            MockStreakBadge(count: user.currentStreak)
+            StreakBadge(count: user.currentStreak)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.3).delay(0.1), value: isVisible)
         }
@@ -138,7 +138,7 @@ struct FeatureRichHomePage: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.3).delay(0.3), value: isVisible)
 
-            MockDailyVerseCard(verse: verse, style: .standard)
+            DailyVerseCard(verse: verse, style: .standard)
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 20)
                 .animation(.spring(duration: 0.5).delay(0.35), value: isVisible)
@@ -154,7 +154,7 @@ struct FeatureRichHomePage: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.3).delay(0.4), value: isVisible)
 
-            MockReadingPlanCard(plan: plan)
+            ReadingPlanCard(plan: plan)
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 20)
                 .animation(.spring(duration: 0.5).delay(0.45), value: isVisible)
@@ -184,7 +184,7 @@ struct FeatureRichHomePage: View {
             .opacity(isVisible ? 1 : 0)
             .animation(.easeOut(duration: 0.3).delay(0.5), value: isVisible)
 
-            MockDiscoveryCarousel(
+            DiscoveryCarousel(
                 items: HomeShowcaseMockData.allDiscoveryItems,
                 style: .compact
             )
@@ -204,7 +204,7 @@ struct FeatureRichHomePage: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.3).delay(0.6), value: isVisible)
 
-            MockPracticeCard(practice: practice)
+            PracticeCard(practice: practice)
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 20)
                 .animation(.spring(duration: 0.5).delay(0.65), value: isVisible)
@@ -220,7 +220,7 @@ struct FeatureRichHomePage: View {
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.3).delay(0.7), value: isVisible)
 
-            MockAIInsightCard(insight: insight)
+            AIInsightCard(insight: insight)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(0.75), value: isVisible)
         }
@@ -229,7 +229,7 @@ struct FeatureRichHomePage: View {
     // MARK: - Chat Section
 
     private var chatSection: some View {
-        MockChatEntryButton()
+        ChatEntryButton()
             .opacity(isVisible ? 1 : 0)
             .scaleEffect(isVisible ? 1 : 0.9)
             .animation(.spring(duration: 0.5, bounce: 0.2).delay(0.85), value: isVisible)

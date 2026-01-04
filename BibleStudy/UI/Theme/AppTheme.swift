@@ -115,6 +115,21 @@ struct AppTheme {
         /// iOS 26 keyboard animates faster (0.22s) than previous versions
         static let keyboardSync: SwiftUI.Animation = .easeOut(duration: 0.22)
 
+        // MARK: - Scholar Component Animations
+        // Refined animations for reader UI components
+
+        /// Menu appear - smooth spring for context menus
+        static let menuAppear: SwiftUI.Animation = .spring(response: 0.35, dampingFraction: 0.8)
+
+        /// Selection - quick ease for verse/item selection
+        static let selection: SwiftUI.Animation = .easeOut(duration: 0.2)
+
+        /// Card unfurl - elegant spring for insight cards expanding
+        static let cardUnfurl: SwiftUI.Animation = .spring(response: 0.4, dampingFraction: 0.85)
+
+        /// Chip expand - snappy spring for filter chips
+        static let chipExpand: SwiftUI.Animation = .spring(response: 0.3, dampingFraction: 0.8)
+
         // MARK: - Reduced Motion Support
 
         /// Returns true when user has enabled "Reduce Motion" in Accessibility settings
@@ -152,6 +167,85 @@ struct AppTheme {
         static var goldGlow: ShadowStyle { indigoGlow }
         /// Alias for small (common card usage)
         static let card = small
+
+        // MARK: - Scholar Component Shadows
+        // Computed shadow colors for reader components
+
+        /// Menu shadow color - for floating context menus
+        static var menuColor: Color { Color.black.opacity(0.12) }
+
+        /// Card shadow color - indigo-tinted for insight cards
+        static var cardColor: Color { Color.scholarIndigo.opacity(0.08) }
+
+        /// Elevated shadow color - subtle lift effect
+        static var elevatedColor: Color { Color.black.opacity(0.06) }
+    }
+
+    // MARK: - Scholar Component Themes
+    // Semantic color groups for reader UI components
+
+    /// Context menu colors
+    enum Menu {
+        /// Menu background
+        static var background: Color { .white }
+
+        /// Menu border
+        static var border: Color { Color.scholarIndigo.opacity(0.15) }
+
+        /// Divider lines between menu sections
+        static var divider: Color { Color.scholarInk.opacity(0.08) }
+
+        /// Button hover/pressed background
+        static var buttonHover: Color { Color.scholarIndigo.opacity(0.06) }
+
+        /// Action button text
+        static var actionText: Color { Color.scholarInk.opacity(0.8) }
+    }
+
+    /// Insight card colors (expandable verse insight panels)
+    enum InsightCard {
+        /// Left accent bar gradient colors
+        static let barGradient: [Color] = [
+            Color.scholarIndigo,
+            Color.scholarIndigoLight,
+            Color.scholarIndigo
+        ]
+
+        /// Card background
+        static var background: Color { .white }
+
+        /// Card border
+        static var border: Color { Color.scholarIndigo.opacity(0.1) }
+
+        /// Chip background (unselected)
+        static var chipBackground: Color { Color.scholarIndigo.opacity(0.06) }
+
+        /// Chip selected background
+        static var chipSelected: Color { Color.scholarIndigo.opacity(0.15) }
+
+        /// Chip text
+        static var chipText: Color { Color.scholarIndigo }
+
+        /// Hero summary text
+        static var heroText: Color { Color.scholarInk }
+
+        /// Supporting/secondary text
+        static var supportText: Color { Color.footnoteGray }
+    }
+
+    /// Inline insight panel colors (embedded in verse rows)
+    enum InlineInsight {
+        /// Panel background inside verse row
+        static var background: Color { Color.scholarIndigo.opacity(0.04) }
+
+        /// Divider between verse text and insight
+        static var divider: Color { Color.scholarInk.opacity(0.08) }
+
+        /// Subtle border for inline panel
+        static var border: Color { Color.scholarIndigo.opacity(0.1) }
+
+        /// Voice mode underline (future use)
+        static var spokenUnderline: Color { Color.scholarIndigoLight.opacity(0.6) }
     }
 
     // MARK: - Icon Sizes

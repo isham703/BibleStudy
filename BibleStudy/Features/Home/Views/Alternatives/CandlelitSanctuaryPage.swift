@@ -112,7 +112,7 @@ struct CandlelitSanctuaryPage: View {
             .animation(.easeOut(duration: 0.4).delay(0.4), value: isVisible)
 
             // Streak badge
-            MockStreakBadge(count: user.currentStreak)
+            StreakBadge(count: user.currentStreak)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.4).delay(0.5), value: isVisible)
         }

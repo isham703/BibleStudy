@@ -54,7 +54,7 @@ struct PersonalizedInsight: Identifiable {
 
 // MARK: - AI Insight Card
 
-struct AIInsightCard: View {
+struct AIInsightCard_Legacy: View {
     let insight: PersonalizedInsight
     var onDismiss: (() -> Void)?
     var onExplore: (() -> Void)?
@@ -215,7 +215,7 @@ struct ForYouSection: View {
             HomeSectionHeader(title: "For You", onSeeAll: onSeeAll)
 
             if let insight = insight {
-                AIInsightCard(
+                AIInsightCard_Legacy(
                     insight: insight,
                     onDismiss: onDismiss,
                     onExplore: onExplore
@@ -262,8 +262,8 @@ private struct ForYouEmptyCard: View {
 
 // MARK: - Previews
 
-#Preview("AI Insight Card") {
-    AIInsightCard(
+#Preview("AI Insight Card Legacy") {
+    AIInsightCard_Legacy(
         insight: PersonalizedInsight(
             type: .themeFromReading,
             title: "A Theme in Your Reading",

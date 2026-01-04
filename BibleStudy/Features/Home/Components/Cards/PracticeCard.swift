@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Mock Practice Card
 // Displays memorization practice status and CTA
 
-struct MockPracticeCard: View {
+struct PracticeCard: View {
     let practice: MockPracticeData
 
     var body: some View {
@@ -68,7 +68,7 @@ struct MockPracticeCard: View {
 
 // MARK: - Compact Practice Card (for minimalist style)
 
-struct MockPracticeCardCompact: View {
+struct PracticeCardCompact: View {
     let practice: MockPracticeData
     @State private var isPressed = false
 
@@ -108,9 +108,9 @@ struct MockPracticeCardCompact: View {
         Color.candlelitStone.ignoresSafeArea()
 
         VStack(spacing: 20) {
-            MockPracticeCard(practice: HomeShowcaseMockData.practiceData)
+            PracticeCard(practice: HomeShowcaseMockData.practiceData)
 
-            MockPracticeCardCompact(practice: HomeShowcaseMockData.practiceData)
+            PracticeCardCompact(practice: HomeShowcaseMockData.practiceData)
                 .padding(.horizontal)
         }
         .padding()

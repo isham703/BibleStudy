@@ -91,7 +91,7 @@ struct HomeTabView: View {
             }
             .accessibilityLabel("Settings")
 
-            StreakBadge(
+            StreakBadge_Legacy(
                 currentStreak: viewModel.currentStreak,
                 graceDayUsed: false
             )

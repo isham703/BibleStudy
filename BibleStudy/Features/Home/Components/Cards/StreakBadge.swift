@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Mock Streak Badge
 // Displays current reading streak with flame icon and glow effect
 
-struct MockStreakBadge: View {
+struct StreakBadge: View {
     let count: Int
     @State private var isPulsing = false
 
@@ -53,10 +53,10 @@ struct MockStreakBadge: View {
         Color.candlelitStone.ignoresSafeArea()
 
         VStack(spacing: 20) {
-            MockStreakBadge(count: 5)
-            MockStreakBadge(count: 14)
-            MockStreakBadge(count: 45)
-            MockStreakBadge(count: 120)
+            StreakBadge(count: 5)
+            StreakBadge(count: 14)
+            StreakBadge(count: 45)
+            StreakBadge(count: 120)
         }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Mock Chat Entry Button
 // Floating AI chat entry point with glass styling
 
-struct MockChatEntryButton: View {
+struct ChatEntryButton: View {
     @State private var floatOffset: CGFloat = 0
     @State private var isPressed = false
 
@@ -132,7 +132,7 @@ struct MockMetricPill: View {
         Color.candlelitStone.ignoresSafeArea()
 
         VStack(spacing: 30) {
-            MockChatEntryButton()
+            ChatEntryButton()
                 .padding(.horizontal)
 
             HStack(spacing: SanctuaryTheme.Spacing.sm) {
