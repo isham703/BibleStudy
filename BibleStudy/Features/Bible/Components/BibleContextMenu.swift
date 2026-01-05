@@ -1,11 +1,11 @@
 import SwiftUI
 
 // MARK: - Scholar Context Menu
-// Floating context menu for verse selection in Scholar reader
+// Floating context menu for verse selection in Bible reader
 // Clean editorial aesthetic with indigo accents and refined typography
 // Reuses MenuPositionCalculator for optimal positioning
 
-struct ScholarContextMenu: View {
+struct BibleContextMenu: View {
 
     // MARK: - Properties
 
@@ -132,7 +132,7 @@ struct ScholarContextMenu: View {
 
     private var actionRow: some View {
         HStack(spacing: AppTheme.Spacing.xs) {
-            ScholarActionButton(
+            BibleActionButton(
                 icon: "doc.on.doc",
                 label: "Copy"
             ) {
@@ -140,7 +140,7 @@ struct ScholarContextMenu: View {
                 onCopy()
             }
 
-            ScholarActionButton(
+            BibleActionButton(
                 icon: "square.and.arrow.up",
                 label: "Share"
             ) {
@@ -148,7 +148,7 @@ struct ScholarContextMenu: View {
                 onShare()
             }
 
-            ScholarActionButton(
+            BibleActionButton(
                 icon: "note.text",
                 label: "Note"
             ) {
@@ -162,7 +162,7 @@ struct ScholarContextMenu: View {
                 .frame(width: 1, height: 32)
 
             // Study button with indigo accent
-            ScholarStudyButton {
+            BibleStudyButton {
                 HapticService.shared.mediumTap()
                 onStudy()
             }
@@ -176,7 +176,7 @@ struct ScholarContextMenu: View {
     private var highlightRow: some View {
         HStack(spacing: AppTheme.Spacing.sm) {
             ForEach(HighlightColor.allCases, id: \.self) { color in
-                ScholarColorDot(
+                BibleColorDot(
                     color: color,
                     isSelected: existingHighlightColor == color
                 ) {
@@ -217,7 +217,7 @@ struct ScholarContextMenu: View {
 
 // MARK: - Scholar Action Button
 
-private struct ScholarActionButton: View {
+private struct BibleActionButton: View {
     let icon: String
     let label: String
     let action: () -> Void
@@ -249,7 +249,7 @@ private struct ScholarActionButton: View {
 
 // MARK: - Scholar Study Button
 
-private struct ScholarStudyButton: View {
+private struct BibleStudyButton: View {
     let action: () -> Void
 
     @State private var isPressed = false
@@ -283,7 +283,7 @@ private struct ScholarStudyButton: View {
 
 // MARK: - Scholar Color Dot
 
-private struct ScholarColorDot: View {
+private struct BibleColorDot: View {
     let color: HighlightColor
     let isSelected: Bool
     let onTap: () -> Void
@@ -317,7 +317,7 @@ private struct ScholarColorDot: View {
 
 // MARK: - Preview
 
-#Preview("Scholar Context Menu") {
+#Preview("Bible Context Menu") {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
@@ -331,7 +331,7 @@ private struct ScholarColorDot: View {
             Spacer()
         }
 
-        ScholarContextMenu(
+        BibleContextMenu(
             verseRange: VerseRange(bookId: 49, chapter: 2, verseStart: 10, verseEnd: 10),
             selectionBounds: CGRect(x: 20, y: 100, width: 350, height: 60),
             containerBounds: CGRect(x: 0, y: 0, width: 393, height: 852),
@@ -348,16 +348,16 @@ private struct ScholarColorDot: View {
     }
 }
 
-#Preview("Scholar Context Menu - With Highlight") {
+#Preview("Bible Context Menu - With Highlight") {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        ScholarContextMenu(
+        BibleContextMenu(
             verseRange: VerseRange(bookId: 1, chapter: 1, verseStart: 1, verseEnd: 3),
             selectionBounds: CGRect(x: 50, y: 300, width: 300, height: 100),
             containerBounds: CGRect(x: 0, y: 0, width: 393, height: 852),
             safeAreaInsets: EdgeInsets(top: 59, leading: 0, bottom: 34, trailing: 0),
-            existingHighlightColor: .blue,
+            existingHighlightColor: HighlightColor.blue,
             onCopy: {},
             onShare: {},
             onNote: {},

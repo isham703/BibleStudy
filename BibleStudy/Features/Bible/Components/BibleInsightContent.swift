@@ -1,9 +1,9 @@
 import SwiftUI
 import UIKit
 
-struct ScholarInsightContent: View {
+struct BibleInsightContent: View {
     let verseRange: VerseRange
-    @Bindable var viewModel: InsightViewModel
+    @Bindable var viewModel: BibleInsightViewModel
     let onOpenDeepStudy: () -> Void
     let onDismiss: () -> Void
 
@@ -161,7 +161,7 @@ struct ScholarInsightContent: View {
                 .foregroundStyle(AppTheme.InsightCard.heroText)
                 .fixedSize(horizontal: false, vertical: true)
         } else if let explanation = viewModel.explanation {
-            Text(ScholarInsightSummary.heroSummary(from: explanation))
+            Text(BibleInsightSummary.heroSummary(from: explanation))
                 .insightHeroSummary()
                 .foregroundStyle(AppTheme.InsightCard.heroText)
                 .lineLimit(4)
@@ -223,7 +223,7 @@ struct ScholarInsightContent: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: AppTheme.Spacing.sm) {
                 ForEach(InsightSection.allCases, id: \.self) { section in
-                    ScholarChip(
+                    BibleChip(
                         title: section.rawValue,
                         icon: section.icon,
                         isSelected: expandedSection == section
@@ -510,7 +510,7 @@ struct ScholarInsightContent: View {
     }
 }
 
-private struct ScholarChip: View {
+private struct BibleChip: View {
     let title: String
     let icon: String
     let isSelected: Bool

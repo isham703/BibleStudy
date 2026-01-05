@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct ScholarInlineInsightPanel: View {
+struct BibleInlineInsightPanel: View {
     let verseRange: VerseRange
-    @Bindable var viewModel: InsightViewModel
+    @Bindable var viewModel: BibleInsightViewModel
     let onOpenDeepStudy: () -> Void
     let onDismiss: () -> Void
 
@@ -24,7 +24,7 @@ struct ScholarInlineInsightPanel: View {
                     .fill(Color.scholarIndigo.opacity(0.35))
                     .frame(width: 2)
 
-                ScholarInsightContent(
+                BibleInsightContent(
                     verseRange: verseRange,
                     viewModel: viewModel,
                     onOpenDeepStudy: onOpenDeepStudy,

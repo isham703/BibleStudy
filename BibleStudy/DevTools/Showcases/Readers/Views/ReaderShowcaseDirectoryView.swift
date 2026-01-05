@@ -149,7 +149,7 @@ struct ReaderShowcaseDirectoryView: View {
         case .candlelitChapel:
             CandlelitChapelReaderView()
         case .scholarsMarginalia:
-            ScholarReaderView()
+            BibleReaderView()
         }
     }
 }

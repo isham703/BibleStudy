@@ -1,13 +1,13 @@
 import SwiftUI
 
 // MARK: - Scholar Insight Card
-// Inline AI insight card for Scholar reader with indigo accent theme
+// Inline AI insight card for Bible reader with indigo accent theme
 // Design: Clean editorial style with indigo left accent bar
 // Animation: Spring unfurl from top matching Scholar's refined motion
 
-struct ScholarInsightCard: View {
+struct BibleInsightCard: View {
     let verseRange: VerseRange
-    @Bindable var viewModel: InsightViewModel
+    @Bindable var viewModel: BibleInsightViewModel
     @Binding var isVisible: Bool
     let onOpenDeepStudy: () -> Void
     let onDismiss: () -> Void
@@ -20,7 +20,7 @@ struct ScholarInsightCard: View {
     var onRemoveHighlight: (() -> Void)?
 
     var body: some View {
-        ScholarInsightContent(
+        BibleInsightContent(
             verseRange: verseRange,
             viewModel: viewModel,
             onOpenDeepStudy: onOpenDeepStudy,
@@ -69,9 +69,9 @@ struct ScholarInsightCard: View {
                         .padding(.horizontal)
 
                     if isVisible {
-                        ScholarInsightCard(
+                        BibleInsightCard(
                             verseRange: VerseRange(bookId: 49, chapter: 2, verseStart: 20, verseEnd: 20),
-                            viewModel: InsightViewModel(verseRange: VerseRange(bookId: 49, chapter: 2, verseStart: 20, verseEnd: 20)),
+                            viewModel: BibleInsightViewModel(verseRange: VerseRange(bookId: 49, chapter: 2, verseStart: 20, verseEnd: 20)),
                             isVisible: $isVisible,
                             onOpenDeepStudy: { print("Deep study") },
                             onDismiss: { isVisible = false }

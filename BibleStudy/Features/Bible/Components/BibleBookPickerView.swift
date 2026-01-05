@@ -1,10 +1,10 @@
 import SwiftUI
 
-// MARK: - Scholar Book Picker View
-// Two-phase passage selector with Scholar indigo/vellum theme
+// MARK: - Bible Book Picker View
+// Two-phase passage selector with Bible indigo/vellum theme
 // Phase 1: Book selection → Phase 2: Chapter selection
 
-struct ScholarBookPickerView: View {
+struct BibleBookPickerView: View {
     @Environment(\.dismiss) private var dismiss
 
     let currentBookId: Int
@@ -20,7 +20,7 @@ struct ScholarBookPickerView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ScholarBookSelectionPhase(
+            BibleBookSelectionPhase(
                 selectedTestament: $selectedTestament,
                 searchText: $searchText,
                 isAppeared: $isAppeared,
@@ -32,7 +32,7 @@ struct ScholarBookPickerView: View {
                 onDismiss: { dismiss() }
             )
             .navigationDestination(for: Book.self) { book in
-                ScholarChapterSelectionPhase(
+                BibleChapterSelectionPhase(
                     book: book,
                     currentBookId: currentBookId,
                     currentChapter: currentChapter,
@@ -54,7 +54,7 @@ struct ScholarBookPickerView: View {
 
 // MARK: - Phase 1: Book Selection
 
-private struct ScholarBookSelectionPhase: View {
+private struct BibleBookSelectionPhase: View {
     @Binding var selectedTestament: Testament
     @Binding var searchText: String
     @Binding var isAppeared: Bool
@@ -187,7 +187,7 @@ private struct ScholarBookSelectionPhase: View {
                     Section {
                         bookGrid(for: category)
                     } header: {
-                        ScholarCategoryHeader(category: category)
+                        BibleCategoryHeader(category: category)
                             .id(category)
                     }
                 }
@@ -196,7 +196,7 @@ private struct ScholarBookSelectionPhase: View {
         } else {
             LazyVStack(spacing: AppTheme.Spacing.sm) {
                 ForEach(filteredBooks, id: \.id) { book in
-                    ScholarSearchResultRow(
+                    BibleSearchResultRow(
                         book: book,
                         isCurrent: book.id == currentBookId
                     ) {
@@ -222,7 +222,7 @@ private struct ScholarBookSelectionPhase: View {
 
         return LazyVGrid(columns: columns, spacing: AppTheme.Spacing.sm) {
             ForEach(Array(books.enumerated()), id: \.element.id) { index, book in
-                ScholarBookGridItem(
+                BibleBookGridItem(
                     book: book,
                     isCurrent: book.id == currentBookId,
                     animationDelay: isAppeared ? Double(index) * 0.02 : 0,
@@ -277,7 +277,7 @@ private struct ScholarBookSelectionPhase: View {
 
 // MARK: - Phase 2: Chapter Selection
 
-private struct ScholarChapterSelectionPhase: View {
+private struct BibleChapterSelectionPhase: View {
     let book: Book
     let currentBookId: Int
     let currentChapter: Int
@@ -368,7 +368,7 @@ private struct ScholarChapterSelectionPhase: View {
     private var chapterGrid: some View {
         LazyVGrid(columns: columns, spacing: AppTheme.Spacing.sm) {
             ForEach(1...book.chapters, id: \.self) { chapter in
-                ScholarChapterCell(
+                BibleChapterCell(
                     chapter: chapter,
                     isSelected: selectedChapter == chapter,
                     isCurrent: book.id == currentBookId && chapter == currentChapter,
@@ -417,7 +417,7 @@ private struct ScholarChapterSelectionPhase: View {
 
 // MARK: - Supporting Components
 
-private struct ScholarCategoryHeader: View {
+private struct BibleCategoryHeader: View {
     let category: BookCategory
 
     var body: some View {
@@ -434,7 +434,7 @@ private struct ScholarCategoryHeader: View {
     }
 }
 
-private struct ScholarBookGridItem: View {
+private struct BibleBookGridItem: View {
     let book: Book
     let isCurrent: Bool
     let animationDelay: Double
@@ -496,7 +496,7 @@ private struct ScholarBookGridItem: View {
     }
 }
 
-private struct ScholarSearchResultRow: View {
+private struct BibleSearchResultRow: View {
     let book: Book
     let isCurrent: Bool
     let onTap: () -> Void
@@ -557,7 +557,7 @@ private struct ScholarSearchResultRow: View {
     }
 }
 
-private struct ScholarChapterCell: View {
+private struct BibleChapterCell: View {
     let chapter: Int
     let isSelected: Bool
     let isCurrent: Bool
@@ -625,8 +625,8 @@ private struct ScholarChapterCell: View {
 
 // MARK: - Preview
 
-#Preview("Scholar Book Picker") {
-    ScholarBookPickerView(
+#Preview("Bible Book Picker") {
+    BibleBookPickerView(
         currentBookId: 1,
         currentChapter: 3
     ) { bookId, chapter in

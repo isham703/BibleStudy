@@ -116,7 +116,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .prayersFromDeep:
             PrayersFromDeepView()
         case .livingCommentary:
-            ImmersiveScrollView()
+            BibleTabView()
         case .compline:
             ComplineView()
         default:

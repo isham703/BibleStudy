@@ -1,13 +1,13 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Scholar's Reader View Model
-// Manages state for the Scholar's Marginalia reader experience
+// MARK: - Bible Reader View Model
+// Manages state for the Bible reader experience
 // Enhanced with multi-verse selection, highlights, and AI insights
 
 @Observable
 @MainActor
-final class ScholarsReaderViewModel {
+final class BibleReaderViewModel {
     // MARK: - Dependencies
     private let bibleService: BibleService
     private let userContentService: UserContentService
@@ -21,7 +21,7 @@ final class ScholarsReaderViewModel {
 
     // MARK: - Multi-Verse Selection
     var selectedVerses: Set<Int> = []
-    var selectionMode: ScholarSelectionMode = .none
+    var selectionMode: BibleSelectionMode = .none
 
     // MARK: - Context Menu State
     var showContextMenu: Bool = false
@@ -30,7 +30,7 @@ final class ScholarsReaderViewModel {
 
     // MARK: - Inline Insight State
     var showInlineInsight: Bool = false
-    var inlineInsightViewModel: InsightViewModel?
+    var inlineBibleInsightViewModel: BibleInsightViewModel?
     var insightSheetRange: VerseRange?
 
     // MARK: - User Content
@@ -38,7 +38,7 @@ final class ScholarsReaderViewModel {
     var chapterNotes: [Note] = []
 
     // MARK: - Highlight Undo
-    private(set) var lastHighlightAction: ScholarHighlightUndoAction?
+    private(set) var lastHighlightAction: BibleHighlightUndoAction?
 
     // Navigation
     var canGoBack: Bool = false
@@ -212,7 +212,7 @@ final class ScholarsReaderViewModel {
         selectionMode = .none
         showContextMenu = false
         showInlineInsight = false
-        inlineInsightViewModel = nil
+        inlineBibleInsightViewModel = nil
         insightSheetRange = nil
     }
 
@@ -241,12 +241,12 @@ final class ScholarsReaderViewModel {
         guard let range = selectedRange else { return }
 
         insightSheetRange = range
-        inlineInsightViewModel = InsightViewModel(verseRange: range)
+        inlineBibleInsightViewModel = BibleInsightViewModel(verseRange: range)
         showInlineInsight = true
         showContextMenu = false
 
         Task {
-            await inlineInsightViewModel?.loadExplanation()
+            await inlineBibleInsightViewModel?.loadExplanation()
         }
     }
 
@@ -273,7 +273,7 @@ final class ScholarsReaderViewModel {
                 $0.verseEnd == range.verseEnd &&
                 $0.color == color
             }) {
-                lastHighlightAction = ScholarHighlightUndoAction(
+                lastHighlightAction = BibleHighlightUndoAction(
                     highlight: createdHighlight,
                     type: .created
                 )
@@ -456,7 +456,7 @@ final class ScholarsReaderViewModel {
 
 // MARK: - Selection Mode
 
-enum ScholarSelectionMode {
+enum BibleSelectionMode {
     case none
     case single
     case range
@@ -464,7 +464,7 @@ enum ScholarSelectionMode {
 
 // MARK: - Highlight Undo Action
 
-struct ScholarHighlightUndoAction {
+struct BibleHighlightUndoAction {
     let highlight: Highlight
     let type: ActionType
 

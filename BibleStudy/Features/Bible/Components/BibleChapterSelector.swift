@@ -1,11 +1,11 @@
 import SwiftUI
 
-// MARK: - Scholar Chapter Selector
-// A clearly tappable chapter selector for the Scholar reader toolbar
+// MARK: - Bible Chapter Selector
+// A clearly tappable chapter selector for the Bible reader toolbar
 // Design: Pill-shaped button with book + chapter and dropdown indicator
 // Provides clear visual affordance that it's interactive
 
-struct ScholarChapterSelector: View {
+struct BibleChapterSelector: View {
     let reference: String
     let bookName: String
     let chapter: Int
@@ -66,7 +66,7 @@ struct ScholarChapterSelector: View {
 // MARK: - Alternative Compact Style
 
 /// A more minimal chapter selector for constrained spaces
-struct ScholarChapterSelectorCompact: View {
+struct BibleChapterSelectorCompact: View {
     let reference: String
     let onTap: () -> Void
 
@@ -108,7 +108,7 @@ struct ScholarChapterSelectorCompact: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            ScholarChapterSelector(
+            BibleChapterSelector(
                 reference: "Gen 1",
                 bookName: "Genesis",
                 chapter: 1
@@ -124,19 +124,19 @@ struct ScholarChapterSelectorCompact: View {
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 16) {
-                ScholarChapterSelector(
+                BibleChapterSelector(
                     reference: "Ps 119",
                     bookName: "Psalms",
                     chapter: 119
                 ) {}
 
-                ScholarChapterSelector(
+                BibleChapterSelector(
                     reference: "Matt 5",
                     bookName: "Matthew",
                     chapter: 5
                 ) {}
 
-                ScholarChapterSelector(
+                BibleChapterSelector(
                     reference: "Rev 22",
                     bookName: "Revelation",
                     chapter: 22
@@ -150,7 +150,7 @@ struct ScholarChapterSelectorCompact: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            ScholarChapterSelectorCompact(
+            BibleChapterSelectorCompact(
                 reference: "John 3"
             ) {
                 print("Tapped compact")
@@ -166,7 +166,7 @@ struct ScholarChapterSelectorCompact: View {
             HStack {
                 Spacer()
 
-                ScholarChapterSelector(
+                BibleChapterSelector(
                     reference: "Eph 2",
                     bookName: "Ephesians",
                     chapter: 2

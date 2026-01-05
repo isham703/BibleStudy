@@ -1,9 +1,9 @@
 import SwiftUI
 
 // MARK: - Main Tab View
-// Root navigation with custom tab bar: Home, Read tabs + Ask FAB
+// Root navigation with custom tab bar: Home, Bible tabs + Ask FAB
 // Home consolidates Memorize, Plans, and Discover content
-// Read provides the core Bible reading experience
+// Bible provides the Scholar reading experience with insights
 // Ask opens as full-screen modal via FAB
 
 struct MainTabView: View {
@@ -30,19 +30,11 @@ struct MainTabView: View {
                 .allowsHitTesting(selectedTab == .home)
                 .accessibilityHidden(selectedTab != .home)
 
-            ReadTabView()
-                .opacity(selectedTab == .read ? 1 : 0)
-                .blur(radius: selectedTab == .read ? 0 : AppTheme.Blur.subtle)
-                .allowsHitTesting(selectedTab == .read)
-                .accessibilityHidden(selectedTab != .read)
-
-            NavigationStack {
-                ScholarReaderView()
-            }
-            .opacity(selectedTab == .scholar ? 1 : 0)
-            .blur(radius: selectedTab == .scholar ? 0 : AppTheme.Blur.subtle)
-            .allowsHitTesting(selectedTab == .scholar)
-            .accessibilityHidden(selectedTab != .scholar)
+            BibleTabView()
+                .opacity(selectedTab == .bible ? 1 : 0)
+                .blur(radius: selectedTab == .bible ? 0 : AppTheme.Blur.subtle)
+                .allowsHitTesting(selectedTab == .bible)
+                .accessibilityHidden(selectedTab != .bible)
 
             // Golden flash overlay for tab switches
             if !respectsReducedMotion {
@@ -55,30 +47,30 @@ struct MainTabView: View {
         .animation(AppTheme.Animation.reverent, value: selectedTab)
         // Floating glass tab bar overlays content at bottom (hidden when in child views)
         .safeAreaInset(edge: .bottom) {
-            if !appState.hideTabBar {
-                VStack(spacing: 0) {
-                    // Mini player (conditionally shown above tab bar)
-                    if audioService.playbackState != .idle {
-                        MiniPlayerView(
-                            audioService: audioService,
-                            onTap: {
-                                showFullPlayer = true
-                            },
-                            onClose: {
-                                withAnimation(AppTheme.Animation.quick) {
-                                    audioService.stop()
-                                }
+            VStack(spacing: 0) {
+                // Mini player (always shown when audio is active, even with tab bar hidden)
+                if audioService.playbackState != .idle {
+                    MiniPlayerView(
+                        audioService: audioService,
+                        onTap: {
+                            showFullPlayer = true
+                        },
+                        onClose: {
+                            withAnimation(AppTheme.Animation.quick) {
+                                audioService.stop()
                             }
-                        )
-                        .padding(.bottom, AppTheme.Spacing.sm)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        .animation(AppTheme.Animation.spring, value: audioService.playbackState)
-                    }
-
-                    // Glass tab bar floats over content with see-through background
-                    GlassTabBar(selectedTab: $selectedTab, showAskModal: $showAskModal)
+                        }
+                    )
+                    .padding(.bottom, appState.hideTabBar ? 0 : AppTheme.Spacing.sm)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .animation(AppTheme.Animation.spring, value: audioService.playbackState)
                 }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+
+                // Glass tab bar floats over content with see-through background (hidden in child views)
+                if !appState.hideTabBar {
+                    GlassTabBar(selectedTab: $selectedTab, showAskModal: $showAskModal)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
         }
         .animation(AppTheme.Animation.standard, value: appState.hideTabBar)
@@ -97,16 +89,16 @@ struct MainTabView: View {
             showAskModal = true
         }
         .onReceive(NotificationCenter.default.publisher(for: .deepLinkSearchRequested)) { _ in
-            // Ensure Read tab is selected for search
-            selectedTab = .read
+            // Ensure Bible tab is selected for search
+            selectedTab = .bible
         }
         .onReceive(NotificationCenter.default.publisher(for: .deepLinkSettingsRequested)) { _ in
-            // Ensure Read tab is selected for settings
-            selectedTab = .read
+            // Ensure Bible tab is selected for settings
+            selectedTab = .bible
         }
         .onReceive(NotificationCenter.default.publisher(for: .deepLinkNavigationRequested)) { _ in
-            // Ensure Read tab is selected for verse navigation
-            selectedTab = .read
+            // Ensure Bible tab is selected for verse navigation
+            selectedTab = .bible
         }
         .onReceive(NotificationCenter.default.publisher(for: .deepLinkHomeRequested)) { _ in
             // Navigate to Home tab
@@ -134,8 +126,7 @@ struct MainTabView: View {
 
 enum Tab: String, CaseIterable {
     case home
-    case read
-    case scholar
+    case bible
 
     var title: String {
         rawValue.capitalized
@@ -144,8 +135,7 @@ enum Tab: String, CaseIterable {
     var icon: String {
         switch self {
         case .home: return AppIcons.TabBar.home
-        case .read: return AppIcons.TabBar.read
-        case .scholar: return AppIcons.TabBar.scholar
+        case .bible: return AppIcons.TabBar.scholar
         }
     }
 }

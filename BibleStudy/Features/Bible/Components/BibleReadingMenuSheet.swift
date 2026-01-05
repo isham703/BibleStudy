@@ -1,11 +1,11 @@
 import SwiftUI
 
-// MARK: - Scholar Reading Menu Sheet
-// Dynamic height sheet with Scholar palette styling
+// MARK: - Bible Reading Menu Sheet
+// Dynamic height sheet with Bible palette styling
 // Uses DynamicSheet for automatic height adjustment
 // Supports morphing between menu, search, and settings views
 
-struct ScholarReadingMenuSheet: View {
+struct BibleReadingMenuSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(BibleService.self) private var bibleService
     @Environment(AppState.self) private var appState
@@ -27,6 +27,9 @@ struct ScholarReadingMenuSheet: View {
     @State private var showAdvanced = false
     @AppStorage(AppConfiguration.UserDefaultsKeys.usePagedReader) private var usePagedReader: Bool = false
 
+    // Bible settings for insight toggles
+    private var scholarSettings: BibleSettings { BibleSettings.shared }
+
     // Animation for transitions
     private let animation: Animation = .snappy(duration: 0.3, extraBounce: 0)
 
@@ -34,6 +37,7 @@ struct ScholarReadingMenuSheet: View {
         case menu
         case search
         case settings
+        case insights
     }
 
     init(
@@ -60,6 +64,10 @@ struct ScholarReadingMenuSheet: View {
                 case .settings:
                     settingsContent
                         .transition(.blurReplace(.upUp))
+
+                case .insights:
+                    insightsContent
+                        .transition(.blurReplace(.upUp))
                 }
             }
             .geometryGroup()
@@ -77,7 +85,7 @@ struct ScholarReadingMenuSheet: View {
 
             // Menu Items
             VStack(spacing: AppTheme.Spacing.sm) {
-                ScholarMenuRow(
+                BibleMenuRow(
                     icon: "magnifyingglass",
                     iconColor: Color.scholarIndigo,
                     title: "Search",
@@ -90,7 +98,7 @@ struct ScholarReadingMenuSheet: View {
 
                 menuDivider
 
-                ScholarMenuRow(
+                BibleMenuRow(
                     icon: "speaker.wave.2",
                     iconColor: Color.greekBlue,
                     title: "Listen",
@@ -102,7 +110,7 @@ struct ScholarReadingMenuSheet: View {
 
                 menuDivider
 
-                ScholarMenuRow(
+                BibleMenuRow(
                     icon: "slider.horizontal.3",
                     iconColor: Color.theologyGreen,
                     title: "Display Settings",
@@ -110,6 +118,19 @@ struct ScholarReadingMenuSheet: View {
                 ) {
                     withAnimation(animation) {
                         currentView = .settings
+                    }
+                }
+
+                menuDivider
+
+                BibleMenuRow(
+                    icon: "sparkles",
+                    iconColor: Color.divineGold,
+                    title: "Insights",
+                    subtitle: "Choose which insights to show"
+                ) {
+                    withAnimation(animation) {
+                        currentView = .insights
                     }
                 }
             }
@@ -157,6 +178,149 @@ struct ScholarReadingMenuSheet: View {
     // MARK: - Divider
 
     private var menuDivider: some View {
+        Rectangle()
+            .fill(AppTheme.Menu.divider)
+            .frame(height: 1)
+            .padding(.horizontal, AppTheme.Spacing.sm)
+    }
+
+    // MARK: - Insights Content
+
+    private var insightsContent: some View {
+        VStack(spacing: AppTheme.Spacing.lg) {
+            // Header
+            subpageHeader(title: "Insights")
+
+            // Insight toggles
+            VStack(spacing: 0) {
+                insightToggleRow(
+                    icon: "person.2.fill",
+                    color: .theologyGreen,
+                    title: "Theology",
+                    subtitle: "Doctrinal concepts and themes",
+                    isEnabled: Binding(
+                        get: { scholarSettings.showTheology },
+                        set: { scholarSettings.showTheology = $0 }
+                    )
+                )
+
+                insightDivider
+
+                insightToggleRow(
+                    icon: "questionmark.circle.fill",
+                    color: .personalRose,
+                    title: "Reflection",
+                    subtitle: "Personal application prompts",
+                    isEnabled: Binding(
+                        get: { scholarSettings.showReflection },
+                        set: { scholarSettings.showReflection = $0 }
+                    )
+                )
+
+                insightDivider
+
+                insightToggleRow(
+                    icon: "link",
+                    color: .connectionAmber,
+                    title: "Connections",
+                    subtitle: "Cross-references to other Scripture",
+                    isEnabled: Binding(
+                        get: { scholarSettings.showConnections },
+                        set: { scholarSettings.showConnections = $0 }
+                    )
+                )
+
+                insightDivider
+
+                insightToggleRow(
+                    icon: "textformat.abc",
+                    color: .greekBlue,
+                    title: "Greek",
+                    subtitle: "Original language notes",
+                    isEnabled: Binding(
+                        get: { scholarSettings.showGreek },
+                        set: { scholarSettings.showGreek = $0 }
+                    )
+                )
+            }
+            .padding(AppTheme.Spacing.md)
+            .background(Color.surfaceBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                    .stroke(AppTheme.Menu.border, lineWidth: 1)
+            )
+
+            // Quick actions
+            HStack(spacing: AppTheme.Spacing.md) {
+                Button {
+                    scholarSettings.enableAll()
+                } label: {
+                    Text("Enable All")
+                        .font(Typography.UI.caption1.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+                .tint(Color.scholarIndigo)
+
+                Button {
+                    scholarSettings.disableAll()
+                } label: {
+                    Text("Disable All")
+                        .font(Typography.UI.caption1.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+                .tint(Color.secondaryText)
+
+                Spacer()
+            }
+        }
+        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.top, AppTheme.Spacing.lg)
+        .padding(.bottom, AppTheme.Spacing.lg)
+    }
+
+    private func insightToggleRow(
+        icon: String,
+        color: Color,
+        title: String,
+        subtitle: String,
+        isEnabled: Binding<Bool>
+    ) -> some View {
+        HStack(spacing: AppTheme.Spacing.md) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.12))
+                    .frame(width: 40, height: 40)
+
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(color)
+            }
+
+            // Text
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(CustomFonts.cormorantSemiBold(size: 17))
+                    .foregroundStyle(Color.primaryText)
+
+                Text(subtitle)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.tertiaryText)
+            }
+
+            Spacer()
+
+            // Toggle
+            Toggle("", isOn: isEnabled)
+                .labelsHidden()
+                .tint(color)
+        }
+        .padding(.vertical, AppTheme.Spacing.sm)
+        .opacity(isEnabled.wrappedValue ? 1.0 : 0.6)
+    }
+
+    private var insightDivider: some View {
         Rectangle()
             .fill(AppTheme.Menu.divider)
             .frame(height: 1)
@@ -267,7 +431,7 @@ struct ScholarReadingMenuSheet: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: AppTheme.Spacing.md) {
                     ForEach(AppThemeMode.allCases, id: \.self) { theme in
-                        ScholarThemeCard(
+                        BibleThemeCard(
                             theme: theme,
                             isSelected: appState.preferredTheme == theme
                         ) {
@@ -295,7 +459,7 @@ struct ScholarReadingMenuSheet: View {
                     .font(CustomFonts.cormorantRegular(size: 14))
                     .foregroundStyle(Color.tertiaryText)
 
-                ScholarFontSizeSlider(
+                BibleFontSizeSlider(
                     selectedSize: Binding(
                         get: { appState.scriptureFontSize },
                         set: { newSize in
@@ -368,7 +532,7 @@ struct ScholarReadingMenuSheet: View {
             if showAdvanced {
                 VStack(spacing: 0) {
                     // Line Spacing
-                    ScholarSettingsRow(title: "Line Spacing") {
+                    BibleSettingsRow(title: "Line Spacing") {
                         Menu {
                             ForEach(LineSpacing.allCases, id: \.self) { spacing in
                                 Button {
@@ -397,7 +561,7 @@ struct ScholarReadingMenuSheet: View {
                     settingsDivider
 
                     // Content Width
-                    ScholarSettingsRow(title: "Content Width") {
+                    BibleSettingsRow(title: "Content Width") {
                         Menu {
                             ForEach(ContentWidth.allCases, id: \.self) { width in
                                 Button {
@@ -756,9 +920,9 @@ struct ScholarReadingMenuSheet: View {
     }
 }
 
-// MARK: - Scholar Menu Row
+// MARK: - Bible Menu Row
 
-private struct ScholarMenuRow: View {
+private struct BibleMenuRow: View {
     let icon: String
     let iconColor: Color
     let title: String
@@ -821,9 +985,9 @@ private struct ScholarMenuRow: View {
     }
 }
 
-// MARK: - Scholar Theme Card
+// MARK: - Bible Theme Card
 
-private struct ScholarThemeCard: View {
+private struct BibleThemeCard: View {
     let theme: AppThemeMode
     let isSelected: Bool
     let action: () -> Void
@@ -875,9 +1039,9 @@ private struct ScholarThemeCard: View {
     }
 }
 
-// MARK: - Scholar Font Size Slider
+// MARK: - Bible Font Size Slider
 
-private struct ScholarFontSizeSlider: View {
+private struct BibleFontSizeSlider: View {
     @Binding var selectedSize: ScriptureFontSize
 
     private let sizes = ScriptureFontSize.allCases
@@ -921,9 +1085,9 @@ private struct ScholarFontSizeSlider: View {
     }
 }
 
-// MARK: - Scholar Settings Row
+// MARK: - Bible Settings Row
 
-private struct ScholarSettingsRow<Content: View>: View {
+private struct BibleSettingsRow<Content: View>: View {
     let title: String
     @ViewBuilder let content: Content
 
@@ -943,7 +1107,7 @@ private struct ScholarSettingsRow<Content: View>: View {
 
 // MARK: - Preview
 
-#Preview("Scholar Reading Menu") {
+#Preview("Bible Reading Menu") {
     struct PreviewContainer: View {
         @State private var showSheet = true
 
@@ -951,7 +1115,7 @@ private struct ScholarSettingsRow<Content: View>: View {
             Color.appBackground
                 .ignoresSafeArea()
                 .sheet(isPresented: $showSheet) {
-                    ScholarReadingMenuSheet(
+                    BibleReadingMenuSheet(
                         onAudioTap: { print("Audio") },
                         onNavigate: { range in print("Navigate to \(range)") }
                     )

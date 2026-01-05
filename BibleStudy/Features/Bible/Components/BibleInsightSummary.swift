@@ -1,6 +1,6 @@
 import Foundation
 
-enum ScholarInsightSummary {
+enum BibleInsightSummary {
     static func heroSummary(from text: String) -> String {
         let sentences = text.components(separatedBy: ". ")
         let heroSentences = sentences.prefix(2)
