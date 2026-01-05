@@ -374,6 +374,14 @@ final class AudioService: NSObject {
                             chapter: chapter,
                             timings: timings
                         )
+                    },
+                    onProgressiveUpdate: { [weak self] manifestURL, timings in
+                        guard let self else { return }
+                        await self.reloadProgressively(
+                            manifestURL: manifestURL,
+                            chapter: chapter,
+                            timings: timings
+                        )
                     }
                 )
 
@@ -510,6 +518,53 @@ final class AudioService: NSObject {
             print("[AudioService] Full composition reloaded with \(timings.count) verses")
         } catch {
             print("[AudioService] Failed to reload full composition: \(error.localizedDescription)")
+        }
+    }
+
+    /// Reload composition progressively during background generation
+    /// Only reloads when playback is approaching the end of current buffer to avoid glitches
+    @MainActor
+    private func reloadProgressively(
+        manifestURL: URL,
+        chapter: AudioChapter,
+        timings: [VerseTiming]
+    ) async {
+        // Only reload if playback is approaching the end of current buffer
+        // This prevents unnecessary glitches from constant reloading
+        let currentPosition = currentTime
+        let currentBufferEnd = currentChapter?.verseTimings.last?.endTime ?? 0
+        let newBufferEnd = timings.last?.endTime ?? 0
+
+        // Calculate remaining buffer time
+        let remainingBuffer = currentBufferEnd - currentPosition
+
+        // Only reload if:
+        // 1. Remaining buffer is less than 15 seconds, OR
+        // 2. We have no current buffer (first load)
+        let bufferThreshold: TimeInterval = 15.0
+
+        guard remainingBuffer < bufferThreshold || currentBufferEnd == 0 else {
+            print("[AudioService] Progressive reload skipped - buffer OK (\(String(format: "%.1f", remainingBuffer))s remaining)")
+            return
+        }
+
+        let wasPlaying = isPlaying
+        let savedTime = currentPosition
+
+        do {
+            try await loadHLSManifest(manifestURL, chapter: chapter, timings: timings)
+
+            if savedTime > 0 {
+                seek(to: savedTime)
+            }
+
+            if wasPlaying {
+                play()
+            }
+
+            print("[AudioService] Progressive reload: \(timings.count) verses, position: \(String(format: "%.1f", savedTime))s, new buffer end: \(String(format: "%.1f", newBufferEnd))s")
+        } catch {
+            print("[AudioService] Progressive reload failed: \(error.localizedDescription)")
         }
     }
 

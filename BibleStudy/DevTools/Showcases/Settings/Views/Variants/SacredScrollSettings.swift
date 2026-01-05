@@ -87,9 +87,9 @@ struct SacredScrollSettings: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.accentGold.opacity(0.0),
-                                Color.accentGold.opacity(0.05),
-                                Color.accentGold.opacity(0.0)
+                                Color.divineGold.opacity(0.0),
+                                Color.divineGold.opacity(0.05),
+                                Color.divineGold.opacity(0.0)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -113,7 +113,7 @@ struct SacredScrollSettings: View {
                 Text("Back")
                     .font(Typography.body)
             }
-            .foregroundStyle(Color.accentGold)
+            .foregroundStyle(Color.divineGold)
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.vertical, AppTheme.Spacing.sm)
             .background {
@@ -135,7 +135,7 @@ struct SacredScrollSettings: View {
                 // Decorative cross
                 Image(systemName: "cross.fill")
                     .font(.system(size: 24))
-                    .foregroundStyle(Color.accentGold.opacity(0.6))
+                    .foregroundStyle(Color.divineGold.opacity(0.6))
                     .rotationEffect(.degrees(-scrollOffset * 0.1))
 
                 Text("SETTINGS")
@@ -144,9 +144,9 @@ struct SacredScrollSettings: View {
                         LinearGradient(
                             colors: [
                                 Color(hex: "C9943D"),
-                                Color.accentGold,
+                                Color.divineGold,
                                 Color(hex: "F5E6B8"),
-                                Color.accentGold,
+                                Color.divineGold,
                                 Color(hex: "C9943D")
                             ],
                             startPoint: .leading,
@@ -175,7 +175,7 @@ struct SacredScrollSettings: View {
         Rectangle()
             .fill(
                 LinearGradient(
-                    colors: [Color.clear, Color.accentGold.opacity(0.4), Color.clear],
+                    colors: [Color.clear, Color.divineGold.opacity(0.4), Color.clear],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
@@ -311,7 +311,7 @@ struct SacredScrollSettings: View {
             VStack(spacing: AppTheme.Spacing.md) {
                 Image(systemName: "book.closed.fill")
                     .font(.system(size: 28))
-                    .foregroundStyle(Color.accentGold.opacity(0.4))
+                    .foregroundStyle(Color.divineGold.opacity(0.4))
 
                 Text("BIBLE STUDY")
                     .font(.custom("Cinzel-Regular", size: 14))
@@ -348,7 +348,7 @@ struct ScrollSection<Content: View>: View {
             VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
                 Text(subtitle.uppercased())
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.accentGold.opacity(0.7))
+                    .foregroundStyle(Color.divineGold.opacity(0.7))
                     .kerning(2)
 
                 Text(title)
@@ -360,13 +360,13 @@ struct ScrollSection<Content: View>: View {
             // Decorative line
             HStack(spacing: 0) {
                 Rectangle()
-                    .fill(Color.accentGold)
+                    .fill(Color.divineGold)
                     .frame(width: 40, height: 2)
 
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.accentGold.opacity(0.5), Color.clear],
+                            colors: [Color.divineGold.opacity(0.5), Color.clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -399,14 +399,14 @@ struct ImmersiveToggle: View {
                     Circle()
                         .fill(
                             isOn
-                                ? Color.accentGold.opacity(0.15)
+                                ? Color.divineGold.opacity(0.15)
                                 : Color.white.opacity(0.05)
                         )
                         .frame(width: 48, height: 48)
 
                     Image(systemName: icon)
                         .font(.system(size: 20))
-                        .foregroundStyle(isOn ? Color.accentGold : Color.secondaryText)
+                        .foregroundStyle(isOn ? Color.divineGold : Color.secondaryText)
                 }
 
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
@@ -431,12 +431,12 @@ struct ImmersiveToggle: View {
             } label: {
                 ZStack(alignment: isOn ? .trailing : .leading) {
                     Capsule()
-                        .fill(isOn ? Color.accentGold.opacity(0.2) : Color.white.opacity(0.05))
+                        .fill(isOn ? Color.divineGold.opacity(0.2) : Color.white.opacity(0.05))
                         .frame(height: 40)
                         .overlay {
                             Capsule()
                                 .strokeBorder(
-                                    isOn ? Color.accentGold.opacity(0.4) : Color.white.opacity(0.1),
+                                    isOn ? Color.divineGold.opacity(0.4) : Color.white.opacity(0.1),
                                     lineWidth: 1
                                 )
                         }
@@ -451,13 +451,13 @@ struct ImmersiveToggle: View {
                             if isOn {
                                 Text("ENABLED")
                                     .font(.system(size: 11, weight: .bold))
-                                    .foregroundStyle(Color.accentGold)
+                                    .foregroundStyle(Color.divineGold)
                             }
 
                             Circle()
-                                .fill(isOn ? Color.accentGold : Color.white.opacity(0.3))
+                                .fill(isOn ? Color.divineGold : Color.white.opacity(0.3))
                                 .frame(width: 32, height: 32)
-                                .shadow(color: isOn ? Color.accentGold.opacity(0.5) : .clear, radius: 8)
+                                .shadow(color: isOn ? Color.divineGold.opacity(0.5) : .clear, radius: 8)
 
                             if !isOn {
                                 Text("DISABLED")
@@ -497,7 +497,7 @@ struct ImmersiveSlider<Preview: View>: View {
             HStack {
                 Image(systemName: icon)
                     .font(.system(size: 18))
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.divineGold)
 
                 Text(title)
                     .font(.custom("Cinzel-Regular", size: 16))
@@ -507,7 +507,7 @@ struct ImmersiveSlider<Preview: View>: View {
 
                 Text(String(format: "%.1f", value))
                     .font(Typography.monospacedBody)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.divineGold)
             }
 
             // Preview
@@ -527,7 +527,7 @@ struct ImmersiveSlider<Preview: View>: View {
                     Capsule()
                         .fill(
                             LinearGradient(
-                                colors: [Color.accentGold.opacity(0.6), Color.accentGold],
+                                colors: [Color.divineGold.opacity(0.6), Color.divineGold],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -537,9 +537,9 @@ struct ImmersiveSlider<Preview: View>: View {
                     // Thumb
                     ZStack {
                         Circle()
-                            .fill(Color.accentGold)
+                            .fill(Color.divineGold)
                             .frame(width: 28, height: 28)
-                            .shadow(color: Color.accentGold.opacity(0.5), radius: 10)
+                            .shadow(color: Color.divineGold.opacity(0.5), radius: 10)
 
                         Circle()
                             .fill(Color.white)
@@ -583,7 +583,7 @@ struct TranslationSelector: View {
             HStack {
                 Image(systemName: "book.fill")
                     .font(.system(size: 18))
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.divineGold)
 
                 Text("Translation")
                     .font(.custom("Cinzel-Regular", size: 16))
@@ -603,7 +603,7 @@ struct TranslationSelector: View {
                                 .font(.custom("Cinzel-Regular", size: 14))
                                 .foregroundStyle(
                                     selected == translation
-                                        ? Color.accentGold
+                                        ? Color.divineGold
                                         : Color.secondaryText
                                 )
                                 .padding(.horizontal, AppTheme.Spacing.lg)
@@ -611,10 +611,10 @@ struct TranslationSelector: View {
                                 .background {
                                     if selected == translation {
                                         RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.accentGold.opacity(0.15))
+                                            .fill(Color.divineGold.opacity(0.15))
                                             .overlay {
                                                 RoundedRectangle(cornerRadius: 8)
-                                                    .strokeBorder(Color.accentGold.opacity(0.4), lineWidth: 1)
+                                                    .strokeBorder(Color.divineGold.opacity(0.4), lineWidth: 1)
                                             }
                                     } else {
                                         RoundedRectangle(cornerRadius: 8)
@@ -646,7 +646,7 @@ struct AccountCard: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [Color.accentGold.opacity(0.3), Color.accentGold.opacity(0.1)],
+                                colors: [Color.divineGold.opacity(0.3), Color.divineGold.opacity(0.1)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -655,7 +655,7 @@ struct AccountCard: View {
 
                     Text("JS")
                         .font(.custom("Cinzel-Regular", size: 22))
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.divineGold)
                 }
 
                 VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
@@ -673,7 +673,7 @@ struct AccountCard: View {
                         Text("Premium Member")
                             .font(.system(size: 11, weight: .medium))
                     }
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.divineGold)
                     .padding(.top, AppTheme.Spacing.xxs)
                 }
 
@@ -693,7 +693,7 @@ struct AccountCard: View {
                 .fill(Color.white.opacity(0.02))
                 .overlay {
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                        .strokeBorder(Color.accentGold.opacity(0.1), lineWidth: 1)
+                        .strokeBorder(Color.divineGold.opacity(0.1), lineWidth: 1)
                 }
         )
     }

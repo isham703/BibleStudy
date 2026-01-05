@@ -482,6 +482,28 @@ enum AppThemeMode: String, CaseIterable {
         }
     }
 
+    /// Preview background color for theme cards
+    var previewBackground: Color {
+        switch self {
+        case .system: return Color(.systemBackground)
+        case .light: return Color.lightBackground
+        case .dark: return Color.darkBackground
+        case .sepia: return Color.sepiaBackground
+        case .oled: return Color.oledBackground
+        }
+    }
+
+    /// Preview text color for theme cards
+    var previewText: Color {
+        switch self {
+        case .system: return Color.primary
+        case .light: return Color.monasteryBlack
+        case .dark: return Color.moonlitParchment
+        case .sepia: return Color.sepiaText
+        case .oled: return Color.oledText
+        }
+    }
+
     /// Whether this theme uses custom background colors
     var usesCustomBackground: Bool {
         switch self {

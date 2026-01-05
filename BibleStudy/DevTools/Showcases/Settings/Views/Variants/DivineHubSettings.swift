@@ -67,7 +67,7 @@ struct DivineHubSettings: View {
             // Radial hub glow
             RadialGradient(
                 colors: [
-                    Color.accentGold.opacity(0.04),
+                    Color.divineGold.opacity(0.04),
                     Color.clear
                 ],
                 center: .center,
@@ -113,12 +113,12 @@ struct DivineHubSettings: View {
                 showProfileSheet = true
             } label: {
                 Circle()
-                    .fill(Color.accentGold.opacity(0.2))
+                    .fill(Color.divineGold.opacity(0.2))
                     .frame(width: 36, height: 36)
                     .overlay {
                         Text("JS")
                             .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.divineGold)
                     }
             }
         }
@@ -140,7 +140,7 @@ struct DivineHubSettings: View {
                 // Outer glow rings
                 ForEach(0..<3) { index in
                     Circle()
-                        .stroke(Color.accentGold.opacity(0.1 - Double(index) * 0.03), lineWidth: 1)
+                        .stroke(Color.divineGold.opacity(0.1 - Double(index) * 0.03), lineWidth: 1)
                         .frame(width: 120 + CGFloat(index) * 40)
                 }
 
@@ -149,8 +149,8 @@ struct DivineHubSettings: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.accentGold.opacity(0.3),
-                                Color.accentGold.opacity(0.1)
+                                Color.divineGold.opacity(0.3),
+                                Color.divineGold.opacity(0.1)
                             ],
                             center: .center,
                             startRadius: 0,
@@ -161,7 +161,7 @@ struct DivineHubSettings: View {
                     .overlay {
                         Image(systemName: "gearshape.2.fill")
                             .font(.system(size: 36))
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.divineGold)
                     }
             }
             .padding(.vertical, AppTheme.Spacing.lg)
@@ -182,7 +182,7 @@ struct DivineHubSettings: View {
         VStack(spacing: AppTheme.Spacing.md) {
             Text("QUICK ACCESS")
                 .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(Color.accentGold.opacity(0.7))
+                .foregroundStyle(Color.divineGold.opacity(0.7))
                 .kerning(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -197,7 +197,7 @@ struct DivineHubSettings: View {
                     icon: "sparkles",
                     title: "AI Insights",
                     isOn: $aiEnabled,
-                    color: Color.accentGold
+                    color: Color.divineGold
                 )
 
                 QuickToggleTile(
@@ -231,7 +231,7 @@ struct DivineHubSettings: View {
         VStack(spacing: AppTheme.Spacing.md) {
             Text("CATEGORIES")
                 .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(Color.accentGold.opacity(0.7))
+                .foregroundStyle(Color.divineGold.opacity(0.7))
                 .kerning(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, AppTheme.Spacing.lg)
@@ -297,7 +297,7 @@ struct DivineHubSettings: View {
 
                         Text("\(Int(fontSize))")
                             .font(Typography.monospacedBody)
-                            .foregroundStyle(Color.accentGold)
+                            .foregroundStyle(Color.divineGold)
                             .frame(width: 30)
 
                         Button {
@@ -351,7 +351,7 @@ struct DivineHubSettings: View {
             HStack(spacing: AppTheme.Spacing.lg) {
                 ForEach(0..<5) { _ in
                     Circle()
-                        .fill(Color.accentGold.opacity(0.2))
+                        .fill(Color.divineGold.opacity(0.2))
                         .frame(width: 6, height: 6)
                 }
             }
@@ -385,7 +385,7 @@ enum HubCategory: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
-        case .ai: return Color.accentGold
+        case .ai: return Color.divineGold
         case .reading: return Color(hex: "6B8E9F")
         case .account: return Color(hex: "7A9E7A")
         case .more: return Color(hex: "9E7A8E")
@@ -645,7 +645,7 @@ struct ProfileSheet: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.accentGold.opacity(0.3), Color.accentGold.opacity(0.1)],
+                            colors: [Color.divineGold.opacity(0.3), Color.divineGold.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -654,7 +654,7 @@ struct ProfileSheet: View {
 
                 Text("JS")
                     .font(.custom("Cinzel-Regular", size: 36))
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.divineGold)
             }
             .padding(.top, AppTheme.Spacing.xl)
 
@@ -673,7 +673,7 @@ struct ProfileSheet: View {
                     Text("Premium Member")
                         .font(.system(size: 13, weight: .medium))
                 }
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.divineGold)
                 .padding(.top, AppTheme.Spacing.sm)
             }
 
@@ -684,12 +684,12 @@ struct ProfileSheet: View {
             } label: {
                 Text("Done")
                     .font(Typography.body)
-                    .foregroundStyle(Color.accentGold)
+                    .foregroundStyle(Color.divineGold)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, AppTheme.Spacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.accentGold.opacity(0.15))
+                            .fill(Color.divineGold.opacity(0.15))
                     )
             }
             .padding(.horizontal, AppTheme.Spacing.xl)

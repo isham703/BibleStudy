@@ -89,12 +89,14 @@ actor HLSAudioGenerator {
     ///   - priority: Generation priority
     ///   - onProgress: Progress callback (0.0-1.0)
     ///   - onQuickStart: Called when quick-start segments are ready to play, includes manifest URL and verse timings
+    ///   - onProgressiveUpdate: Called periodically during background generation to allow progressive composition reload
     /// - Returns: Final generation result when complete
     func generateProgressive(
         chapter: AudioChapter,
         priority: Priority = .interactive,
         onProgress: (@Sendable (Double) async -> Void)? = nil,
-        onQuickStart: (@Sendable (URL, [VerseTiming]) async -> Void)? = nil
+        onQuickStart: (@Sendable (URL, [VerseTiming]) async -> Void)? = nil,
+        onProgressiveUpdate: (@Sendable (URL, [VerseTiming]) async -> Void)? = nil
     ) async throws -> GenerationResult {
         guard !chapter.verses.isEmpty else {
             throw GenerationError.noVerses
@@ -107,7 +109,8 @@ actor HLSAudioGenerator {
             try await performProgressiveGeneration(
                 chapter: chapter,
                 onProgress: onProgress,
-                onQuickStart: onQuickStart
+                onQuickStart: onQuickStart,
+                onProgressiveUpdate: onProgressiveUpdate
             )
         }
 
@@ -148,13 +151,15 @@ actor HLSAudioGenerator {
     private func performProgressiveGeneration(
         chapter: AudioChapter,
         onProgress: (@Sendable (Double) async -> Void)?,
-        onQuickStart: (@Sendable (URL, [VerseTiming]) async -> Void)?
+        onQuickStart: (@Sendable (URL, [VerseTiming]) async -> Void)?,
+        onProgressiveUpdate: (@Sendable (URL, [VerseTiming]) async -> Void)?
     ) async throws -> GenerationResult {
         let verses = chapter.verses
         let totalVerses = verses.count
 
-        // Phase 1: Quick-start (first 3 verses)
-        let quickStartCount = min(3, totalVerses)
+        // Phase 1: Quick-start (first 8 verses for ~50-60 seconds buffer)
+        // Increased from 3 to reduce mid-playback reloads
+        let quickStartCount = min(8, totalVerses)
         var segments: [HLSManifestManager.SegmentInfo] = []
         var currentStartTime: TimeInterval = 0
 
@@ -223,6 +228,20 @@ actor HLSAudioGenerator {
                 await onProgress?(progress)
 
                 print("[HLS] Generated verse \(verse.number) (\(i + 1)/\(totalVerses) total)")
+
+                // Trigger progressive update every 5 verses to extend playback buffer
+                let versesGenerated = i + 1
+                if versesGenerated % 5 == 0 {
+                    let currentTimings = segments.map { seg in
+                        VerseTiming(
+                            verseNumber: seg.verseNumber,
+                            startTime: seg.startTime,
+                            endTime: seg.endTime
+                        )
+                    }
+                    await onProgressiveUpdate?(manifestURL, currentTimings)
+                    print("[HLS] Progressive update triggered at \(versesGenerated) verses")
+                }
             }
         }
 

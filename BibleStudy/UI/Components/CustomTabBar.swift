@@ -51,12 +51,12 @@ struct CustomTabBar: View {
             }
 
             TabBarButton(
-                tab: .read,
-                isSelected: selectedTab == .read
+                tab: .bible,
+                isSelected: selectedTab == .bible
             ) {
                 HapticService.shared.tabSwitch()
                 withAnimation(AppTheme.Animation.reverent) {
-                    selectedTab = .read
+                    selectedTab = .bible
                 }
             }
         }

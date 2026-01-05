@@ -53,7 +53,7 @@ struct SettingsShowcaseDirectory: View {
             // Subtle ambient gold glow at top
             RadialGradient(
                 colors: [
-                    Color.accentGold.opacity(0.03),
+                    Color.divineGold.opacity(0.03),
                     Color.clear
                 ],
                 center: .top,
@@ -71,7 +71,7 @@ struct SettingsShowcaseDirectory: View {
             // Ornamental top accent
             OrnamentalDivider(style: .simple)
                 .frame(width: 60)
-                .foregroundStyle(Color.accentGold.opacity(0.6))
+                .foregroundStyle(Color.divineGold.opacity(0.6))
 
             Text("Settings Options")
                 .font(.custom("Cinzel-Regular", size: 32))
@@ -79,7 +79,7 @@ struct SettingsShowcaseDirectory: View {
                     LinearGradient(
                         colors: [
                             Color(hex: "F5E6B8"),
-                            Color.accentGold,
+                            Color.divineGold,
                             Color(hex: "C9943D")
                         ],
                         startPoint: .leading,
@@ -128,7 +128,7 @@ struct SettingsShowcaseDirectory: View {
         VStack(spacing: AppTheme.Spacing.md) {
             OrnamentalDivider(style: .flourish)
                 .frame(width: 120)
-                .foregroundStyle(Color.accentGold.opacity(0.3))
+                .foregroundStyle(Color.divineGold.opacity(0.3))
 
             Text("Tap any card to view the full design")
                 .font(Typography.footnote)
@@ -163,9 +163,9 @@ struct VariantCard: View {
                     .strokeBorder(
                         LinearGradient(
                             colors: [
-                                Color.accentGold.opacity(isHovered ? 0.5 : 0.15),
-                                Color.accentGold.opacity(isHovered ? 0.3 : 0.05),
-                                Color.accentGold.opacity(isHovered ? 0.5 : 0.15)
+                                Color.divineGold.opacity(isHovered ? 0.5 : 0.15),
+                                Color.divineGold.opacity(isHovered ? 0.3 : 0.05),
+                                Color.divineGold.opacity(isHovered ? 0.5 : 0.15)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -174,7 +174,7 @@ struct VariantCard: View {
                     )
             }
             .shadow(
-                color: isHovered ? Color.accentGold.opacity(0.15) : Color.black.opacity(0.3),
+                color: isHovered ? Color.divineGold.opacity(0.15) : Color.black.opacity(0.3),
                 radius: isHovered ? 20 : 10,
                 y: isHovered ? 8 : 4
             )
@@ -230,11 +230,11 @@ struct VariantCard: View {
             // Arrow indicator
             Image(systemName: "arrow.right")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.accentGold)
+                .foregroundStyle(Color.divineGold)
                 .padding(AppTheme.Spacing.sm)
                 .background(
                     Circle()
-                        .fill(Color.accentGold.opacity(0.1))
+                        .fill(Color.divineGold.opacity(0.1))
                 )
         }
         .padding(AppTheme.Spacing.lg)
@@ -339,7 +339,7 @@ struct FloatingSanctuaryPreview: View {
             .frame(height: 40)
             .overlay {
                 RoundedRectangle(cornerRadius: 6)
-                    .strokeBorder(Color.accentGold.opacity(0.2), lineWidth: 0.5)
+                    .strokeBorder(Color.divineGold.opacity(0.2), lineWidth: 0.5)
             }
     }
 }
@@ -362,12 +362,12 @@ struct DivineHubPreview: View {
         VStack(spacing: AppTheme.Spacing.md) {
             // Center hub
             Circle()
-                .fill(Color.accentGold.opacity(0.2))
+                .fill(Color.divineGold.opacity(0.2))
                 .frame(width: 50, height: 50)
                 .overlay {
                     Image(systemName: "gearshape.fill")
                         .font(.system(size: 20))
-                        .foregroundStyle(Color.accentGold)
+                        .foregroundStyle(Color.divineGold)
                 }
 
             // Spokes

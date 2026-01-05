@@ -677,7 +677,9 @@ struct InlineThemeCard: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            action()
+        } label: {
             VStack(spacing: AppTheme.Spacing.xs) {
                 // Theme preview swatch
                 ZStack {

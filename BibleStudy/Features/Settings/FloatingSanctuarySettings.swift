@@ -137,7 +137,7 @@ struct FloatingSanctuarySettings: View {
 
     private var ambientBackground: some View {
         ZStack {
-            Color(hex: "0A0908")
+            Color.appBackground
                 .ignoresSafeArea()
 
             // Dynamic ambient glow based on active section
@@ -221,7 +221,7 @@ struct FloatingSanctuarySettings: View {
                     .frame(width: 120, height: 120)
 
                 Circle()
-                    .fill(Color(hex: "1A1816"))
+                    .fill(Color.surfaceBackground)
                     .frame(width: 80, height: 80)
                     .overlay {
                         Text(userInitials)
@@ -627,7 +627,7 @@ struct FloatingSectionCard<Content: View>: View {
             content
                 .background(
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                        .fill(Color(hex: "141210"))
+                        .fill(Color.surfaceBackground)
                 )
                 .overlay {
                     RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
