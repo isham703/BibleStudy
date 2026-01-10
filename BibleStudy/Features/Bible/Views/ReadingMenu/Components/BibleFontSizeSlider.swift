@@ -19,7 +19,7 @@ struct BibleFontSizeSlider: View {
                 // Track
                 // swiftlint:disable:next hardcoded_rounded_rectangle
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                    .fill(Theme.Menu.border)
+                    .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
                     .frame(height: 3)
 
                 // Filled portion

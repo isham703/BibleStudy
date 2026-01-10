@@ -103,7 +103,7 @@ struct BibleContextMenu: View {
     // MARK: - Card Background & Border
 
     private var cardBackground: some View {
-        Theme.Menu.background
+        Color.surfaceRaised
     }
 
     private var cardBorder: some View {

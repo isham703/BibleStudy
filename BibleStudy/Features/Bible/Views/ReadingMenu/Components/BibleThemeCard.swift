@@ -34,7 +34,7 @@ struct BibleThemeCard: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.input)
                             .stroke(
-                                isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Theme.Menu.border,
+                                isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
                                 lineWidth: isSelected ? Theme.Stroke.control : Theme.Stroke.hairline
                             )
                     )
@@ -51,7 +51,7 @@ struct BibleThemeCard: View {
                         .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 } else {
                     Circle()
-                        .stroke(Theme.Menu.border, lineWidth: Theme.Stroke.hairline)
+                        .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
                         .frame(width: 14, height: 14)
                 }
             }

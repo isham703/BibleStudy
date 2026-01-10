@@ -138,7 +138,7 @@ struct SettingsSection: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Theme.Menu.border, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -161,7 +161,7 @@ struct SettingsSection: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Theme.Menu.border, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -276,7 +276,7 @@ struct SettingsSection: View {
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.card)
-                        .stroke(Theme.Menu.border, lineWidth: Theme.Stroke.hairline)
+                        .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
                 )
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -315,7 +315,7 @@ struct SettingsSection: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Theme.Menu.border, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
             )
         }
     }
