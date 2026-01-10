@@ -35,11 +35,11 @@ struct FloatingNavigationRow: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(Typography.body)
+                        .font(Typography.Command.body)
                         .foregroundStyle(isDestructive ? Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)) : Color.primaryText)
 
                     Text(subtitle)
-                        .font(Typography.caption)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

@@ -147,7 +147,7 @@ struct InlineHighlightColorRow: View {
                 }
         )
         .simultaneousGesture(
-            LongPressGesture(minimumDuration: Theme.Gesture.longPressDuration)
+            LongPressGesture(minimumDuration: 0.5)
                 .onEnded { _ in
                     HapticService.shared.selectionChanged()
                     onLongPress?(color)

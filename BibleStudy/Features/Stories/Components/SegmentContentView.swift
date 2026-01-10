@@ -144,7 +144,7 @@ struct KeyTermCard: View {
 
                     if let original = keyTerm.originalWord {
                         Text(original)
-                            .font(Typography.Language.transliteration)
+                            .font(.system(size: 15, weight: .regular, design: .serif).italic())
                             .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
                 }

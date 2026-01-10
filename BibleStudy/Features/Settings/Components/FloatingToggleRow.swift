@@ -26,11 +26,11 @@ struct FloatingToggleRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(Typography.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.primaryText)
 
                 Text(subtitle)
-                    .font(Typography.caption)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
