@@ -78,17 +78,6 @@ enum Theme {
         static let control: CGFloat = 2      // Control strokes (buttons, inputs)
     }
 
-    // Legacy Border namespace - redirects to Stroke values
-    // TO DELETE after FloatingContextMenu component migration
-    enum Border {
-        static let hairline: CGFloat = Stroke.hairline  // 1pt
-        static let thin: CGFloat = Stroke.hairline      // 1pt (alias)
-        static let regular: CGFloat = Stroke.control    // 2pt
-        static let medium: CGFloat = Stroke.control     // 2pt (alias) - TO DELETE after ConnectionNode migration
-        static let thick: CGFloat = 3                   // 3pt - TO DELETE after QuickInsightCard migration
-        static let heavy: CGFloat = 4                   // 4pt - TO DELETE after ConnectionCelebration migration
-    }
-
     // MARK: - Animation
 
     /// Motion tokens - ALL cubic easing, NO spring animations
@@ -114,12 +103,6 @@ enum Theme {
         ///   - step: The delay between each item (default 60ms)
         static func stagger(index: Int, step: Double = 0.06) -> SwiftUI.Animation {
             .easeOut(duration: 0.26).delay(Double(index) * step)
-        }
-
-        /// Legacy helper for reduce motion detection
-        /// TO DELETE after UsageRow migration - use UIAccessibility.isReduceMotionEnabled directly
-        static var isReduceMotionEnabled: Bool {
-            UIAccessibility.isReduceMotionEnabled
         }
     }
 
