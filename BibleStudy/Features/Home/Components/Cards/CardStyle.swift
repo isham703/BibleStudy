@@ -34,19 +34,6 @@ struct CardStyle {
     let labelFont: Font
     let iconSize: CGFloat
 
-    // MARK: - Factory Methods
-
-    /// Creates a CardStyle for a specific time of day
-    /// DEPRECATED: Use CardStyle.roman() instead
-    @available(*, deprecated, message: "Time-awareness removed - use CardStyle.roman() instead")
-    static func forTime(
-        _ time: SanctuaryTimeOfDay,
-        isPrimary: Bool
-    ) -> CardStyle {
-        // All time-based styles now redirect to Roman with default light scheme
-        return roman(isPrimary: isPrimary, colorScheme: .light)
-    }
-
     // MARK: - Roman Style (Unified - Uses Surface Layer)
     // Theme-aware style that responds to Light/Dark/Sepia/OLED reading modes
     // Uses imperialPurple accent and stoic neutrals for monumental clarity

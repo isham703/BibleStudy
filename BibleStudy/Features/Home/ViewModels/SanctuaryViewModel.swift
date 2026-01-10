@@ -12,16 +12,6 @@ final class SanctuaryViewModel {
     private let progressService: ProgressService
     private let authService: AuthService
 
-    // MARK: - Time State
-
-    var currentTime: SanctuaryTimeOfDay = .current
-    var manualOverride: SanctuaryTimeOfDay?
-
-    /// Active time considers manual override for debug/preview
-    var activeTime: SanctuaryTimeOfDay {
-        manualOverride ?? currentTime
-    }
-
     // MARK: - User Data
 
     var userName: String? {
@@ -38,7 +28,6 @@ final class SanctuaryViewModel {
 
     // MARK: - Lifecycle State
 
-    private var timeUpdateTask: Task<Void, Never>?
     var scenePhase: ScenePhase = .active
     var reduceMotion: Bool = false
 
@@ -70,45 +59,9 @@ final class SanctuaryViewModel {
         try? await authService.loadProfile()
     }
 
-    // MARK: - Time Updates
-
-    /// Start background time updates (Task-based, properly cancellable)
-    func startTimeUpdates() {
-        // Cancel any existing task
-        stopTimeUpdates()
-
-        timeUpdateTask = Task { [weak self] in
-            while !Task.isCancelled {
-                // Sleep for 60 seconds
-                try? await Task.sleep(for: .seconds(60))
-
-                guard !Task.isCancelled else { return }
-
-                // Only update if no manual override
-                await MainActor.run {
-                    guard let self = self, self.manualOverride == nil else { return }
-
-                    let newTime = SanctuaryTimeOfDay.current
-                    if newTime != self.currentTime {
-                        withAnimation(.easeInOut(duration: 0.8)) {
-                            self.currentTime = newTime
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /// Stop time updates (explicit cleanup)
-    func stopTimeUpdates() {
-        timeUpdateTask?.cancel()
-        timeUpdateTask = nil
-    }
-
     /// Full reset for cleanup
     func cleanup() {
-        stopTimeUpdates()
-        manualOverride = nil
+        // No cleanup needed currently
     }
 
     // MARK: - Scene Phase Handling
