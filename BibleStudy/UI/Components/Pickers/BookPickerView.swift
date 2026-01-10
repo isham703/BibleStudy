@@ -47,7 +47,7 @@ struct BookPickerView: View {
         }
         .onAppear {
             // Start fresh - no pre-selection based on current book
-            withAnimation(AppTheme.Animation.unfurl.delay(0.1)) {
+            withAnimation(Theme.Animation.settle.delay(0.1)) {
                 isAppeared = true
             }
         }
@@ -57,6 +57,7 @@ struct BookPickerView: View {
 // MARK: - Phase 1: Book Selection
 
 private struct BookSelectionPhase: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedTestament: Testament
     @Binding var searchText: String
     @Binding var isAppeared: Bool
@@ -70,17 +71,17 @@ private struct BookSelectionPhase: View {
             VStack(spacing: 0) {
                 // Search bar
                 searchBar
-                    .padding(.horizontal, AppTheme.Spacing.lg)
-                    .padding(.top, AppTheme.Spacing.sm)
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.top, Theme.Spacing.sm)
 
                 // Testament toggle
                 testamentPicker
-                    .padding(.horizontal, AppTheme.Spacing.lg)
-                    .padding(.top, AppTheme.Spacing.md)
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.top, Theme.Spacing.md)
 
                 // Books content
                 booksContent
-                    .padding(.bottom, AppTheme.Spacing.xxl)
+                    .padding(.bottom, Theme.Spacing.xxl)
             }
         }
         .scrollDismissesKeyboard(.interactively)
@@ -92,7 +93,7 @@ private struct BookSelectionPhase: View {
                 Button("Cancel") {
                     onDismiss()
                 }
-                .foregroundStyle(Color.scholarAccent)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
         }
     }
@@ -100,37 +101,37 @@ private struct BookSelectionPhase: View {
     // MARK: - Search Bar
 
     private var searchBar: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "magnifyingglass")
-                .font(Typography.UI.iconSm)
+                .font(Typography.Icon.sm)
                 .foregroundStyle(Color.tertiaryText)
 
             TextField("Search books...", text: $searchText)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.primaryText)
                 .autocorrectionDisabled()
 
             if !searchText.isEmpty {
                 Button {
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         searchText = ""
                     }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(Typography.UI.iconSm)
+                        .font(Typography.Icon.sm)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm + 2)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm + 2)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
                 .fill(Color.surfaceBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -140,24 +141,24 @@ private struct BookSelectionPhase: View {
         HStack(spacing: 0) {
             ForEach([Testament.old, Testament.new], id: \.self) { testament in
                 Button {
-                    withAnimation(AppTheme.Animation.sacredSpring) {
+                    withAnimation(Theme.Animation.settle) {
                         selectedTestament = testament
                     }
                 } label: {
                     Text(testament == .old ? "Old Testament" : "New Testament")
-                        .font(Typography.UI.chipLabel)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(
                             selectedTestament == testament
                                 ? Color.white
                                 : Color.secondaryText
                         )
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppTheme.Spacing.sm + 2)
+                        .padding(.vertical, Theme.Spacing.sm + 2)
                         .background(
                             Group {
                                 if selectedTestament == testament {
-                                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium - 2)
-                                        .fill(Color.scholarAccent)
+                                    RoundedRectangle(cornerRadius: Theme.Radius.button - 2)
+                                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 }
                             }
                         )
@@ -165,14 +166,14 @@ private struct BookSelectionPhase: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(AppTheme.Spacing.xs)
+        .padding(Theme.Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
                 .fill(Color.surfaceBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -182,7 +183,7 @@ private struct BookSelectionPhase: View {
     private var booksContent: some View {
         if searchText.isEmpty {
             // Category-grouped view
-            LazyVStack(spacing: AppTheme.Spacing.lg, pinnedViews: [.sectionHeaders]) {
+            LazyVStack(spacing: Theme.Spacing.lg, pinnedViews: [.sectionHeaders]) {
                 ForEach(categoriesForTestament, id: \.self) { category in
                     Section {
                         bookGrid(for: category)
@@ -192,10 +193,10 @@ private struct BookSelectionPhase: View {
                     }
                 }
             }
-            .padding(.top, AppTheme.Spacing.md)
+            .padding(.top, Theme.Spacing.md)
         } else {
             // Search results
-            LazyVStack(spacing: AppTheme.Spacing.sm) {
+            LazyVStack(spacing: Theme.Spacing.sm) {
                 ForEach(filteredBooks, id: \.id) { book in
                     SearchResultRow(
                         book: book,
@@ -210,18 +211,18 @@ private struct BookSelectionPhase: View {
                     emptySearchState
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.top, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.top, Theme.Spacing.md)
         }
     }
 
     private func bookGrid(for category: BookCategory) -> some View {
         let books = Book.books(inCategory: category)
         let columns = [
-            GridItem(.adaptive(minimum: 95, maximum: 110), spacing: AppTheme.Spacing.sm)
+            GridItem(.adaptive(minimum: 95, maximum: 110), spacing: Theme.Spacing.sm)
         ]
 
-        return LazyVGrid(columns: columns, spacing: AppTheme.Spacing.sm) {
+        return LazyVGrid(columns: columns, spacing: Theme.Spacing.sm) {
             ForEach(Array(books.enumerated()), id: \.element.id) { index, book in
                 BookGridItem(
                     book: book,
@@ -233,25 +234,25 @@ private struct BookSelectionPhase: View {
                 }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, Theme.Spacing.lg)
     }
 
     private var emptySearchState: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "text.book.closed")
-                .font(Typography.UI.iconXxl)
+                .font(Typography.Icon.xxl)
                 .foregroundStyle(Color.tertiaryText)
 
             Text("No books found")
-                .font(Typography.UI.headline)
+                .font(Typography.Command.headline)
                 .foregroundStyle(Color.secondaryText)
 
             Text("Try a different search term")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, AppTheme.Spacing.xxxl)
+        .padding(.vertical, Theme.Spacing.xxl)
     }
 
     // MARK: - Computed Properties
@@ -283,6 +284,7 @@ private struct BookSelectionPhase: View {
 // MARK: - Phase 2: Chapter Selection
 
 private struct ChapterSelectionPhase: View {
+    @Environment(\.colorScheme) private var colorScheme
     let book: Book
     let currentBookId: Int
     let currentChapter: Int
@@ -294,22 +296,22 @@ private struct ChapterSelectionPhase: View {
 
     // Responsive grid columns
     private let columns = [
-        GridItem(.adaptive(minimum: 52, maximum: 64), spacing: AppTheme.Spacing.sm)
+        GridItem(.adaptive(minimum: 52, maximum: 64), spacing: Theme.Spacing.sm)
     ]
 
     var body: some View {
-        let stickyButtonPadding = AppTheme.Spacing.xxxl + AppTheme.Spacing.xxl + AppTheme.Spacing.lg
+        let stickyButtonPadding = Theme.Spacing.xxl + Theme.Spacing.xxl + Theme.Spacing.lg
 
         ScrollView {
-            VStack(spacing: AppTheme.Spacing.xl) {
+            VStack(spacing: Theme.Spacing.xl) {
                 // Book header card
                 bookHeader
-                    .padding(.horizontal, AppTheme.Spacing.lg)
-                    .padding(.top, AppTheme.Spacing.md)
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.top, Theme.Spacing.md)
 
                 // Chapter grid
                 chapterGrid
-                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.horizontal, Theme.Spacing.lg)
             }
             .padding(.bottom, stickyButtonPadding) // Space for sticky button
         }
@@ -324,7 +326,7 @@ private struct ChapterSelectionPhase: View {
             if book.id == currentBookId {
                 selectedChapter = currentChapter
             }
-            withAnimation(AppTheme.Animation.sacredSpring.delay(0.15)) {
+            withAnimation(Theme.Animation.settle.delay(0.15)) {
                 isAppeared = true
             }
         }
@@ -333,61 +335,61 @@ private struct ChapterSelectionPhase: View {
     // MARK: - Book Header
 
     private var bookHeader: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Book icon/initial
             ZStack {
                 Circle()
-                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                     .frame(width: 64, height: 64)
 
                 Text(String(book.name.prefix(1)))
-                    .font(Typography.Codex.bookInitial)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Scripture.display)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
             .matchedGeometryEffect(id: "book-\(book.id)", in: namespace)
 
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Text(book.name)
-                    .font(Typography.Codex.verseReference)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.primaryText)
 
                 Text("\(book.chapters) chapters • \(book.testament.displayName)")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
             }
 
             // Category badge
             Text(book.category.rawValue)
-                .font(Typography.UI.caption2)
-                .foregroundStyle(Color.scholarAccent)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.xs)
+                .font(Typography.Command.meta)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.xs)
                 .background(
                     Capsule()
-                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                 )
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, AppTheme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .fill(Color.surfaceBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
         )
     }
 
     // MARK: - Chapter Grid
 
     private var chapterGrid: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Section header with "Read All" option
             HStack {
                 Text("SELECT CHAPTER")
-                    .font(Typography.Codex.illuminatedHeader)
-                    .tracking(Typography.Codex.headerTracking)
+                    .font(Typography.Scripture.heading)
+                    .tracking(2.5)
                     .foregroundStyle(Color.secondaryText)
 
                 Spacer()
@@ -399,25 +401,25 @@ private struct ChapterSelectionPhase: View {
                     // Select chapter 1 to start reading entire book
                     onChapterSelected(1)
                 } label: {
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: "book.pages")
-                            .font(Typography.UI.iconXxs)
+                            .font(Typography.Icon.xxs)
                         Text("Read All")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                     }
-                    .foregroundStyle(Color.scholarAccent)
-                    .padding(.horizontal, AppTheme.Spacing.sm)
-                    .padding(.vertical, AppTheme.Spacing.xs)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .padding(.horizontal, Theme.Spacing.sm)
+                    .padding(.vertical, Theme.Spacing.xs)
                     .background(
                         Capsule()
-                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                     )
                 }
                 .buttonStyle(.plain)
             }
 
             // Grid
-            LazyVGrid(columns: columns, spacing: AppTheme.Spacing.sm) {
+            LazyVGrid(columns: columns, spacing: Theme.Spacing.sm) {
                 ForEach(1...book.chapters, id: \.self) { chapter in
                     ChapterGridItem(
                         chapter: chapter,
@@ -440,21 +442,21 @@ private struct ChapterSelectionPhase: View {
             haptic.impactOccurred()
             onChapterSelected(selectedChapter)
         } label: {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Text("Go to \(book.abbreviation) \(selectedChapter)")
-                    .font(Typography.UI.buttonLabel)
+                    .font(Typography.Command.cta)
 
                 Image(systemName: "arrow.right")
-                    .font(Typography.UI.iconSm)
+                    .font(Typography.Icon.sm)
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.md + 2)
+            .padding(.vertical, Theme.Spacing.md + 2)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(Color.scholarAccent)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .shadow(
-                        color: Color.scholarAccent.opacity(AppTheme.Opacity.medium),
+                        color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
                         radius: 8,
                         x: 0,
                         y: 4
@@ -462,8 +464,8 @@ private struct ChapterSelectionPhase: View {
             )
         }
         .buttonStyle(ConfirmButtonStyle())
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
         .background(
             Rectangle()
                 .fill(.ultraThinMaterial)
@@ -474,7 +476,7 @@ private struct ChapterSelectionPhase: View {
     private func selectChapter(_ chapter: Int) {
         let haptic = UIImpactFeedbackGenerator(style: .light)
         haptic.impactOccurred()
-        withAnimation(AppTheme.Animation.quick) {
+        withAnimation(Theme.Animation.fade) {
             selectedChapter = chapter
         }
     }
@@ -483,38 +485,39 @@ private struct ChapterSelectionPhase: View {
 // MARK: - Category Header
 
 private struct CategoryHeader: View {
+    @Environment(\.colorScheme) private var colorScheme
     let category: BookCategory
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [.clear, Color.scholarAccent.opacity(AppTheme.Opacity.disabled)],
+                        colors: [.clear, Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .frame(width: 20, height: AppTheme.Divider.thin)
+                .frame(width: 20, height: Theme.Stroke.hairline)
 
             Text(category.rawValue.uppercased())
-                .font(Typography.Codex.sectionLabel)
-                .tracking(Typography.Codex.headerTracking)
-                .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.pressed))
+                .font(Typography.Command.label)
+                .tracking(2.5)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
 
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [Color.scholarAccent.opacity(AppTheme.Opacity.disabled), .clear],
+                        colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled), .clear],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .frame(height: AppTheme.Divider.thin)
+                .frame(height: Theme.Stroke.hairline)
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.xs)
-        .background(Color.appBackground.opacity(AppTheme.Opacity.nearOpaque))
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.xs)
+        .background(Color.appBackground.opacity(Theme.Opacity.nearOpaque))
     }
 }
 
@@ -530,33 +533,33 @@ private struct BookGridItem: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 2) {
                 Text(book.abbreviation)
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
                     .foregroundStyle(Color.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
                 Text("\(book.chapters) ch")
-                    .font(Typography.UI.caption2.monospacedDigit())
+                    .font(Typography.Command.meta.monospacedDigit())
                     .foregroundStyle(Color.secondaryText)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .fill(Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(GridItemButtonStyle())
         .opacity(isAppeared ? 1 : 0)
         .offset(y: isAppeared ? 0 : 8)
         .onAppear {
-            withAnimation(AppTheme.Animation.sacredSpring.delay(animationDelay)) {
+            withAnimation(Theme.Animation.settle.delay(animationDelay)) {
                 isAppeared = true
             }
         }
@@ -566,6 +569,7 @@ private struct BookGridItem: View {
 // MARK: - Chapter Grid Item
 
 private struct ChapterGridItem: View {
+    @Environment(\.colorScheme) private var colorScheme
     let chapter: Int
     let isSelected: Bool
     let isCurrent: Bool
@@ -581,7 +585,7 @@ private struct ChapterGridItem: View {
                 Circle()
                     .fill(backgroundColor)
                     .shadow(
-                        color: isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.quarter) : .clear,
+                        color: isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.quarter) : .clear,
                         radius: 6,
                         x: 0,
                         y: 2
@@ -591,14 +595,14 @@ private struct ChapterGridItem: View {
                 if !isSelected {
                     Circle()
                         .stroke(
-                            isCurrent ? Color.scholarAccent : Color.cardBorder,
-                            lineWidth: isCurrent ? AppTheme.Border.medium : AppTheme.Border.thin
+                            isCurrent ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder,
+                            lineWidth: isCurrent ? Theme.Stroke.control : Theme.Stroke.hairline
                         )
                 }
 
                 // Chapter number
                 Text("\(chapter)")
-                    .font(Typography.UI.body.monospacedDigit())
+                    .font(Typography.Command.body.monospacedDigit())
                     .foregroundStyle(isSelected ? .white : Color.primaryText)
             }
             .frame(width: 52, height: 52)
@@ -607,7 +611,7 @@ private struct ChapterGridItem: View {
         .opacity(isAppeared ? 1 : 0)
         .scaleEffect(isAppeared ? 1 : 0.85)
         .onAppear {
-            withAnimation(AppTheme.Animation.sacredSpring.delay(animationDelay)) {
+            withAnimation(Theme.Animation.settle.delay(animationDelay)) {
                 isAppeared = true
             }
         }
@@ -615,7 +619,7 @@ private struct ChapterGridItem: View {
 
     private var backgroundColor: Color {
         if isSelected {
-            return Color.scholarAccent
+            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
         } else {
             return Color.surfaceBackground
         }
@@ -625,64 +629,65 @@ private struct ChapterGridItem: View {
 // MARK: - Search Result Row
 
 private struct SearchResultRow: View {
+    @Environment(\.colorScheme) private var colorScheme
     let book: Book
     let isCurrent: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Book initial
                 ZStack {
                     Circle()
-                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                         .frame(width: 40, height: 40)
 
                     Text(String(book.name.prefix(1)))
-                        .font(Typography.Codex.inlineInitial)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Scripture.title)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Book info
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         Text(book.name)
-                            .font(Typography.UI.headline)
+                            .font(Typography.Command.headline)
                             .foregroundStyle(Color.primaryText)
 
                         if isCurrent {
                             Text("Current")
-                                .font(Typography.UI.caption2)
-                                .foregroundStyle(Color.scholarAccent)
-                                .padding(.horizontal, AppTheme.Spacing.xs)
-                                .padding(.vertical, AppTheme.Spacing.xxs)
+                                .font(Typography.Command.meta)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .padding(.horizontal, Theme.Spacing.xs)
+                                .padding(.vertical, 2)
                                 .background(
                                     Capsule()
-                                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                                 )
                         }
                     }
 
                     Text("\(book.chapters) chapters • \(book.category.rawValue)")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.secondaryText)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.iconXxs)
+                    .font(Typography.Icon.xxs)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .fill(Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -695,7 +700,7 @@ private struct GridItemButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(AppTheme.Animation.quick, value: configuration.isPressed)
+            .animation(Theme.Animation.fade, value: configuration.isPressed)
     }
 }
 
@@ -704,39 +709,40 @@ private struct ConfirmButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(AppTheme.Animation.quick, value: configuration.isPressed)
+            .animation(Theme.Animation.fade, value: configuration.isPressed)
     }
 }
 
 // MARK: - Public Book Button (for use in ContentsSheet)
 
 struct BookButton: View {
+    @Environment(\.colorScheme) private var colorScheme
     let book: Book
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 2) {
                 Text(book.abbreviation)
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
                     .foregroundStyle(isSelected ? .white : Color.primaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
                 Text("\(book.chapters) ch")
-                    .font(Typography.UI.caption2.monospacedDigit())
-                    .foregroundStyle(isSelected ? .white.opacity(AppTheme.Opacity.pressed) : Color.secondaryText)
+                    .font(Typography.Command.meta.monospacedDigit())
+                    .foregroundStyle(isSelected ? .white.opacity(Theme.Opacity.pressed) : Color.secondaryText)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(GridItemButtonStyle())
@@ -746,6 +752,7 @@ struct BookButton: View {
 // MARK: - Public Chapter Button (for use in ContentsSheet)
 
 struct ChapterButton: View {
+    @Environment(\.colorScheme) private var colorScheme
     let chapter: Int
     let isSelected: Bool
     let action: () -> Void
@@ -753,16 +760,16 @@ struct ChapterButton: View {
     var body: some View {
         Button(action: action) {
             Text("\(chapter)")
-                .font(Typography.UI.body.monospacedDigit())
+                .font(Typography.Command.body.monospacedDigit())
                 .foregroundStyle(isSelected ? .white : Color.primaryText)
                 .frame(width: 44, height: 44)
                 .background(
                     Circle()
-                        .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
+                        .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
                 )
                 .overlay(
                     Circle()
-                        .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                        .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
                 )
         }
         .buttonStyle(GridItemButtonStyle())

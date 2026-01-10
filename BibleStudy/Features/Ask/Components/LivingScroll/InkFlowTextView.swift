@@ -21,9 +21,9 @@ struct InkFlowTextView: View {
 
     var body: some View {
         Text(visibleText)
-            .font(Typography.Illuminated.body())
+            .font(Typography.Scripture.body)
             .foregroundStyle(Color.primaryText)
-            .lineSpacing(Typography.Layout.verseSpacing)
+            .lineSpacing(Typography.Scripture.bodyLineSpacing)
             .multilineTextAlignment(.leading)
             .onReceive(timer) { _ in
                 guard isAnimating, !respectsReducedMotion else { return }
@@ -103,7 +103,7 @@ struct IlluminatedInkFlowText: View {
             } else if isAnimating {
                 // Small delay before revealing capital
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    withAnimation(AppTheme.Animation.standard) {
+                    withAnimation(Theme.Animation.settle) {
                         showCapital = true
                     }
                 }
@@ -121,36 +121,44 @@ struct IlluminatedInkFlowText: View {
 
 // MARK: - Preview
 
-#Preview("Ink Flow Text") {
-    VStack(spacing: AppTheme.Spacing.xl) {
-        Text("Ink Flow Animation")
-            .font(Typography.UI.headline)
+#if DEBUG
+struct InkFlowTextView_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: Theme.Spacing.xl) {
+            Text("Ink Flow Animation")
+                .font(Typography.Command.headline)
 
-        InkFlowTextView(
-            text: "Blessed are the poor in spirit, for theirs is the kingdom of heaven.",
-            isAnimating: true
-        )
+            InkFlowTextView(
+                text: "Blessed are the poor in spirit, for theirs is the kingdom of heaven.",
+                isAnimating: true
+            )
+            .padding()
+            .background(Color.surfaceBackground)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+        }
         .padding()
-        .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+        .background(Color.appBackground)
+        .previewDisplayName("Ink Flow Text")
     }
-    .padding()
-    .background(Color.appBackground)
 }
 
-#Preview("Illuminated Ink Flow") {
-    VStack(spacing: AppTheme.Spacing.xl) {
-        Text("Illuminated Text")
-            .font(Typography.UI.headline)
+struct IlluminatedInkFlowText_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: Theme.Spacing.xl) {
+            Text("Illuminated Text")
+                .font(Typography.Command.headline)
 
-        IlluminatedInkFlowText(
-            text: "When Jesus saw the crowds, he went up on a mountainside and sat down.",
-            isAnimating: true
-        )
+            IlluminatedInkFlowText(
+                text: "When Jesus saw the crowds, he went up on a mountainside and sat down.",
+                isAnimating: true
+            )
+            .padding()
+            .background(Color.surfaceBackground)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+        }
         .padding()
-        .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+        .background(Color.appBackground)
+        .previewDisplayName("Illuminated Ink Flow")
     }
-    .padding()
-    .background(Color.appBackground)
 }
+#endif

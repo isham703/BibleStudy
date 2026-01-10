@@ -160,6 +160,13 @@ enum AppConfiguration {
         static let verseNumberStyle = "verseNumberStyle"
         static let dropCapStyle = "dropCapStyle"
         static let showDropCaps = "showDropCaps"
+
+        // AI Preferences
+        static let aiInsightsEnabled = "aiInsightsEnabled"
+        static let scholarModeEnabled = "scholarModeEnabled"
+        static let voiceGuidanceEnabled = "voiceGuidanceEnabled"
+        static let hapticFeedbackEnabled = "hapticFeedbackEnabled"
+        static let cloudSyncEnabled = "cloudSyncEnabled"
     }
 }
 

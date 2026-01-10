@@ -59,11 +59,11 @@ enum ReaderVariant: String, CaseIterable, Identifiable {
     var accentColor: Color {
         switch self {
         case .illuminatedScriptorium:
-            return .meridianIllumination
+            return Color(hex: "A08460") // Lighter bronze
         case .candlelitChapel:
-            return .candleAmber
+            return Color.accentBronze // accentSeal bronze
         case .scholarsMarginalia:
-            return .scholarIndigo
+            return Color.accentIndigo // accentAction indigo
         }
     }
 

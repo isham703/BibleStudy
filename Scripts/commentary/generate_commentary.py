@@ -2,20 +2,21 @@
 """
 Living Commentary Pre-Generation Pipeline
 
-Generates marginalia insights for the Gospel of John using OpenAI GPT-4o mini.
+Generates marginalia insights for Bible books using OpenAI GPT-4o mini.
 Outputs to CommentaryData.sqlite for bundling with the app.
 
 Usage:
-    python generate_commentary.py --chapter 1           # Generate for John 1 only
-    python generate_commentary.py --sample              # Generate sample (1, 3, 11, 21)
-    python generate_commentary.py --all                 # Generate all of John
-    python generate_commentary.py --validate            # Validate existing DB
+    python generate_commentary.py --book john --chapter 1    # Generate for John 1 only
+    python generate_commentary.py --book john --chapter 3 --verse 16  # Generate John 3:16 only
+    python generate_commentary.py --book john --all          # Generate all of John
+    python generate_commentary.py --book romans --all        # Generate all of Romans
+    python generate_commentary.py --validate                 # Validate existing DB
 
 Requirements:
     pip install openai
     OPENAI_API_KEY environment variable set
 
-Estimated cost: ~$0.50-1.00 for all of John (879 verses)
+Estimated cost: ~$0.50-1.00 per book (varies by verse count)
 """
 
 import argparse
@@ -40,8 +41,25 @@ CONFIG = {
     "prompt_version": "v1.0",
     "context_window": 2,  # Verses before/after for context
     "max_retries": 3,
-    "john_book_id": 43,
-    "john_chapters": 21,
+}
+
+# Supported books with their IDs and chapter counts
+BOOKS = {
+    "john": {"id": 43, "chapters": 21, "name": "John"},
+    "romans": {"id": 45, "chapters": 16, "name": "Romans"},
+    "matthew": {"id": 40, "chapters": 28, "name": "Matthew"},
+    "genesis": {"id": 1, "chapters": 50, "name": "Genesis"},
+    "psalms": {"id": 19, "chapters": 150, "name": "Psalms"},
+    "mark": {"id": 41, "chapters": 16, "name": "Mark"},
+    "luke": {"id": 42, "chapters": 24, "name": "Luke"},
+    "acts": {"id": 44, "chapters": 28, "name": "Acts"},
+    "galatians": {"id": 48, "chapters": 6, "name": "Galatians"},
+    "philippians": {"id": 50, "chapters": 4, "name": "Philippians"},
+    "colossians": {"id": 51, "chapters": 4, "name": "Colossians"},
+    "james": {"id": 59, "chapters": 5, "name": "James"},
+    "1john": {"id": 62, "chapters": 5, "name": "1 John"},
+    "ephesians": {"id": 49, "chapters": 6, "name": "Ephesians"},
+    "proverbs": {"id": 20, "chapters": 31, "name": "Proverbs"},
 }
 
 # Paths
@@ -188,6 +206,8 @@ def find_segment_in_verse(segment_text: str, verse_text: str) -> Optional[Tuple[
     - Exact matches
     - Case-insensitive matches
     - Matches with minor punctuation differences
+    - Normalized whitespace
+    - Word-by-word fuzzy matching
     """
     # Try exact match first
     idx = verse_text.find(segment_text)
@@ -209,9 +229,23 @@ def find_segment_in_verse(segment_text: str, verse_text: str) -> Optional[Tuple[
         idx = verse_text.find(stripped)
         if idx >= 0:
             return (idx, idx + len(stripped), stripped)
+        # Also try case-insensitive
+        idx = lower_verse.find(stripped.lower())
+        if idx >= 0:
+            actual = verse_text[idx:idx + len(stripped)]
+            return (idx, idx + len(actual), actual)
 
-    # Try fuzzy: find longest substring match
-    # Look for the core words in the segment
+    # Normalize whitespace and try again
+    normalized_segment = " ".join(segment_text.split())
+    normalized_verse = " ".join(verse_text.split())
+    if normalized_segment != segment_text:
+        idx = normalized_verse.lower().find(normalized_segment.lower())
+        if idx >= 0:
+            # Map back to original verse indices (approximate)
+            actual = normalized_verse[idx:idx + len(normalized_segment)]
+            return (idx, idx + len(actual), actual)
+
+    # Try fuzzy: find longest substring match from start
     words = segment_text.split()
     if len(words) >= 2:
         # Try matching first few words
@@ -219,9 +253,33 @@ def find_segment_in_verse(segment_text: str, verse_text: str) -> Optional[Tuple[
             partial = " ".join(words[:num_words])
             idx = verse_text.lower().find(partial.lower())
             if idx >= 0:
-                # Find actual extent in verse
                 actual = verse_text[idx:idx + len(partial)]
                 return (idx, idx + len(actual), actual)
+
+        # Try matching last few words (in case prefix differs)
+        for num_words in range(len(words), 0, -1):
+            partial = " ".join(words[-num_words:])
+            idx = verse_text.lower().find(partial.lower())
+            if idx >= 0:
+                actual = verse_text[idx:idx + len(partial)]
+                return (idx, idx + len(actual), actual)
+
+        # Try matching any contiguous subset of words (sliding window)
+        for window_size in range(len(words) - 1, 1, -1):
+            for start in range(len(words) - window_size + 1):
+                partial = " ".join(words[start:start + window_size])
+                if len(partial) >= 10:  # Only match if substantial
+                    idx = verse_text.lower().find(partial.lower())
+                    if idx >= 0:
+                        actual = verse_text[idx:idx + len(partial)]
+                        return (idx, idx + len(actual), actual)
+
+    # Single word fallback for short segments
+    if len(words) == 1 and len(segment_text) >= 5:
+        idx = verse_text.lower().find(segment_text.lower())
+        if idx >= 0:
+            actual = verse_text[idx:idx + len(segment_text)]
+            return (idx, idx + len(actual), actual)
 
     return None
 
@@ -353,30 +411,48 @@ def generate_chapter(
     bible_conn: sqlite3.Connection,
     output_conn: sqlite3.Connection,
     prompt_template: str,
+    book_info: dict,
     chapter: int,
-    dry_run: bool = False
+    dry_run: bool = False,
+    verse_filter: Optional[int] = None
 ):
-    """Generate insights for an entire chapter."""
+    """Generate insights for an entire chapter or a single verse."""
 
-    print(f"\n=== John Chapter {chapter} ===")
+    book_name = book_info["name"]
+    book_id = book_info["id"]
 
-    verses = get_verses(bible_conn, CONFIG["john_book_id"], chapter)
+    if verse_filter:
+        print(f"\n=== {book_name} {chapter}:{verse_filter} ===")
+    else:
+        print(f"\n=== {book_name} Chapter {chapter} ===")
+
+    verses = get_verses(bible_conn, book_id, chapter)
     if not verses:
-        print(f"  No verses found for John {chapter}")
+        print(f"  No verses found for {book_name} {chapter}")
         return
 
-    print(f"  Found {len(verses)} verses")
+    # Filter to single verse if specified
+    if verse_filter:
+        verses = [v for v in verses if v["verse"] == verse_filter]
+        if not verses:
+            print(f"  Verse {verse_filter} not found in {book_name} {chapter}")
+            return
+
+    print(f"  Processing {len(verses)} verse(s)")
+
+    # Get all verses for context window even when filtering
+    all_verses = get_verses(bible_conn, book_id, chapter) if verse_filter else verses
 
     total_insights = 0
     total_issues = 0
 
     for verse in verses:
-        context = get_context_window(verses, verse["verse"], CONFIG["context_window"])
+        context = get_context_window(all_verses, verse["verse"], CONFIG["context_window"])
 
         print(f"  Generating for verse {verse['verse']}...", end=" ", flush=True)
 
         result = generate_insights_for_verse(
-            client, prompt_template, "John", chapter, verse, context
+            client, prompt_template, book_name, chapter, verse, context
         )
 
         if not result or "insights" not in result:
@@ -395,7 +471,7 @@ def generate_chapter(
                     print(f"\n    Issue: {issue}")
             elif fixed_insight:
                 if not dry_run:
-                    if save_insight(output_conn, CONFIG["john_book_id"], chapter, verse["verse"], fixed_insight, i):
+                    if save_insight(output_conn, book_id, chapter, verse["verse"], fixed_insight, i):
                         valid_count += 1
                 else:
                     valid_count += 1
@@ -406,22 +482,31 @@ def generate_chapter(
     if not dry_run:
         output_conn.commit()
 
-    print(f"\n  Chapter {chapter} complete: {total_insights} insights saved, {total_issues} issues found")
+    print(f"\n  Complete: {total_insights} insights saved, {total_issues} issues found")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Living Commentary insights")
+    parser.add_argument("--book", type=str, choices=list(BOOKS.keys()), default="john",
+                        help="Book to generate (default: john)")
     parser.add_argument("--chapter", type=int, help="Generate for a specific chapter")
-    parser.add_argument("--sample", action="store_true", help="Generate sample chapters (1, 3, 11, 21)")
+    parser.add_argument("--verse", type=int, help="Generate for a specific verse (requires --chapter)")
     parser.add_argument("--all", action="store_true", help="Generate all chapters")
     parser.add_argument("--validate", action="store_true", help="Validate existing database")
     parser.add_argument("--dry-run", action="store_true", help="Don't save to database")
 
     args = parser.parse_args()
 
-    if not (args.chapter or args.sample or args.all or args.validate):
+    if args.verse and not args.chapter:
+        print("Error: --verse requires --chapter")
+        sys.exit(1)
+
+    if not (args.chapter or args.all or args.validate):
         parser.print_help()
         return
+
+    # Get book info
+    book_info = BOOKS[args.book]
 
     # Check API key
     api_key = os.environ.get("OPENAI_API_KEY")
@@ -442,13 +527,18 @@ def main():
         count = cursor.fetchone()[0]
         print(f"Total insights: {count}")
 
-        # Check by chapter
-        cursor = output_conn.execute("""
-            SELECT chapter, COUNT(*) FROM commentary_insights
-            WHERE book_id = 43 GROUP BY chapter ORDER BY chapter
-        """)
-        for row in cursor:
-            print(f"  John {row[0]}: {row[1]} insights")
+        # Check by book and chapter
+        for book_key, info in BOOKS.items():
+            cursor = output_conn.execute("""
+                SELECT chapter, COUNT(*) FROM commentary_insights
+                WHERE book_id = ? GROUP BY chapter ORDER BY chapter
+            """, (info["id"],))
+            rows = cursor.fetchall()
+            if rows:
+                total_book = sum(r[1] for r in rows)
+                print(f"\n{info['name']}: {total_book} total insights")
+                for row in rows:
+                    print(f"  Chapter {row[0]}: {row[1]} insights")
         return
 
     # Initialize API client
@@ -457,14 +547,15 @@ def main():
     # Determine chapters to generate
     if args.chapter:
         chapters = [args.chapter]
-    elif args.sample:
-        chapters = [1, 3, 11, 21]  # Sample chapters for review
     elif args.all:
-        chapters = list(range(1, CONFIG["john_chapters"] + 1))
+        chapters = list(range(1, book_info["chapters"] + 1))
     else:
         chapters = []
 
-    print(f"Generating insights for John chapters: {chapters}")
+    if args.verse:
+        print(f"Generating insights for {book_info['name']} {args.chapter}:{args.verse}")
+    else:
+        print(f"Generating insights for {book_info['name']} chapters: {chapters}")
     print(f"Model: {CONFIG['model']}")
     print(f"Prompt version: {CONFIG['prompt_version']}")
     if args.dry_run:
@@ -473,7 +564,8 @@ def main():
     for chapter in chapters:
         generate_chapter(
             client, bible_conn, output_conn, prompt_template,
-            chapter, dry_run=args.dry_run
+            book_info, chapter, dry_run=args.dry_run,
+            verse_filter=args.verse
         )
 
     # Final summary

@@ -24,7 +24,7 @@ struct CelebrationOverlay<Content: View>: View {
 
             if isPresented {
                 // Dimmed background
-                Color.black.opacity(AppTheme.Opacity.disabled)
+                Color.black.opacity(Theme.Opacity.disabled)
                     .ignoresSafeArea()
                     .transition(.opacity)
                     .onTapGesture {
@@ -38,7 +38,7 @@ struct CelebrationOverlay<Content: View>: View {
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .animation(AppTheme.Animation.spring, value: isPresented)
+        .animation(Theme.Animation.settle, value: isPresented)
         .onChange(of: isPresented) { _, newValue in
             if newValue {
                 triggerHaptic()
@@ -132,12 +132,12 @@ private struct CelebrationCard<Content: View>: View {
 
     var body: some View {
         content()
-            .padding(AppTheme.Spacing.xl)
+            .padding(Theme.Spacing.xl)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl)
+                RoundedRectangle(cornerRadius: Theme.Radius.xl)
                     .fill(Color.surfaceBackground)
             )
-            .shadow(AppTheme.Shadow.large)
+            .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 8)
     }
 }
 
@@ -165,7 +165,7 @@ struct InlineCelebrationEffect: View {
             switch type {
             case .correctPulse:
                 if isShowing {
-                    NodePulse(color: .divineGold, maxScale: 2, ringCount: 2)
+                    NodePulse(color: .accentBronze, maxScale: 2, ringCount: 2)
                         .frame(width: 20, height: 20)
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -180,10 +180,10 @@ struct InlineCelebrationEffect: View {
             case .streakFlame:
                 if isShowing {
                     Image(systemName: "flame.fill")
-                        .font(Typography.UI.title3)
+                        .font(Typography.Command.title3)
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.orange, .divineGold],
+                                colors: [.orange, .accentBronze],
                                 startPoint: .bottom,
                                 endPoint: .top
                             )
@@ -232,7 +232,7 @@ private struct ShakeModifier: ViewModifier {
             .modifier(ShakeEffect(animatableData: shakeAmount))
             .onChange(of: trigger) { _, newValue in
                 if newValue {
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         shakeAmount = 1
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -252,7 +252,7 @@ private struct ShakeModifier: ViewModifier {
         @State private var showLevelUp = false
 
         var body: some View {
-            VStack(spacing: AppTheme.Spacing.xl) {
+            VStack(spacing: Theme.Spacing.xl) {
                 Button("Show Correct Answer") {
                     showCorrect = true
                 }

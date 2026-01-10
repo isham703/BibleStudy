@@ -337,7 +337,9 @@ final class BibleService {
 
     // MARK: - Search
 
-    /// Search verses by text
+    /// Search verses by text (legacy LIKE search)
+    /// - Note: Use `SearchService.shared.search()` for FTS5 full-text search with BM25 ranking
+    @available(*, deprecated, message: "Use SearchService.shared.search() for FTS5 full-text search")
     func search(query: String, limit: Int = 50) async throws -> [Verse] {
         try repository.searchVerses(query: query, limit: limit)
     }

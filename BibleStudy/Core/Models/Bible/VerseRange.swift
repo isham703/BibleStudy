@@ -9,26 +9,26 @@ struct VerseRange: Codable, Hashable, Identifiable, Sendable {
     let verseStart: Int
     let verseEnd: Int
 
-    var id: String {
+    nonisolated var id: String {
         if verseStart == verseEnd {
             return "\(bookId).\(chapter).\(verseStart)"
         }
         return "\(bookId).\(chapter).\(verseStart)-\(verseEnd)"
     }
 
-    var book: Book? {
+    nonisolated var book: Book? {
         Book.find(byId: bookId)
     }
 
-    var isSingleVerse: Bool {
+    nonisolated var isSingleVerse: Bool {
         verseStart == verseEnd
     }
 
-    var verseCount: Int {
+    nonisolated var verseCount: Int {
         verseEnd - verseStart + 1
     }
 
-    var reference: String {
+    nonisolated var reference: String {
         guard let book = book else { return id }
         if isSingleVerse {
             return "\(book.name) \(chapter):\(verseStart)"
@@ -36,7 +36,7 @@ struct VerseRange: Codable, Hashable, Identifiable, Sendable {
         return "\(book.name) \(chapter):\(verseStart)-\(verseEnd)"
     }
 
-    var shortReference: String {
+    nonisolated var shortReference: String {
         guard let book = book else { return id }
         if isSingleVerse {
             return "\(book.abbreviation) \(chapter):\(verseStart)"
@@ -117,7 +117,7 @@ struct VerseRange: Codable, Hashable, Identifiable, Sendable {
 // MARK: - Parsing
 extension VerseRange {
     /// Parse a reference string (e.g., "Genesis 1:1", "Gen 1:1-5")
-    static func parse(_ reference: String) -> VerseRange? {
+    nonisolated static func parse(_ reference: String) -> VerseRange? {
         // Pattern: "Book Chapter:Verse" or "Book Chapter:Verse-Verse"
         let pattern = #"^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
@@ -160,7 +160,7 @@ extension VerseRange {
     }
 
     /// Parse a verse ID string (e.g., "1.1.1" or "1.1.1-5")
-    static func parseId(_ id: String) -> VerseRange? {
+    nonisolated static func parseId(_ id: String) -> VerseRange? {
         // Pattern: "bookId.chapter.verse" or "bookId.chapter.verse-verse"
         let parts = id.split(separator: ".")
         guard parts.count == 3 else { return nil }

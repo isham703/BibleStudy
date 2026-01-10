@@ -12,6 +12,7 @@ final class BibleReaderViewModel {
     private let bibleService: BibleService
     private let userContentService: UserContentService
     private let aiService: AIServiceProtocol
+    private let highlightIndexCache = HighlightIndexCache()
 
     // MARK: - State
     var currentLocation: BibleLocation
@@ -265,6 +266,13 @@ final class BibleReaderViewModel {
         do {
             try await userContentService.createHighlight(for: range, color: color)
             HapticService.shared.verseHighlighted()
+
+            // Invalidate cache before reloading
+            highlightIndexCache.invalidate(
+                chapter: currentLocation.chapter,
+                bookId: currentLocation.bookId
+            )
+
             loadUserContent()
 
             // Store for undo
@@ -318,6 +326,13 @@ final class BibleReaderViewModel {
         do {
             try await userContentService.deleteHighlight(highlight)
             HapticService.shared.lightTap()
+
+            // Invalidate cache before reloading
+            highlightIndexCache.invalidate(
+                chapter: currentLocation.chapter,
+                bookId: currentLocation.bookId
+            )
+
             loadUserContent()
             clearSelection()
         } catch {
@@ -344,6 +359,12 @@ final class BibleReaderViewModel {
             case .modified:
                 break
             }
+
+            // Invalidate cache before reloading
+            highlightIndexCache.invalidate(
+                chapter: currentLocation.chapter,
+                bookId: currentLocation.bookId
+            )
 
             loadUserContent()
             lastHighlightAction = nil
@@ -396,9 +417,13 @@ final class BibleReaderViewModel {
     }
 
     func highlightColor(for verseNumber: Int) -> HighlightColor? {
-        chapterHighlights.first { highlight in
-            verseNumber >= highlight.verseStart && verseNumber <= highlight.verseEnd
-        }?.color
+        // O(1) lookup via cached index
+        let index = highlightIndexCache.getIndex(
+            for: currentLocation.chapter,
+            bookId: currentLocation.bookId,
+            highlights: chapterHighlights
+        )
+        return index.color(for: verseNumber)
     }
 
     func hasNote(for verseNumber: Int) -> Bool {

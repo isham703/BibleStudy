@@ -33,7 +33,7 @@ struct TopicExplorerView: View {
                     GridItem(.flexible()),
                     GridItem(.flexible())
                 ],
-                spacing: AppTheme.Spacing.md
+                spacing: Theme.Spacing.md
             ) {
                 ForEach(viewModel.filteredTopics) { topic in
                     NavigationLink(value: topic) {
@@ -41,7 +41,7 @@ struct TopicExplorerView: View {
                     }
                 }
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
         }
     }
 }
@@ -52,15 +52,15 @@ struct TopicCard: View {
     let verseCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(topic.name)
-                .font(Typography.UI.headline)
+                .font(Typography.Command.headline)
                 .foregroundStyle(Color.primaryText)
                 .lineLimit(1)
 
             if let description = topic.description {
                 Text(description)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
@@ -68,16 +68,16 @@ struct TopicCard: View {
 
             HStack {
                 Image(systemName: "book.closed")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                 Text("\(verseCount) verses")
-                    .font(Typography.UI.caption2.monospacedDigit())
+                    .font(Typography.Command.meta.monospacedDigit())
             }
             .foregroundStyle(Color.tertiaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(Color.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }
 

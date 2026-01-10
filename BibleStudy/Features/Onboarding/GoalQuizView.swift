@@ -9,6 +9,7 @@ struct GoalQuizView: View {
     @Binding var onboardingData: OnboardingData
     let onComplete: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var currentQuestion = 0
     @State private var animateIn = false
 
@@ -50,8 +51,8 @@ struct GoalQuizView: View {
             VStack(spacing: 0) {
                 // Progress indicator
                 ProgressBar(current: currentQuestion + 1, total: questions.count)
-                    .padding(.horizontal, AppTheme.Spacing.xl)
-                    .padding(.top, AppTheme.Spacing.lg)
+                    .padding(.horizontal, Theme.Spacing.xl)
+                    .padding(.top, Theme.Spacing.lg)
 
                 Spacer()
 
@@ -74,19 +75,19 @@ struct GoalQuizView: View {
                 // Back button (if not first question)
                 if currentQuestion > 0 {
                     Button(action: goBack) {
-                        HStack(spacing: AppTheme.Spacing.sm) {
+                        HStack(spacing: Theme.Spacing.sm) {
                             Image(systemName: "chevron.left")
                             Text("Back")
                         }
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.secondaryText)
                     }
-                    .padding(.bottom, AppTheme.Spacing.xl)
+                    .padding(.bottom, Theme.Spacing.xl)
                 }
             }
         }
         .onAppear {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 animateIn = true
             }
         }
@@ -124,7 +125,7 @@ struct GoalQuizView: View {
         // Auto-advance after short delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             if currentQuestion < questions.count - 1 {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(Theme.Animation.settle) {
                     currentQuestion += 1
                 }
             } else {
@@ -135,7 +136,7 @@ struct GoalQuizView: View {
     }
 
     private func goBack() {
-        withAnimation(AppTheme.Animation.spring) {
+        withAnimation(Theme.Animation.settle) {
             currentQuestion -= 1
         }
     }
@@ -149,14 +150,14 @@ struct QuestionView: View {
     let onSelect: (String) -> Void
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xxl) {
+        VStack(spacing: Theme.Spacing.xxl) {
             Text(question.title)
-                .font(Typography.Display.title2)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, AppTheme.Spacing.xl)
+                .padding(.horizontal, Theme.Spacing.xl)
 
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 ForEach(question.options) { option in
                     OptionButton(
                         option: option,
@@ -165,7 +166,7 @@ struct QuestionView: View {
                     )
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .padding(.horizontal, Theme.Spacing.lg)
         }
     }
 }
@@ -177,28 +178,30 @@ struct OptionButton: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.lg) {
+            HStack(spacing: Theme.Spacing.lg) {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
+                        .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
                         .frame(width: 44, height: 44)
 
                     Image(systemName: option.icon)
-                        .font(Typography.UI.headline)
+                        .font(Typography.Command.headline)
                         .foregroundStyle(isSelected ? .white : Color.secondaryText)
                 }
 
                 // Text
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(option.title)
-                        .font(Typography.Display.headline)
+                        .font(Typography.Scripture.heading)
                         .foregroundStyle(Color.primaryText)
 
                     Text(option.subtitle)
-                        .font(Typography.UI.warmSubheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.secondaryText)
                 }
 
@@ -207,23 +210,23 @@ struct OptionButton: View {
                 // Checkmark
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(Typography.UI.title3)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.title3)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle) : Color.surfaceBackground)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle) : Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
         .scaleEffect(isSelected ? 1.02 : 1.0)
-        .animation(AppTheme.Animation.quick, value: isSelected)
+        .animation(Theme.Animation.fade, value: isSelected)
     }
 }
 
@@ -233,30 +236,32 @@ struct ProgressBar: View {
     let current: Int
     let total: Int
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var progress: CGFloat {
         CGFloat(current) / CGFloat(total)
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     // Background
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                    RoundedRectangle(cornerRadius: Theme.Radius.input)
                         .fill(Color.surfaceBackground)
                         .frame(height: 8)
 
                     // Progress
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                        .fill(Color.scholarAccent)
+                    RoundedRectangle(cornerRadius: Theme.Radius.input)
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         .frame(width: geometry.size.width * progress, height: 8)
-                        .animation(AppTheme.Animation.spring, value: progress)
+                        .animation(Theme.Animation.settle, value: progress)
                 }
             }
             .frame(height: 8)
 
             Text("Question \(current) of \(total)")
-                .font(Typography.UI.warmSubheadline.monospacedDigit())
+                .font(Typography.Command.subheadline.monospacedDigit())
                 .foregroundStyle(Color.tertiaryText)
         }
     }

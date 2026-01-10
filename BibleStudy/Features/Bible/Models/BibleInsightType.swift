@@ -131,6 +131,6 @@ extension Color {
     static var bibleInsightParchment: Color { .appBackground }
     static var bibleInsightCardBackground: Color { .surfaceBackground }
     static var bibleInsightText: Color { .primaryText }
-    static var bibleInsightAccent: Color { .scholarIndigo }
-    static var bibleInsightGold: Color { .divineGold }
+    static var bibleInsightAccent: Color { Color.accentIndigo }
+    static var bibleInsightGold: Color { Color.accentBronze }
 }

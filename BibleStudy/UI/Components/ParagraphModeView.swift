@@ -16,11 +16,11 @@ struct ParagraphModeView: View {
     var body: some View {
         // Build attributed text with all verses
         Text(buildAttributedText())
-            .font(Typography.Scripture.bodyWithSize(fontSize))
+            .font(Typography.Scripture.bodyWithSize(CGFloat(fontSize.rawValue)))
             .foregroundStyle(Color.primaryText)
             .lineSpacing(lineSpacing)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
             .accessibilityElement(children: .combine)
             .accessibilityLabel(buildAccessibilityLabel())
     }
@@ -31,7 +31,7 @@ struct ParagraphModeView: View {
         for (index, verse) in verses.enumerated() {
             // Superscript verse number
             var verseNumber = AttributedString("\(verse.verse)")
-            verseNumber.font = Typography.UI.caption2
+            verseNumber.font = Typography.Command.meta
             verseNumber.foregroundColor = Color.verseNumber
             verseNumber.baselineOffset = 4
 

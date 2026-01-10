@@ -4,6 +4,7 @@ import SwiftUI
 // Shows all memorization items with due dates and mastery levels
 
 struct MemorizationQueueView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var memorizationService = MemorizationService.shared
     @State private var selectedItem: MemorizationItem?
     @State private var showingPractice = false
@@ -42,15 +43,15 @@ struct MemorizationQueueView: View {
                         Button {
                             startPracticeSession()
                         } label: {
-                            HStack(spacing: AppTheme.Spacing.xs) {
+                            HStack(spacing: Theme.Spacing.xs) {
                                 Image(systemName: "play.fill")
                                 Text("Practice")
                             }
-                            .font(Typography.UI.subheadline)
+                            .font(Typography.Command.subheadline)
                             .fontWeight(.semibold)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(.scholarAccent)
+                        .tint(Color.accentIndigo)
                     }
                 }
             }
@@ -84,12 +85,12 @@ struct MemorizationQueueView: View {
     // MARK: - Stats Header
 
     private var statsHeader: some View {
-        HStack(spacing: AppTheme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.lg) {
             statCard(
                 icon: "flame.fill",
                 value: "\(memorizationService.dueCount)",
                 label: "Due Today",
-                color: memorizationService.dueCount > 0 ? .scholarAccent : .secondaryText
+                color: memorizationService.dueCount > 0 ? Color.accentIndigo : .secondaryText
             )
 
             statCard(
@@ -111,17 +112,17 @@ struct MemorizationQueueView: View {
     }
 
     private func statCard(icon: String, value: String, label: String, color: Color) -> some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: Theme.Spacing.xs) {
             Image(systemName: icon)
-                .font(Typography.UI.title2)
+                .font(Typography.Command.title2)
                 .foregroundStyle(color)
 
             Text(value)
-                .font(Typography.UI.headline.monospacedDigit())
+                .font(Typography.Command.headline.monospacedDigit())
                 .foregroundStyle(Color.primaryText)
 
             Text(label)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(Color.secondaryText)
         }
         .frame(maxWidth: .infinity)
@@ -131,13 +132,13 @@ struct MemorizationQueueView: View {
 
     private var filterTabs: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 ForEach(MasteryFilter.allCases, id: \.self) { filter in
                     filterTab(filter)
                 }
             }
             .padding(.horizontal)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.sm)
         }
         .background(Color.surfaceBackground)
     }
@@ -150,30 +151,30 @@ struct MemorizationQueueView: View {
                 selectedFilter = filter
             }
         } label: {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Text(filter.displayName)
                 if count > 0 {
                     Text("\(count)")
-                        .font(Typography.UI.caption2.monospacedDigit())
-                        .padding(.horizontal, AppTheme.Spacing.xs)
-                        .padding(.vertical, AppTheme.Spacing.xxs)
+                        .font(Typography.Command.meta.monospacedDigit())
+                        .padding(.horizontal, Theme.Spacing.xs)
+                        .padding(.vertical, 2)
                         .background(
                             Capsule()
-                                .fill(selectedFilter == filter ? Color.white.opacity(AppTheme.Opacity.medium) : Color.tertiaryText.opacity(AppTheme.Opacity.lightMedium))
+                                .fill(selectedFilter == filter ? Color.white.opacity(Theme.Opacity.medium) : Color.tertiaryText.opacity(Theme.Opacity.lightMedium))
                         )
                 }
             }
-            .font(Typography.UI.subheadline)
+            .font(Typography.Command.subheadline)
             .foregroundStyle(selectedFilter == filter ? .white : Color.secondaryText)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(selectedFilter == filter ? Color.scholarAccent : Color.clear)
+                    .fill(selectedFilter == filter ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.clear)
             )
             .overlay(
                 Capsule()
-                    .stroke(selectedFilter == filter ? Color.clear : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(selectedFilter == filter ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -282,9 +283,9 @@ struct MemorizationQueueView: View {
         VStack {
             Spacer()
             ProgressView()
-                .scaleEffect(AppTheme.Scale.pulse)
+                .scaleEffect(1.05)
             Text("Loading...")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .padding(.top)
             Spacer()
@@ -410,12 +411,14 @@ enum MasteryFilter: String, CaseIterable {
 struct MemorizationItemRow: View {
     let item: MemorizationItem
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Header with reference and mastery
             HStack {
                 Text(item.reference)
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
                     .foregroundStyle(Color.primaryText)
 
                 Spacer()
@@ -425,25 +428,25 @@ struct MemorizationItemRow: View {
 
             // Verse preview
             Text(item.verseText)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
                 .lineLimit(2)
 
             // Footer with due date and stats
             HStack {
                 // Due date
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: item.isDueForReview ? "bell.fill" : "calendar")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                     Text(dueDateText)
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                 }
-                .foregroundStyle(item.isDueForReview ? Color.scholarAccent : Color.tertiaryText)
+                .foregroundStyle(item.isDueForReview ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.tertiaryText)
 
                 Spacer()
 
                 // Stats
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     miniStat(icon: "checkmark", value: "\(item.totalReviews)")
                     miniStat(icon: "percent", value: "\(Int(item.accuracy * 100))")
                 }
@@ -451,36 +454,36 @@ struct MemorizationItemRow: View {
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .fill(Color.elevatedBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(item.isDueForReview ? Color.scholarAccent.opacity(AppTheme.Opacity.heavy) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(item.isDueForReview ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
         )
         .padding(.horizontal)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
     }
 
     private var masteryBadge: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: item.masteryLevel.icon)
             Text(item.masteryLevel.displayName)
         }
-        .font(Typography.UI.caption2)
+        .font(Typography.Command.meta)
         .foregroundStyle(masteryColor)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(masteryColor.opacity(AppTheme.Opacity.light))
+                .fill(masteryColor.opacity(Theme.Opacity.light))
         )
     }
 
     private var masteryColor: Color {
         switch item.masteryLevel {
         case .learning: return .accentBlue
-        case .reviewing: return .scholarAccent
+        case .reviewing: return Color.accentIndigo
         case .mastered: return .success
         }
     }
@@ -496,11 +499,11 @@ struct MemorizationItemRow: View {
     }
 
     private func miniStat(icon: String, value: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             Image(systemName: icon)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
             Text(value)
-                .font(Typography.UI.caption2.monospacedDigit())
+                .font(Typography.Command.meta.monospacedDigit())
         }
         .foregroundStyle(Color.tertiaryText)
     }

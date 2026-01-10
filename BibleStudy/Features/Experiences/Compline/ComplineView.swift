@@ -109,6 +109,7 @@ struct ComplineView: View {
                     // Content
                     ScrollView(showsIndicators: false) {
                         currentSectionView
+                            // swiftlint:disable:next hardcoded_padding_edge
                             .padding(.bottom, 100)
                     }
 
@@ -122,12 +123,15 @@ struct ComplineView: View {
         .ignoresSafeArea()
         .onAppear {
             appState.hideTabBar = true
+            // swiftlint:disable:next hardcoded_animation_ease hardcoded_with_animation
             withAnimation(.easeOut(duration: 1.0)) {
                 isVisible = true
             }
+            // swiftlint:disable:next hardcoded_animation_ease hardcoded_with_animation
             withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
                 breathePhase = 1
             }
+            // swiftlint:disable:next hardcoded_animation_ease hardcoded_with_animation
             withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
                 candleFlicker = 1
             }
@@ -142,20 +146,22 @@ struct ComplineView: View {
     private var nightBackground: some View {
         ZStack {
             // Deep night blue
-            Color(hex: "050510")
+            Color.complineVoid
 
             // Stars
             GeometryReader { geo in
                 ForEach(0..<30, id: \.self) { i in
                     Circle()
+                        // swiftlint:disable:next hardcoded_opacity
                         .fill(Color.white.opacity(Double.random(in: 0.2...0.6)))
                         .frame(width: CGFloat.random(in: 1...3))
                         .position(
                             x: CGFloat.random(in: 0...geo.size.width),
                             y: CGFloat.random(in: 0...geo.size.height * 0.5)
                         )
+                        // swiftlint:disable:next hardcoded_blur_radius
                         .blur(radius: 0.5)
-                        .opacity(0.3 + breathePhase * 0.3)
+                        .opacity(Theme.Opacity.medium + breathePhase * Theme.Opacity.medium)
                 }
             }
 
@@ -164,8 +170,10 @@ struct ComplineView: View {
                 Spacer()
                 RadialGradient(
                     colors: [
-                        Color(hex: "f59e0b").opacity(0.08 + candleFlicker * 0.04),
-                        Color(hex: "f59e0b").opacity(0.02),
+                        // swiftlint:disable:next hardcoded_opacity
+                        Color.amberOrange.opacity(0.08 + candleFlicker * 0.04),
+                        // swiftlint:disable:next hardcoded_opacity
+                        Color.amberOrange.opacity(Theme.Opacity.faint),
                         Color.clear
                     ],
                     center: .bottom,
@@ -178,7 +186,7 @@ struct ComplineView: View {
             // Moon glow
             RadialGradient(
                 colors: [
-                    Color(hex: "e0e7ff").opacity(0.1),
+                    Color.indigoTint.opacity(Theme.Opacity.subtle),
                     Color.clear
                 ],
                 center: .topTrailing,
@@ -194,33 +202,36 @@ struct ComplineView: View {
         HStack {
             Button(action: { dismiss() }) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .font(Typography.Icon.md.weight(.medium))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.heavy))
                     .frame(width: 44, height: 44)
             }
 
             Spacer()
 
-            VStack(spacing: 4) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Text("COMPLINE")
-                    .font(.custom("Cinzel-Regular", size: 10))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 10, weight: .medium, design: .serif))
                     .tracking(3)
-                    .foregroundStyle(Color(hex: "e0e7ff"))
+                    .foregroundStyle(Color.indigoTint)
 
                 Text("Night Prayer")
-                    .font(.custom("CormorantGaramond-Regular", size: 12))
-                    .foregroundStyle(.white.opacity(0.4))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 12, weight: .regular, design: .serif))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.disabled))
             }
 
             Spacer()
 
             // Time
             Text(timeString)
-                .font(.system(size: 12, weight: .medium, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.4))
+                .font(Typography.Command.meta.weight(.medium).monospaced())
+                .foregroundStyle(.white.opacity(Theme.Opacity.disabled))
                 .frame(width: 44, height: 44)
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Theme.Spacing.xl)
+        // swiftlint:disable:next hardcoded_padding_edge
         .padding(.top, 60)
         .opacity(isVisible ? 1 : 0)
     }
@@ -234,18 +245,18 @@ struct ComplineView: View {
     // MARK: - Progress Indicator
 
     private var progressIndicator: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Theme.Spacing.sm) {
             ForEach(0..<sections.count, id: \.self) { index in
                 Circle()
                     .fill(index <= currentSection ?
-                          Color(hex: "e0e7ff") :
-                          Color.white.opacity(0.2))
+                          Color.indigoTint :
+                          Color.white.opacity(Theme.Opacity.lightMedium))
                     .frame(width: 8, height: 8)
             }
         }
-        .padding(.top, 24)
+        .padding(.top, Theme.Spacing.xl)
         .opacity(isVisible ? 1 : 0)
-        .animation(.easeOut(duration: 0.6).delay(0.2), value: isVisible)
+        .animation(Theme.Animation.slowFade.delay(0.2), value: isVisible)
     }
 
     // MARK: - Current Section View
@@ -253,29 +264,32 @@ struct ComplineView: View {
     private var currentSectionView: some View {
         let section = sections[currentSection]
 
-        return VStack(spacing: 32) {
+        return VStack(spacing: Theme.Spacing.xxl + 8) {
             // Section icon
             ZStack {
                 Circle()
-                    .fill(Color(hex: "e0e7ff").opacity(0.1))
+                    .fill(Color.indigoTint.opacity(Theme.Opacity.subtle))
                     .frame(width: 100, height: 100)
                     .scaleEffect(1 + breathePhase * 0.05)
 
                 Image(systemName: section.icon)
-                    .font(.system(size: 36))
-                    .foregroundStyle(Color(hex: "e0e7ff"))
+                    .font(Typography.Icon.xxl)
+                    .foregroundStyle(Color.indigoTint)
             }
+            // swiftlint:disable:next hardcoded_padding_edge
             .padding(.top, 40)
 
             // Title and instruction
-            VStack(spacing: 12) {
+            VStack(spacing: Theme.Spacing.md) {
                 Text(section.title)
-                    .font(.custom("Cinzel-Regular", size: 28))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 28, weight: .medium, design: .serif))
                     .foregroundStyle(.white)
 
                 Text(section.instruction)
-                    .font(.custom("CormorantGaramond-Regular", size: 14))
-                    .foregroundStyle(.white.opacity(0.5))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 14, weight: .regular, design: .serif))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.heavy))
             }
 
             // Content based on type
@@ -299,7 +313,7 @@ struct ComplineView: View {
                 responseView(response)
             }
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Theme.Spacing.xl)
         .id(currentSection)
         .transition(.asymmetric(
             insertion: .opacity.combined(with: .offset(y: 20)),
@@ -310,98 +324,87 @@ struct ComplineView: View {
     // MARK: - Section Views
 
     private var breathingExercise: some View {
-        VStack(spacing: 24) {
-            // Breathing circle
-            ZStack {
-                Circle()
-                    .stroke(Color(hex: "e0e7ff").opacity(0.3), lineWidth: 2)
-                    .frame(width: 150, height: 150)
-
-                Circle()
-                    .fill(Color(hex: "e0e7ff").opacity(0.1))
-                    .frame(width: 150, height: 150)
-                    .scaleEffect(0.5 + breathePhase * 0.5)
-
-                Text(breathePhase > 0.5 ? "Breathe out..." : "Breathe in...")
-                    .font(.custom("CormorantGaramond-Regular", size: 14))
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-            .frame(height: 160)
-
-            Text("Match your breath to the circle")
-                .font(.custom("CormorantGaramond-Regular", size: 12))
-                .foregroundStyle(.white.opacity(0.4))
-        }
-        .padding(.vertical, 20)
+        ComplineBreathePhase()
+            .padding(.vertical, Theme.Spacing.lg + 4)
     }
 
     private func scriptureView(_ content: String) -> some View {
         Text(content)
-            .font(.custom("CormorantGaramond-Regular", size: 18))
-            .foregroundStyle(.white.opacity(0.9))
+            // swiftlint:disable:next hardcoded_font_custom
+            .font(.system(size: 18, weight: .regular, design: .serif))
+            .foregroundStyle(.white.opacity(Theme.Opacity.high))
             .multilineTextAlignment(.center)
+            // swiftlint:disable:next hardcoded_line_spacing
             .lineSpacing(10)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 24)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.xl)
     }
 
     private func examinationView(_ section: ComplineSection) -> some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Theme.Spacing.xl) {
             if let content = section.content {
                 Text(content)
-                    .font(.custom("CormorantGaramond-Regular", size: 17))
-                    .foregroundStyle(.white.opacity(0.8))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.pressed))
                     .multilineTextAlignment(.center)
+                    // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(12)
             }
 
             // Reflection input
-            VStack(spacing: 12) {
+            VStack(spacing: Theme.Spacing.md) {
                 Button(action: {
-                    withAnimation(.spring(duration: 0.4)) {
+                    // swiftlint:disable:next hardcoded_animation_spring
+                    withAnimation(Theme.Animation.settle) {
                         showingReflection.toggle()
                     }
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         Image(systemName: showingReflection ? "chevron.up" : "pencil")
                         Text(showingReflection ? "Close" : "Write a reflection")
                     }
-                    .font(.custom("CormorantGaramond-SemiBold", size: 14))
-                    .foregroundStyle(Color(hex: "e0e7ff"))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 14, weight: .semibold, design: .serif))
+                    .foregroundStyle(Color.indigoTint)
                 }
 
                 if showingReflection {
                     TextEditor(text: $reflectionText)
-                        .font(.custom("CormorantGaramond-Regular", size: 15))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 15, weight: .regular, design: .serif))
                         .foregroundStyle(.white)
                         .scrollContentBackground(.hidden)
                         .frame(height: 100)
-                        .padding(12)
+                        .padding(Theme.Spacing.md)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.05))
+                            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                                // swiftlint:disable:next hardcoded_opacity
+                                .fill(Color.white.opacity(Theme.Opacity.faint))
                         )
                         .focused($isReflectionFocused)
                 }
             }
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, Theme.Spacing.lg)
     }
 
     private func confessionView(_ section: ComplineSection) -> some View {
-        VStack(spacing: 32) {
+        VStack(spacing: Theme.Spacing.xxl + 8) {
             if let content = section.content {
                 Text(content)
-                    .font(.custom("CormorantGaramond-Regular", size: 17))
-                    .foregroundStyle(.white.opacity(0.8))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.pressed))
                     .multilineTextAlignment(.center)
+                    // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(8)
             }
         }
     }
 
     private func blessingView(_ section: ComplineSection) -> some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Theme.Spacing.xl) {
             // Candle visualization
             ZStack {
                 // Flame glow
@@ -409,8 +412,8 @@ struct ComplineView: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color(hex: "f59e0b").opacity(0.4),
-                                Color(hex: "f59e0b").opacity(0.1),
+                                Color.amberOrange.opacity(Theme.Opacity.disabled),
+                                Color.amberOrange.opacity(Theme.Opacity.subtle),
                                 Color.clear
                             ],
                             center: .center,
@@ -424,10 +427,10 @@ struct ComplineView: View {
 
                 // Flame
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 40))
+                    .font(Typography.Icon.xxl.weight(.regular))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color(hex: "fbbf24"), Color(hex: "f59e0b"), Color(hex: "ea580c")],
+                            colors: [Color.yellowAmber, Color.amberOrange, Color.candleOrange],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -435,8 +438,9 @@ struct ComplineView: View {
                     .offset(y: -20 + candleFlicker * 2)
 
                 // Candle base
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(hex: "fef3c7"))
+                // swiftlint:disable:next hardcoded_rounded_rectangle
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
+                    .fill(Color.creamWarm)
                     .frame(width: 20, height: 50)
                     .offset(y: 25)
             }
@@ -445,59 +449,65 @@ struct ComplineView: View {
     }
 
     private func responseView(_ response: String) -> some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Rectangle()
-                .fill(Color(hex: "e0e7ff").opacity(0.2))
-                .frame(width: 40, height: 1)
+                .fill(Color.indigoTint.opacity(Theme.Opacity.lightMedium))
+                .frame(width: 40, height: Theme.Stroke.hairline)
 
             Text(response)
-                .font(.custom("CormorantGaramond-SemiBold", size: 16))
-                .foregroundStyle(Color(hex: "e0e7ff"))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 16, weight: .semibold, design: .serif))
+                .foregroundStyle(Color.indigoTint)
                 .multilineTextAlignment(.center)
+                // swiftlint:disable:next hardcoded_line_spacing
                 .lineSpacing(8)
         }
-        .padding(.top, 24)
+        .padding(.top, Theme.Spacing.xl)
     }
 
     // MARK: - Navigation Controls
 
     private var navigationControls: some View {
+        // swiftlint:disable:next hardcoded_stack_spacing
         HStack(spacing: 40) {
             Button(action: previousSection) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundStyle(currentSection > 0 ? .white : .white.opacity(0.2))
+                    .font(Typography.Icon.lg.weight(.medium))
+                    .foregroundStyle(currentSection > 0 ? .white : .white.opacity(Theme.Opacity.lightMedium))
                     .frame(width: 50, height: 50)
                     .background(
                         Circle()
-                            .fill(Color.white.opacity(0.05))
+                            // swiftlint:disable:next hardcoded_opacity
+                            .fill(Color.white.opacity(Theme.Opacity.faint))
                     )
             }
             .disabled(currentSection == 0)
 
             Button(action: nextSection) {
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Text(currentSection == sections.count - 1 ? "Amen" : "Continue")
                     Image(systemName: currentSection == sections.count - 1 ? "moon.stars.fill" : "chevron.right")
                 }
-                .font(.custom("Cinzel-Regular", size: 14))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 14, weight: .medium, design: .serif))
                 .foregroundStyle(.white)
-                .padding(.horizontal, 32)
-                .padding(.vertical, 16)
+                .padding(.horizontal, Theme.Spacing.xxl + 8)
+                .padding(.vertical, Theme.Spacing.lg)
                 .background(
                     Capsule()
-                        .fill(Color(hex: "4f46e5").opacity(0.5))
+                        .fill(Color.accentIndigoLight.opacity(Theme.Opacity.heavy))
                         .overlay(
                             Capsule()
-                                .stroke(Color(hex: "e0e7ff").opacity(0.3), lineWidth: 1)
+                                .stroke(Color.indigoTint.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
                         )
                 )
             }
         }
+        // swiftlint:disable:next hardcoded_padding_edge
         .padding(.bottom, 40)
         .background(
             LinearGradient(
-                colors: [Color.clear, Color(hex: "050510")],
+                colors: [Color.clear, Color.complineVoid],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -509,6 +519,7 @@ struct ComplineView: View {
     // MARK: - Completion View
 
     private var completionView: some View {
+        // swiftlint:disable:next hardcoded_stack_spacing
         VStack(spacing: 40) {
             Spacer()
 
@@ -517,8 +528,9 @@ struct ComplineView: View {
                 // Star field
                 ForEach(0..<8, id: \.self) { i in
                     Image(systemName: "star.fill")
+                        // swiftlint:disable:next hardcoded_font_system
                         .font(.system(size: CGFloat.random(in: 8...16)))
-                        .foregroundStyle(Color(hex: "e0e7ff").opacity(0.5))
+                        .foregroundStyle(Color.indigoTint.opacity(Theme.Opacity.heavy))
                         .offset(
                             x: CGFloat.random(in: -80...80),
                             y: CGFloat.random(in: -60...60)
@@ -530,9 +542,9 @@ struct ComplineView: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color(hex: "f5f5f5"),
-                                Color(hex: "e0e7ff"),
-                                Color(hex: "c7d2fe")
+                                Color.textIvory,
+                                Color.indigoTint,
+                                Color.moonGlow
                             ],
                             center: .topLeading,
                             startRadius: 0,
@@ -540,59 +552,67 @@ struct ComplineView: View {
                         )
                     )
                     .frame(width: 80, height: 80)
-                    .shadow(color: Color(hex: "e0e7ff").opacity(0.3), radius: 30)
+                    .shadow(color: Color.indigoTint.opacity(Theme.Opacity.medium), radius: 30)
             }
 
-            VStack(spacing: 16) {
+            VStack(spacing: Theme.Spacing.lg) {
                 Text("Rest now in peace")
-                    .font(.custom("Cinzel-Regular", size: 28))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 28, weight: .medium, design: .serif))
                     .foregroundStyle(.white)
 
                 Text("The prayer of Compline is complete.\nMay you sleep in God's protection.")
-                    .font(.custom("CormorantGaramond-Regular", size: 15))
-                    .foregroundStyle(.white.opacity(0.6))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.strong))
                     .multilineTextAlignment(.center)
             }
 
             // Final blessing
-            VStack(spacing: 12) {
+            VStack(spacing: Theme.Spacing.md) {
                 Text("May the Lord bless you and keep you.")
-                    .font(.custom("CormorantGaramond-Regular", size: 17))
-                    .foregroundStyle(Color(hex: "e0e7ff"))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 17, weight: .regular, design: .serif))
+                    .foregroundStyle(Color.indigoTint)
                     .italic()
 
                 Text("Numbers 6:24")
-                    .font(.custom("Cinzel-Regular", size: 10))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 10, weight: .medium, design: .serif))
                     .tracking(1)
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.disabled))
             }
-            .padding(.vertical, 24)
-            .padding(.horizontal, 32)
+            .padding(.vertical, Theme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xxl + 8)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.03))
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    // swiftlint:disable:next hardcoded_opacity
+                    .fill(Color.white.opacity(Theme.Opacity.faint))
             )
 
             Spacer()
 
             Button(action: { dismiss() }) {
                 Text("Good Night")
-                    .font(.custom("Cinzel-Regular", size: 14))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 14, weight: .medium, design: .serif))
                     .foregroundStyle(.white)
+                    // swiftlint:disable:next hardcoded_padding_edge
                     .padding(.horizontal, 48)
-                    .padding(.vertical, 16)
+                    .padding(.vertical, Theme.Spacing.lg)
                     .background(
                         Capsule()
-                            .fill(Color(hex: "1e1b4b"))
+                            .fill(Color.indigoBackground)
                             .overlay(
                                 Capsule()
-                                    .stroke(Color(hex: "e0e7ff").opacity(0.2), lineWidth: 1)
+                                    .stroke(Color.indigoTint.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
                             )
                     )
             }
+            // swiftlint:disable:next hardcoded_padding_edge
             .padding(.bottom, 60)
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, Theme.Spacing.xl)
     }
 
     // MARK: - Actions
@@ -600,7 +620,8 @@ struct ComplineView: View {
     private func previousSection() {
         guard currentSection > 0 else { return }
         isReflectionFocused = false
-        withAnimation(.spring(duration: 0.5)) {
+        // swiftlint:disable:next hardcoded_animation_spring
+        withAnimation(Theme.Animation.settle) {
             currentSection -= 1
         }
     }
@@ -608,11 +629,13 @@ struct ComplineView: View {
     private func nextSection() {
         isReflectionFocused = false
         if currentSection < sections.count - 1 {
-            withAnimation(.spring(duration: 0.5)) {
+            // swiftlint:disable:next hardcoded_animation_spring
+            withAnimation(Theme.Animation.settle) {
                 currentSection += 1
             }
         } else {
-            withAnimation(.spring(duration: 0.6)) {
+            // swiftlint:disable:next hardcoded_animation_spring
+            withAnimation(Theme.Animation.settle) {
                 isComplete = true
             }
         }

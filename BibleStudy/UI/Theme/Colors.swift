@@ -1,997 +1,19 @@
+//
+//  Colors.swift
+//  BibleStudy
+//
+//  Stoic-Existential Renaissance Design System
+//
+//  Four-tier color architecture:
+//  1. Pigments: Raw color values (near-black, soft ivory, bronze, indigo)
+//  2. Surfaces: Theme-aware functions (background, surface, text, divider, control stroke)
+//  3. Semantics: Role-based colors (accents, feedback colors)
+//  4. StateOverlays: Centralized state management (pressed, selection, focus, disabled)
+//
+
 import SwiftUI
 
-// MARK: - ═══════════════════════════════════════════════════════════════
-// MARK: - DESIGN TOKEN SYSTEM
-// MARK: - ═══════════════════════════════════════════════════════════════
-//
-// Color system for the Bible Study app
-// Illuminated manuscript aesthetics fused with Apple Books elegance
-// All colors verified for WCAG 4.5:1+ contrast compliance
-//
-// COLOR ORGANIZATION:
-// 1. Illumination Gold Palette - Decorative elements (chapter headers, ornaments)
-// 2. Scholar Brand Colors - Interactive UI (buttons, links, CTAs) - PRIMARY: scholarIndigo
-// 3. Theme Base Colors - Light/Dark/Sepia/OLED theme mode backgrounds & text
-// 4. Liturgical Palettes - Time-aware sanctuary colors (Dawn, Meridian, Vespers)
-// 5. Asset Catalog Colors - Auto-adaptive UI (primaryText, surfaceBackground, etc.)
-//
-// ⚠️ USAGE GUIDE:
-// - Interactive UI: Use Color.scholarIndigo (NOT decorative gold)
-// - Adaptive UI: Use asset catalog colors (Color.primaryText, Color.surfaceBackground)
-// - Decorative elements: Use Illumination Gold Palette (divineGold, illuminatedGold)
-// - Theme modes: Use theme-specific colors (freshVellum, candlelitStone, etc.)
-
-extension Color {
-
-    // MARK: - ═══════════════════════════════════════════════════════════════
-    // MARK: - CORE DESIGN TOKENS
-    // MARK: - ═══════════════════════════════════════════════════════════════
-
-    // MARK: - Illumination Gold Palette (Decorative)
-    // Sacred manuscript aesthetics - warm, rich golds for decorative elements
-    // ⚠️ NOT for interactive UI - use Color.scholarIndigo for buttons/CTAs
-    // Used for: Chapter headers, ornaments, sacred animations, spiritual effects
-
-    /// Divine Gold - Primary illumination gold (#D4A853)
-    /// Used for: Sacred ornaments, illuminated chapter headers, decorative elements
-    /// Examples: IlluminatedChapterHeader, section headers in SanctuaryTypography
-    static let divineGold = Color(hex: "D4A853")
-
-    /// Burnished Gold - Darker variant (#C9943D)
-    /// Used for: Depth, shadows, aged manuscript look, gradient endpoints
-    /// Examples: IlluminatedChapterHeader gradients, decorative borders
-    static let burnishedGold = Color(hex: "C9943D")
-
-    /// Illuminated Gold - Highlight variant (#E8C978)
-    /// Used for: Glow effects, light rays, emphasis, luminous decorations
-    /// Examples: Golden gradient animations, atmospheric effects, divine highlights
-    static let illuminatedGold = Color(hex: "E8C978")
-
-    /// Ancient Gold - Deep gold for dark themes (#8B6914)
-    /// Used for: Dark mode decorative elements, antique manuscript aesthetic
-    static let ancientGold = Color(hex: "8B6914")
-
-    /// Gold Leaf Shimmer - Subtle gold tint (#F5E6B8)
-    /// Used for: Background tints, whisper-light decorative elements
-    static let goldLeafShimmer = Color(hex: "F5E6B8")
-
-    /// Accessible Gold - WCAG compliant variant (#A67C00)
-    /// Used for: Text on light backgrounds, 4.5:1+ contrast ratio on freshVellum
-    /// Use this when gold text must meet accessibility standards
-    static let accessibleGold = Color(hex: "A67C00")
-
-    // MARK: - Vellum & Parchment (Theme Base Colors)
-    // Reading surfaces inspired by aged manuscript materials
-    // These support the Light/Sepia theme modes (NOT adaptive light/dark)
-    // For adaptive colors, use Color.appBackground, Color.surfaceBackground from asset catalog
-
-    /// Fresh Vellum - Light mode base (#FBF7F0)
-    /// Used for: Light theme base background in AppTheme.lightBackground
-    /// Warm white with cream undertone - fresh, clean manuscript surface
-    static let freshVellum = Color(hex: "FBF7F0")
-
-    /// Aged Parchment - Sepia theme base (#F5EDE0)
-    /// Used for: Sepia theme background in AppTheme.sepiaBackground
-    /// Warm, tea-stained paper - aged manuscript aesthetic
-    static let agedParchment = Color(hex: "F5EDE0")
-
-    /// Monastery Stone - Elevated surfaces (#E5DBC8)
-    /// Used for: Cards, elevated backgrounds in Light/Sepia modes
-    /// Stone-like warmth - monastery scriptorium feel
-    static let monasteryStone = Color(hex: "E5DBC8")
-
-    // MARK: - Sacred Inks (Theme Text Colors)
-    // Text colors inspired by traditional manuscript inks
-    // These support specific theme modes (NOT adaptive)
-    // For adaptive text, use Color.primaryText, Color.secondaryText from asset catalog
-
-    /// Monastery Black - Primary ink (#1C1917)
-    /// Used for: Primary text in Light theme
-    /// Deep, rich black ink - Contrast: ~15:1 vs freshVellum (WCAG AAA ✅)
-    static let monasteryBlack = Color(hex: "1C1917")
-
-    /// Aged Ink - Secondary ink (#3D3531)
-    /// Used for: Secondary text, slightly faded appearance
-    /// Contrast: ~9:1 vs freshVellum (WCAG AAA ✅)
-    static let agedInk = Color(hex: "3D3531")
-
-    /// Sepia Ink - Sepia theme text (#4A3728)
-    /// Used for: Primary text in Sepia theme
-    /// Warm brown ink - Contrast: ~8:1 vs agedParchment (WCAG AAA ✅)
-    static let sepiaInk = Color(hex: "4A3728")
-
-    // MARK: - Jewel Tones
-    // Highlight colors inspired by illuminated manuscript pigments
-
-    /// Words of Christ, important callouts
-    /// Hex: #C94A4A - Vermillion red (cinnabar pigment)
-    static let vermillionJewel = Color(hex: "C94A4A")
-
-    /// Blue highlights
-    /// Hex: #2A5C8F - Lapis lazuli blue (precious stone pigment)
-    static let lapisLazuliJewel = Color(hex: "2A5C8F")
-
-    /// Green highlights
-    /// Hex: #3A7D5A - Malachite green (copper mineral pigment)
-    static let malachiteJewel = Color(hex: "3A7D5A")
-
-    /// Purple highlights
-    /// Hex: #6B4C8C - Amethyst purple (royal, spiritual)
-    static let amethystJewel = Color(hex: "6B4C8C")
-
-    // MARK: - Rose Variants
-    // Extended rose colors for highlights and bookmarks
-
-    /// Light rose for highlights
-    /// Hex: #D97373 - Soft rose highlight
-    static let roseLight = Color(hex: "D97373")
-
-    /// Dark rose for pressed states
-    /// Hex: #A64D4D - Deep rose
-    static let roseDark = Color(hex: "A64D4D")
-
-    // MARK: - Sepia Ink Variants
-    // Extended sepia colors for aged parchment theme
-
-    /// Secondary text on sepia backgrounds
-    /// Hex: #736152 - Faded sepia ink
-    static let sepiaInkSecondary = Color(hex: "736152")
-
-    // MARK: - Candlelit Chapel (Dark Theme Mode)
-    // Dark mode colors inspired by candlelit monastery interiors
-    // These support the Dark theme mode (NOT adaptive - that's in asset catalog)
-    // For adaptive dark mode, use Color.appBackground, Color.primaryText from asset catalog
-
-    /// Candlelit Stone - Dark theme base (#1A1816)
-    /// Used for: Dark theme base background in AppTheme.darkBackground
-    /// Deep stone in candlelight - warm, intimate darkness
-    static let candlelitStone = Color(hex: "1A1816")
-
-    /// Chapel Shadow - Dark theme elevated (#252220)
-    /// Used for: Elevated surfaces, cards in Dark theme
-    /// Slightly lighter chapel shadow - subtle depth
-    static let chapelShadow = Color(hex: "252220")
-
-    /// Moonlit Parchment - Dark theme primary text (#E8E4DC)
-    /// Used for: Primary text in Dark theme
-    /// Moonlit parchment glow - Contrast: ~12:1 vs candlelitStone (WCAG AAA ✅)
-    static let moonlitParchment = Color(hex: "E8E4DC")
-
-    /// Faded Moonlight - Dark theme secondary text (#A8A29E)
-    /// Used for: Secondary text in Dark theme
-    /// Soft, faded moonlight - gentle hierarchy
-    static let fadedMoonlight = Color(hex: "A8A29E")
-
-    // MARK: - OLED Black (True Black Theme)
-    // Battery-saving pure blacks for OLED displays
-
-    /// OLED background - true black
-    static let oledBlack = Color.black
-
-    /// OLED elevated surface
-    /// Hex: #0F0F0F - Barely visible elevation
-    static let oledElevated = Color(hex: "0F0F0F")
-
-    /// OLED surface
-    /// Hex: #1A1A1A - Subtle surface distinction
-    static let oledSurface = Color(hex: "1A1A1A")
-
-    /// Alias for oledBlack (backward compatibility)
-    static let oledBackground = oledBlack
-
-    // MARK: - Gradient Support Colors
-    // Named tokens for colors previously defined inline in gradients
-
-    /// Vespers sky gradient deep stop
-    /// Hex: #0a0a1a - Deep night with blue undertone
-    static let vespersNightDeep = Color(hex: "0a0a1a")
-
-    /// Vespers sky gradient purple haze stop
-    /// Hex: #1a0a20 - Night with purple hint
-    static let vespersPurpleHaze = Color(hex: "1a0a20")
-
-    /// Paper gradient subtle stop
-    /// Hex: #f5f3f0 - Very subtle warm gray
-    static let paperSubtle = Color(hex: "f5f3f0")
-
-    /// Scholar elevated paper surface
-    /// Hex: #f8f5f0 - Slightly elevated warm paper
-    @available(*, deprecated, message: "Use Color.surfaceBackground instead - supports light/dark mode")
-    static let scholarElevatedPaper = Color(hex: "f8f5f0")
-
-    /// Meridian background warm vellum
-    /// Hex: #f5efe3 - Warm aged vellum
-    static let meridianWarmVellum = Color(hex: "f5efe3")
-
-    // MARK: - Semantic Colors
-    // Context-aware color mappings for consistent UI states
-
-    /// Semantic color namespace for states and actions
-    enum Semantic {
-        // Status colors - using Scholar supporting colors
-        static var success: Color { .theologyGreen }
-        static var error: Color { .vermillionJewel }
-        static var warning: Color { .connectionAmber }
-        static var info: Color { .greekBlue }
-
-        // Interactive states - Scholar Indigo primary
-        static var accent: Color { .scholarIndigo }
-        static var accentPressed: Color { .scholarIndigoPressed }
-        static var accentHighlight: Color { .scholarIndigoLight }
-
-        // Dark mode accent
-        static var accentDark: Color { .scholarIndigoDark }
-
-        // Verse numbers
-        static var verseNumber: Color { .agedInk }
-        static var verseNumberDark: Color { .fadedMoonlight }
-    }
-
-    // MARK: - Glow Colors
-    // Colors optimized for glow and luminous effects
-
-    enum Glow {
-        /// Ambient glow for indigo elements
-        static var indigoAmbient: Color { scholarIndigo.opacity(0.3) }
-
-        /// Bright indigo for celebration effects
-        static var indigoBright: Color { scholarIndigoLight.opacity(0.5) }
-
-        /// Soft cool glow for reading comfort
-        static var coolAmbient: Color { Color(hex: "EEF2FF").opacity(0.15) }
-
-        /// Subtle light ray color
-        static var subtleLight: Color { Color(hex: "F5F3FF").opacity(0.4) }
-
-        // MARK: - Legacy Aliases (Deprecated)
-        // These redirect to indigo variants for backward compatibility
-
-        @available(*, deprecated, message: "Use indigoAmbient instead")
-        static var goldAmbient: Color { indigoAmbient }
-
-        @available(*, deprecated, message: "Use indigoBright instead")
-        static var goldBright: Color { indigoBright }
-
-        @available(*, deprecated, message: "Use coolAmbient instead")
-        static var warmAmbient: Color { coolAmbient }
-
-        @available(*, deprecated, message: "Use subtleLight instead")
-        static var divineLight: Color { subtleLight }
-    }
-
-    // MARK: - Gradient Stop Colors
-    // End colors for gradient backgrounds
-
-    enum GradientStops {
-        static var vellumBottom: Color { Color(red: 0.98, green: 0.96, blue: 0.92) }
-        static var parchmentBottom: Color { Color(red: 0.94, green: 0.90, blue: 0.82) }
-        static var chapelBottom: Color { Color(red: 0.12, green: 0.11, blue: 0.10) }
-        static var oledBottom: Color { Color(red: 0.03, green: 0.02, blue: 0.02) }
-        static var illuminatedTop: Color { Color(red: 0.99, green: 0.97, blue: 0.93) }
-        static var illuminatedMid: Color { Color(red: 0.98, green: 0.95, blue: 0.88) }
-        static var illuminatedBottom: Color { Color(red: 0.97, green: 0.94, blue: 0.86) }
-        static var monasticTop: Color { Color(red: 0.96, green: 0.96, blue: 0.95) }
-        static var monasticBottom: Color { Color(red: 0.94, green: 0.94, blue: 0.93) }
-        static var royalTop: Color { Color(red: 0.12, green: 0.10, blue: 0.16) }
-        static var royalBottom: Color { Color(red: 0.08, green: 0.06, blue: 0.12) }
-        static var divineLightStart: Color { Color(red: 1.0, green: 0.98, blue: 0.92) }
-        static var divineLightMid: Color { Color(red: 1.0, green: 0.96, blue: 0.88) }
-    }
-
-    // MARK: - Menu Background Colors
-    // Floating context menu backgrounds
-
-    enum Menu {
-        /// Light mode menu background - warm parchment tint
-        static let backgroundLight = Color(red: 0.99, green: 0.97, blue: 0.94)
-
-        /// Dark mode menu background - subtle elevation
-        static let backgroundDark = Color(white: 0.11)
-    }
-
-    // MARK: - Book Spine Colors
-    // Leather-bound book spine gradients for empty states
-
-    enum BookSpine {
-        static var leather: Color { Color(red: 0.5, green: 0.3, blue: 0.18) }
-        static var leatherMedium: Color { Color(red: 0.45, green: 0.27, blue: 0.16) }
-        static var leatherDark: Color { Color(red: 0.4, green: 0.25, blue: 0.15) }
-        static var leatherShadow: Color { Color(red: 0.3, green: 0.2, blue: 0.12) }
-        static var leatherDeep: Color { Color(red: 0.25, green: 0.15, blue: 0.1) }
-        /// Accent color for book spine details (migrated to indigo)
-        static var gold: Color { scholarIndigoDark }
-    }
-
-    // MARK: - Theme-Specific Colors
-    // Custom colors for specialty app themes
-
-    enum Themes {
-        static var illuminatedBackground: Color { Color(red: 0.99, green: 0.97, blue: 0.93) }
-        static var illuminatedSurface: Color { Color(red: 0.98, green: 0.95, blue: 0.88) }
-        static var monasticBackground: Color { Color(red: 0.96, green: 0.96, blue: 0.95) }
-        static var monasticSurface: Color { Color(red: 0.94, green: 0.94, blue: 0.93) }
-        static var monasticText: Color { Color(red: 0.20, green: 0.20, blue: 0.20) }
-        static var monasticSecondaryText: Color { Color(red: 0.45, green: 0.45, blue: 0.45) }
-        static var monasticAccent: Color { Color(red: 0.50, green: 0.50, blue: 0.50) }
-        static var royalBackground: Color { Color(red: 0.08, green: 0.06, blue: 0.12) }
-        static var royalSurface: Color { Color(red: 0.12, green: 0.10, blue: 0.16) }
-    }
-
-    // MARK: - ═══════════════════════════════════════════════════════════════
-    // MARK: - HOME SHOWCASE COLORS
-    // MARK: - ═══════════════════════════════════════════════════════════════
-
-    // MARK: - Base Colors (Dark Theme)
-
-    /// Main directory background - deep charcoal
-    static let showcaseBackground = Color(hex: "121212")
-
-    /// Elevated surface - slightly lighter
-    static let showcaseSurface = Color(hex: "1E1E1E")
-
-    /// Card background
-    static let showcaseCard = Color(hex: "252525")
-
-    // MARK: - Text Colors
-
-    /// Primary text - near white
-    static let showcasePrimaryText = Color(hex: "F5F5F5")
-
-    /// Secondary text - muted
-    static let showcaseSecondaryText = Color(hex: "A0A0A0")
-
-    /// Tertiary text - subtle
-    static let showcaseTertiaryText = Color(hex: "6B6B6B")
-
-    /// Deep Vellum Black - true dark (not pure black)
-    static let deepVellumBlack = Color(hex: "0D0C0B")
-
-    /// Muted Stone - tertiary elements
-    static let mutedStone = Color(hex: "6B6560")
-
-    // MARK: - Variant Accent Colors
-
-    /// Vibrant Blue - minimalist accent
-    static let vibrantBlue = Color(hex: "0A84FF")
-
-    /// Cinematic Teal - narrative accent
-    static let cinematicTeal = Color(hex: "00CED1")
-
-    /// Cinematic Amber - warm overlay
-    static let cinematicAmber = Color(hex: "FFB347")
-
-    // MARK: - Narrative Hero Gradient Colors
-
-    /// Deep Indigo - hero top
-    static let deepIndigo = Color(hex: "1a1a2e")
-
-    /// Warm Burgundy - hero middle
-    static let warmBurgundy = Color(hex: "2d1f3d")
-
-    /// Deep Purple - gradient element
-    static let deepPurple = Color(hex: "1A0A2E")
-
-    // MARK: - Candlelit Sanctuary Palette (Vespers)
-
-    /// Night Void - near-black with blue undertone
-    static let nightVoid = Color(hex: "03030a")
-
-    /// Candle Core - warm amber center of flame
-    static let candleCore = Color(hex: "fbbf24")
-
-    /// Candle Amber - outer amber glow
-    static let candleAmber = Color(hex: "f59e0b")
-
-    /// Rose Incense - deep rose like incense smoke
-    static let roseIncense = Color(hex: "be185d")
-
-    /// Starlight - lavender-white for text
-    static let starlight = Color(hex: "e8e4f0")
-
-    /// Moon Mist - muted lavender-gray secondary
-    static let moonMist = Color(hex: "a8a3b3")
-
-    /// Vesper Gold - sacred gold for dividers
-    static let vesperGold = Color(hex: "d4a853")
-
-    /// Midnight Indigo - deep purple for gradients
-    static let midnightIndigo = Color(hex: "1e1b4b")
-
-    // MARK: - Scholar's Atrium Palette (Manuscript)
-
-    /// Vellum Cream - warm paper background
-    @available(*, deprecated, message: "Use Color.appBackground instead - supports light/dark mode")
-    static let vellumCream = Color(hex: "fefdfb")
-
-    /// Scholar Ink - rich black-brown text
-    @available(*, deprecated, message: "Use Color.primaryText instead - supports light/dark mode")
-    static let scholarInk = Color(hex: "1c1917")
-
-    /// Ink Well - soft black for body
-    @available(*, deprecated, message: "Use Color.primaryText instead - supports light/dark mode")
-    static let inkWell = Color(hex: "292524")
-
-    /// Margin Red - traditional annotation red
-    static let marginRed = Color(hex: "dc2626")
-
-    /// Footnote Gray - stone gray secondary
-    @available(*, deprecated, message: "Use Color.tertiaryText instead - supports light/dark mode")
-    static let footnoteGray = Color(hex: "78716c")
-
-    // MARK: - Scholar Brand Colors (Interactive UI)
-    // Primary interactive accent colors for buttons, CTAs, links, and active states
-    // ⚠️ Use these for interactive UI - NOT decorative gold (see Illumination Gold Palette)
-    // Migrated from gold to indigo for better accessibility and modern design
-
-    /// Scholar Indigo - Primary interactive accent (Asset Catalog: AccentIndigo)
-    /// Used for: Buttons, CTAs, links, primary actions, all interactive UI elements
-    /// Light: #4F46E5, Dark: #6366F1 (auto-adaptive via asset catalog)
-    /// **This is the PRIMARY brand accent** - replaces legacy warmGold
-    static let scholarIndigo = Color("AccentIndigo")
-
-    /// Scholar Indigo Pressed - Active/pressed state (#4338CA)
-    /// Used for: Button pressed state, active selections, touch feedback
-    /// Deeper indigo for clear interaction affordance
-    static let scholarIndigoPressed = Color(hex: "4338CA")
-
-    /// Scholar Indigo Light - Hover/highlight variant (#818CF8)
-    /// Used for: Hover states (Mac/iPad), glows, highlights, subtle emphasis
-    /// Luminous indigo for gentle interaction hints
-    static let scholarIndigoLight = Color(hex: "818CF8")
-
-    /// Scholar Indigo Dark - Dark mode enhanced (#6366F1)
-    /// Used for: Dark backgrounds requiring extra vibrancy
-    /// Vibrant indigo optimized for dark theme visibility
-    static let scholarIndigoDark = Color(hex: "6366F1")
-
-    /// Scholar Indigo Subtle - Background tint (Deprecated - use opacity)
-    /// Hex: #EEF2FF - Use scholarIndigo.opacity(0.1) for adaptive tints
-    @available(*, deprecated, message: "Use scholarIndigo.opacity(0.1) instead for adaptive opacity")
-    static let scholarIndigoSubtle = Color(hex: "EEF2FF")
-
-    /// Scholar Indigo Accessible - WCAG compliant text (#4338CA)
-    /// Used for: Text links, text buttons on light backgrounds
-    /// Meets WCAG 4.5:1 contrast ratio on light surfaces
-    static let scholarIndigoAccessible = Color(hex: "4338CA")
-
-    // MARK: - Scholar Supporting Colors (Asset Catalog - Auto-Adaptive)
-    // Annotation and semantic colors with light/dark variants
-    // Access via: Color.greekBlue, Color.theologyGreen, Color.connectionAmber, Color.personalRose
-    //
-    // - GreekBlue: #2563EB (light) / #60A5FA (dark) - Original language annotations
-    // - TheologyGreen: #059669 (light) / #34D399 (dark) - Doctrinal study notes
-    // - ConnectionAmber: #D97706 (light) / #FBBF24 (dark) - Cross-references
-    // - PersonalRose: #DB2777 (light) / #F472B6 (dark) - Reflective questions
-
-    // MARK: - Sacred Threshold Palette (Chromatic Journey)
-
-    /// Threshold Gold - Living Scripture room
-    static let thresholdGold = Color(hex: "d4a853")
-
-    /// Threshold Gold Ambient - darker for gradients
-    static let thresholdGoldAmbient = Color(hex: "92400e")
-
-    /// Threshold Indigo - Living Commentary room
-    static let thresholdIndigo = Color(hex: "6366f1")
-
-    /// Threshold Indigo Ambient
-    static let thresholdIndigoAmbient = Color(hex: "312e81")
-
-    /// Threshold Purple - Memory Palace room
-    static let thresholdPurple = Color(hex: "8b5cf6")
-
-    /// Threshold Purple Ambient
-    static let thresholdPurpleAmbient = Color(hex: "4c1d95")
-
-    /// Threshold Rose - Prayers from Deep room
-    static let thresholdRose = Color(hex: "f43f5e")
-
-    /// Threshold Rose Ambient
-    static let thresholdRoseAmbient = Color(hex: "881337")
-
-    /// Threshold Blue - Compline room
-    static let thresholdBlue = Color(hex: "3b82f6")
-
-    /// Threshold Blue Ambient
-    static let thresholdBlueAmbient = Color(hex: "1e3a5f")
-
-    // MARK: - Liturgical Hours: Dawn Palette (5am-9am)
-    // Ethereal Aurora - cool-to-warm transition of awakening
-    // Top: lavender (retreating night) → rose pink → peach → coral (sunrise)
-
-    /// Dawn Lavender - top of sky, retreating night
-    static let dawnLavender = Color(hex: "ddd6fe")
-
-    /// Dawn Periwinkle - upper sky, soft blue-violet
-    static let dawnPeriwinkle = Color(hex: "c7d2fe")
-
-    /// Dawn Rose Pink - mid sky, the awakening
-    static let dawnRosePink = Color(hex: "fecdd3")
-
-    /// Dawn Peach - lower sky, warmth arriving
-    static let dawnPeach = Color(hex: "fed7aa")
-
-    /// Dawn Apricot - near horizon glow
-    static let dawnApricot = Color(hex: "fdba74")
-
-    /// Dawn Sunrise - horizon line, sun touching earth
-    static let dawnSunrise = Color(hex: "fb923c")
-
-    /// Dawn Coral - sun core warmth
-    static let dawnCoral = Color(hex: "f97316")
-
-    /// Dawn Slate - primary text (deep blue-gray for contrast)
-    static let dawnSlate = Color(hex: "1e293b")
-
-    /// Dawn Slate Light - secondary text
-    static let dawnSlateLight = Color(hex: "475569")
-
-    /// Dawn Frost - card background (warm white)
-    static let dawnFrost = Color(hex: "fffbf5")
-
-    /// Dawn Glass - card tint (subtle rose)
-    static let dawnGlassTint = Color(hex: "fef2f2")
-
-    /// Dawn Accent - primary accent for icons/buttons
-    static let dawnAccent = Color(hex: "ea580c")
-
-    // Legacy aliases for compatibility
-    static let dawnRose = dawnRosePink
-    static let dawnGold = dawnSunrise
-    static let dawnSky = dawnPeriwinkle
-    static let dawnHorizon = dawnSlate
-    static let dawnCream = dawnFrost
-    static let dawnBlush = dawnPeach
-
-    // MARK: - Liturgical Hours: Meridian Palette (9am-12pm)
-    // The Illuminated Scriptorium - golden morning light through library windows
-    // Warm parchment, rich manuscript colors, gilded illumination
-
-    /// Meridian Parchment - primary background (warm aged paper)
-    static let meridianParchment = Color(hex: "f8f4eb")
-
-    /// Meridian Vellum - slightly deeper parchment
-    static let meridianVellum = Color(hex: "f0ebe0")
-
-    /// Meridian Linen - card backgrounds (cream linen)
-    static let meridianLinen = Color(hex: "faf8f3")
-
-    /// Meridian Sepia - primary text (rich brown-black ink)
-    static let meridianSepia = Color(hex: "2c1810")
-
-    /// Meridian Umber - secondary text (warm brown)
-    static let meridianUmber = Color(hex: "5c4033")
-
-    /// Meridian Illumination - golden light accent (bright gold)
-    static let meridianIllumination = Color(hex: "daa520")
-
-    /// Meridian Gilded - rich gold for borders and highlights
-    static let meridianGilded = Color(hex: "c9a227")
-
-    /// Meridian Vermillion - manuscript red accent
-    static let meridianVermillion = Color(hex: "c84536")
-
-    /// Meridian Forest - deep scholarly green
-    static let meridianForest = Color(hex: "2d5a3d")
-
-    /// Meridian Indigo - manuscript blue accent
-    static let meridianIndigo = Color(hex: "3d4f7c")
-
-    /// Meridian Beam - golden light ray color
-    static let meridianBeam = Color(hex: "fef3c7")
-
-    /// Meridian Glow - soft golden ambient
-    static let meridianGlow = Color(hex: "fde68a")
-
-    // Legacy aliases for compatibility
-    static let meridianAmber = meridianIllumination
-    static let meridianBrown = meridianUmber
-    static let meridianIvory = meridianParchment
-    static let meridianGold = meridianGilded
-    static let meridianInk = meridianSepia
-
-    // MARK: - Liturgical Hours: Afternoon Palette (12pm-5pm)
-    // Contemplative Study - quiet library with afternoon light
-    // Neutral cream base with warm accents and dark text for contrast
-
-    /// Afternoon Ivory - primary background (warm paper)
-    static let afternoonIvory = Color(hex: "faf7f2")
-
-    /// Afternoon Cream - slightly deeper cream
-    static let afternoonCream = Color(hex: "f5f0e6")
-
-    /// Afternoon Linen - card backgrounds
-    static let afternoonLinen = Color(hex: "ebe5d9")
-
-    /// Afternoon Espresso - primary text (rich brown)
-    static let afternoonEspresso = Color(hex: "3d2c1e")
-
-    /// Afternoon Mocha - secondary text
-    static let afternoonMocha = Color(hex: "6b5344")
-
-    /// Afternoon Honey - warm accent (used sparingly)
-    static let afternoonHoney = Color(hex: "d4a35a")
-
-    /// Afternoon Amber - icon accent (golden amber)
-    static let afternoonAmber = Color(hex: "b8860b")
-
-    /// Afternoon Sage - cool contrast element
-    static let afternoonSage = Color(hex: "7d8471")
-
-    /// Afternoon Terracotta - warm accent alternative
-    static let afternoonTerracotta = Color(hex: "c4713f")
-
-    /// Afternoon Beam - light beam color
-    static let afternoonBeam = Color(hex: "fde68a")
-
-    // Legacy aliases for compatibility
-    static let afternoonOchre = afternoonAmber
-    static let afternoonParchment = afternoonIvory
-    static let afternoonEarth = afternoonMocha
-    static let afternoonGold = afternoonHoney
-    static let afternoonShadow = afternoonEspresso
-    static let afternoonText = afternoonEspresso
-
-    // MARK: - Liturgical Hours: Vespers Palette (5pm-9pm)
-    // Winding down, gratitude - twilight transition
-
-    /// Vespers Indigo - primary deep indigo
-    static let vespersIndigo = Color(hex: "312e81")
-
-    /// Vespers Amber - secondary warm amber
-    static let vespersAmber = Color(hex: "f59e0b")
-
-    /// Vespers Sky - twilight blue background
-    static let vespersSky = Color(hex: "1e1b4b")
-
-    /// Vespers Gold - soft gold accent
-    static let vespersGoldAccent = Color(hex: "fbbf24")
-
-    /// Vespers Purple - gradient depth
-    static let vespersPurple = Color(hex: "4c1d95")
-
-    /// Vespers Orange - sunset horizon
-    static let vespersOrange = Color(hex: "ea580c")
-
-    /// Vespers Text - soft lavender text
-    static let vespersText = Color(hex: "c4b5fd")
-}
-
-// MARK: - ═══════════════════════════════════════════════════════════════
-// MARK: - GRADIENTS
-// MARK: - ═══════════════════════════════════════════════════════════════
-
-extension Color {
-    /// Scholar gradient for card backgrounds
-    static var scholarGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                scholarIndigo.opacity(0.15),
-                Color.clear
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    /// Legacy alias for sacredGradient
-    @available(*, deprecated, renamed: "scholarGradient")
-    static var sacredGradient: LinearGradient { scholarGradient }
-
-    /// Narrative hero gradient
-    static var narrativeHeroGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: deepIndigo, location: 0),
-                .init(color: warmBurgundy, location: 0.4),
-                .init(color: candlelitStone, location: 1.0)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    /// Glass card overlay gradient
-    static var glassOverlay: LinearGradient {
-        LinearGradient(
-            colors: [
-                Color.white.opacity(AppTheme.Opacity.glassTop),
-                Color.white.opacity(AppTheme.Opacity.glassBottom)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    /// Indigo border gradient for AI cards
-    static func indigoBorderGradient(angle: Angle = .zero) -> AngularGradient {
-        AngularGradient(
-            colors: [scholarIndigo, scholarIndigoLight, scholarIndigoPressed, scholarIndigo],
-            center: .center,
-            angle: angle
-        )
-    }
-
-    /// Legacy alias for goldBorderGradient
-    @available(*, deprecated, renamed: "indigoBorderGradient")
-    static func goldBorderGradient(angle: Angle = .zero) -> AngularGradient {
-        indigoBorderGradient(angle: angle)
-    }
-
-    /// Radial indigo glow
-    static var radialIndigoGlow: RadialGradient {
-        RadialGradient(
-            colors: [
-                scholarIndigo.opacity(AppTheme.Opacity.goldRadialCenter),
-                Color.clear
-            ],
-            center: .center,
-            startRadius: 0,
-            endRadius: 300
-        )
-    }
-
-    /// Legacy alias for radialGoldGlow
-    @available(*, deprecated, renamed: "radialIndigoGlow")
-    static var radialGoldGlow: RadialGradient { radialIndigoGlow }
-
-    /// Vignette overlay for hero sections
-    static var vignetteOverlay: RadialGradient {
-        RadialGradient(
-            colors: [
-                Color.clear,
-                Color.black.opacity(AppTheme.Opacity.vignetteEdge)
-            ],
-            center: .center,
-            startRadius: 100,
-            endRadius: 400
-        )
-    }
-
-    // MARK: - Candlelit Sanctuary Gradients
-
-    /// Vespers Sky - night gradient with purple hints
-    static var vespersSkyGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: nightVoid, location: 0),
-                .init(color: vespersNightDeep, location: 0.4),
-                .init(color: vespersPurpleHaze, location: 0.7),
-                .init(color: nightVoid, location: 1)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    /// Candle glow radial gradient
-    static var candleGlowGradient: RadialGradient {
-        RadialGradient(
-            colors: [
-                candleAmber.opacity(AppTheme.Opacity.candleGlowInner),
-                candleAmber.opacity(AppTheme.Opacity.candleGlowOuter),
-                Color.clear
-            ],
-            center: .center,
-            startRadius: 5,
-            endRadius: 80
-        )
-    }
-
-    /// Candle border gradient for cards
-    static var candleBorderGradient: RadialGradient {
-        RadialGradient(
-            colors: [
-                candleAmber.opacity(0.6),
-                candleAmber.opacity(0.1)
-            ],
-            center: .bottom,
-            startRadius: 0,
-            endRadius: 200
-        )
-    }
-
-    // MARK: - Scholar's Atrium Gradients
-
-    /// Paper texture gradient
-    static var paperGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                freshVellum,
-                paperSubtle
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    // MARK: - Sacred Threshold Gradients
-
-    /// Room ambient gradient - takes room color as parameter
-    static func roomAmbientGradient(primary: Color, ambient: Color) -> LinearGradient {
-        LinearGradient(
-            colors: [
-                ambient.opacity(0.3),
-                Color.black
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    // MARK: - Liturgical Hours Gradients
-
-    /// Dawn Sky gradient - ethereal aurora from cool lavender to warm coral
-    static var dawnSkyGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: dawnLavender, location: 0),
-                .init(color: dawnPeriwinkle, location: 0.15),
-                .init(color: dawnRosePink, location: 0.35),
-                .init(color: dawnPeach, location: 0.55),
-                .init(color: dawnApricot, location: 0.75),
-                .init(color: dawnSunrise, location: 0.92),
-                .init(color: dawnCoral, location: 1.0)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    /// Dawn Glow radial gradient for sun
-    static var dawnGlowGradient: RadialGradient {
-        RadialGradient(
-            colors: [
-                Color.white.opacity(0.95),
-                dawnSunrise.opacity(0.7),
-                dawnApricot.opacity(0.4),
-                dawnPeach.opacity(0.2),
-                Color.clear
-            ],
-            center: .center,
-            startRadius: 10,
-            endRadius: 180
-        )
-    }
-
-    /// Dawn card glass effect gradient
-    static var dawnGlassGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                dawnFrost.opacity(0.95),
-                dawnGlassTint.opacity(0.85)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    /// Meridian background gradient - warm parchment with golden wash
-    static var meridianBackgroundGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: meridianParchment, location: 0),
-                .init(color: meridianVellum, location: 0.4),
-                .init(color: meridianWarmVellum, location: 0.7),
-                .init(color: meridianParchment, location: 1.0)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    /// Meridian light ray gradient - golden morning sun
-    static var meridianLightGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                meridianBeam.opacity(0.5),
-                meridianGlow.opacity(0.25),
-                Color.clear
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    /// Meridian card glass gradient - frosted parchment
-    static var meridianGlassGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                meridianLinen.opacity(0.95),
-                meridianVellum.opacity(0.85)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    /// Meridian gilded border gradient
-    static var meridianGildedGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                meridianGilded.opacity(0.5),
-                meridianIllumination.opacity(0.3),
-                meridianGilded.opacity(0.5)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    /// Afternoon base gradient - subtle cream to ivory
-    static var afternoonBaseGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: afternoonIvory, location: 0),
-                .init(color: afternoonCream, location: 0.5),
-                .init(color: afternoonIvory, location: 1.0)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    /// Afternoon light beam gradient - soft golden light
-    static var afternoonLightBeamGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                afternoonBeam.opacity(0.35),
-                afternoonHoney.opacity(0.15),
-                Color.clear
-            ],
-            startPoint: .topTrailing,
-            endPoint: .bottomLeading
-        )
-    }
-
-    /// Afternoon card glass gradient
-    static var afternoonGlassGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                afternoonLinen.opacity(0.95),
-                afternoonCream.opacity(0.9)
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-
-    // Legacy alias
-    static var afternoonWarmthGradient: LinearGradient { afternoonBaseGradient }
-
-    /// Vespers sunset gradient - twilight transition
-    static var vespersSunsetGradient: LinearGradient {
-        LinearGradient(
-            stops: [
-                .init(color: vespersSky, location: 0),
-                .init(color: vespersPurple, location: 0.3),
-                .init(color: vespersIndigo, location: 0.5),
-                .init(color: vespersOrange.opacity(0.4), location: 0.75),
-                .init(color: vespersAmber.opacity(0.3), location: 1.0)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    /// Vespers horizon glow
-    static var vespersHorizonGlow: RadialGradient {
-        RadialGradient(
-            colors: [
-                vespersOrange.opacity(0.5),
-                vespersAmber.opacity(0.3),
-                Color.clear
-            ],
-            center: .bottom,
-            startRadius: 0,
-            endRadius: 300
-        )
-    }
-}
-
-// MARK: - ═══════════════════════════════════════════════════════════════
-// MARK: - HEX COLOR EXTENSION
-// MARK: - ═══════════════════════════════════════════════════════════════
+// MARK: - Color Hex Initializer
 
 extension Color {
     init(hex: String) {
@@ -1007,94 +29,166 @@ extension Color {
         case 8: // ARGB (32-bit)
             (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default:
-            (a, r, g, b) = (255, 0, 0, 0)
+            (a, r, g, b) = (1, 1, 1, 0)
         }
+
         self.init(
             .sRGB,
             red: Double(r) / 255,
             green: Double(g) / 255,
-            blue: Double(b) / 255,
+            blue:  Double(b) / 255,
             opacity: Double(a) / 255
         )
     }
 }
 
-// MARK: - ═══════════════════════════════════════════════════════════════
-// MARK: - SEMANTIC ALIASES
-// MARK: - ═══════════════════════════════════════════════════════════════
-
-extension Color {
-    // MARK: - Convenience Aliases
-    // Semantic naming that maps to the asset catalog colors
-    static var primaryBackground: Color { .appBackground }
-    static var secondaryBackground: Color { .surfaceBackground }
-
-    // MARK: - Scripture Text
-    // Direct access for scripture rendering
-    static var scriptureText: Color { .monasteryBlack }
-    static var scriptureTextDark: Color { .moonlitParchment }
+// Note: ThemeMode enum is defined in UserProfile.swift for persistence
+// Helper extension to resolve .system mode:
+extension ThemeMode {
+    /// Helper: Resolve .system to actual mode based on environment
+    static func current(from colorScheme: ColorScheme) -> ThemeMode {
+        colorScheme == .dark ? .dark : .light
+    }
 }
 
-// MARK: - Theme-Specific Color Definitions
-extension Color {
-    // MARK: - Asset Catalog Accent Colors
-    // These reference the colorsets in Assets.xcassets for light/dark mode support
-    // Note: accentBlue and accentRose are auto-generated from asset catalog
-    @available(*, deprecated, message: "Use Color.scholarAccent for interactive UI, or Color.divineGold for decorative elements")
-    static let accentGold = Color("AccentIndigo") // Migrated to indigo, alias kept for compatibility
+// MARK: - Colors
 
-    // MARK: - Light Mode (Fresh Vellum)
-    static let lightBackground = Color.freshVellum
-    static let lightSurface = Color.freshVellum
-    static let lightElevated = Color.monasteryStone
+/// New four-tier color system
+/// Temporary name `Colors` to avoid conflict with existing Colors.swift
+/// Will be renamed to `Colors` in Phase 7 when old system is deleted
+enum Colors {
 
-    // MARK: - Dark Mode (Candlelit Chapel)
-    static let darkBackground = Color.candlelitStone
-    static let darkSurface = Color.chapelShadow
-    static let darkElevated = Color.chapelShadow
+    // MARK: - Tier 1: Pigments (Raw Values)
 
-    // MARK: - Scholar Indigo Family (Primary Accent)
-    // Primary action colors - Scholar Indigo theme
-    static let scholarAccent = Color.scholarIndigo
-    static let scholarAccentLight = Color.scholarIndigoLight
-    static let scholarAccentDark = Color.scholarIndigoDark
-    static let scholarAccentSubtle = Color.scholarIndigo.opacity(0.1)
-    static let scholarAccentPressed = Color.scholarIndigoPressed
+    /// Raw color values - the foundational palette
+    enum Pigment {
+        // Dark mode pigments
+        static let inkBg = Color(hex: "0B0B0C")           // Near-black (default dark mode, NOT pure black)
+        static let inkText = Color(hex: "F5F5F5")         // Soft ivory (dark text, NOT pure white)
+        static let inkTextSecondary = Color(hex: "6C6C6C") // Muted secondary
 
-    // MARK: - Legacy Gold Aliases (Deprecated)
-    @available(*, deprecated, message: "Use scholarAccent instead")
-    static var warmGold: Color { scholarAccent }
-    @available(*, deprecated, message: "Use scholarAccentLight instead")
-    static var warmGoldLight: Color { scholarAccentLight }
-    @available(*, deprecated, message: "Use scholarAccentDark instead")
-    static var warmGoldDark: Color { scholarAccentDark }
+        // OLED mode only (NOT used in this migration - Phase 8)
+        static let oledBg = Color(hex: "000000")          // Pure black reserved for OLED mode
 
-    // MARK: - Rose/Vermillion (highlights/bookmarks)
-    static let softRose = Color.vermillionJewel
-    static let softRoseLight = Color.roseLight
-    static let softRoseDark = Color.roseDark
+        // Light mode pigments
+        static let paperBg = Color(hex: "FAF7F2")         // Parchment warmth
+        static let paperText = Color(hex: "121212")       // Ink on parchment
+        static let paperStroke = Color(hex: "E6E0D6")     // Subtle dividers
+    }
 
-    // MARK: - Sepia Theme (Aged Parchment)
-    static let sepiaBackground = Color.agedParchment
-    static let sepiaSurface = Color.monasteryStone
-    static let sepiaText = Color.sepiaInk
-    static let sepiaSecondaryText = Color.sepiaInkSecondary
+    // MARK: - Tier 2: Surfaces (Theme-Aware)
 
-    // MARK: - OLED Theme (True Black)
-    static let oledText = Color.moonlitParchment
-    static let oledSecondaryText = Color.fadedMoonlight
+    /// Theme-aware surface colors - adapt to light/dark mode
+    enum Surface {
+        /// Main app background (near-black in dark, parchment in light)
+        static func background(for mode: ThemeMode) -> Color {
+            mode == .light ? Pigment.paperBg : Pigment.inkBg
+        }
 
-    // MARK: - Interactive States
-    // These colors are auto-generated from Assets.xcassets/Colors/States/
-    // Available colors: pressedBackground, hoverBackground, disabledBackground,
-    // disabledText, placeholderText, focusRing
+        /// Raised surfaces (cards, sheets)
+        static func surface(for mode: ThemeMode) -> Color {
+            mode == .light ? Color(hex: "F8F6F0") : Color(hex: "1A1A1A")
+        }
+
+        /// Primary text color
+        static func textPrimary(for mode: ThemeMode) -> Color {
+            mode == .light ? Pigment.paperText : Pigment.inkText
+        }
+
+        /// Secondary text color (70-80% opacity for hierarchy)
+        static func textSecondary(for mode: ThemeMode) -> Color {
+            (mode == .light ? Pigment.paperText : Pigment.inkText).opacity(0.75)
+        }
+
+        /// Tertiary text color (55-65% opacity for metadata)
+        static func textTertiary(for mode: ThemeMode) -> Color {
+            (mode == .light ? Pigment.paperText : Pigment.inkText).opacity(0.60)
+        }
+
+        /// Divider lines (10-16% opacity for subtlety)
+        static func divider(for mode: ThemeMode) -> Color {
+            (mode == .light ? Color(hex: "E6E0D6") : Color(hex: "2A2A2A")).opacity(0.15)
+        }
+
+        /// Control stroke (buttons, inputs) - contextual, not constant
+        static func controlStroke(for mode: ThemeMode) -> Color {
+            mode == .light ? Color(hex: "E6E0D6") : Color(hex: "2A2A2A")
+        }
+    }
+
+    // MARK: - Tier 3: Semantics (Role-Based)
+
+    /// Role-based semantic colors - accent colors and feedback states
+    enum Semantic {
+        /// AccentSeal: Muted bronze - used rarely like a stamp (headers, rare decorative moments)
+        /// Rule: Seal = authority (rare usage)
+        static func accentSeal(for mode: ThemeMode) -> Color {
+            Color(hex: "8B7355")  // Same for both modes
+        }
+
+        /// AccentAction: Restrained indigo - interactive elements (links, buttons, selection)
+        /// Rule: Action = usability (consistent interaction feedback)
+        static func accentAction(for mode: ThemeMode) -> Color {
+            mode == .light ? Color(hex: "4F46E5") : Color(hex: "6366F1")
+        }
+
+        /// OnAccentAction: Soft ivory for text on accent backgrounds (buttons)
+        /// Maintains "soft ivory" doctrine - not pure white
+        static func onAccentAction(for mode: ThemeMode) -> Color {
+            Color(hex: "F5F5F5")  // Soft ivory, consistent with inkText
+        }
+
+        /// Error: Deep oxblood - functional, not bright red
+        static func error(for mode: ThemeMode) -> Color {
+            Color(hex: "8B3A3A")
+        }
+
+        /// Warning: Muted ochre - functional, not amber neon
+        static func warning(for mode: ThemeMode) -> Color {
+            Color(hex: "B8860B")
+        }
+
+        /// Success: Desaturated olive - functional, not green glow
+        static func success(for mode: ThemeMode) -> Color {
+            Color(hex: "6B7C59")
+        }
+
+        /// Info: Slate/steel - neutral
+        static func info(for mode: ThemeMode) -> Color {
+            Color(hex: "6B7280")
+        }
+    }
+
+    // MARK: - Tier 4: State Overlays (Centralized State Management)
+
+    /// Centralized state overlay management
+    /// Prevents inconsistent state behavior across the app
+    enum StateOverlay {
+        /// Pressed state: 80% opacity for button feedback
+        static func pressed(_ base: Color) -> Color {
+            base.opacity(0.80)
+        }
+
+        /// Selection background: AccentAction at 15% opacity (verse selection, text selection)
+        static func selection(_ base: Color) -> Color {
+            base.opacity(0.15)
+        }
+
+        /// Focus stroke: AccentAction at 60% opacity (input focus rings)
+        static func focusStroke(_ accent: Color) -> Color {
+            accent.opacity(0.60)
+        }
+
+        /// Disabled state: 35% opacity
+        static func disabled(_ base: Color) -> Color {
+            base.opacity(0.35)
+        }
+    }
 }
 
-// MARK: - ═══════════════════════════════════════════════════════════════
-// MARK: - HIGHLIGHT COLOR ENUM
-// MARK: - ═══════════════════════════════════════════════════════════════
+// MARK: - Highlight Colors
 
-// Scholar-themed highlight colors with semantic meaning
+/// Highlight color options for verse annotations
 enum HighlightColor: String, CaseIterable, Codable {
     case blue      // Greek Blue - Original language annotations
     case green     // Theology Green - Doctrinal notes
@@ -1104,60 +198,26 @@ enum HighlightColor: String, CaseIterable, Codable {
 
     var color: Color {
         switch self {
-        case .blue: return .highlightBlue
-        case .green: return .highlightGreen
-        case .amber: return .highlightGold // Uses gold asset but shows amber
-        case .rose: return .highlightRose
-        case .purple: return .highlightPurple
+        case .blue: return Color(hex: "87CEEB")    // Light sky blue
+        case .green: return Color(hex: "90EE90")   // Light green
+        case .amber: return Color(hex: "F0E68C")   // Khaki/amber
+        case .rose: return Color(hex: "FFB6C1")    // Light pink
+        case .purple: return Color(hex: "DDA0DD")  // Plum
         }
     }
 
     /// Solid color for text or icons on the highlight
     var solidColor: Color {
         switch self {
-        case .blue: return .greekBlue
-        case .green: return .theologyGreen
-        case .amber: return .connectionAmber
-        case .rose: return .personalRose
-        case .purple: return .amethystJewel
+        case .blue: return Color(hex: "4A90E2")     // Darker blue
+        case .green: return Color(hex: "6B7C59")    // Olive green
+        case .amber: return Color(hex: "B8860B")    // Dark goldenrod
+        case .rose: return Color(hex: "C76E8B")     // Dusky rose
+        case .purple: return Color(hex: "9370DB")   // Medium purple
         }
     }
 
     var displayName: String {
-        switch self {
-        case .blue: return "Greek Blue"
-        case .green: return "Theology Green"
-        case .amber: return "Connection Amber"
-        case .rose: return "Personal Rose"
-        case .purple: return "Amethyst"
-        }
-    }
-
-    /// Scholar-inspired description
-    var manuscriptDescription: String {
-        switch self {
-        case .blue: return "Original language annotations"
-        case .green: return "Doctrinal and theological notes"
-        case .amber: return "Cross-references and connections"
-        case .rose: return "Reflective questions"
-        case .purple: return "Spiritual significance"
-        }
-    }
-
-    /// Accessibility-friendly color name with rich description
-    /// Use for VoiceOver announcements
-    var accessibilityName: String {
-        switch self {
-        case .blue: return "Greek Blue, for original language annotations"
-        case .green: return "Theology Green, for doctrinal notes"
-        case .amber: return "Connection Amber, for cross-references"
-        case .rose: return "Personal Rose, for reflective questions"
-        case .purple: return "Amethyst, for spiritual significance"
-        }
-    }
-
-    /// Short accessibility name for compact announcements
-    var accessibilityShortName: String {
         switch self {
         case .blue: return "Blue"
         case .green: return "Green"
@@ -1167,131 +227,479 @@ enum HighlightColor: String, CaseIterable, Codable {
         }
     }
 
-    // MARK: - Legacy Case Mapping
-    // For backward compatibility with existing highlights
-
-    /// Maps legacy "gold" raw value to the new "amber" case
-    init?(legacyRawValue: String) {
-        switch legacyRawValue {
-        case "gold": self = .amber
-        case "blue": self = .blue
-        case "green": self = .green
-        case "rose": self = .rose
-        case "purple": self = .purple
-        default: return nil
+    /// Accessibility name for VoiceOver
+    var accessibilityName: String {
+        switch self {
+        case .blue: return "Blue highlight"
+        case .green: return "Green highlight"
+        case .amber: return "Amber highlight"
+        case .rose: return "Rose highlight"
+        case .purple: return "Purple highlight"
         }
     }
 }
 
-// MARK: - Scholar Supporting Color Extension
+// MARK: - Semantic Color Convenience Properties
+// Static properties for mode-independent colors or dark-mode defaults
+// Use these for bulk migration of hardcoded hex values
+
 extension Color {
-    /// Greek Blue - Original language annotations
-    static var greekBlueColor: Color { .greekBlue }
+    // MARK: - Semantic Accents (Mode-Independent)
 
-    /// Theology Green - Doctrinal notes
-    static var theologyGreenColor: Color { .theologyGreen }
+    /// Bronze seal - muted bronze for authority/decorative elements
+    /// Maps to: Colors.Semantic.accentSeal (same in light/dark)
+    static var accentBronze: Color { Color(hex: "8B7355") }
 
-    /// Connection Amber - Cross-references
-    static var connectionAmberColor: Color { .connectionAmber }
+    /// Indigo action - interactive elements (dark mode default)
+    /// For theme-aware usage, prefer Colors.Semantic.accentAction(for:)
+    /// Note: Color.accentIndigo is auto-generated from AccentIndigo.colorset asset
 
-    /// Personal Rose - Reflective questions
-    static var personalRoseColor: Color { .personalRose }
+    /// Indigo action light mode variant
+    static var accentIndigoLight: Color { Color(hex: "4F46E5") }
 
-    /// Amethyst - Spiritual significance
-    static var amethystColor: Color { .amethystJewel }
+    // MARK: - Semantic Feedback (Mode-Independent)
 
-    /// Indigo glow effect color
-    static var indigoGlowColor: Color { .scholarIndigo.opacity(0.3) }
+    /// Error red - oxblood for errors
+    static var feedbackError: Color { Color(hex: "8B3A3A") }
 
-    /// Ambient background tint (indigo-based)
-    static var ambientCoolColor: Color { .scholarIndigo.opacity(0.1) }
+    /// Warning ochre - muted amber for warnings
+    static var feedbackWarning: Color { Color(hex: "B8860B") }
 
-    // MARK: - Legacy Aliases (Deprecated)
+    /// Success olive - desaturated green for success
+    static var feedbackSuccess: Color { Color(hex: "6B7C59") }
 
-    @available(*, deprecated, renamed: "indigoGlowColor")
-    static var goldGlowColor: Color { indigoGlowColor }
+    /// Info slate - neutral gray for informational
+    static var feedbackInfo: Color { Color(hex: "6B7280") }
 
-    @available(*, deprecated, renamed: "ambientCoolColor")
-    static var ambientWarmColor: Color { ambientCoolColor }
+    // MARK: - Surface Colors (Dark Mode Defaults)
 
-    /// Legacy jewel tone aliases
-    static var vermillionColor: Color { .vermillionJewel }
-    static var lapisLazuliColor: Color { .lapisLazuliJewel }
-    static var malachiteColor: Color { .malachiteJewel }
+    /// Near-black background (dark mode)
+    static var surfaceInk: Color { Color(hex: "0B0B0C") }
+
+    /// Raised surface (dark mode)
+    static var surfaceRaised: Color { Color(hex: "1A1A1A") }
+
+    /// Soft ivory text (dark mode)
+    static var textIvory: Color { Color(hex: "F5F5F5") }
+
+    /// Primary text alias (maps to textIvory for dark mode)
+    static var textPrimary: Color { textIvory }
+
+    /// Secondary text (muted, 75% opacity)
+    static var textSecondary: Color { Color.gray.opacity(0.75) }
+
+    /// Parchment background (light mode)
+    static var surfaceParchment: Color { Color(hex: "FAF7F2") }
+
+    /// Ink text (light mode)
+    static var textInk: Color { Color(hex: "121212") }
+
+    // MARK: - Decorative Colors
+
+    /// Gold accent for decorative elements
+    static var decorativeGold: Color { Color(hex: "D4AF37") }
+
+    /// Taupe/stone for neutral decorative elements
+    static var decorativeTaupe: Color { Color(hex: "9B8B7A") }
+
+    /// Moonlit marble for light surfaces
+    static var decorativeMarble: Color { Color(hex: "E8E4DC") }
+
+    /// Warm cream for highlight backgrounds
+    static var decorativeCream: Color { Color(hex: "F5E6B8") }
+
+    /// Rose/dusky pink for accents
+    static var decorativeRose: Color { Color(hex: "C76E8B") }
+
+    // MARK: - UI Colors (Tailwind-inspired)
+
+    /// Stone gray (Tailwind stone-400)
+    static var stoneGray: Color { Color(hex: "A8A29E") }
+
+    /// Light indigo tint (Tailwind indigo-100)
+    static var indigoTint: Color { Color(hex: "E0E7FF") }
+
+    /// Sky blue (Tailwind blue-400)
+    static var skyBlue: Color { Color(hex: "60A5FA") }
+
+    /// Purple accent (Tailwind purple-500)
+    static var purpleAccent: Color { Color(hex: "A855F7") }
+
+    /// Emerald green (Tailwind emerald-400)
+    static var emeraldGreen: Color { Color(hex: "34D399") }
+
+    /// Amber/orange (Tailwind amber-500)
+    static var amberOrange: Color { Color(hex: "F59E0B") }
+
+    /// Bright red (Tailwind red-500)
+    static var brightRed: Color { Color(hex: "EF4444") }
+
+    /// Fuchsia/pink (Tailwind fuchsia-400)
+    static var fuchsiaPink: Color { Color(hex: "E879F9") }
+
+    /// Yellow amber (Tailwind yellow-400)
+    static var yellowAmber: Color { Color(hex: "FBBF24") }
+
+    /// Violet (Tailwind violet-500)
+    static var violetAccent: Color { Color(hex: "8B5CF6") }
+
+    /// Blue accent (Tailwind blue-500)
+    static var blueAccent: Color { Color(hex: "3B82F6") }
+
+    /// Green teal (Tailwind emerald-500)
+    static var greenTeal: Color { Color(hex: "10B981") }
+
+    // MARK: - Dark Surface Variants
+
+    /// Deep charcoal surface
+    static var surfaceCharcoal: Color { Color(hex: "1A1816") }
+
+    /// Dark warm surface
+    static var surfaceWarm: Color { Color(hex: "252220") }
+
+    /// Very dark background
+    static var surfaceDeep: Color { Color(hex: "0A0908") }
+
+    /// Slate gray surface (Tailwind gray-700)
+    static var surfaceSlate: Color { Color(hex: "2D3748") }
+
+    /// Medium gray surface
+    static var surfaceMedium: Color { Color(hex: "3A3A3A") }
+
+    /// Neutral gray
+    static var neutralGray: Color { Color(hex: "808080") }
+
+    /// Navy deep (for showcase backgrounds)
+    static var navyDeep: Color { Color(hex: "1D4E89") }
+
+    /// Dark ochre/bronze variant
+    static var ochreDeep: Color { Color(hex: "8B6914") }
+
+    /// Gold warm variant
+    static var goldWarm: Color { Color(hex: "E8C978") }
+
+    /// Off-white/ivory variant
+    static var offWhite: Color { Color(hex: "F5F5F0") }
+
+    /// Light gray
+    static var lightGray: Color { Color(hex: "E5E5E5") }
 }
 
-// MARK: - ═══════════════════════════════════════════════════════════════
-// MARK: - WCAG CONTRAST VERIFICATION
-// MARK: - ═══════════════════════════════════════════════════════════════
+// MARK: - Temporary Color Stubs (TO DELETE after production file migration)
+
+extension Color {
+    // Production preview colors - TODO: Update previews to use Colors.Surface.background(for:)
+    /// Used in: AIInsightCard, StreakBadge, ChatEntryButton, DiscoveryCarousel previews
+    static var forumNight: Color { Color(hex: "0B0B0C") }
+
+    /// Legacy marble white - kept for backward compatibility
+    static var marbleWhite: Color { Color(hex: "F5F5F5") }
+
+
+    // Production decorative colors - TO DELETE after component migration
+    /// Used in: IlluminatedInsightPreview, MenuPositioning
+    static var antiqueStone: Color { Color(hex: "F5F5F5").opacity(0.95) }
+
+    /// Used in: IlluminatedIcon
+    static var monasteryBlack: Color { Color(hex: "0B0B0C") }
+
+    /// Used in: VerseNumberView
+    static var verseNumber: Color { Color.gray.opacity(0.7) }
+
+    /// Used in: Preview backgrounds
+    static var chapelShadow: Color { Color(hex: "1A1A1A") }
+
+    /// Used in: IlluminatedIcon
+    static var illuminatedGold: Color { Color(hex: "D4AF37") }
+
+    /// Used in: Breathe feature
+    static var complineStarlight: Color { Color(hex: "E8D5B7") }
+
+    /// Used in: DeveloperSectionView (showcase navigation)
+    /// TO DELETE after DeveloperSectionView migration
+    static var thresholdRose: Color { Color(hex: "C76E8B") }
+
+    /// Used in: VellumScrollToast
+    /// TO DELETE after VellumScrollToast migration
+    static var burnishedGold: Color { Color(hex: "6B5844") }
+
+    /// Used in: TheLibraryPage showcase
+    /// TO DELETE after showcase exclusion from build
+    static var meridianGilded: Color { Color(hex: "D4AF37") }
+    static var meridianSepia: Color { Color(hex: "8B7355") }
+    static var meridianIllumination: Color { Color(hex: "FFE5B4") }
+
+    /// Legacy soft rose - kept for backward compatibility
+    static var softRose: Color { Color(hex: "FFB6C1") }
+
+    // MARK: - Time-of-Day Colors (Deprecated)
+    // TO DELETE after SanctuaryTimeOfDay removal - these colors support the deprecated time-awareness feature
+
+    // Dawn colors
+    static var dawnAccent: Color { Color(hex: "FF8C42") }  // Orange accent
+    static var dawnSunrise: Color { Color(hex: "FFB84D") }  // Sunrise orange
+    static var dawnLavender: Color { Color(hex: "E6E6FA") }  // Cool lavender
+    static var dawnSlate: Color { Color(hex: "2F4F4F") }  // Dark slate
+    static var dawnSlateLight: Color { Color(hex: "708090") }  // Lighter slate
+
+    // Meridian colors (additional to above showcase colors)
+    static var meridianParchment: Color { Color(hex: "F4E8D0") }  // Warm parchment
+    static var meridianUmber: Color { Color(hex: "826644") }  // Warm brown
+    static var meridianVermillion: Color { Color(hex: "E34234") }  // Manuscript red
+
+    // Afternoon colors
+    static var afternoonAmber: Color { Color(hex: "FFBF00") }  // Amber
+    static var afternoonHoney: Color { Color(hex: "FFA500") }  // Honey gold
+    static var afternoonIvory: Color { Color(hex: "FFFFF0") }  // Warm ivory
+    static var afternoonEspresso: Color { Color(hex: "3B2F2F") }  // Rich espresso
+    static var afternoonMocha: Color { Color(hex: "6F4E37") }  // Mocha brown
+
+    // Vespers colors
+    static var vespersAmber: Color { Color(hex: "FF9933") }  // Amber
+    static var vespersIndigo: Color { Color(hex: "4B0082") }  // Indigo
+    static var vespersSky: Color { Color(hex: "191970") }  // Midnight blue
+    static var vespersText: Color { Color(hex: "F5F5F5") }  // Soft ivory
+    static var vespersGoldAccent: Color { Color(hex: "DAA520") }  // Gold accent
+    static var vesperGold: Color { Color(hex: "B8860B") }  // Dark goldenrod
+
+    // Compline colors
+    static var candleAmber: Color { Color(hex: "FFA500") }  // Candle amber
+    static var roseIncense: Color { Color(hex: "FF007F") }  // Rose
+    static var starlight: Color { Color(hex: "F0F0F0") }  // Starlight
+    static var moonMist: Color { Color(hex: "C0C0C0") }  // Moon mist
+
+    // Jewel colors
+    /// TO DELETE after FloatingSanctuarySettings migration
+    static var vermillionJewel: Color { Color(hex: "E34234") }  // Manuscript red/vermillion
+
+    // Legacy manuscript colors
+    /// TO DELETE after IlluminatedIcon/NoteEditor migration
+    static var agedInk: Color { Color(hex: "1A1A1A") }  // Aged ink color
+    /// TO DELETE after LoadingView migration
+    static var goldLeafShimmer: Color { Color(hex: "FFD700") }  // Gold leaf shimmer
+    /// TO DELETE after ManuscriptTheme migration
+    static var ancientGold: Color { Color(hex: "D4AF37") }  // Ancient gold
+    /// TO DELETE after ManuscriptTheme migration
+    static var fadedMoonlight: Color { Color(hex: "E8E4DC") }  // Faded moonlight
+
+    /// Legacy Surface namespace for backward compatibility
+    /// Redirects to Colors.Surface functions
+    /// TO DELETE after VellumScrollToast migration
+    enum Surface {
+        static func surface(colorScheme: ColorScheme) -> Color {
+            Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
+        }
+
+        static func card(colorScheme: ColorScheme) -> Color {
+            Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
+        }
+
+        static func background(colorScheme: ColorScheme) -> Color {
+            Colors.Surface.background(for: ThemeMode.current(from: colorScheme))
+        }
+
+        static func divider(colorScheme: ColorScheme) -> Color {
+            Colors.Surface.divider(for: ThemeMode.current(from: colorScheme))
+        }
+
+        static func textPrimary(colorScheme: ColorScheme) -> Color {
+            Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme))
+        }
+
+        static func textSecondary(colorScheme: ColorScheme) -> Color {
+            Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme))
+        }
+
+        // Legacy computed properties for backward compatibility with code that doesn't pass colorScheme
+        static var surface: Color { Color(hex: "1A1A1A") }
+        static var card: Color { Color(hex: "1A1A1A") }
+        static var background: Color { Color(hex: "0B0B0C") }
+        static var divider: Color { Color.gray.opacity(0.15) }
+        static var textPrimary: Color { Color(hex: "F5F5F5") }
+        static var textSecondary: Color { Color.gray.opacity(0.75) }
+    }
+
+    /// TO DELETE after TopicDetailView/TopicExplorerView migration
+    static var secondaryBackground: Color { Color(hex: "1A1A1A") }
+
+    /// TO DELETE after AskChatComponents migration
+    static var primaryBackground: Color { Color(hex: "0B0B0C") }  // Near-black primary background
+
+    /// TO DELETE after ForumHomeView migration
+    static var stoicTaupe: Color { Color(hex: "9B8B7A") }
+
+    // MARK: - Theme Mode Background Colors
+    // Temporary stubs for BibleStudyApp theme switching
+    // TO DELETE after AppState migration
+
+    static var lightBackground: Color { Color(hex: "FAF7F2") }  // Parchment
+    static var darkBackground: Color { Color(hex: "0B0B0C") }   // Near-black
+    static var sepiaBackground: Color { Color(hex: "F4ECD8") }  // Warm sepia
+    static var oledBackground: Color { Color(hex: "000000") }   // Pure black
+
+    static var moonlitParchment: Color { Color(hex: "E8E4DC") } // Light mode text background
+    static var sepiaText: Color { Color(hex: "2C1810") }        // Sepia mode text
+    static var oledText: Color { Color(hex: "F5F5F5") }         // OLED mode text (soft ivory)
+
+    static var sepiaSurface: Color { Color(hex: "EAE0CC") }     // Sepia mode surface
+    static var oledSurface: Color { Color(hex: "0F0F0F") }      // OLED mode surface (slightly raised from pure black)
+
+    static var sepiaSecondaryText: Color { Color(hex: "5C4A3A") } // Sepia mode secondary text
+    static var oledSecondaryText: Color { Color.gray.opacity(0.75) } // OLED mode secondary text
+
+    /// TO DELETE after StarfieldBackground migration
+    static var moonlitMarble: Color { Color(hex: "E8E4DC") }  // Light marble color for starfield
+
+    /// TO DELETE after StreakBadge migration
+    static var showcasePrimaryText: Color { Color(hex: "F5F5F5") }  // Showcase text color
+
+    /// TO DELETE after ChatEntryButton migration
+    static var glassOverlay: Color { Color.clear }  // Transparent glass overlay
+
+    /// TO DELETE after CardStyle migration
+    static var stoicGray: Color { Color(hex: "9B8B7A") }  // Stoic taupe/gray color
+
+    /// TO DELETE after DiscoveryCarousel migration
+    static var mutedStone: Color { Color.gray.opacity(0.3) }  // Muted stone color
+    static var deepPurple: Color { Color(hex: "6366F1") }  // Deep purple accent
+
+    /// Legacy Menu color namespace
+    /// TO DELETE after UnifiedContextMenu migration
+    enum Menu {
+        static var background: Color { Color(hex: "1A1A1A") }  // Menu background
+        static var backgroundDark: Color { Color(hex: "0B0B0C") }  // Dark menu background
+        static var backgroundLight: Color { Color(hex: "F8F6F0") }  // Light menu background
+        static var divider: Color { Color.gray.opacity(0.15) }  // Menu divider
+        static var text: Color { Color(hex: "F5F5F5") }  // Menu text
+    }
+
+    /// Legacy Semantic namespace
+    /// TO DELETE after Audio features migration
+    enum Semantic {
+        static var accent: Color { Color(hex: "6366F1") }  // AccentAction for dark mode
+    }
+
+    /// Legacy Glow namespace
+    /// TO DELETE after Auth/IlluminatedMenu features migration
+    enum Glow {
+        static var accent: Color { Color(hex: "6366F1").opacity(0.3) }  // AccentAction glow
+        static var indigoAmbient: Color { Color(hex: "6366F1").opacity(0.2) }  // Subtle indigo ambient glow
+        static var indigoBright: Color { Color(hex: "6366F1").opacity(0.4) }  // Brighter indigo glow
+    }
+
+    // MARK: - Surface Convenience Colors
+    // Shorthand access to common surface colors
+    // Note: Color.surfaceBackground is auto-generated from SurfaceBackground.colorset asset
+    // We don't need to define it here - it comes from the asset catalog
+
+    // MARK: - Roman Palette Colors
+    // Used in RomanSanctuaryView and Bible features for gem-stone accents
+    // Note: Color.greekBlue is auto-generated from GreekBlue.colorset asset
+
+    /// Lapis blue - Sermon recording accent
+    static var lapisBlue: Color { Color(hex: "1E3A5F") }  // Deep lapis lazuli
+
+    /// Terracotta red - Decorative accent for feature cards
+    static var terracottaRed: Color { Color(hex: "A45A52") }  // Roman terracotta
+
+    /// Malachite green - Breathe feature accent
+    static var malachiteGreen: Color { Color(hex: "0D6B4F") }  // Deep malachite green
+
+    // MARK: - Bible Feature Colors
+
+    /// Olive green - Bible insights, journal save state
+    static var bibleOlive: Color { Color(hex: "4A7C59") }
+
+    /// Dusky rose - Bible insight reflection
+    static var bibleReflection: Color { Color(hex: "9D6B7C") }
+
+    /// Purple accent - Bible study
+    static var studyPurple: Color { Color(hex: "9966CC") }
+
+    // MARK: - AI Feature Gradient Colors (Tailwind-inspired)
+
+    /// Cyan accent - Scripture Finds You
+    static var cyanAccent: Color { Color(hex: "06B6D4") }
+
+    /// Teal accent - Memory Palace
+    static var tealAccent: Color { Color(hex: "14B8A6") }
+
+    /// Rose accent - Prayers from Deep
+    static var roseAccent: Color { Color(hex: "F43F5E") }
+
+    /// Pink accent - Prayers from Deep gradient
+    static var pinkAccent: Color { Color(hex: "EC4899") }
+
+    /// Navy accent - Compline night mode
+    static var complineNavy: Color { Color(hex: "1E3A5F") }
+
+    /// Indigo deep - Compline gradient
+    static var indigoDeep: Color { Color(hex: "312E81") }
+
+    // MARK: - Compline/Experience Colors
+
+    /// Near-black void - Compline background
+    static var complineVoid: Color { Color(hex: "050510") }
+
+    /// Deep slate - Breathe/meditation backgrounds
+    static var slateDeep: Color { Color(hex: "0F172A") }
+
+    /// Deep indigo background - Compline moon phase
+    static var indigoBackground: Color { Color(hex: "1E1B4B") }
+
+    /// Orange glow - Candle flame
+    static var candleOrange: Color { Color(hex: "EA580C") }
+
+    /// Cream warm - Candle flame highlight
+    static var creamWarm: Color { Color(hex: "FEF3C7") }
+
+    /// Light indigo tint - Moon glow
+    static var moonGlow: Color { Color(hex: "C7D2FE") }
+
+    // MARK: - Settings/Theme Preview Colors
+
+    /// Sepia preview background
+    static var sepiaPreview: Color { Color(hex: "F5EDE0") }
+
+    /// Pure black for OLED preview
+    static var oledPreview: Color { Color(hex: "000000") }
+
+    // MARK: - RomanBackground Colors
+
+    /// Brown stone - Roman background variant
+    static var brownStone: Color { Color(hex: "5D4E37") }
+
+    // MARK: - ManuscriptTheme Colors
+
+    /// Sacred navy background for manuscript
+    static var manuscriptNavy: Color { Color(hex: "0A0D1A") }
+}
+
+// MARK: - SwiftUI Environment Integration
+
+@available(iOS 13.0, *)
+extension View {
+    /// Helper to resolve ThemeMode from SwiftUI environment
+    func resolveMode(_ colorScheme: ColorScheme) -> ThemeMode {
+        ThemeMode.current(from: colorScheme)
+    }
+}
+
+// MARK: - Color Opacity Ladder (Documentation)
 
 /*
- WCAG 2.1 Contrast Requirements:
- - AA (minimum): 4.5:1 for normal text, 3:1 for large text
- - AAA (enhanced): 7:1 for normal text, 4.5:1 for large text
+ Opacity Ladder for Contrast Hierarchy:
 
- All color combinations in this file meet WCAG AAA compliance.
+ - Primary text: 92-96% opacity
+ - Secondary text: 70-80% opacity (implemented as 75%)
+ - Metadata: 55-65% opacity (implemented as 60%)
+ - Disabled: 30-40% opacity (implemented as 35%)
+ - Dividers: 10-16% opacity (implemented as 15%)
 
- ┌─────────────────────────────┬─────────────────────────────┬───────────────┐
- │ Background                  │ Text                        │ Contrast Ratio│
- ├─────────────────────────────┼─────────────────────────────┼───────────────┤
- │ freshVellum #FBF7F0         │ monasteryBlack #1C1917      │ ~15:1 ✅ AAA  │
- │ freshVellum #FBF7F0         │ agedInk #3D3531             │ ~9:1 ✅ AAA   │
- │ agedParchment #F5EDE0       │ sepiaInk #4A3728            │ ~8:1 ✅ AAA   │
- │ candlelitStone #1A1816      │ moonlitParchment #E8E4DC    │ ~12:1 ✅ AAA  │
- │ candlelitStone #1A1816      │ fadedMoonlight #A8A29E      │ ~7:1 ✅ AAA   │
- │ chapelShadow #252220        │ moonlitParchment #E8E4DC    │ ~10:1 ✅ AAA  │
- │ oledBlack #000000           │ moonlitParchment #E8E4DC    │ ~14:1 ✅ AAA  │
- │ vellumCream #FEFDFB         │ scholarInk #1C1917          │ ~15:1 ✅ AAA  │
- │ dawnFrost #FFFBF5           │ dawnSlate #1E293B           │ ~13:1 ✅ AAA  │
- │ meridianParchment #F8F4EB   │ meridianSepia #2C1810       │ ~11:1 ✅ AAA  │
- │ afternoonIvory #FAF7F2      │ afternoonEspresso #3D2C1E   │ ~10:1 ✅ AAA  │
- │ vespersSky #1E1B4B          │ vespersText #C4B5FD         │ ~8:1 ✅ AAA   │
- │ nightVoid #03030A           │ starlight #E8E4F0           │ ~13:1 ✅ AAA  │
- └─────────────────────────────┴─────────────────────────────┴───────────────┘
+ Rule: If you can't tell importance via opacity and size, hierarchy is failing
 
- Scholar Indigo Accent Usage:
- - scholarIndigo #4F46E5 should be used for:
-   • Buttons with white text (contrast ~8:1 ✅ AAA)
-   • Primary interactive elements
-   • Borders and accents
- - scholarIndigoAccessible #4338CA for text on light backgrounds (7.8:1 contrast)
- - scholarIndigoDark #6366F1 for dark mode (5.8:1 on candlelitStone)
-
- Scholar Indigo Contrast Verification:
- ┌─────────────────────────────┬─────────────────────────────┬───────────────┐
- │ Background                  │ Element                     │ Contrast Ratio│
- ├─────────────────────────────┼─────────────────────────────┼───────────────┤
- │ vellumCream #FEFDFB         │ scholarIndigo #4F46E5       │ ~6.2:1 ✅ AA  │
- │ vellumCream #FEFDFB         │ scholarIndigoAccessible     │ ~7.8:1 ✅ AAA │
- │ candlelitStone #1A1816      │ scholarIndigoDark #6366F1   │ ~5.8:1 ✅ AA  │
- │ oledBlack #000000           │ scholarIndigoLight #818CF8  │ ~8.5:1 ✅ AAA │
- │ scholarIndigo #4F46E5       │ white                       │ ~8.0:1 ✅ AAA │
- └─────────────────────────────┴─────────────────────────────┴───────────────┘
-
- USAGE GUIDELINES:
-
- Backgrounds:
- - Light mode: freshVellum, vellumCream, meridianParchment
- - Dark mode: candlelitStone, chapelShadow, nightVoid
- - OLED: oledBlack, oledSurface
-
- Text:
- - Primary (light): monasteryBlack, scholarInk, dawnSlate
- - Primary (dark): moonlitParchment, starlight, vespersText
- - Secondary (light): agedInk, footnoteGray
- - Secondary (dark): fadedMoonlight, moonMist
-
- Accents (Scholar Indigo):
- - Primary action: scholarIndigo
- - Pressed state: scholarIndigoPressed
- - Highlight glow: scholarIndigoLight
- - Accessible text: scholarIndigoAccessible
- - Dark mode accent: scholarIndigoDark
-
- Highlights (verse marking - Scholar supporting colors):
- - Blue: greekBlue #2563EB (annotations)
- - Green: theologyGreen #059669 (doctrinal)
- - Amber: connectionAmber #D97706 (cross-references)
- - Rose: personalRose #DB2777 (reflective)
- - Purple: amethystJewel #6B4C8C (general)
-*/
+ Accessibility Constraint:
+ - All text must meet WCAG AA (4.5:1 minimum)
+ - Ivory (#F5F5F5) on near-black (#0B0B0C) = 14.8:1 ratio ✅
+ - Test AccentAction on backgrounds for sufficient contrast
+ */

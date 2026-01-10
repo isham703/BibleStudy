@@ -7,6 +7,7 @@ import SwiftUI
 struct WarmAskLandingView: View {
     // MARK: - Environment & State
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage(AppConfiguration.UserDefaultsKeys.hasConsentedToAIProcessing)
     private var hasAIConsent: Bool = false
@@ -34,7 +35,7 @@ struct WarmAskLandingView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             // 1. Personal Welcome (reuse GreetingHeader pattern)
             GreetingHeader(userName: viewModel.userName)
                 .opacity(greetingOpacity)
@@ -42,7 +43,7 @@ struct WarmAskLandingView: View {
 
             // Warm subtitle
             Text("What's on your mind today?")
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .opacity(greetingOpacity)
                 .offset(y: contentOffset * 0.5)
@@ -57,14 +58,14 @@ struct WarmAskLandingView: View {
             }
 
             // 3. Contextual Question Suggestions
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 Text("Try asking...")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
 
                 if useVerticalChipLayout {
                     // Vertical stack for large Dynamic Type
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                         ForEach(Array(viewModel.suggestedQuestions.enumerated()), id: \.offset) { index, question in
                             ContextualQuestionChip(
                                 question: question,
@@ -78,7 +79,7 @@ struct WarmAskLandingView: View {
                 } else {
                     // Horizontal scroll for normal sizes - extend beyond parent padding
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: AppTheme.Spacing.sm) {
+                        HStack(spacing: Theme.Spacing.sm) {
                             ForEach(Array(viewModel.suggestedQuestions.enumerated()), id: \.offset) { index, question in
                                 ContextualQuestionChip(
                                     question: question,
@@ -89,9 +90,9 @@ struct WarmAskLandingView: View {
                                 .accessibilityLabel("Suggested question: \(question)")
                             }
                         }
-                        .padding(.horizontal, AppTheme.Spacing.lg)
+                        .padding(.horizontal, Theme.Spacing.lg)
                     }
-                    .padding(.horizontal, -AppTheme.Spacing.lg) // Extend to screen edges
+                    .padding(.horizontal, -Theme.Spacing.lg) // Extend to screen edges
                 }
             }
             .opacity(questionsOpacity)
@@ -104,7 +105,7 @@ struct WarmAskLandingView: View {
                 .frame(height: 60)
                 .opacity(questionsOpacity * 0.3)
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
+        .padding(.horizontal, Theme.Spacing.lg)
         .onAppear {
             viewModel.loadContext(from: appState)
             startEntranceAnimation()
@@ -134,14 +135,14 @@ struct WarmAskLandingView: View {
         }
 
         // Phase 1: Greeting fades in (0-200ms)
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             greetingOpacity = 1
             contentOffset = 10
         }
 
         // Phase 2: Context card appears (100-300ms)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            withAnimation(AppTheme.Animation.sacredSpring) {
+            withAnimation(Theme.Animation.settle) {
                 contextCardOpacity = 1
                 contentOffset = 0
             }
@@ -149,7 +150,7 @@ struct WarmAskLandingView: View {
 
         // Phase 3: Questions unfurl (200-500ms)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 questionsOpacity = 1
             }
         }
@@ -167,30 +168,31 @@ private struct ReadingContextCard: View {
     let context: ReadingContext
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Book icon with accent circle
                 ZStack {
                     Circle()
-                        .fill(Color.scholarIndigo.opacity(0.1))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
                         .frame(width: 44, height: 44)
 
                     Image(systemName: "book.fill")
-                        .font(Typography.UI.body)
-                        .foregroundStyle(Color.scholarIndigo)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Context text
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(context.displayText)
-                        .font(Typography.UI.bodyBold)
+                        .font(Typography.Command.body.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
 
                     Text("Have a question about this passage?")
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.secondaryText)
                 }
 
@@ -198,23 +200,23 @@ private struct ReadingContextCard: View {
 
                 // Chevron
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(Theme.Spacing.lg)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
                     .fill(Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
                     .strokeBorder(
-                        Color.scholarIndigo.opacity(AppTheme.Opacity.light),
-                        lineWidth: AppTheme.Border.thin
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                        lineWidth: Theme.Stroke.hairline
                     )
             )
-            .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1.0)
-            .animation(AppTheme.Animation.quick, value: isPressed)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
+            .animation(Theme.Animation.fade, value: isPressed)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
@@ -234,30 +236,32 @@ private struct ContextualQuestionChip: View {
     let isEnabled: Bool
     let onTap: () -> Void
 
-    var body: some View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View{
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 // Sparkle icon
                 Image(systemName: "sparkle")
-                    .font(Typography.UI.iconXxs)
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Icon.xxs)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 Text(question)
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.primaryText)
                     .lineLimit(2)
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm + 2)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm + 2)
             .background(
                 Capsule()
                     .fill(Color.surfaceBackground)
                     .overlay(
                         Capsule()
-                            .strokeBorder(Color.divider, lineWidth: AppTheme.Border.thin)
+                            .strokeBorder(Color.divider, lineWidth: Theme.Stroke.hairline)
                     )
             )
-            .opacity(isEnabled ? 1.0 : AppTheme.Opacity.disabled)
+            .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
         }
         .buttonStyle(PressableChipButtonStyle())
     }
@@ -266,17 +270,18 @@ private struct ContextualQuestionChip: View {
 private struct PressableChipButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? AppTheme.Scale.pressed : 1.0)
-            .animation(AppTheme.Animation.quick, value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(Theme.Animation.fade, value: configuration.isPressed)
     }
 }
 
 // MARK: - Warm Accent Glow
 
 private struct WarmAccentGlow: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var glowIntensity: CGFloat = 0.6
 
-    private var respectsReducedMotion: Bool {
+    private var respectsReducedMotion: Bool{
         UIAccessibility.isReduceMotionEnabled
     }
 
@@ -285,8 +290,8 @@ private struct WarmAccentGlow: View {
             .fill(
                 RadialGradient(
                     colors: [
-                        Color.scholarIndigo.opacity(glowIntensity * 0.15),
-                        Color.scholarIndigo.opacity(glowIntensity * 0.08),
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity * 0.15),
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity * 0.08),
                         Color.clear
                     ],
                     center: .center,
@@ -294,10 +299,10 @@ private struct WarmAccentGlow: View {
                     endRadius: 150
                 )
             )
-            .blur(radius: AppTheme.Blur.intense)
+            .blur(radius: 16)
             .onAppear {
                 guard !respectsReducedMotion else { return }
-                withAnimation(AppTheme.Animation.pulse) {
+                withAnimation(Theme.Animation.fade) {
                     glowIntensity = 0.8
                 }
             }

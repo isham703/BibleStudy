@@ -3,23 +3,18 @@ import StoreKit
 import Auth
 
 // MARK: - Settings View Model
-// Centralized state management for Settings with subscription integration
+// Service delegation, computed properties, and async actions for Settings.
+// Simple boolean preferences use @AppStorage directly in views (FloatingSanctuarySettings).
 
 @Observable
 @MainActor
 final class SettingsViewModel {
     // MARK: - Dependencies
-    private let authService = AuthService.shared
-    private let notificationService = NotificationService.shared
-    private let storeManager = StoreManager.shared
-    private let entitlementManager = EntitlementManager.shared
-
-    // MARK: - Reading Preferences
-    var devotionalModeEnabled: Bool {
-        didSet {
-            UserDefaults.standard.set(devotionalModeEnabled, forKey: AppConfiguration.UserDefaultsKeys.devotionalModeEnabled)
-        }
-    }
+    private let authService: AuthService
+    private let notificationService: NotificationService
+    private let storeManager: StoreManager
+    private let entitlementManager: EntitlementManager
+    private let biometricService: BiometricService
 
     // MARK: - Audio Cache Properties
 
@@ -71,8 +66,6 @@ final class SettingsViewModel {
     }
 
     // MARK: - Biometric Properties
-
-    private let biometricService = BiometricService.shared
 
     var isBiometricAvailable: Bool {
         biometricService.isAvailable
@@ -195,14 +188,28 @@ final class SettingsViewModel {
 
     // MARK: - Initialization
 
-    init() {
-        // Load persisted preferences
-        self.devotionalModeEnabled = UserDefaults.standard.bool(forKey: AppConfiguration.UserDefaultsKeys.devotionalModeEnabled)
+    init(
+        authService: AuthService? = nil,
+        notificationService: NotificationService? = nil,
+        storeManager: StoreManager? = nil,
+        entitlementManager: EntitlementManager? = nil,
+        biometricService: BiometricService? = nil
+    ) {
+        // Use provided services or fall back to shared instances
+        // Note: .shared access is inside the MainActor-isolated init body
+        // to avoid Swift 6 concurrency warnings in default parameters
+        self.authService = authService ?? .shared
+        self.notificationService = notificationService ?? .shared
+        self.storeManager = storeManager ?? .shared
+        self.entitlementManager = entitlementManager ?? .shared
+        self.biometricService = biometricService ?? .shared
+    }
 
-        // Load renewal date if premium
-        Task {
-            await loadRenewalDate()
-        }
+    // MARK: - Lifecycle
+
+    /// Call this from the view's .task modifier to load initial async data
+    func loadInitialData() async {
+        await loadRenewalDate()
     }
 
     // MARK: - Actions
@@ -210,6 +217,11 @@ final class SettingsViewModel {
     func signOut() async {
         isSigningOut = true
         defer { isSigningOut = false }
+
+        // Clear biometric credentials for security (Face ID/Touch ID tokens)
+        biometricService.clearCredentials()
+
+        // Sign out from auth service (invalidates Supabase session)
         try? await authService.signOut()
     }
 

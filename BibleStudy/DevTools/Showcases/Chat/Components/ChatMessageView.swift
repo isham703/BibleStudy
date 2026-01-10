@@ -134,7 +134,7 @@ struct ShowcaseChatMessageView: View {
         HStack(spacing: 4) {
             ForEach(0..<3) { index in
                 Circle()
-                    .fill(palette.textColor.opacity(0.6))
+                    .fill(palette.textColor.opacity(Theme.Opacity.tertiary))
                     .frame(width: 6, height: 6)
                     .offset(y: typingOffset(for: index))
             }
@@ -163,10 +163,10 @@ struct ShowcaseChatMessageView: View {
     private func citationChip(_ citation: ShowcaseChatMessage.Citation) -> some View {
         HStack(spacing: 4) {
             Image(systemName: citationIcon(for: citation.type))
-                .font(.system(size: 10, weight: .medium))
+                .font(Typography.Icon.xxs)
 
             Text(citation.reference)
-                .font(.system(size: 11, weight: .medium))
+                .font(Typography.Icon.xxs.weight(.medium))
         }
         .foregroundStyle(ChatPalette.Scholarly.accent)
         .padding(.horizontal, 8)

@@ -10,7 +10,8 @@ import WidgetKit
 @Observable
 final class ProgressService {
     // MARK: - Singleton
-    static let shared = ProgressService()
+    // nonisolated(unsafe) allows access as default parameter values in @MainActor class inits
+    nonisolated(unsafe) static let shared = ProgressService()
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
@@ -28,7 +29,8 @@ final class ProgressService {
     var graceDaysRemaining: Int { progress?.graceDaysRemaining ?? 1 }
 
     // MARK: - Initialization
-    private init() {}
+    // Note: nonisolated to allow initialization from nonisolated(unsafe) static let shared
+    private nonisolated init() {}
 
     // MARK: - Load Progress
 

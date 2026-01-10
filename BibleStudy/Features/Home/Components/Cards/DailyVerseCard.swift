@@ -1,157 +1,53 @@
 import SwiftUI
 
-// MARK: - Mock Daily Verse Card
-// Displays the daily verse with three style variants
-
-enum VerseCardStyle {
-    case minimal      // Hairline dividers, centered text, no background
-    case standard     // Glass card with gradient
-    case narrative    // Large decorative quote, dramatic typography
-}
+// MARK: - Daily Verse Card
+// Displays the daily verse with flat styling
+// Stoic-Existential Renaissance design
 
 struct DailyVerseCard: View {
     let verse: MockDailyVerse
-    let style: VerseCardStyle
-
-    @State private var isVisible = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        switch style {
-        case .minimal:
-            minimalStyle
-        case .standard:
-            standardStyle
-        case .narrative:
-            narrativeStyle
-        }
-    }
-
-    // MARK: - Minimal Style
-
-    private var minimalStyle: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
-            // Top hairline
-            goldHairline
-
-            // Verse text
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            // Verse text (serif for contemplation)
             Text("\"\(verse.text)\"")
-                .font(SanctuaryTypography.Minimalist.verse)
-                .foregroundStyle(Color.moonlitParchment)
-                .multilineTextAlignment(.center)
-                .lineSpacing(8)
-                .opacity(isVisible ? 1 : 0)
-                .animation(.easeOut(duration: 0.6).delay(0.3), value: isVisible)
+                .font(Typography.Scripture.body)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .lineSpacing(6)
 
-            // Reference
-            Text("— \(verse.reference)")
-                .font(SanctuaryTypography.Minimalist.reference)
-                .tracking(3)
-                .foregroundStyle(Color.divineGold)
-                .opacity(isVisible ? 1 : 0)
-                .animation(.easeOut(duration: 0.4).delay(0.6), value: isVisible)
-
-            // Bottom hairline
-            goldHairline
-        }
-        .padding(.vertical, AppTheme.Spacing.xxl)
-        .onAppear {
-            isVisible = true
-        }
-    }
-
-    private var goldHairline: some View {
-        Rectangle()
-            .fill(Color.divineGold)
-            .frame(width: 80, height: 1)
-            .scaleEffect(x: isVisible ? 1 : 0, anchor: .center)
-            .animation(.easeOut(duration: 0.6), value: isVisible)
-    }
-
-    // MARK: - Standard Style
-
-    private var standardStyle: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("\"\(verse.text)\"")
-                .font(.system(size: 17, weight: .regular, design: .serif))
-                .foregroundStyle(Color.moonlitParchment)
-                .lineSpacing(4)
-
+            // Reference (sans for metadata)
             Text(verse.reference)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Command.meta)
+                .tracking(1.5)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppTheme.Spacing.lg)
-        .glassCard()
-    }
-
-    // MARK: - Narrative Style
-
-    private var narrativeStyle: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            // Decorative open quote
-            Text("❝")
-                .font(SanctuaryTypography.Narrative.decorativeQuote)
-                .foregroundStyle(Color.divineGold.opacity(0.3))
-                .offset(y: 10)
-
-            // Verse text with glow
-            Text(verse.text)
-                .font(SanctuaryTypography.Narrative.verse)
-                .foregroundStyle(Color.moonlitParchment)
-                .multilineTextAlignment(.center)
-                .lineSpacing(6)
-                .shadow(color: Color.divineGold.opacity(0.2), radius: 2)
-
-            // Divider
-            Rectangle()
-                .fill(Color.divineGold.opacity(0.5))
-                .frame(width: 60, height: 1)
-
-            // Reference
-            Text(verse.reference)
-                .font(SanctuaryTypography.Narrative.sectionHeader)
-                .tracking(4)
-                .foregroundStyle(Color.divineGold)
-        }
-        .padding(.vertical, AppTheme.Spacing.xxl)
+        .padding(Theme.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(
+                    Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                    lineWidth: Theme.Stroke.hairline
+                )
+        )
     }
 }
 
 // MARK: - Preview
 
-#Preview("Minimal") {
+#Preview("Daily Verse Card") {
+    @Previewable @Environment(\.colorScheme) var colorScheme
+    let themeMode = ThemeMode.current(from: colorScheme)
+
     ZStack {
-        Color.deepVellumBlack.ignoresSafeArea()
+        Colors.Surface.background(for: themeMode).ignoresSafeArea()
 
-        DailyVerseCard(
-            verse: HomeShowcaseMockData.dailyVerse,
-            style: .minimal
-        )
-        .padding()
-    }
-}
-
-#Preview("Standard") {
-    ZStack {
-        Color.candlelitStone.ignoresSafeArea()
-
-        DailyVerseCard(
-            verse: HomeShowcaseMockData.dailyVerse,
-            style: .standard
-        )
-        .padding()
-    }
-}
-
-#Preview("Narrative") {
-    ZStack {
-        Color.candlelitStone.ignoresSafeArea()
-
-        DailyVerseCard(
-            verse: HomeShowcaseMockData.dailyVerse,
-            style: .narrative
-        )
-        .padding()
+        DailyVerseCard(verse: SanctuaryMockData.dailyVerse)
+            .padding()
     }
 }

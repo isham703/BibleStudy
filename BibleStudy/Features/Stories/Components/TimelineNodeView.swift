@@ -9,27 +9,28 @@ struct TimelineNodeView: View {
     let state: TimelineNodeState
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     private let nodeSize: CGFloat = 40
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.sm) {
                 // Timeline label (e.g., "Day 1")
                 if let label = segment.timelineLabel {
                     Text(label)
-                        .font(Typography.UI.caption2)
-                        .foregroundStyle(state.textColor)
+                        .font(Typography.Command.meta)
+                        .foregroundStyle(state.textColor(for: colorScheme))
                         .lineLimit(1)
                 }
 
                 // Node circle
                 ZStack {
                     Circle()
-                        .fill(state.circleColor)
+                        .fill(state.circleColor(for: colorScheme))
                         .frame(width: nodeSize, height: nodeSize)
 
                     Circle()
-                        .stroke(state.borderColor, lineWidth: AppTheme.Border.regular)
+                        .stroke(state.borderColor(for: colorScheme), lineWidth: Theme.Stroke.control)
                         .frame(width: nodeSize, height: nodeSize)
 
                     // Icon or number
@@ -37,34 +38,34 @@ struct TimelineNodeView: View {
                         switch state {
                         case .completed:
                             Image(systemName: "checkmark")
-                                .font(Typography.UI.subheadline)
+                                .font(Typography.Command.subheadline)
                                 .fontWeight(.bold)
-                                .foregroundStyle(state.iconColor)
+                                .foregroundStyle(state.iconColor(for: colorScheme))
                                 .transition(.scale.combined(with: .opacity))
                         case .current:
                             if let mood = segment.mood {
                                 Image(systemName: mood.icon)
-                                    .font(Typography.UI.subheadline)
+                                    .font(Typography.Command.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundStyle(state.iconColor)
+                                    .foregroundStyle(state.iconColor(for: colorScheme))
                             } else {
                                 Text("\(index + 1)")
-                                    .font(Typography.UI.caption1Bold.monospacedDigit())
-                                    .foregroundStyle(state.iconColor)
+                                    .font(Typography.Command.caption.weight(.semibold).monospacedDigit())
+                                    .foregroundStyle(state.iconColor(for: colorScheme))
                             }
                         case .upcoming:
                             Text("\(index + 1)")
-                                .font(Typography.UI.caption1.monospacedDigit())
-                                .foregroundStyle(state.iconColor)
+                                .font(Typography.Command.caption.monospacedDigit())
+                                .foregroundStyle(state.iconColor(for: colorScheme))
                         }
                     }
                 }
-                .shadow(state == .current ? AppTheme.Shadow.small : ShadowStyle(color: .clear, radius: 0, x: 0, y: 0))
+                .shadow(color: state == .current ? .black.opacity(Theme.Opacity.overlay) : .clear, radius: state == .current ? 4 : 0, x: 0, y: state == .current ? 2 : 0)
 
                 // Segment title
                 Text(segment.title)
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(state.textColor)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(state.textColor(for: colorScheme))
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
                     .frame(width: 80)
@@ -72,13 +73,13 @@ struct TimelineNodeView: View {
             .frame(width: 80)
         }
         .buttonStyle(.plain)
-        .animation(AppTheme.Animation.spring, value: state)
+        .animation(Theme.Animation.settle, value: state)
     }
 }
 
 // MARK: - Preview
 #Preview {
-    HStack(spacing: AppTheme.Spacing.xl) {
+    HStack(spacing: Theme.Spacing.xl) {
         TimelineNodeView(
             segment: StorySegment(
                 storyId: UUID(),

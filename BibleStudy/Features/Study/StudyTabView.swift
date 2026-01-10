@@ -12,13 +12,13 @@ struct StudyTabView: View {
             VStack(spacing: 0) {
                 // Section Picker (scrollable for 5 items)
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         ForEach(StudySection.allCases, id: \.self) { section in
                             StudySectionButton(
                                 section: section,
                                 isSelected: selectedSection == section
                             ) {
-                                withAnimation(AppTheme.Animation.quick) {
+                                withAnimation(Theme.Animation.fade) {
                                     selectedSection = section
                                 }
                             }
@@ -26,7 +26,7 @@ struct StudyTabView: View {
                     }
                     .padding(.horizontal)
                 }
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .padding(.vertical, Theme.Spacing.sm)
 
                 Divider()
 
@@ -72,24 +72,26 @@ struct StudySectionButton: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 sectionIcon
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                 Text(section.title)
-                    .font(Typography.UI.chipLabel)
+                    .font(Typography.Command.meta)
             }
             .foregroundStyle(isSelected ? .white : Color.primaryText)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)

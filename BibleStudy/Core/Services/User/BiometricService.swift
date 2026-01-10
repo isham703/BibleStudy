@@ -7,9 +7,10 @@ import Security
 
 @MainActor
 @Observable
-final class BiometricService {
+final class BiometricService: BiometricServiceProtocol {
     // MARK: - Singleton
-    static let shared = BiometricService()
+    // nonisolated(unsafe) allows access as default parameter values in @MainActor class inits
+    nonisolated(unsafe) static let shared = BiometricService()
 
     // MARK: - Properties
     private let context = LAContext()
@@ -31,11 +32,12 @@ final class BiometricService {
     }
 
     var hasStoredCredentials: Bool {
-        getStoredEmail() != nil
+        getStoredEmail() != nil && getStoredRefreshToken() != nil
     }
 
     // MARK: - Initialization
-    private init() {}
+    // Note: nonisolated to allow initialization from nonisolated(unsafe) static let shared
+    private nonisolated init() {}
 
     // MARK: - Biometric Type Detection
 
@@ -94,23 +96,59 @@ final class BiometricService {
         return nil
     }
 
+    /// Authenticate and retrieve both email and refresh token for true quick sign-in
+    /// Returns tuple of (email, refreshToken) if successful, nil otherwise
+    func authenticateAndGetToken() async -> (email: String, refreshToken: String)? {
+        guard isEnabled, hasStoredCredentials else { return nil }
+
+        let context = LAContext()
+        context.localizedCancelTitle = "Use Password"
+
+        do {
+            let reason = "Sign in to Bible Study"
+            let success = try await context.evaluatePolicy(
+                .deviceOwnerAuthenticationWithBiometrics,
+                localizedReason: reason
+            )
+
+            if success,
+               let email = getStoredEmail(),
+               let token = getStoredRefreshToken() {
+                return (email, token)
+            }
+        } catch {
+            print("Biometric authentication failed: \(error.localizedDescription)")
+        }
+
+        return nil
+    }
+
     // MARK: - Credential Storage
 
     /// Store credentials securely in Keychain after successful login
-    func storeCredentials(email: String) throws {
-        // Store email in keychain
+    /// - Parameters:
+    ///   - email: User's email address
+    ///   - refreshToken: Supabase refresh token for session restoration
+    func storeCredentials(email: String, refreshToken: String) throws {
         try setKeychainValue(email, forKey: emailKey)
+        try setKeychainValue(refreshToken, forKey: tokenKey)
     }
 
-    /// Clear stored credentials
+    /// Clear all stored credentials from Keychain
     func clearCredentials() {
         deleteKeychainValue(forKey: emailKey)
+        deleteKeychainValue(forKey: tokenKey)
         isEnabled = false
     }
 
     /// Get stored email from Keychain
     func getStoredEmail() -> String? {
         getKeychainValue(forKey: emailKey)
+    }
+
+    /// Get stored refresh token from Keychain
+    func getStoredRefreshToken() -> String? {
+        getKeychainValue(forKey: tokenKey)
     }
 
     // MARK: - Keychain Operations

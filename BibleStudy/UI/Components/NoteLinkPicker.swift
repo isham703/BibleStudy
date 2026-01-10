@@ -59,12 +59,12 @@ struct NoteLinkPicker: View {
                     if filteredNotes.isEmpty {
                         if searchText.isEmpty {
                             Text("No other notes available to link")
-                                .font(Typography.UI.body)
+                                .font(Typography.Command.body)
                                 .foregroundStyle(Color.secondaryText)
                                 .listRowBackground(Color.clear)
                         } else {
                             Text("No notes match your search")
-                                .font(Typography.UI.body)
+                                .font(Typography.Command.body)
                                 .foregroundStyle(Color.secondaryText)
                                 .listRowBackground(Color.clear)
                         }
@@ -108,36 +108,37 @@ struct NoteLinkPicker: View {
 
 // MARK: - Linked Note Row
 struct LinkedNoteRow: View {
+    @Environment(\.colorScheme) private var colorScheme
     let note: Note
     let isLinked: Bool
     let onToggle: () -> Void
 
     var body: some View {
         Button(action: onToggle) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Link status indicator
                 Image(systemName: isLinked ? "link.circle.fill" : "link.circle")
-                    .font(Typography.UI.title2)
-                    .foregroundStyle(isLinked ? Color.scholarAccent : Color.tertiaryText)
+                    .font(Typography.Command.title2)
+                    .foregroundStyle(isLinked ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.tertiaryText)
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     // Reference
                     Text(note.reference)
-                        .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.caption.weight(.semibold))
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                     // Preview
                     Text(note.preview)
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
                         .lineLimit(2)
 
                     // Template badge
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: note.template.icon)
                         Text(note.template.displayName)
                     }
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
                 }
 
@@ -145,10 +146,10 @@ struct LinkedNoteRow: View {
 
                 if isLinked {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(Color.scholarAccent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.vertical, Theme.Spacing.xs)
         }
     }
 }
@@ -157,44 +158,45 @@ struct LinkedNoteRow: View {
 // Shows linked notes in a compact view
 
 struct LinkedNotesDisplay: View {
+    @Environment(\.colorScheme) private var colorScheme
     let linkedNotes: [Note]
     let onNoteTap: (Note) -> Void
     let onRemoveLink: (Note) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             HStack {
                 Image(systemName: "link")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.secondaryText)
 
                 Text("Linked Notes")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.secondaryText)
 
                 Spacer()
 
                 Text("\(linkedNotes.count)")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
             }
 
             ForEach(linkedNotes) { note in
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Button {
                         onNoteTap(note)
                     } label: {
-                        HStack(spacing: AppTheme.Spacing.sm) {
+                        HStack(spacing: Theme.Spacing.sm) {
                             Circle()
-                                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
-                                .frame(width: AppTheme.ComponentSize.indicator, height: AppTheme.ComponentSize.indicator)
+                                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                                .frame(width: 8, height: 8)
 
                             Text(note.reference)
-                                .font(Typography.UI.caption1Bold)
-                                .foregroundStyle(Color.scholarAccent)
+                                .font(Typography.Command.caption.weight(.semibold))
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                             Text(note.preview)
-                                .font(Typography.UI.caption1)
+                                .font(Typography.Command.caption)
                                 .foregroundStyle(Color.secondaryText)
                                 .lineLimit(1)
                         }
@@ -206,16 +208,16 @@ struct LinkedNotesDisplay: View {
                         onRemoveLink(note)
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(Typography.UI.subheadline)
+                            .font(Typography.Command.subheadline)
                             .foregroundStyle(Color.tertiaryText)
                     }
                 }
-                .padding(.vertical, AppTheme.Spacing.xs)
+                .padding(.vertical, Theme.Spacing.xs)
             }
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+            RoundedRectangle(cornerRadius: Theme.Radius.input)
                 .fill(Color.elevatedBackground)
         )
     }
@@ -225,26 +227,27 @@ struct LinkedNotesDisplay: View {
 // Small button for adding links
 
 struct NoteLinkButton: View {
+    @Environment(\.colorScheme) private var colorScheme
     let linkedCount: Int
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "link")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
 
                 if linkedCount > 0 {
                     Text("\(linkedCount)")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                 }
             }
-            .foregroundStyle(linkedCount > 0 ? Color.scholarAccent : Color.secondaryText)
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .foregroundStyle(linkedCount > 0 ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.secondaryText)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(linkedCount > 0 ? Color.scholarAccent.opacity(AppTheme.Opacity.light) : Color.elevatedBackground)
+                    .fill(linkedCount > 0 ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light) : Color.elevatedBackground)
             )
         }
     }

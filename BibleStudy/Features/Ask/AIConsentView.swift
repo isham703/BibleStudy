@@ -6,6 +6,7 @@ import SwiftUI
 
 struct AIConsentView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @AppStorage(AppConfiguration.UserDefaultsKeys.hasConsentedToAIProcessing)
     private var hasConsented: Bool = false
 
@@ -15,7 +16,7 @@ struct AIConsentView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     // Header
                     headerSection
 
@@ -31,7 +32,7 @@ struct AIConsentView: View {
                     // Privacy link
                     privacyLinkSection
                 }
-                .padding(AppTheme.Spacing.lg)
+                .padding(Theme.Spacing.lg)
             }
             .background(Color.appBackground)
             .navigationTitle("AI Study Assistant")
@@ -53,28 +54,28 @@ struct AIConsentView: View {
     // MARK: - Header Section
 
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "sparkles")
-                .font(Typography.UI.largeTitle)
-                .foregroundStyle(Color.scholarAccent)
+                .font(Typography.Command.largeTitle)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Text("Before You Begin")
-                .font(Typography.Display.title2)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
             Text("To provide AI-powered Bible study assistance, we need your permission to process your questions.")
-                .font(Typography.UI.warmBody)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.bottom, AppTheme.Spacing.md)
+        .padding(.bottom, Theme.Spacing.md)
     }
 
     // MARK: - What We Collect
 
     private var whatWeCollectSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             sectionHeader(icon: "doc.text", title: "What We Send")
 
             bulletPoint("Your questions about the Bible")
@@ -82,44 +83,44 @@ struct AIConsentView: View {
             bulletPoint("Conversation history (for follow-up questions)")
 
             Text("We never send your personal information, notes, or highlights.")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
-                .padding(.leading, AppTheme.Spacing.xl)
+                .padding(.leading, Theme.Spacing.xl)
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
     // MARK: - How It's Used
 
     private var howItsUsedSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             sectionHeader(icon: "cpu", title: "How It's Processed")
 
             Text("Your questions are sent to OpenAI's servers to generate responses. OpenAI processes this data according to their **API Data Usage Policy**, which states that API data is not used to train their models.")
-                .font(Typography.UI.warmBody)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
-                .tint(Color.scholarAccent)
+                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
     // MARK: - Your Control
 
     private var yourControlSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             sectionHeader(icon: "hand.raised", title: "Your Control")
 
             bulletPoint("You can withdraw consent anytime in Settings")
             bulletPoint("Declining will disable the AI assistant feature")
             bulletPoint("Your conversation history stays on your device")
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
     // MARK: - Privacy Link
@@ -130,19 +131,19 @@ struct AIConsentView: View {
                 .foregroundStyle(Color.tertiaryText)
 
             Text("Read our full **Privacy Policy**")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
-                .tint(Color.scholarAccent)
+                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Spacer()
         }
-        .padding(.top, AppTheme.Spacing.sm)
+        .padding(.top, Theme.Spacing.sm)
     }
 
     // MARK: - Consent Buttons
 
     private var consentButtons: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Button {
                 grantConsent()
             } label: {
@@ -156,38 +157,38 @@ struct AIConsentView: View {
                 dismiss()
             } label: {
                 Text("Not Now")
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
             }
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(Color.appBackground)
     }
 
     // MARK: - Helpers
 
     private func sectionHeader(icon: String, title: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: icon)
-                .foregroundStyle(Color.scholarAccent)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             Text(title)
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
         }
     }
 
     private func bulletPoint(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Circle()
-                .fill(Color.scholarAccent)
-                .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
-                .padding(.top, AppTheme.Spacing.sm)
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 24, height: 24)
+                .padding(.top, Theme.Spacing.sm)
 
             Text(text)
-                .font(Typography.UI.warmBody)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
         }
-        .padding(.leading, AppTheme.Spacing.sm)
+        .padding(.leading, Theme.Spacing.sm)
     }
 
     private func grantConsent() {

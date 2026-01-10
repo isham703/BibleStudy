@@ -13,7 +13,7 @@ import SwiftUI
 
 /// A compact AI insight preview with manuscript typography.
 /// Embedded within the IlluminatedContextMenu for unified display.
-struct IlluminatedInsightPreview: View {
+struct InsightPreview: View {
     /// The insight data to display
     let insight: QuickInsightOutput?
 
@@ -40,7 +40,7 @@ struct IlluminatedInsightPreview: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Header
             headerView
                 .opacity(showHeader ? 1 : 0)
@@ -52,8 +52,8 @@ struct IlluminatedInsightPreview: View {
                 insightContentView(insight)
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.xs)
         .onAppear {
             startRevealAnimation()
         }
@@ -62,29 +62,29 @@ struct IlluminatedInsightPreview: View {
     // MARK: - Header
 
     private var headerView: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             // Decorative sparkle
             Image(systemName: "sparkle")
-                .font(Typography.UI.iconXxs.weight(.medium))
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.xxs.weight(.medium))
+                .foregroundStyle(Color.accentBronze)
 
             // "Quick Insight" in Cinzel with tracking
             Text("Quick Insight")
-                .font(DisplayFont.cinzel.font(size: Typography.Scale.xs, weight: .medium))
+                .font(DisplayFont.cinzel.font(size: 11, weight: .medium))
                 .tracking(headerTracking)
-                .foregroundStyle(Color.agedInk)
+                .foregroundStyle(Color.surfaceRaised)
 
             Spacer()
 
             // Tap to expand hint
             if insight != nil && onTapToExpand != nil {
-                HStack(spacing: AppTheme.Spacing.xxs) {
+                HStack(spacing: 2) {
                     Text("Tap for more")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
 
                     Image(systemName: "chevron.right")
-                        .font(Typography.UI.iconXxxs)
+                        .font(Typography.Icon.xxxs)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -94,12 +94,12 @@ struct IlluminatedInsightPreview: View {
     // MARK: - Loading View
 
     private var loadingView: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             // Shimmer placeholder lines
             ForEach(0..<2, id: \.self) { index in
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
                     .fill(shimmerGradient)
-                    .frame(height: Typography.Scale.sm)
+                    .frame(height: 14)
                     .frame(maxWidth: index == 1 ? 180 : .infinity)
             }
         }
@@ -111,9 +111,9 @@ struct IlluminatedInsightPreview: View {
     private var shimmerGradient: some ShapeStyle {
         LinearGradient(
             stops: [
-                .init(color: Color.tertiaryText.opacity(AppTheme.Opacity.subtle), location: 0),
-                .init(color: Color.tertiaryText.opacity(AppTheme.Opacity.lightMedium), location: shimmerPhase),
-                .init(color: Color.tertiaryText.opacity(AppTheme.Opacity.subtle), location: 1)
+                .init(color: Color.tertiaryText.opacity(Theme.Opacity.subtle), location: 0),
+                .init(color: Color.tertiaryText.opacity(Theme.Opacity.lightMedium), location: shimmerPhase),
+                .init(color: Color.tertiaryText.opacity(Theme.Opacity.subtle), location: 1)
             ],
             startPoint: .leading,
             endPoint: .trailing
@@ -126,38 +126,38 @@ struct IlluminatedInsightPreview: View {
     private func insightContentView(_ insight: QuickInsightOutput) -> some View {
         // Summary text in Cormorant Garamond italic
         Text(insight.summary)
-            .font(DisplayFont.cormorantGaramond.font(size: Typography.Scale.base - 3, weight: .regular))
+            .font(DisplayFont.cormorantGaramond.font(size: 14, weight: .regular))
             .italic()
             .foregroundStyle(Color.primaryText)
             .lineLimit(maxLines)
             .fixedSize(horizontal: false, vertical: true)
             .opacity(showBody ? 1 : 0)
-            .blur(radius: showBody ? 0 : AppTheme.Spacing.xxs)
-            .offset(y: showBody ? 0 : AppTheme.Spacing.xs)
+            .blur(radius: showBody ? 0 : 2)
+            .offset(y: showBody ? 0 : Theme.Spacing.xs)
 
         // Key term (if present)
         if let term = insight.keyTerm, let meaning = insight.keyTermMeaning {
             keyTermView(term: term, meaning: meaning)
                 .opacity(showKeyTerm ? 1 : 0)
-                .offset(y: showKeyTerm ? 0 : AppTheme.Spacing.xs)
+                .offset(y: showKeyTerm ? 0 : Theme.Spacing.xs)
         }
     }
 
     private func keyTermView(term: String, meaning: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             // Term in Cinzel with gold
             Text(term)
-                .font(DisplayFont.cinzel.font(size: Typography.Scale.sm, weight: .medium))
-                .foregroundStyle(Color.divineGold)
+                .font(DisplayFont.cinzel.font(size: 12, weight: .medium))
+                .foregroundStyle(Color.accentBronze)
 
             // Em dash
             Text("—")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
 
             // Meaning
             Text(meaning)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
                 .lineLimit(1)
         }
@@ -167,21 +167,21 @@ struct IlluminatedInsightPreview: View {
 
     private func startRevealAnimation() {
         // Staggered reveal
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             showHeader = true
         }
 
-        withAnimation(AppTheme.Animation.slow.delay(0.1)) {
+        withAnimation(Theme.Animation.slowFade.delay(0.1)) {
             showBody = true
         }
 
-        withAnimation(AppTheme.Animation.standard.delay(0.2)) {
+        withAnimation(Theme.Animation.settle.delay(0.2)) {
             showKeyTerm = true
         }
     }
 
     private func startShimmerAnimation() {
-        withAnimation(AppTheme.Animation.shimmer.repeatForever(autoreverses: false)) {
+        withAnimation(Theme.Animation.fade) {
             shimmerPhase = 1
         }
     }
@@ -198,7 +198,7 @@ struct TappableInsightPreview: View {
     @State private var isPressed = false
 
     var body: some View {
-        IlluminatedInsightPreview(
+        InsightPreview(
             insight: insight,
             isLoading: isLoading,
             onTapToExpand: onTap
@@ -209,12 +209,12 @@ struct TappableInsightPreview: View {
             onTap()
         }
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(AppTheme.Animation.quick) {
+            withAnimation(Theme.Animation.fade) {
                 isPressed = pressing
             }
         }, perform: {})
         .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(AppTheme.Animation.quick, value: isPressed)
+        .animation(Theme.Animation.fade, value: isPressed)
     }
 }
 
@@ -222,12 +222,13 @@ struct TappableInsightPreview: View {
 
 /// A decorative divider for the insight section using manuscript styling
 struct InsightSectionDivider: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        OrnamentalDivider(
-            style: .flourish,
-            color: Color.divineGold.opacity(AppTheme.Opacity.strong)
-        )
-        .padding(.horizontal, AppTheme.Spacing.md)
+        Rectangle()
+            .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+            .frame(height: Theme.Stroke.hairline)
+            .padding(.horizontal, Theme.Spacing.md)
     }
 }
 
@@ -235,19 +236,19 @@ struct InsightSectionDivider: View {
 
 #Preview("Insight Preview - Loading") {
     ZStack {
-        Color.agedParchment.ignoresSafeArea()
+        Color.offWhite.ignoresSafeArea()
 
         VStack {
-            IlluminatedInsightPreview(
+            InsightPreview(
                 insight: nil,
                 isLoading: true
             )
             .frame(maxWidth: 260)
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(Color.agedParchment)
-                    .stroke(Color.divineGold, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color.offWhite)
+                    .stroke(Color.accentBronze, lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -257,9 +258,9 @@ struct InsightSectionDivider: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             // Light mode
-            IlluminatedInsightPreview(
+            InsightPreview(
                 insight: QuickInsightOutput(
                     summary: "This verse establishes God's creative power through speech, setting the pattern for divine action throughout Genesis.",
                     keyTerm: "יְהִי (yehi)",
@@ -272,13 +273,13 @@ struct InsightSectionDivider: View {
             .frame(maxWidth: 260)
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(Color.agedParchment)
-                    .stroke(Color.divineGold, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color.offWhite)
+                    .stroke(Color.accentBronze, lineWidth: Theme.Stroke.hairline)
             )
 
             // Dark mode preview
-            IlluminatedInsightPreview(
+            InsightPreview(
                 insight: QuickInsightOutput(
                     summary: "The Hebrew word 'bara' is used exclusively for divine creation, emphasizing the uniqueness of God's creative act.",
                     keyTerm: "בָּרָא (bara)",
@@ -290,9 +291,9 @@ struct InsightSectionDivider: View {
             .frame(maxWidth: 260)
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(Color.chapelShadow)
-                    .stroke(Color.divineGold, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color.surfaceRaised)
+                    .stroke(Color.accentBronze, lineWidth: Theme.Stroke.hairline)
             )
             .environment(\.colorScheme, .dark)
         }
@@ -316,9 +317,9 @@ struct InsightSectionDivider: View {
         .frame(maxWidth: 260)
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                .fill(Color.agedParchment)
-                .stroke(Color.divineGold, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Color.offWhite)
+                .stroke(Color.accentBronze, lineWidth: Theme.Stroke.hairline)
         )
     }
 }

@@ -42,7 +42,7 @@ struct NoHighlightsAnimation: View {
                 highlightOpacity = 0.5
                 return
             }
-            withAnimation(AppTheme.Animation.slow.repeatForever(autoreverses: true)) {
+            withAnimation(Theme.Animation.slowFade.repeatForever(autoreverses: true)) {
                 highlightOpacity = 0.6
             }
         }
@@ -50,13 +50,15 @@ struct NoHighlightsAnimation: View {
 }
 
 private struct HighlightShapeIndicator: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-            .fill(Color.highlightGold.opacity(AppTheme.Opacity.medium))
+        RoundedRectangle(cornerRadius: Theme.Radius.input)
+            .fill(Color.highlightGold.opacity(Theme.Opacity.medium))
             .frame(width: 60, height: 20)
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .stroke(Color.divineGold.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy), lineWidth: Theme.Stroke.hairline)
             )
     }
 }
@@ -89,6 +91,7 @@ struct NoNotesAnimation: View {
 }
 
 private struct PenStrokeLines: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var lineProgress: CGFloat = 0
 
     private var respectsReducedMotion: Bool {
@@ -110,13 +113,13 @@ private struct PenStrokeLines: View {
 
             context.stroke(
                 trimmed,
-                with: .color(Color.divineGold.opacity(AppTheme.Opacity.disabled)),
-                style: StrokeStyle(lineWidth: AppTheme.Border.regular, lineCap: .round)
+                with: .color(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled)),
+                style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round)
             )
         }
         .onAppear {
             guard !respectsReducedMotion else { return }
-            withAnimation(AppTheme.Animation.slow.repeatForever(autoreverses: true)) {
+            withAnimation(Theme.Animation.slowFade.repeatForever(autoreverses: true)) {
                 lineProgress = 1
             }
         }
@@ -149,6 +152,8 @@ struct NoCrossRefsAnimation: View {
 // Search node with radiating connection lines
 
 struct NoTopicsAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
             // Radiating search pattern
@@ -156,9 +161,9 @@ struct NoTopicsAnimation: View {
 
             // Search indicator in center
             Image(systemName: "magnifyingglass")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(Color.divineGold)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
         }
     }
 }
@@ -194,15 +199,17 @@ struct NoPlansAnimation: View {
 }
 
 private struct CalendarIndicator: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-            .stroke(Color.divineGold.opacity(AppTheme.Opacity.disabled), lineWidth: AppTheme.Border.thin)
+        RoundedRectangle(cornerRadius: Theme.Radius.input)
+            .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled), lineWidth: Theme.Stroke.hairline)
             .frame(width: 30, height: 26)
             .overlay(
-                VStack(spacing: AppTheme.Spacing.xxs) {
+                VStack(spacing: 2) {
                     Rectangle()
-                        .fill(Color.divineGold.opacity(AppTheme.Opacity.disabled))
-                        .frame(height: AppTheme.Divider.heavy)
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                        .frame(height: Theme.Stroke.control)
                     Spacer()
                 }
             )
@@ -236,7 +243,7 @@ struct NoMessagesAnimation: View {
 
             // Question mark in source node
             Text("?")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.white)
                 .offset(x: -35, y: -10)
@@ -288,6 +295,8 @@ struct AllCaughtUpAnimation: View {
 // Memory pathway lines, waiting for content
 
 struct NoVersesToMemorizeAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
             // Memory pathways (brain-like pattern)
@@ -313,8 +322,8 @@ struct NoVersesToMemorizeAnimation: View {
 
             // Brain/memory indicator
             Image(systemName: "brain.head.profile")
-                .font(Typography.UI.subheadline)
-                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.heavy))
+                .font(Typography.Command.subheadline)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
                 .offset(x: 0, y: -5)
         }
     }
@@ -324,6 +333,7 @@ struct NoVersesToMemorizeAnimation: View {
 // Magnifying glass with scattered disconnected nodes
 
 struct NoSearchResultsAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var searchPulse = false
 
     private var respectsReducedMotion: Bool {
@@ -346,14 +356,14 @@ struct NoSearchResultsAnimation: View {
 
             // Pulsing search icon in center
             Image(systemName: "magnifyingglass")
-                .font(Typography.UI.title2)
-                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.heavy))
+                .font(Typography.Command.title2)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
                 .scaleEffect(searchPulse ? 1.1 : 1.0)
                 .opacity(searchPulse ? 0.6 : 1.0)
         }
         .onAppear {
             guard !respectsReducedMotion else { return }
-            withAnimation(AppTheme.Animation.slow.repeatForever(autoreverses: true)) {
+            withAnimation(Theme.Animation.slowFade.repeatForever(autoreverses: true)) {
                 searchPulse = true
             }
         }
@@ -364,6 +374,8 @@ struct NoSearchResultsAnimation: View {
 // Bookmark shape with fading connection trails
 
 struct NoBookmarksAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
             // Faint connection trails
@@ -385,8 +397,8 @@ struct NoBookmarksAnimation: View {
 
             // Bookmark indicator in center
             Image(systemName: "bookmark")
-                .font(Typography.UI.subheadline)
-                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.heavy))
+                .font(Typography.Command.subheadline)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
         }
     }
 }
@@ -395,6 +407,8 @@ struct NoBookmarksAnimation: View {
 // Timeline with fading past nodes
 
 struct NoHistoryAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
             // Timeline nodes fading into past
@@ -416,8 +430,8 @@ struct NoHistoryAnimation: View {
 
             // Clock indicator
             Image(systemName: "clock.arrow.circlepath")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.disabled))
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
                 .offset(y: -35)
         }
     }
@@ -426,53 +440,53 @@ struct NoHistoryAnimation: View {
 // MARK: - Preview
 #Preview("Empty State Animations") {
     ScrollView {
-        VStack(spacing: AppTheme.Spacing.xxxl) {
+        VStack(spacing: Theme.Spacing.xxl) {
             Group {
-                Text("No Highlights").font(Typography.UI.headline)
+                Text("No Highlights").font(Typography.Command.headline)
                 NoHighlightsAnimation()
                     .frame(height: 120)
 
-                Text("No Notes").font(Typography.UI.headline)
+                Text("No Notes").font(Typography.Command.headline)
                 NoNotesAnimation()
                     .frame(height: 120)
 
-                Text("No Cross References").font(Typography.UI.headline)
+                Text("No Cross References").font(Typography.Command.headline)
                 NoCrossRefsAnimation()
                     .frame(height: 120)
             }
 
             Group {
-                Text("No Topics").font(Typography.UI.headline)
+                Text("No Topics").font(Typography.Command.headline)
                 NoTopicsAnimation()
                     .frame(height: 120)
 
-                Text("No Plans").font(Typography.UI.headline)
+                Text("No Plans").font(Typography.Command.headline)
                 NoPlansAnimation()
                     .frame(height: 100)
 
-                Text("No Messages").font(Typography.UI.headline)
+                Text("No Messages").font(Typography.Command.headline)
                 NoMessagesAnimation()
                     .frame(height: 120)
             }
 
             Group {
-                Text("All Caught Up").font(Typography.UI.headline)
+                Text("All Caught Up").font(Typography.Command.headline)
                 AllCaughtUpAnimation()
                     .frame(height: 120)
 
-                Text("No Verses to Memorize").font(Typography.UI.headline)
+                Text("No Verses to Memorize").font(Typography.Command.headline)
                 NoVersesToMemorizeAnimation()
                     .frame(height: 140)
 
-                Text("No Search Results").font(Typography.UI.headline)
+                Text("No Search Results").font(Typography.Command.headline)
                 NoSearchResultsAnimation()
                     .frame(height: 120)
 
-                Text("No Bookmarks").font(Typography.UI.headline)
+                Text("No Bookmarks").font(Typography.Command.headline)
                 NoBookmarksAnimation()
                     .frame(height: 120)
 
-                Text("No History").font(Typography.UI.headline)
+                Text("No History").font(Typography.Command.headline)
                 NoHistoryAnimation()
                     .frame(height: 100)
             }

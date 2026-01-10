@@ -49,31 +49,31 @@ struct PlansTabView: View {
     // MARK: - Plans List
     private var plansList: some View {
         ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.md) {
+            LazyVStack(spacing: Theme.Spacing.md) {
                 // Today's Reading Card
                 if let todayPlan = viewModel.plans.first(where: { !$0.isCompleted }) {
                     TodayReadingCard(plan: todayPlan) {
                         viewModel.selectedPlan = todayPlan
                     }
-                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.horizontal, Theme.Spacing.md)
                 }
 
                 // All Plans
                 Text("Your Plans")
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.top, AppTheme.Spacing.md)
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.top, Theme.Spacing.md)
 
                 ForEach(viewModel.plans) { plan in
                     PlanCard(plan: plan) {
                         viewModel.selectedPlan = plan
                     }
-                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.horizontal, Theme.Spacing.md)
                 }
             }
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
         }
     }
 }
@@ -83,51 +83,53 @@ struct TodayReadingCard: View {
     let plan: PlanWithProgress
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 HStack {
                     Image(systemName: "book.fill")
-                        .foregroundStyle(Color.scholarAccent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     Text("Today's Reading")
-                        .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.caption.weight(.semibold))
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         .textCase(.uppercase)
                         .tracking(1.2)
                 }
 
                 Text(plan.title)
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
 
                 if let reading = plan.todayReading {
                     Text(reading.reference)
-                        .font(Typography.UI.body)
+                        .font(Typography.Command.body)
                         .foregroundStyle(Color.secondaryText)
                 }
 
                 // Progress bar
                 ProgressView(value: plan.progressPercentage)
-                    .tint(Color.scholarAccent)
+                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 HStack {
                     Text("\(Int(plan.progressPercentage * 100))%")
-                        .font(Typography.UI.caption2.monospacedDigit())
+                        .font(Typography.Command.meta.monospacedDigit())
                         .foregroundStyle(Color.tertiaryText)
 
                     Spacer()
 
                     Text("Continue")
-                        .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.caption.weight(.semibold))
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     Image(systemName: "arrow.right")
-                        .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(Theme.Spacing.lg)
             .background(Color.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg))
         }
     }
 }
@@ -137,23 +139,25 @@ struct PlanCard: View {
     let plan: PlanWithProgress
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text(plan.title)
-                    .font(Typography.UI.bodyBold)
+                    .font(Typography.Command.body.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
 
                 Text("Day \(plan.currentDay) of \(plan.totalDays)")
-                    .font(Typography.UI.caption1.monospacedDigit())
+                    .font(Typography.Command.caption.monospacedDigit())
                     .foregroundStyle(Color.secondaryText)
 
                 ProgressView(value: plan.progressPercentage)
-                    .tint(plan.isCompleted ? Color.success : Color.scholarAccent)
+                    .tint(plan.isCompleted ? Color.success : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
     }
 }
@@ -166,35 +170,35 @@ struct PlanPickerSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(spacing: AppTheme.Spacing.md) {
+                LazyVStack(spacing: Theme.Spacing.md) {
                     ForEach(ReadingPlan.samplePlans) { plan in
                         Button {
                             onSelect(plan)
                             dismiss()
                         } label: {
-                            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                                 Text(plan.title)
-                                    .font(Typography.Display.headline)
+                                    .font(Typography.Scripture.heading)
                                     .foregroundStyle(Color.primaryText)
 
                                 if let description = plan.description {
                                     Text(description)
-                                        .font(Typography.UI.warmBody)
+                                        .font(Typography.Command.body)
                                         .foregroundStyle(Color.secondaryText)
                                 }
 
                                 Text("\(plan.totalDays) days")
-                                    .font(Typography.UI.caption1.monospacedDigit())
+                                    .font(Typography.Command.caption.monospacedDigit())
                                     .foregroundStyle(Color.tertiaryText)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(AppTheme.Spacing.md)
+                            .padding(Theme.Spacing.md)
                             .background(Color.secondaryBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                         }
                     }
                 }
-                .padding(AppTheme.Spacing.md)
+                .padding(Theme.Spacing.md)
             }
             .navigationTitle("Choose a Plan")
             .navigationBarTitleDisplayMode(.inline)
@@ -212,34 +216,35 @@ struct PlanPickerSheet: View {
 // MARK: - Plan Detail Sheet
 struct PlanDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     let plan: PlanWithProgress
     @Bindable var viewModel: PlansViewModel
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: AppTheme.Spacing.lg, pinnedViews: .sectionHeaders) {
+                LazyVStack(alignment: .leading, spacing: Theme.Spacing.lg, pinnedViews: .sectionHeaders) {
                     // Progress header
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                         Text("Progress")
-                            .font(Typography.Display.headline)
+                            .font(Typography.Scripture.heading)
 
                         ProgressView(value: plan.progressPercentage)
-                            .tint(Color.scholarAccent)
+                            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                         Text("\(plan.completedDays) of \(plan.totalDays) days completed")
-                            .font(Typography.UI.caption1.monospacedDigit())
+                            .font(Typography.Command.caption.monospacedDigit())
                             .foregroundStyle(Color.secondaryText)
                     }
 
                     // Today's reading
                     if let reading = plan.todayReading {
-                        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                             Text("Day \(reading.day)")
-                                .font(Typography.Display.headline.monospacedDigit())
+                                .font(Typography.Scripture.heading.monospacedDigit())
 
                             Text(reading.reference)
-                                .font(Typography.UI.body)
+                                .font(Typography.Command.body)
                                 .foregroundStyle(Color.secondaryText)
 
                             Button {
@@ -250,11 +255,11 @@ struct PlanDetailSheet: View {
                                     Text("Mark as Complete")
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(AppTheme.Spacing.md)
-                                .background(Color.scholarAccent)
+                                .padding(Theme.Spacing.md)
+                                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 .foregroundStyle(.white)
-                                .font(Typography.UI.bodyBold)
-                                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                                .font(Typography.Command.body.weight(.semibold))
+                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                             }
                         }
                     }
@@ -269,13 +274,13 @@ struct PlanDetailSheet: View {
                         }
                     } header: {
                         Text("Full Schedule")
-                            .font(Typography.Display.headline)
+                            .font(Typography.Scripture.heading)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, AppTheme.Spacing.sm)
+                            .padding(.vertical, Theme.Spacing.sm)
                             .background(Color.appBackground)
                     }
                 }
-                .padding(AppTheme.Spacing.md)
+                .padding(Theme.Spacing.md)
             }
             .navigationTitle(plan.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -303,17 +308,17 @@ struct ScheduleDayRow: View {
 
             VStack(alignment: .leading) {
                 Text("Day \(day.day)")
-                    .font(Typography.UI.bodyBold)
+                    .font(Typography.Command.body.weight(.semibold))
                     .foregroundStyle(isCompleted ? Color.secondaryText : Color.primaryText)
 
                 Text(day.reference)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
             }
 
             Spacer()
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
     }
 }
 

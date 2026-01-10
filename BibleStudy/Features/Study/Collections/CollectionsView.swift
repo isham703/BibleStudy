@@ -8,6 +8,8 @@ struct CollectionsView: View {
     @State private var showingNewCollection = false
     @State private var selectedCollection: StudyCollection?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Group {
             if viewModel.isLoading {
@@ -53,7 +55,7 @@ struct CollectionsView: View {
 
     // MARK: - Empty State
     private var emptyState: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             EmptyStateView(
                 icon: "folder",
                 title: "No collections yet",
@@ -64,7 +66,7 @@ struct CollectionsView: View {
                 showingNewCollection = true
             } label: {
                 Label("Create Collection", systemImage: "plus")
-                    .font(Typography.UI.bodyBold)
+                    .font(Typography.Command.body.weight(.semibold))
             }
             .buttonStyle(.borderedProminent)
         }
@@ -82,7 +84,7 @@ struct CollectionsView: View {
     // MARK: - Content List
     private var contentList: some View {
         ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.md) {
+            LazyVStack(spacing: Theme.Spacing.md) {
                 // Type Filter
                 typeFilterPicker
 
@@ -94,14 +96,14 @@ struct CollectionsView: View {
                 // All Collections
                 collectionsSection
             }
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
         }
     }
 
     // MARK: - Type Filter
     private var typeFilterPicker: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 FilterChip(
                     title: "All",
                     isSelected: viewModel.selectedType == nil
@@ -119,21 +121,21 @@ struct CollectionsView: View {
                     }
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
         }
     }
 
     // MARK: - Pinned Section
     private var pinnedSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             HStack {
                 Image(systemName: "pin.fill")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                 Text("Pinned")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
             }
-            .foregroundStyle(Color.scholarAccent)
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .padding(.horizontal, Theme.Spacing.md)
 
             ForEach(viewModel.pinnedCollections) { collection in
                 collectionRow(collection)
@@ -143,12 +145,12 @@ struct CollectionsView: View {
 
     // MARK: - Collections Section
     private var collectionsSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             if !viewModel.pinnedCollections.isEmpty && viewModel.searchText.isEmpty {
                 Text("Collections")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.secondaryText)
-                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.horizontal, Theme.Spacing.md)
             }
 
             ForEach(viewModel.unpinnedCollections) { collection in
@@ -162,7 +164,7 @@ struct CollectionsView: View {
         CollectionCard(collection: collection) {
             selectedCollection = collection
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
         .contextMenu {
             Button {
                 Task {
@@ -194,60 +196,62 @@ struct CollectionCard: View {
     let collection: StudyCollection
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Icon
                 ZStack {
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                        .fill(Color(collection.color).opacity(AppTheme.Opacity.light))
+                    RoundedRectangle(cornerRadius: Theme.Radius.input)
+                        .fill(Color(collection.color).opacity(Theme.Opacity.light))
                         .frame(width: 44, height: 44)
 
                     Image(systemName: collection.icon)
-                        .font(Typography.UI.title3)
+                        .font(Typography.Command.title3)
                         .foregroundStyle(Color(collection.color))
                 }
 
                 // Content
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     HStack {
                         Text(collection.name)
-                            .font(Typography.UI.bodyBold)
+                            .font(Typography.Command.body.weight(.semibold))
                             .foregroundStyle(Color.primaryText)
 
                         if collection.isPinned {
                             Image(systemName: "pin.fill")
-                                .font(Typography.UI.caption2)
-                                .foregroundStyle(Color.scholarAccent)
+                                .font(Typography.Command.meta)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         }
                     }
 
                     if !collection.description.isEmpty {
                         Text(collection.description)
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.secondaryText)
                             .lineLimit(1)
                     }
 
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         Label(collection.type.displayName, systemImage: collection.type.icon)
                         Text("•")
                         Text("\(collection.itemCount) items")
                     }
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .fill(Color.elevatedBackground)
             )
         }
@@ -262,21 +266,23 @@ struct FilterChip: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                 }
                 Text(title)
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
             }
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.scholarAccent : Color.elevatedBackground)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.elevatedBackground)
             )
             .foregroundStyle(isSelected ? Color.appBackground : Color.primaryText)
         }
@@ -287,6 +293,7 @@ struct FilterChip: View {
 
 struct NewCollectionSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var name: String = ""
     @State private var description: String = ""
@@ -313,14 +320,14 @@ struct NewCollectionSheet: View {
                         } label: {
                             HStack {
                                 Image(systemName: type.icon)
-                                    .foregroundStyle(Color.scholarAccent)
-                                    .frame(width: AppTheme.IconContainer.small)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .frame(width: 24)
 
                                 VStack(alignment: .leading) {
                                     Text(type.displayName)
                                         .foregroundStyle(Color.primaryText)
                                     Text(type.description)
-                                        .font(Typography.UI.caption1)
+                                        .font(Typography.Command.caption)
                                         .foregroundStyle(Color.secondaryText)
                                 }
 
@@ -328,7 +335,7 @@ struct NewCollectionSheet: View {
 
                                 if selectedType == type {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.scholarAccent)
+                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 }
                             }
                         }

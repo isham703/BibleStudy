@@ -18,7 +18,7 @@ struct CrossReference: Hashable, Sendable {
     let source: String?
 
     // MARK: - Computed Properties
-    var sourceRange: VerseRange {
+    nonisolated var sourceRange: VerseRange {
         VerseRange(
             bookId: sourceBookId,
             chapter: sourceChapter,
@@ -27,7 +27,7 @@ struct CrossReference: Hashable, Sendable {
         )
     }
 
-    var targetRange: VerseRange {
+    nonisolated var targetRange: VerseRange {
         VerseRange(
             bookId: targetBookId,
             chapter: targetChapter,
@@ -36,11 +36,11 @@ struct CrossReference: Hashable, Sendable {
         )
     }
 
-    var targetReference: String {
+    nonisolated var targetReference: String {
         targetRange.reference
     }
 
-    var targetBook: Book? {
+    nonisolated var targetBook: Book? {
         Book.find(byId: targetBookId)
     }
 

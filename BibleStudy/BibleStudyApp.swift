@@ -29,14 +29,21 @@ struct BibleStudyApp: App {
         WindowGroup {
             ZStack {
                 // Main app content (or onboarding)
-                if hasCompletedOnboarding {
+                if hasCompletedOnboarding && appState.isAuthenticated {
+                    // Signed-in user
                     MainTabView()
                         .environment(bibleService)
                         .environment(appState)
                         .withAllCelebrations()
                         .withPaywall()
                         .opacity(isInitialized && !isCheckingSession ? 1 : 0)
+                } else if hasCompletedOnboarding && !appState.isAuthenticated {
+                    // Returning user who signed out - show login without onboarding
+                    AuthView()
+                        .environment(appState)
+                        .opacity(isInitialized && !isCheckingSession ? 1 : 0)
                 } else {
+                    // First-time user
                     OnboardingView()
                         .environment(appState)
                         .opacity(isInitialized && !isCheckingSession ? 1 : 0)
@@ -58,9 +65,10 @@ struct BibleStudyApp: App {
                         .transition(.opacity)
                 }
             }
-            .animation(AppTheme.Animation.standard, value: isInitialized)
-            .animation(AppTheme.Animation.standard, value: isCheckingSession)
-            .animation(AppTheme.Animation.standard, value: hasCompletedOnboarding)
+            .animation(Theme.Animation.settle, value: isInitialized)
+            .animation(Theme.Animation.settle, value: isCheckingSession)
+            .animation(Theme.Animation.settle, value: hasCompletedOnboarding)
+            .animation(Theme.Animation.settle, value: appState.isAuthenticated)
             .task {
                 await initializeApp()
             }
@@ -104,6 +112,8 @@ struct BibleStudyApp: App {
             }
             // Track session end
             analytics.trackSessionEnd()
+            // Schedule background tasks for pending sermon uploads/sync
+            SermonBackgroundTaskService.shared.scheduleTasksIfNeeded()
         case .active:
             // Sync widget data when becoming active (in case data changed)
             if isInitialized {
@@ -172,6 +182,9 @@ struct BibleStudyApp: App {
 
     /// Initialize app data and services
     private func initializeApp() async {
+        // Register background tasks for sermon uploads/sync (must be done early)
+        SermonBackgroundTaskService.shared.registerBackgroundTasks()
+
         // Use DataLoadingService for initialization (handles bundled DB copy)
         await dataLoadingService.initializeData()
 
@@ -219,7 +232,7 @@ struct BibleStudyApp: App {
         }
 
         // End session check
-        withAnimation(AppTheme.Animation.reverent) {
+        withAnimation(Theme.Animation.slowFade) {
             isCheckingSession = false
         }
     }
@@ -331,7 +344,7 @@ final class AppState {
         }
 
         if let fontSizeRaw = UserDefaults.standard.object(forKey: AppConfiguration.UserDefaultsKeys.preferredFontSize) as? CGFloat,
-           let fontSize = ScriptureFontSize(rawValue: fontSizeRaw) {
+           let fontSize = ScriptureFontSize(rawValue: Int(fontSizeRaw)) {
             scriptureFontSize = fontSize
         }
 
@@ -550,7 +563,7 @@ enum AppThemeMode: String, CaseIterable {
 
     /// Accent color for the theme
     var accentColor: Color {
-        Color.divineGold
+        Color.accentBronze
     }
 }
 
@@ -633,34 +646,16 @@ enum ContentWidth: String, CaseIterable {
 /// Defines the visual style of the home page
 enum HomeVariant: String, CaseIterable {
     case liturgicalHours = "liturgicalHours"
-    case candlelitSanctuary = "candlelitSanctuary"
-    case scholarsAtrium = "scholarsAtrium"
-    case sacredThreshold = "sacredThreshold"
 
     var displayName: String {
-        switch self {
-        case .liturgicalHours: return "Liturgical Hours"
-        case .candlelitSanctuary: return "Candlelit Sanctuary"
-        case .scholarsAtrium: return "Scholar's Atrium"
-        case .sacredThreshold: return "Sacred Threshold"
-        }
+        return "Liturgical Hours"
     }
 
     var description: String {
-        switch self {
-        case .liturgicalHours: return "Time-aware design that adapts to the Liturgy of the Hours"
-        case .candlelitSanctuary: return "Intimate evening design with candlelight and starfield"
-        case .scholarsAtrium: return "Light-mode scholarly design for focused study"
-        case .sacredThreshold: return "Architectural journey with room-based navigation"
-        }
+        return "Time-aware design that adapts to the Liturgy of the Hours"
     }
 
     var icon: String {
-        switch self {
-        case .liturgicalHours: return "clock.fill"
-        case .candlelitSanctuary: return "moon.stars.fill"
-        case .scholarsAtrium: return "text.book.closed.fill"
-        case .sacredThreshold: return "building.columns.fill"
-        }
+        return "clock.fill"
     }
 }

@@ -1,5 +1,5 @@
 //
-//  IlluminatedMenuPositioning.swift
+//  MenuPositioning.swift
 //  BibleStudy
 //
 //  Two-phase positioning algorithm for the IlluminatedContextMenu.
@@ -156,7 +156,7 @@ final class KeyboardHeightObserver {
                 return frame.height
             }
             .sink { [weak self] height in
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     self?.keyboardHeight = height
                 }
             }
@@ -165,7 +165,7 @@ final class KeyboardHeightObserver {
         NotificationCenter.default
             .publisher(for: UIResponder.keyboardWillHideNotification)
             .sink { [weak self] _ in
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     self?.keyboardHeight = 0
                 }
             }
@@ -205,9 +205,9 @@ private extension Comparable {
                 .position(x: 200, y: 230)
 
             // Simulated menu position
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                .fill(Color.agedParchment)
-                .stroke(Color.divineGold, lineWidth: AppTheme.Border.regular)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Color.offWhite)
+                .stroke(Color.accentBronze, lineWidth: Theme.Stroke.control)
                 .frame(width: 260, height: 200)
                 .position(
                     x: position.origin.x + 130,

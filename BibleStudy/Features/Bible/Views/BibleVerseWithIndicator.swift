@@ -64,17 +64,21 @@ struct VerseWithIndicator: View {
 
     private var verseNumberView: some View {
         Text("\(verse.verse)")
+            // swiftlint:disable:next hardcoded_font_custom
             .font(.custom("CormorantGaramond-SemiBold", size: verseNumberSize))
-            .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
+            // swiftlint:disable:next hardcoded_baseline_offset
             .baselineOffset(8)  // Superscript positioning
-            .padding(.trailing, 4)
+            .padding(.trailing, Theme.Spacing.xs)
     }
 
     // MARK: - Verse Text
 
     private var verseTextView: some View {
         Text(verse.text)
+            // swiftlint:disable:next hardcoded_font_custom
             .font(.custom("CormorantGaramond-Regular", size: verseTextSize))
+            // swiftlint:disable:next hardcoded_line_spacing
             .lineSpacing(10)
             .foregroundStyle(Color.bibleInsightText)
             .fixedSize(horizontal: false, vertical: true)
@@ -131,8 +135,8 @@ struct CommentaryVerseRow: View {
                     selectedLens: selectedLens,
                     onSelectLens: onSelectLens
                 )
-                .padding(.top, 16)
-                .padding(.leading, 20)  // Indent to align with verse text
+                .padding(.top, Theme.Spacing.lg)
+                .padding(.leading, Theme.Spacing.xl)  // Indent to align with verse text
                 .transition(
                     .asymmetric(
                         insertion: .opacity.combined(with: .move(edge: .top)),
@@ -154,10 +158,11 @@ struct CommentaryVerseRow: View {
 
         var body: some View {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xxl) {
                     // Verse with no insights
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         Text("No insights")
+                            // swiftlint:disable:next hardcoded_swiftui_text_style
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -170,8 +175,9 @@ struct CommentaryVerseRow: View {
                     }
 
                     // Verse with insights (collapsed)
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         Text("With insights (collapsed)")
+                            // swiftlint:disable:next hardcoded_swiftui_text_style
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -184,8 +190,9 @@ struct CommentaryVerseRow: View {
                     }
 
                     // Verse with insights (expanded)
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         Text("With insights (expanded)")
+                            // swiftlint:disable:next hardcoded_swiftui_text_style
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -198,11 +205,12 @@ struct CommentaryVerseRow: View {
                     }
 
                     Divider()
-                        .padding(.vertical, 20)
+                        .padding(.vertical, Theme.Spacing.xl)
 
                     // Interactive example
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         Text("Interactive (tap indicators)")
+                            // swiftlint:disable:next hardcoded_swiftui_text_style
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -211,7 +219,7 @@ struct CommentaryVerseRow: View {
                             insightCount: 3,
                             isExpanded: expanded1
                         ) {
-                            withAnimation(AppTheme.Animation.cardUnfurl) {
+                            withAnimation(Theme.Animation.settle) {
                                 expanded1.toggle()
                                 if expanded1 {
                                     expanded2 = false
@@ -225,7 +233,7 @@ struct CommentaryVerseRow: View {
                             insightCount: 2,
                             isExpanded: expanded2
                         ) {
-                            withAnimation(AppTheme.Animation.cardUnfurl) {
+                            withAnimation(Theme.Animation.settle) {
                                 expanded2.toggle()
                                 if expanded2 {
                                     expanded1 = false
@@ -239,7 +247,7 @@ struct CommentaryVerseRow: View {
                             insightCount: 4,
                             isExpanded: expanded3
                         ) {
-                            withAnimation(AppTheme.Animation.cardUnfurl) {
+                            withAnimation(Theme.Animation.settle) {
                                 expanded3.toggle()
                                 if expanded3 {
                                     expanded1 = false
@@ -249,7 +257,8 @@ struct CommentaryVerseRow: View {
                         }
                     }
                 }
-                .padding(28)
+                // swiftlint:disable:next hardcoded_padding_single
+                .padding(28)  // Preview padding
             }
             .background(Color.bibleInsightParchment)
         }
@@ -260,7 +269,7 @@ struct CommentaryVerseRow: View {
 
 #Preview("Golden Rule - Looks Like Normal Bible") {
     ScrollView {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             // All verses collapsed - should look like a normal Bible
             ForEach(1...5, id: \.self) { verseNum in
                 VerseWithIndicator(
@@ -276,7 +285,8 @@ struct CommentaryVerseRow: View {
                 )
             }
         }
-        .padding(28)
+        // swiftlint:disable:next hardcoded_padding_single
+        .padding(28)  // Preview padding
     }
     .background(Color.bibleInsightParchment)
 }

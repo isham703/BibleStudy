@@ -40,7 +40,7 @@ struct WarmSanctuaryChatView: View {
             // Warm ambient glow at top
             RadialGradient(
                 colors: [
-                    ChatPalette.Sanctuary.accent.opacity(0.08),
+                    ChatPalette.Sanctuary.accent.opacity(Theme.Opacity.overlay),
                     Color.clear
                 ],
                 center: .top,
@@ -52,7 +52,7 @@ struct WarmSanctuaryChatView: View {
             // Subtle bottom glow
             RadialGradient(
                 colors: [
-                    ChatPalette.Sanctuary.accent.opacity(0.04),
+                    ChatPalette.Sanctuary.accent.opacity(Theme.Opacity.faint),
                     Color.clear
                 ],
                 center: .bottom,
@@ -105,12 +105,12 @@ struct WarmSanctuaryChatView: View {
             ZStack {
                 // Glow effect
                 Circle()
-                    .fill(ChatPalette.Sanctuary.accent.opacity(0.2))
+                    .fill(ChatPalette.Sanctuary.accent.opacity(Theme.Opacity.light))
                     .frame(width: 80, height: 80)
                     .blur(radius: 20)
 
                 Image(systemName: "heart.text.square.fill")
-                    .font(.system(size: 36, weight: .light))
+                    .font(Typography.Icon.hero.weight(.light))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [ChatPalette.Sanctuary.accent, ChatPalette.Sanctuary.accentGlow],
@@ -127,7 +127,7 @@ struct WarmSanctuaryChatView: View {
                     .foregroundStyle(ChatPalette.Sanctuary.primaryText)
 
                 Text("A quiet space for reflection and conversation")
-                    .font(.system(size: 14, weight: .regular))
+                    .font(Typography.Command.caption)
                     .foregroundStyle(ChatPalette.Sanctuary.secondaryText)
                     .multilineTextAlignment(.center)
             }
@@ -145,8 +145,8 @@ struct WarmSanctuaryChatView: View {
                     .frame(height: 1)
 
                 Image(systemName: "sparkle")
-                    .font(.system(size: 8, weight: .medium))
-                    .foregroundStyle(ChatPalette.Sanctuary.accent.opacity(0.6))
+                    .font(Typography.Icon.xxxs)
+                    .foregroundStyle(ChatPalette.Sanctuary.accent.opacity(Theme.Opacity.tertiary))
 
                 Rectangle()
                     .fill(
@@ -170,16 +170,16 @@ struct WarmSanctuaryChatView: View {
             HStack(spacing: 6) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(ChatPalette.Sanctuary.accent.opacity(0.6))
+                        .fill(ChatPalette.Sanctuary.accent.opacity(Theme.Opacity.tertiary))
                         .frame(width: 6, height: 6)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .background(ChatPalette.Sanctuary.aiBubble)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: Theme.Radius.xl)
                     .stroke(ChatPalette.Sanctuary.aiBorder, lineWidth: 1)
             )
 
@@ -196,7 +196,7 @@ struct WarmSanctuaryChatView: View {
             Rectangle()
                 .fill(ChatPalette.Sanctuary.divider)
                 .frame(height: 1)
-                .shadow(color: ChatPalette.Sanctuary.accent.opacity(0.3), radius: 4, y: -2)
+                .shadow(color: ChatPalette.Sanctuary.accent.opacity(Theme.Opacity.subtle), radius: 4, y: -2)
 
             // Input bar
             ShowcaseChatInputBar(

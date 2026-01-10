@@ -11,36 +11,38 @@ struct BibleChapterSelector: View {
     let chapter: Int
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 // Book icon
                 Image(systemName: "book.closed.fill")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Icon.xs)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 // Reference text
                 Text(reference)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(Typography.Command.meta.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
 
                 // Dropdown chevron - the key affordance
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Icon.xxs.weight(.bold))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(selectorBackground)
             .clipShape(Capsule())
             .overlay(selectorBorder)
+            // swiftlint:disable:next hardcoded_scale_effect
             .scaleEffect(isPressed ? 0.96 : 1)
         }
         .buttonStyle(PlainButtonStyle())
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+            withAnimation(Theme.Animation.settle) {
                 isPressed = pressing
             }
         }, perform: {})
@@ -52,14 +54,14 @@ struct BibleChapterSelector: View {
     // MARK: - Background
 
     private var selectorBackground: some View {
-        Color.scholarIndigo.opacity(0.1)
+        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
     }
 
     // MARK: - Border
 
     private var selectorBorder: some View {
         Capsule()
-            .stroke(Color.scholarIndigo.opacity(0.2), lineWidth: 1)
+            .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.tertiary), lineWidth: Theme.Stroke.hairline)
     }
 }
 
@@ -70,28 +72,30 @@ struct BibleChapterSelectorCompact: View {
     let reference: String
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 2) {
                 Text(reference)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
 
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Icon.xxxs.weight(.bold))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
-            .background(Color.scholarIndigo.opacity(0.06))
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
+            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
             .clipShape(Capsule())
+            // swiftlint:disable:next hardcoded_scale_effect
             .scaleEffect(isPressed ? 0.96 : 1)
         }
         .buttonStyle(PlainButtonStyle())
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+            withAnimation(Theme.Animation.settle) {
                 isPressed = pressing
             }
         }, perform: {})
@@ -101,10 +105,11 @@ struct BibleChapterSelectorCompact: View {
 // MARK: - Preview
 
 #Preview("Chapter Selector") {
-    VStack(spacing: 32) {
+    VStack(spacing: Theme.Spacing.xxl) {
         // Standard style
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Text("Standard")
+                // swiftlint:disable:next hardcoded_swiftui_text_style
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -118,12 +123,13 @@ struct BibleChapterSelectorCompact: View {
         }
 
         // Different references
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Text("Various Books")
+                // swiftlint:disable:next hardcoded_swiftui_text_style
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 16) {
+            HStack(spacing: Theme.Spacing.lg) {
                 BibleChapterSelector(
                     reference: "Ps 119",
                     bookName: "Psalms",
@@ -145,8 +151,9 @@ struct BibleChapterSelectorCompact: View {
         }
 
         // Compact style
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Text("Compact")
+                // swiftlint:disable:next hardcoded_swiftui_text_style
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -158,8 +165,9 @@ struct BibleChapterSelectorCompact: View {
         }
 
         // In context (simulated toolbar)
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Text("In Toolbar Context")
+                // swiftlint:disable:next hardcoded_swiftui_text_style
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -174,16 +182,16 @@ struct BibleChapterSelectorCompact: View {
 
                 Spacer()
 
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(Typography.Icon.sm)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(Typography.Icon.sm)
                 }
-                .foregroundStyle(Color.primary.opacity(0.7))
+                .foregroundStyle(Color.primary.opacity(Theme.Opacity.overlay))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.md)
             .background(Color.appBackground)
         }
     }

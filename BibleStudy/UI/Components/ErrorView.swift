@@ -8,18 +8,18 @@ struct ErrorView: View {
     var retryAction: (() -> Void)?
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             Image(systemName: "exclamationmark.triangle")
-                .font(Typography.UI.largeTitle)
+                .font(Typography.Command.largeTitle)
                 .foregroundStyle(Color.warning)
 
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.sm) {
                 Text("Something went wrong")
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
 
                 Text(error.localizedDescription)
-                    .font(Typography.UI.warmSubheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
             }
@@ -29,9 +29,9 @@ struct ErrorView: View {
                     .buttonStyle(.primary)
             }
         }
-        .padding(AppTheme.Spacing.xl)
+        .padding(Theme.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.appBackground.opacity(AppTheme.Opacity.nearOpaque))
+        .background(Color.appBackground.opacity(Theme.Opacity.nearOpaque))
     }
 }
 
@@ -40,27 +40,29 @@ struct InlineErrorView: View {
     let message: String
     var retryAction: (() -> Void)?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             Image(systemName: "exclamationmark.circle")
                 .foregroundStyle(Color.error)
 
             Text(message)
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
 
             Spacer()
 
             if let retryAction = retryAction {
                 Button("Retry", action: retryAction)
-                    .font(Typography.UI.warmSubheadline)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.subheadline)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .fill(Color.error.opacity(AppTheme.Opacity.subtle))
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .fill(Color.error.opacity(Theme.Opacity.subtle))
         )
     }
 }
@@ -71,17 +73,17 @@ struct AIErrorView: View {
     var retryAction: (() -> Void)?
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "sparkles.slash")
-                .font(Typography.UI.title1)
+                .font(Typography.Command.title1)
                 .foregroundStyle(Color.warning)
 
             Text("AI Unavailable")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
             Text(message)
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .multilineTextAlignment(.center)
 
@@ -90,9 +92,9 @@ struct AIErrorView: View {
                     .buttonStyle(.secondary)
             }
         }
-        .padding(AppTheme.Spacing.xl)
+        .padding(Theme.Spacing.xl)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .fill(Color.surfaceBackground)
         )
     }
@@ -100,7 +102,7 @@ struct AIErrorView: View {
 
 // MARK: - Preview
 #Preview {
-    VStack(spacing: AppTheme.Spacing.xxxl) {
+    VStack(spacing: Theme.Spacing.xxl) {
         ErrorView(
             error: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not load chapter data"])
         ) {

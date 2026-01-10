@@ -4,6 +4,7 @@ import SwiftUI
 // Sheet for creating and editing notes with Markdown support
 
 struct NoteEditor: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
 
     let range: VerseRange
@@ -139,30 +140,30 @@ struct NoteEditor: View {
     // MARK: - Linked Notes Section
     private var linkedNotesSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 ForEach(linkedNotes) { note in
                     Button {
                         onNavigateToNote?(note)
                     } label: {
-                        HStack(spacing: AppTheme.Spacing.xs) {
+                        HStack(spacing: Theme.Spacing.xs) {
                             Image(systemName: "link")
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
 
                             Text(note.reference)
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
                         }
-                        .foregroundStyle(Color.scholarAccent)
-                        .padding(.horizontal, AppTheme.Spacing.sm)
-                        .padding(.vertical, AppTheme.Spacing.xs)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .padding(.horizontal, Theme.Spacing.sm)
+                        .padding(.vertical, Theme.Spacing.xs)
                         .background(
                             Capsule()
-                                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                         )
                     }
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
         }
         .background(Color.surfaceBackground)
     }
@@ -170,14 +171,14 @@ struct NoteEditor: View {
     // MARK: - Reference Header
     private var referenceHeader: some View {
         HStack {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(range.reference)
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
 
                 if let book = Book.find(byId: range.bookId) {
                     Text("\(book.testament.rawValue.capitalized) Testament")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
                 }
             }
@@ -188,28 +189,28 @@ struct NoteEditor: View {
             Button {
                 showTemplateSheet = true
             } label: {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: selectedTemplate.icon)
                     Text(selectedTemplate.displayName)
                 }
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.scholarAccent)
-                .padding(.horizontal, AppTheme.Spacing.sm)
-                .padding(.vertical, AppTheme.Spacing.xs)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .padding(.horizontal, Theme.Spacing.sm)
+                .padding(.vertical, Theme.Spacing.xs)
                 .background(
                     Capsule()
-                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                 )
             }
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(Color.surfaceBackground)
     }
 
     // MARK: - Formatting Toolbar
     private var formattingToolbar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 // Text formatting
                 FormatButton(icon: "bold", label: "Bold") {
                     insertMarkdown("**", "**")
@@ -270,19 +271,19 @@ struct NoteEditor: View {
                 Button {
                     showLinkPicker = true
                 } label: {
-                    HStack(spacing: AppTheme.Spacing.xxs) {
+                    HStack(spacing: 2) {
                         Image(systemName: "link.badge.plus")
-                            .font(Typography.UI.subheadline)
+                            .font(Typography.Command.subheadline)
 
                         if !linkedNoteIds.isEmpty {
                             Text("\(linkedNoteIds.count)")
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
                         }
                     }
-                    .foregroundStyle(linkedNoteIds.isEmpty ? Color.secondaryText : Color.scholarAccent)
+                    .foregroundStyle(linkedNoteIds.isEmpty ? Color.secondaryText : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .frame(height: 32)
-                    .padding(.horizontal, AppTheme.Spacing.xs)
-                    .background(linkedNoteIds.isEmpty ? Color.clear : Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                    .padding(.horizontal, Theme.Spacing.xs)
+                    .background(linkedNoteIds.isEmpty ? Color.clear : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                     .clipShape(Capsule())
                 }
                 .accessibilityLabel("Link to other notes")
@@ -295,15 +296,15 @@ struct NoteEditor: View {
                     showPreview.toggle()
                 } label: {
                     Image(systemName: showPreview ? "pencil" : "eye")
-                        .font(Typography.UI.subheadline)
-                        .foregroundStyle(showPreview ? Color.scholarAccent : Color.secondaryText)
+                        .font(Typography.Command.subheadline)
+                        .foregroundStyle(showPreview ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.secondaryText)
                         .frame(width: 32, height: 32)
-                        .background(showPreview ? Color.scholarAccent.opacity(AppTheme.Opacity.light) : Color.clear)
+                        .background(showPreview ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light) : Color.clear)
                         .clipShape(Circle())
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
         }
         .background(Color.elevatedBackground)
     }
@@ -315,15 +316,15 @@ struct NoteEditor: View {
                 .font(.system(.body, design: .monospaced))
                 .foregroundStyle(Color.primaryText)
                 .scrollContentBackground(.hidden)
-                .padding(AppTheme.Spacing.md)
+                .padding(Theme.Spacing.md)
                 .focused($isContentFocused)
                 .overlay(alignment: .topLeading) {
                     if content.isEmpty {
                         Text("Write your thoughts using Markdown...")
-                            .font(Typography.UI.warmBody)
+                            .font(Typography.Command.body)
                             .foregroundStyle(Color.tertiaryText)
-                            .padding(AppTheme.Spacing.md)
-                            .padding(.top, AppTheme.Spacing.sm)
+                            .padding(Theme.Spacing.md)
+                            .padding(.top, Theme.Spacing.sm)
                             .allowsHitTesting(false)
                     }
                 }
@@ -332,48 +333,48 @@ struct NoteEditor: View {
             // Displays writing progress with manuscript-inspired aesthetics
             // State transitions: Subtle → Contemplative Warning → Urgent Reverence
 
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 // Progress bar - illuminated gold fill reveals as writing progresses
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         // Track - subtle vellum background
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
-                            .fill(Color.monasteryStone.opacity(AppTheme.Opacity.subtle))
-                            .frame(height: AppTheme.Divider.medium + 1)
+                        RoundedRectangle(cornerRadius: Theme.Radius.xs)
+                            .fill(Color.offWhite.opacity(Theme.Opacity.subtle))
+                            .frame(height: 2 + 1)
 
                         // Fill - divine gold that transforms with state
-                        RoundedRectangle(cornerRadius: AppTheme.Opacity.medium)
+                        RoundedRectangle(cornerRadius: Theme.Opacity.medium)
                             .fill(progressBarColor)
-                            .frame(width: progressWidth(in: geometry.size.width), height: AppTheme.Divider.medium + 1)
-                            .shadow(color: progressBarColor.opacity(AppTheme.Opacity.heavy), radius: progressGlowRadius, y: 0)
-                            .animation(AppTheme.Animation.sacredSpring, value: content.count)
+                            .frame(width: progressWidth(in: geometry.size.width), height: 2 + 1)
+                            .shadow(color: progressBarColor.opacity(Theme.Opacity.heavy), radius: progressGlowRadius, y: 0)
+                            .animation(Theme.Animation.settle, value: content.count)
                     }
                 }
-                .frame(height: AppTheme.Divider.thick)
+                .frame(height: 3)
 
                 // Character count text with sacred numerals
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Spacer()
 
                     // State icon (appears when approaching/over limit)
                     if shouldShowStateIcon {
                         Image(systemName: stateIcon)
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                             .foregroundStyle(characterCountColor)
                             .transition(.scale.combined(with: .opacity))
                     }
 
                     // Count display
                     Text(characterCountText)
-                        .font(Typography.UI.caption1)  // Slightly larger for better readability
+                        .font(Typography.Command.caption)  // Slightly larger for better readability
                         .fontDesign(.serif)  // Manuscript aesthetic
                         .foregroundStyle(characterCountColor)
-                        .animation(AppTheme.Animation.contemplative, value: characterCountColor)
+                        .animation(Theme.Animation.slowFade, value: characterCountColor)
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.top, AppTheme.Spacing.sm)
-            .padding(.bottom, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.top, Theme.Spacing.sm)
+            .padding(.bottom, Theme.Spacing.md)
         }
     }
 
@@ -381,7 +382,7 @@ struct NoteEditor: View {
     private var markdownPreview: some View {
         ScrollView {
             MarkdownRenderer(content: content)
-                .padding(AppTheme.Spacing.md)
+                .padding(Theme.Spacing.md)
         }
     }
 
@@ -400,17 +401,17 @@ struct NoteEditor: View {
                     } label: {
                         HStack {
                             Image(systemName: template.icon)
-                                .font(Typography.UI.title3)
-                                .foregroundStyle(Color.scholarAccent)
-                                .frame(width: AppTheme.IconContainer.medium)
+                                .font(Typography.Command.title3)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .frame(width: 32)
 
-                            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(template.displayName)
-                                    .font(Typography.UI.body)
+                                    .font(Typography.Command.body)
                                     .foregroundStyle(Color.primaryText)
 
                                 Text(templateDescription(for: template))
-                                    .font(Typography.UI.caption1)
+                                    .font(Typography.Command.caption)
                                     .foregroundStyle(Color.secondaryText)
                             }
 
@@ -418,10 +419,10 @@ struct NoteEditor: View {
 
                             if selectedTemplate == template {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.scholarAccent)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                             }
                         }
-                        .padding(.vertical, AppTheme.Spacing.xs)
+                        .padding(.vertical, Theme.Spacing.xs)
                     }
                 }
             }
@@ -466,30 +467,30 @@ struct NoteEditor: View {
 
     private var characterCountColor: Color {
         if content.count > Note.maxContentLength {
-            // Over limit - vermillion red (urgent)
-            return Color.vermillion
+            // Over limit - error red (urgent)
+            return Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
         } else if content.count > Note.maxContentLength - Self.warningThreshold {
-            // Approaching limit - burnished gold (contemplative warning)
-            return Color.burnishedGold
+            // Approaching limit - warning ochre (contemplative warning)
+            return Colors.Semantic.warning(for: ThemeMode.current(from: colorScheme))
         } else {
             // Normal - aged ink (subtle elegance)
-            return Color.agedInk.opacity(AppTheme.Opacity.strong)
+            return Color.surfaceRaised.opacity(Theme.Opacity.strong)
         }
     }
 
     private var progressBarColor: Color {
         if content.count > Note.maxContentLength {
-            // Over limit - vermillion with urgency
-            return Color.vermillion
+            // Over limit - error red with urgency
+            return Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
         } else if content.count > Note.maxContentLength - Self.warningThreshold {
-            // Approaching - burnished gold with gentle warning
-            return Color.burnishedGold
+            // Approaching - warning ochre with gentle warning
+            return Colors.Semantic.warning(for: ThemeMode.current(from: colorScheme))
         } else if content.count > Note.maxContentLength / 2 {
-            // Halfway - divine gold with confidence
-            return Color.divineGold
+            // Halfway - accent seal with confidence
+            return Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
         } else {
-            // Beginning - illuminated gold with gentle encouragement
-            return Color.illuminatedGold.opacity(AppTheme.Opacity.pressed)
+            // Beginning - accent seal with gentle encouragement
+            return Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
         }
     }
 
@@ -551,7 +552,7 @@ struct FormatButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .frame(width: 32, height: 32)
         }
@@ -561,10 +562,11 @@ struct FormatButton: View {
 
 // MARK: - Markdown Renderer
 struct MarkdownRenderer: View {
+    @Environment(\.colorScheme) private var colorScheme
     let content: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             ForEach(Array(parseLines().enumerated()), id: \.offset) { _, line in
                 renderLine(line)
             }
@@ -580,65 +582,65 @@ struct MarkdownRenderer: View {
     private func renderLine(_ line: String) -> some View {
         if line.hasPrefix("## ") {
             Text(line.dropFirst(3))
-                .font(Typography.UI.headline)
+                .font(Typography.Command.headline)
                 .foregroundStyle(Color.primaryText)
         } else if line.hasPrefix("# ") {
             Text(line.dropFirst(2))
-                .font(Typography.UI.title3)
+                .font(Typography.Command.title3)
                 .foregroundStyle(Color.primaryText)
         } else if line.hasPrefix("> ") {
             HStack(spacing: 0) {
                 Rectangle()
-                    .fill(Color.scholarAccent)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 3)
 
                 Text(renderInlineMarkdown(String(line.dropFirst(2))))
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .italic()
-                    .padding(.leading, AppTheme.Spacing.sm)
+                    .padding(.leading, Theme.Spacing.sm)
             }
         } else if line.hasPrefix("- [ ] ") {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "square")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.tertiaryText)
 
                 Text(renderInlineMarkdown(String(line.dropFirst(6))))
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.primaryText)
             }
         } else if line.hasPrefix("- [x] ") || line.hasPrefix("- [X] ") {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "checkmark.square.fill")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.success)
 
                 Text(renderInlineMarkdown(String(line.dropFirst(6))))
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .strikethrough()
             }
         } else if line.hasPrefix("- ") {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                 Circle()
                     .fill(Color.primaryText)
-                    .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
-                    .padding(.top, AppTheme.Spacing.sm)
+                    .frame(width: 4, height: 4)
+                    .padding(.top, Theme.Spacing.sm)
 
                 Text(renderInlineMarkdown(String(line.dropFirst(2))))
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.primaryText)
             }
         } else if let match = line.firstMatch(of: /^(\d+)\. (.*)/) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                 Text("\(match.1).")
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .frame(width: 24, alignment: .trailing)
 
                 Text(renderInlineMarkdown(String(match.2)))
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.primaryText)
             }
         } else if line.hasPrefix("|") && line.hasSuffix("|") {
@@ -650,19 +652,19 @@ struct MarkdownRenderer: View {
             HStack {
                 ForEach(Array(cells.enumerated()), id: \.offset) { _, cell in
                     Text(cell)
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.primaryText)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(Color.elevatedBackground)
         } else if !line.isEmpty {
             Text(renderInlineMarkdown(line))
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.primaryText)
         } else {
-            Spacer().frame(height: AppTheme.Spacing.sm)
+            Spacer().frame(height: Theme.Spacing.sm)
         }
     }
 
@@ -713,55 +715,56 @@ struct MarkdownRenderer: View {
 // Displays a note in a list
 
 struct NoteCard: View {
+    @Environment(\.colorScheme) private var colorScheme
     let note: Note
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 // Header with reference and template
                 HStack {
                     Text(note.reference)
-                        .font(Typography.UI.caption1Bold)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.caption.weight(.semibold))
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                     Spacer()
 
                     // Linked notes indicator
                     if note.hasLinks {
-                        HStack(spacing: AppTheme.Spacing.xxs) {
+                        HStack(spacing: 2) {
                             Image(systemName: "link")
                             Text("\(note.linkedNoteIds.count)")
                         }
-                        .font(Typography.UI.caption2)
-                        .foregroundStyle(Color.accentBlue)
+                        .font(Typography.Command.meta)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
 
                     // Template badge
-                    HStack(spacing: AppTheme.Spacing.xxs) {
+                    HStack(spacing: 2) {
                         Image(systemName: note.template.icon)
                         Text(note.template.displayName)
                     }
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
                 }
 
                 // Preview
                 Text(note.preview)
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.primaryText)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
 
                 // Date
                 Text(note.updatedAt.formatted(date: .abbreviated, time: .omitted))
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
     }
 }
@@ -776,22 +779,22 @@ struct HighlightCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 // Color indicator and reference
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Circle()
                         .fill(highlight.color.color)
                         .frame(width: 12, height: 12)
 
                     Text(highlight.reference)
-                        .font(Typography.UI.caption1Bold)
+                        .font(Typography.Command.caption.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
                 }
 
                 // Verse text preview
                 if let text = verseText {
                     Text(text)
-                        .font(Typography.Scripture.body())
+                        .font(Typography.Scripture.body)
                         .foregroundStyle(Color.secondaryText)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
@@ -799,13 +802,13 @@ struct HighlightCard: View {
 
                 // Date
                 Text(highlight.createdAt.formatted(date: .abbreviated, time: .omitted))
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppTheme.Spacing.md)
-            .background(highlight.color.color.opacity(AppTheme.Opacity.subtle))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .padding(Theme.Spacing.md)
+            .background(highlight.color.color.opacity(Theme.Opacity.subtle))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
     }
 }

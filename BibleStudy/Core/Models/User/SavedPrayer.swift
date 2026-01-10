@@ -15,8 +15,11 @@ struct SavedPrayer: Identifiable, Hashable, Sendable {
     var updatedAt: Date
     var deletedAt: Date?
 
-    // Local-only tracking
+    // Sync tracking
     var needsSync: Bool = false
+    var lastSyncedAt: Date?
+    var syncRetryCount: Int = 0
+    var syncError: String?
 
     var preview: String {
         let maxLength = 100
@@ -48,7 +51,10 @@ struct SavedPrayer: Identifiable, Hashable, Sendable {
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         deletedAt: Date? = nil,
-        needsSync: Bool = false
+        needsSync: Bool = false,
+        lastSyncedAt: Date? = nil,
+        syncRetryCount: Int = 0,
+        syncError: String? = nil
     ) {
         self.id = id
         self.userId = userId
@@ -60,6 +66,9 @@ struct SavedPrayer: Identifiable, Hashable, Sendable {
         self.updatedAt = updatedAt
         self.deletedAt = deletedAt
         self.needsSync = needsSync
+        self.lastSyncedAt = lastSyncedAt
+        self.syncRetryCount = syncRetryCount
+        self.syncError = syncError
     }
 
     /// Create SavedPrayer from Prayer model (for saving)
@@ -101,6 +110,9 @@ extension SavedPrayer: FetchableRecord, PersistableRecord {
         case updatedAt = "updated_at"
         case deletedAt = "deleted_at"
         case needsSync = "needs_sync"
+        case lastSyncedAt = "last_synced_at"
+        case syncRetryCount = "sync_retry_count"
+        case syncError = "sync_error"
     }
 
     nonisolated init(row: Row) {
@@ -118,6 +130,9 @@ extension SavedPrayer: FetchableRecord, PersistableRecord {
         updatedAt = row[Columns.updatedAt]
         deletedAt = row[Columns.deletedAt]
         needsSync = row[Columns.needsSync]
+        lastSyncedAt = row[Columns.lastSyncedAt]
+        syncRetryCount = row[Columns.syncRetryCount]
+        syncError = row[Columns.syncError]
     }
 
     nonisolated func encode(to container: inout PersistenceContainer) {
@@ -131,6 +146,9 @@ extension SavedPrayer: FetchableRecord, PersistableRecord {
         container[Columns.updatedAt] = updatedAt
         container[Columns.deletedAt] = deletedAt
         container[Columns.needsSync] = needsSync
+        container[Columns.lastSyncedAt] = lastSyncedAt
+        container[Columns.syncRetryCount] = syncRetryCount
+        container[Columns.syncError] = syncError
     }
 }
 
@@ -170,6 +188,9 @@ extension SavedPrayer {
         self.updatedAt = dto.updatedAt
         self.deletedAt = nil
         self.needsSync = false
+        self.lastSyncedAt = Date()  // Just synced from server
+        self.syncRetryCount = 0
+        self.syncError = nil
     }
 
     func toDTO() -> SavedPrayerDTO {

@@ -52,7 +52,7 @@ struct ScholarlyCompanionChatView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .font(.system(size: 17, weight: .medium))
+                        .font(Typography.Command.headline)
                         .foregroundStyle(ChatPalette.Scholarly.accent)
                 }
             }
@@ -102,19 +102,19 @@ struct ScholarlyCompanionChatView: View {
         VStack(spacing: 16) {
             // Icon with scholarly styling
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: Theme.Radius.lg)
                     .fill(ChatPalette.Scholarly.accentSubtle)
                     .frame(width: 64, height: 64)
 
                 Image(systemName: "text.book.closed.fill")
-                    .font(.system(size: 28, weight: .medium))
+                    .font(Typography.Icon.xl)
                     .foregroundStyle(ChatPalette.Scholarly.accent)
             }
 
             // Title
             VStack(spacing: 6) {
                 Text("SCHOLARLY COMPANION")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(Typography.Icon.xxs.weight(.bold))
                     .tracking(2)
                     .foregroundStyle(ChatPalette.Scholarly.accent)
 
@@ -125,7 +125,7 @@ struct ScholarlyCompanionChatView: View {
 
             // Description
             Text("Ask questions and receive research-backed insights with citations from original languages, commentaries, and cross-references.")
-                .font(.system(size: 14, weight: .regular))
+                .font(Typography.Command.caption)
                 .foregroundStyle(ChatPalette.Scholarly.secondaryText)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
@@ -144,7 +144,7 @@ struct ScholarlyCompanionChatView: View {
                         sendMessage()
                     }) {
                         Text(suggestion)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(Typography.Command.meta)
                             .foregroundStyle(ChatPalette.Scholarly.accent)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 8)
@@ -152,7 +152,7 @@ struct ScholarlyCompanionChatView: View {
                             .clipShape(Capsule())
                             .overlay(
                                 Capsule()
-                                    .stroke(ChatPalette.Scholarly.accent.opacity(0.2), lineWidth: 1)
+                                    .stroke(ChatPalette.Scholarly.accent.opacity(Theme.Opacity.light), lineWidth: 1)
                             )
                     }
                 }

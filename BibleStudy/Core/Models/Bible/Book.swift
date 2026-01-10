@@ -48,7 +48,9 @@ struct Book: Identifiable, Codable, Hashable {
 
 // MARK: - All 66 Books
 extension Book {
-    static let all: [Book] = [
+    // Note: nonisolated(unsafe) is required to allow access from nonisolated functions.
+    // The compiler warns this is "unnecessary" but removing it causes @MainActor inference.
+    nonisolated(unsafe) static let all: [Book] = [
         // Old Testament - Pentateuch
         Book(id: 1, name: "Genesis", abbreviation: "Gen", testament: .old, category: .pentateuch, chapters: 50),
         Book(id: 2, name: "Exodus", abbreviation: "Exod", testament: .old, category: .pentateuch, chapters: 40),
@@ -136,19 +138,19 @@ extension Book {
         Book(id: 66, name: "Revelation", abbreviation: "Rev", testament: .new, category: .revelation, chapters: 22)
     ]
 
-    static let byId: [Int: Book] = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
+    nonisolated(unsafe) static let byId: [Int: Book] = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
 
-    static let byAbbreviation: [String: Book] = Dictionary(uniqueKeysWithValues: all.map { ($0.abbreviation.lowercased(), $0) })
+    nonisolated(unsafe) static let byAbbreviation: [String: Book] = Dictionary(uniqueKeysWithValues: all.map { ($0.abbreviation.lowercased(), $0) })
 
-    static func find(byId id: Int) -> Book? {
+    nonisolated static func find(byId id: Int) -> Book? {
         byId[id]
     }
 
-    static func find(byAbbreviation abbr: String) -> Book? {
+    nonisolated static func find(byAbbreviation abbr: String) -> Book? {
         byAbbreviation[abbr.lowercased()]
     }
 
-    static func find(byName name: String) -> Book? {
+    nonisolated static func find(byName name: String) -> Book? {
         all.first { $0.name.lowercased() == name.lowercased() }
     }
 

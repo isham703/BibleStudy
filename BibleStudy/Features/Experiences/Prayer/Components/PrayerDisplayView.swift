@@ -7,30 +7,35 @@ struct PrayerDisplayView: View {
     let prayer: any PrayerDisplayable
     let tradition: PrayerTradition
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Theme.Spacing.xxl) {
             // Cross ornament
             Text("✝")
-                .font(.system(size: 28))
-                .foregroundStyle(Color.divineGold.opacity(0.6))
+                .font(Typography.Icon.xl)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.strong))
 
             // Prayer with drop cap
-            ManuscriptPrayerText(prayer: prayer)
+            ManuscriptPrayerText(prayer: prayer, colorScheme: colorScheme)
 
             // Ornamental divider
-            PrayerOrnamentalDivider()
+            PrayerOrnamentalDivider(colorScheme: colorScheme)
                 .frame(width: 120)
 
             // Tradition note
             Text("In the tradition of \(tradition.rawValue)")
-                .font(.custom("CormorantGaramond-Italic", size: 13))
-                .foregroundStyle(Color.tertiaryText.opacity(0.7))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 13, weight: .regular, design: .serif).italic())
+                .foregroundStyle(Color.tertiaryText.opacity(Theme.Opacity.overlay))
 
             // Amen
             Text(prayer.amen)
-                .font(.custom("Cinzel-Regular", size: 14))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 14, weight: .medium, design: .serif))
+                // swiftlint:disable:next hardcoded_tracking
                 .tracking(6)
-                .foregroundStyle(Color.vermillion)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
         }
     }
 }
@@ -39,35 +44,40 @@ struct PrayerDisplayView: View {
 
 private struct ManuscriptPrayerText: View {
     let prayer: any PrayerDisplayable
+    let colorScheme: ColorScheme
     @State private var showDropCap = false
 
     var body: some View {
         let firstLetter = String(prayer.content.prefix(1))
         let restOfText = String(prayer.content.dropFirst())
 
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             // Drop cap
             Text(firstLetter)
-                .font(.custom("Cinzel-Regular", size: 72))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 72, weight: .medium, design: .serif))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.divineGold, .tertiaryText],
+                        colors: [Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), .tertiaryText],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
-                .shadow(color: .primaryText.opacity(0.3), radius: 2, x: 1, y: 2)
+                .shadow(color: .primaryText.opacity(Theme.Opacity.medium), radius: 2, x: 1, y: 2)
                 .scaleEffect(showDropCap ? 1 : 0)
-                .animation(.spring(response: 0.8, dampingFraction: 0.6), value: showDropCap)
+                // swiftlint:disable:next hardcoded_animation_spring
+                .animation(Theme.Animation.settle, value: showDropCap)
 
             // Rest of prayer
             Text(restOfText)
-                .font(.custom("CormorantGaramond-SemiBold", size: 20))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 20, weight: .semibold, design: .serif))
                 .foregroundStyle(Color.primaryText)
+                // swiftlint:disable:next hardcoded_line_spacing
                 .lineSpacing(10)
                 .multilineTextAlignment(.leading)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, Theme.Spacing.xl)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 showDropCap = true
@@ -79,34 +89,36 @@ private struct ManuscriptPrayerText: View {
 // MARK: - Ornamental Divider
 
 private struct PrayerOrnamentalDivider: View {
+    let colorScheme: ColorScheme
+
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Theme.Spacing.sm) {
             // Left line
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [.clear, .divineGold],
+                        colors: [.clear, Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .frame(height: 1)
+                .frame(height: Theme.Stroke.hairline)
 
             // Center ornament
             Circle()
-                .fill(Color.divineGold)
+                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                 .frame(width: 6, height: 6)
 
             // Right line
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [.divineGold, .clear],
+                        colors: [Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), .clear],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .frame(height: 1)
+                .frame(height: Theme.Stroke.hairline)
         }
     }
 }

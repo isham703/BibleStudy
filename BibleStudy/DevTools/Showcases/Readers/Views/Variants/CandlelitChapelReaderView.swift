@@ -23,21 +23,21 @@ struct CandlelitChapelReaderView: View {
                     VStack(spacing: 0) {
                         // Chapter header
                         chapterHeader
-                            .padding(.top, AppTheme.Spacing.xxxl)
+                            .padding(.top, Theme.Spacing.xxl)
 
                         // Ornamental divider
                         ChapelDivider()
-                            .padding(.vertical, AppTheme.Spacing.xxl)
+                            .padding(.vertical, Theme.Spacing.xxl)
                             .opacity(isVisible ? 1 : 0)
                             .animation(.easeOut(duration: 0.6).delay(0.3), value: isVisible)
 
                         // Paragraph content
                         paragraphSection
-                            .padding(.horizontal, AppTheme.Spacing.xl)
+                            .padding(.horizontal, Theme.Spacing.xl)
 
                         // Bottom spacing for candle
                         Spacer()
-                            .frame(height: AppTheme.Spacing.xxxl * 3)
+                            .frame(height: Theme.Spacing.xxl * 3)
                     }
                     .frame(minHeight: geometry.size.height)
                 }
@@ -58,7 +58,7 @@ struct CandlelitChapelReaderView: View {
                 Text(passage.reference)
                     .font(.custom("Cinzel-Regular", size: 12))
                     .tracking(2)
-                    .foregroundStyle(Color.moonMist.opacity(0.7))
+                    .foregroundStyle(Color.stoicLightGray.opacity(Theme.Opacity.heavy))
             }
         }
         .onAppear {
@@ -79,7 +79,7 @@ struct CandlelitChapelReaderView: View {
     private var backgroundLayers: some View {
         ZStack {
             // Base gradient
-            Color.vespersSkyGradient
+            Color.surfaceInk
                 .ignoresSafeArea()
 
             // Starfield
@@ -93,8 +93,8 @@ struct CandlelitChapelReaderView: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.candleAmber.opacity(0.3),
-                                Color.candleAmber.opacity(0.1),
+                                Color.accentBronze.opacity(Theme.Opacity.subtle),
+                                Color.accentBronze.opacity(Theme.Opacity.overlay),
                                 Color.clear
                             ],
                             center: .center,
@@ -112,22 +112,22 @@ struct CandlelitChapelReaderView: View {
     // MARK: - Chapter Header
 
     private var chapterHeader: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Book name
             Text(passage.bookName.uppercased())
                 .font(.custom("Cinzel-Regular", size: 11))
                 .tracking(4)
-                .foregroundStyle(Color.candleAmber)
+                .foregroundStyle(Color.accentBronze)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(0.1), value: isVisible)
 
             // Chapter number
             Text("\(passage.chapter)")
                 .font(.custom("CormorantGaramond-Regular", size: 64))
-                .foregroundStyle(Color.starlight)
+                .foregroundStyle(Color.decorativeMarble)
                 .opacity(isVisible ? 1 : 0)
                 .scaleEffect(isVisible ? 1 : 0.9)
-                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.2), value: isVisible)
+                .animation(Theme.Animation.settle.delay(0.2), value: isVisible)
         }
     }
 
@@ -138,20 +138,20 @@ struct CandlelitChapelReaderView: View {
             // Paragraph flow text with inline verse numbers
             Text(attributedParagraphText)
                 .font(.custom("CormorantGaramond-Regular", size: 22))
-                .foregroundStyle(Color.starlight)
+                .foregroundStyle(Color.decorativeMarble)
                 .lineSpacing(12)
                 .multilineTextAlignment(.leading)
                 .opacity(isVisible ? breathingOpacity : 0)
                 .animation(.easeOut(duration: 0.8).delay(0.5), value: isVisible)
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .fill(Color.white.opacity(0.03))
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Color.white.opacity(Theme.Opacity.faint))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(Color.candleAmber.opacity(0.15), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Color.accentBronze.opacity(Theme.Opacity.divider), lineWidth: 0.5)
         )
     }
 
@@ -164,13 +164,13 @@ struct CandlelitChapelReaderView: View {
             // Add verse number as superscript
             var verseNum = AttributedString("\(verse.id) ")
             verseNum.font = .custom("CormorantGaramond-Regular", size: 14)
-            verseNum.foregroundColor = Color.moonMist.opacity(0.6)
+            verseNum.foregroundColor = Color.stoicLightGray.opacity(Theme.Opacity.tertiary)
             verseNum.baselineOffset = 6
 
             // Add verse text
             var verseText = AttributedString(verse.text + " ")
             verseText.font = .custom("CormorantGaramond-Regular", size: 22)
-            verseText.foregroundColor = Color.starlight
+            verseText.foregroundColor = Color.decorativeMarble
 
             result.append(verseNum)
             result.append(verseText)
@@ -191,8 +191,8 @@ private struct ChapelDivider: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            Color.moonMist.opacity(0.2),
-                            Color.candleAmber.opacity(0.4)
+                            Color.stoicLightGray.opacity(Theme.Opacity.light),
+                            Color.accentBronze.opacity(Theme.Opacity.lightMedium)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -202,16 +202,16 @@ private struct ChapelDivider: View {
 
             // Center ornament - moon/stars motif
             Image(systemName: "moon.stars")
-                .font(.system(size: 14, weight: .light))
-                .foregroundStyle(Color.candleAmber)
+                .font(Typography.Icon.sm.weight(.light))
+                .foregroundStyle(Color.accentBronze)
 
             // Right gradient line
             Rectangle()
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.candleAmber.opacity(0.4),
-                            Color.moonMist.opacity(0.2),
+                            Color.accentBronze.opacity(Theme.Opacity.lightMedium),
+                            Color.stoicLightGray.opacity(Theme.Opacity.light),
                             Color.clear
                         ],
                         startPoint: .leading,
@@ -240,8 +240,8 @@ private struct ChapelCandleFlame: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.candleAmber.opacity(0.5),
-                                Color.candleAmber.opacity(0.2),
+                                Color.accentBronze.opacity(Theme.Opacity.medium),
+                                Color.accentBronze.opacity(Theme.Opacity.light),
                                 Color.clear
                             ],
                             center: .center,
@@ -257,9 +257,9 @@ private struct ChapelCandleFlame: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(0.9),
-                                Color.candleCore,
-                                Color.candleAmber
+                                Color.white.opacity(Theme.Opacity.high),
+                                Color.accentBronzeLight,
+                                Color.accentBronze
                             ],
                             startPoint: .bottom,
                             endPoint: .top
@@ -286,7 +286,7 @@ private struct ChapelCandleFlame: View {
                 .frame(width: 14, height: 30)
                 .overlay(
                     Rectangle()
-                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                        .stroke(Color.white.opacity(Theme.Opacity.light), lineWidth: 0.5)
                 )
         }
         .onAppear {

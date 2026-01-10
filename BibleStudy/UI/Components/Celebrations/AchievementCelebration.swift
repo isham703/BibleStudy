@@ -19,7 +19,7 @@ struct AchievementCelebration: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Achievement badge with pulse
             ZStack {
                 // Pulse rings
@@ -30,14 +30,14 @@ struct AchievementCelebration: View {
 
                 // Badge background
                 Circle()
-                    .fill(categoryColor.opacity(AppTheme.Opacity.lightMedium))
+                    .fill(categoryColor.opacity(Theme.Opacity.lightMedium))
                     .frame(width: 80, height: 80)
 
                 // Icon
                 if showIcon {
                     Image(systemName: achievement.icon)
                         // swiftlint:disable:next hardcoded_font_system
-                        .font(.system(size: AppTheme.IconSize.celebration, weight: .medium))
+                        .font(Typography.Icon.hero.weight(.medium))
                         .foregroundStyle(categoryColor)
                         .rotationEffect(.degrees(iconRotation))
                         .scaleEffect(iconScale)
@@ -46,20 +46,20 @@ struct AchievementCelebration: View {
 
             // Achievement title
             if showTitle {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     Text("Achievement Unlocked!")
-                        .font(Typography.UI.warmSubheadline)
+                        .font(Typography.Command.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(Color.secondaryText)
 
                     Text(achievement.title)
-                        .font(Typography.Display.title2)
+                        .font(Typography.Scripture.heading)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.primaryText)
                         .multilineTextAlignment(.center)
 
                     Text(achievement.description)
-                        .font(Typography.UI.warmSubheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.secondaryText)
                         .multilineTextAlignment(.center)
                 }
@@ -68,21 +68,21 @@ struct AchievementCelebration: View {
 
             // XP Reward
             if showXP {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "star.fill")
-                        .font(Typography.UI.subheadline)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.subheadline)
+                        .foregroundStyle(Color.accentIndigo)
 
                     Text("+\(achievement.xpReward) XP")
-                        .font(Typography.UI.headline.monospacedDigit())
+                        .font(Typography.Command.headline.monospacedDigit())
                         .fontWeight(.bold)
-                        .foregroundStyle(Color.scholarAccent)
+                        .foregroundStyle(Color.accentIndigo)
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.sm)
                 .background(
                     Capsule()
-                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
+                        .fill(Color.accentIndigo.opacity(Theme.Opacity.subtle))
                 )
                 .transition(.scale.combined(with: .opacity))
             }
@@ -98,7 +98,7 @@ struct AchievementCelebration: View {
         case .reading: return .accentBlue
         case .memorization: return .highlightPurple
         case .streaks: return .orange
-        case .study: return .scholarAccent
+        case .study: return .accentIndigo
         case .milestones: return .highlightGreen
         }
     }
@@ -122,14 +122,14 @@ struct AchievementCelebration: View {
         // Icon bounces in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             showIcon = true
-            withAnimation(AppTheme.Animation.celebrationBounce) {
+            withAnimation(Theme.Animation.settle) {
                 iconRotation = 0
                 iconScale = 1.2
             }
 
             // Scale back down
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                withAnimation(AppTheme.Animation.celebrationSettle) {
+                withAnimation(Theme.Animation.settle) {
                     iconScale = 1
                 }
             }
@@ -137,14 +137,14 @@ struct AchievementCelebration: View {
 
         // Title slides in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showTitle = true
             }
         }
 
         // XP badge pops in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showXP = true
             }
         }
@@ -175,15 +175,15 @@ struct UserLevelUpCelebration: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Level Up Text
             if showCongrats {
                 Text("Level Up!")
-                    .font(Typography.UI.largeTitle)
+                    .font(Typography.Command.largeTitle)
                     .fontWeight(.bold)
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [toLevel.color, toLevel.color.opacity(AppTheme.Opacity.strong)],
+                            colors: [toLevel.color, toLevel.color.opacity(Theme.Opacity.strong)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -192,17 +192,17 @@ struct UserLevelUpCelebration: View {
             }
 
             // Level transition
-            HStack(spacing: AppTheme.Spacing.lg) {
+            HStack(spacing: Theme.Spacing.lg) {
                 // Old level
                 if showOldLevel {
                     LevelBadge(level: fromLevel, isActive: false)
-                        .opacity(AppTheme.Opacity.disabled)
+                        .opacity(Theme.Opacity.disabled)
                 }
 
                 // Arrow
                 if showArrow {
                     Image(systemName: "arrow.right")
-                        .font(Typography.UI.title2)
+                        .font(Typography.Command.title2)
                         .foregroundStyle(Color.secondaryText)
                         .transition(.scale.combined(with: .opacity))
                 }
@@ -223,18 +223,18 @@ struct UserLevelUpCelebration: View {
 
             // New level description
             if showNewLevel {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     Text("You are now a")
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.secondaryText)
 
                     Text(toLevel.displayName)
-                        .font(Typography.UI.title1)
+                        .font(Typography.Command.title1)
                         .fontWeight(.bold)
                         .foregroundStyle(toLevel.color)
 
                     Text(toLevel.celebrationDescription)
-                        .font(Typography.UI.footnote)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                         .multilineTextAlignment(.center)
                 }
@@ -261,13 +261,13 @@ struct UserLevelUpCelebration: View {
         }
 
         // Old level appears
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             showOldLevel = true
         }
 
         // Arrow
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showArrow = true
             }
         }
@@ -275,14 +275,14 @@ struct UserLevelUpCelebration: View {
         // New level with pulse
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             showPulse = true
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showNewLevel = true
             }
         }
 
         // Congrats text
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showCongrats = true
             }
         }
@@ -300,19 +300,19 @@ private struct LevelBadge: View {
     let isActive: Bool
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xxs) {
+        VStack(spacing: 2) {
             ZStack {
                 Circle()
-                    .fill(isActive ? level.color.opacity(AppTheme.Opacity.lightMedium) : Color.surfaceBackground)
+                    .fill(isActive ? level.color.opacity(Theme.Opacity.lightMedium) : Color.surfaceBackground)
                     .frame(width: 50, height: 50)
 
                 Image(systemName: level.icon)
-                    .font(Typography.UI.title2)
+                    .font(Typography.Command.title2)
                     .foregroundStyle(isActive ? level.color : Color.tertiaryText)
             }
 
             Text(level.displayName)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(isActive ? level.color : Color.tertiaryText)
         }
     }
@@ -324,7 +324,7 @@ extension UserLevel {
         switch self {
         case .novice: return .secondaryText
         case .apprentice: return .accentBlue
-        case .scholar: return .scholarAccent
+        case .scholar: return .accentIndigo
         case .master: return .highlightPurple
         case .sage: return .highlightGreen
         }

@@ -27,25 +27,25 @@ enum ChatPalette {
         static let inputBackground = Color(hex: "f4f4f5")
 
         // Text
-        static let primaryText = Color(hex: "18181b")
+        static let primaryText = Color.surfaceRaised
         static let secondaryText = Color(hex: "52525b")
         static let tertiaryText = Color(hex: "a1a1aa")
         static let placeholder = Color(hex: "d4d4d8")
 
         // Accents
-        static let accent = Color(hex: "18181b")
-        static let accentSubtle = Color(hex: "18181b").opacity(0.08)
+        static let accent = Color.surfaceRaised
+        static let accentSubtle = Color.surfaceRaised.opacity(0.08)
 
         // Messages
-        static let userBubble = Color(hex: "18181b")
+        static let userBubble = Color.surfaceRaised
         static let userText = Color.white
         static let aiBubble = Color.white
-        static let aiText = Color(hex: "18181b")
+        static let aiText = Color.surfaceRaised
         static let aiBorder = Color(hex: "e4e4e7")
 
         // Interactive
-        static let voiceButton = Color(hex: "18181b")
-        static let sendButton = Color(hex: "18181b")
+        static let voiceButton = Color.surfaceRaised
+        static let sendButton = Color.surfaceRaised
         static let buttonDisabled = Color(hex: "d4d4d8")
 
         // Shadows
@@ -67,30 +67,30 @@ enum ChatPalette {
         static let placeholder = Color(hex: "a8a29e")
 
         // Accents
-        static let accent = Color.scholarIndigo
-        static let accentSubtle = Color.scholarIndigo.opacity(0.08)
+        static let accent = Color.accentIndigo
+        static let accentSubtle = Color.accentIndigo.opacity(0.08)
         static let greek = Color(hex: "2563eb") // Blue for Greek
         static let hebrew = Color(hex: "7c3aed") // Purple for Hebrew
         static let citation = Color(hex: "059669") // Green for citations
 
         // Messages
-        static let userBubble = Color.scholarIndigo
+        static let userBubble = Color.accentIndigo
         static let userText = Color.white
         static let aiBubble = Color.white
         static let aiText = Color(hex: "1c1917")
         static let aiBorder = Color(hex: "e7e5e4")
 
         // Interactive
-        static let voiceButton = Color.scholarIndigo
-        static let sendButton = Color.scholarIndigo
+        static let voiceButton = Color.accentIndigo
+        static let sendButton = Color.accentIndigo
         static let buttonDisabled = Color(hex: "d6d3d1")
 
         // Special
-        static let citationChip = Color.scholarIndigo.opacity(0.1)
-        static let crossReference = Color(hex: "f59e0b") // Amber
+        static let citationChip = Color.accentIndigo.opacity(0.1)
+        static let crossReference = Color.amberOrange // Amber
 
         // Shadows
-        static let shadow = Color.scholarIndigo.opacity(0.06)
+        static let shadow = Color.accentIndigo.opacity(0.06)
     }
 
     // MARK: - Warm Sanctuary Palette
@@ -108,26 +108,26 @@ enum ChatPalette {
         static let placeholder = Color(hex: "78716c")
 
         // Accents - warm gold tones
-        static let accent = Color(hex: "d4a853") // Divine gold
-        static let accentSubtle = Color(hex: "d4a853").opacity(0.15)
+        static let accent = Color.accentBronze // Divine gold
+        static let accentSubtle = Color.accentBronze.opacity(0.15)
         static let accentGlow = Color(hex: "e8c978") // Illuminated gold
 
         // Messages
-        static let userBubble = Color(hex: "d4a853").opacity(0.2)
-        static let userBorder = Color(hex: "d4a853").opacity(0.4)
+        static let userBubble = Color.accentBronze.opacity(0.2)
+        static let userBorder = Color.accentBronze.opacity(0.4)
         static let userText = Color(hex: "fafaf9")
         static let aiBubble = Color(hex: "292524")
         static let aiBorder = Color(hex: "44403c")
         static let aiText = Color(hex: "fafaf9")
 
         // Interactive
-        static let voiceButton = Color(hex: "d4a853")
-        static let sendButton = Color(hex: "d4a853")
+        static let voiceButton = Color.accentBronze
+        static let sendButton = Color.accentBronze
         static let buttonDisabled = Color(hex: "57534e")
 
         // Special
-        static let divider = Color(hex: "d4a853").opacity(0.2)
-        static let glow = Color(hex: "d4a853").opacity(0.1)
+        static let divider = Color.accentBronze.opacity(0.2)
+        static let glow = Color.accentBronze.opacity(0.1)
 
         // Shadows
         static let shadow = Color.black.opacity(0.3)
@@ -155,9 +155,9 @@ enum ChatPalette {
 
     // MARK: - Animations
     enum Animation {
-        static let messageAppear = SwiftUI.Animation.spring(response: 0.4, dampingFraction: 0.8)
+        static let messageAppear = Theme.Animation.settle
         static let typing = SwiftUI.Animation.easeInOut(duration: 0.15)
-        static let inputExpand = SwiftUI.Animation.spring(response: 0.3, dampingFraction: 0.8)
+        static let inputExpand = Theme.Animation.settle
         static let voicePulse = SwiftUI.Animation.easeInOut(duration: 0.8).repeatForever(autoreverses: true)
     }
 }

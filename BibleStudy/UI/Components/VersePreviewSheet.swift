@@ -5,6 +5,7 @@ import SwiftUI
 
 struct VersePreviewSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(BibleService.self) private var bibleService
 
     let verseRange: VerseRange
@@ -15,13 +16,13 @@ struct VersePreviewSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     // Header
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         if let book = verseRange.book {
                             Text(book.name)
-                                .font(Typography.UI.caption1)
-                                .foregroundStyle(Color.scholarAccent)
+                                .font(Typography.Command.caption)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 .textCase(.uppercase)
                                 .tracking(1)
                         }
@@ -30,30 +31,31 @@ struct VersePreviewSheet: View {
                             .font(Typography.Scripture.title)
                             .foregroundStyle(Color.primaryText)
                     }
-                    .padding(.bottom, AppTheme.Spacing.sm)
+                    .padding(.bottom, Theme.Spacing.sm)
 
                     // Content
                     if isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, AppTheme.Spacing.xl)
+                            .padding(.top, Theme.Spacing.xl)
                     } else if let error = error {
                         errorView(error)
                     } else if verses.isEmpty {
                         Text("No verses found.")
-                            .font(Typography.UI.warmSubheadline)
+                            .font(Typography.Command.body)
                             .foregroundStyle(Color.secondaryText)
                     } else {
                         // Verses with numbers
-                        ForEach(verses) { verse in
-                            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
-                                Text("\(verse.verse)")
-                                    .font(Typography.UI.caption1Bold.monospacedDigit())
+                        ForEach(verses, id: \.id) { verse in
+                            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
+                                Text(String(verse.verse))
+                                    .font(Typography.Command.caption)
+                                    .monospacedDigit()
                                     .foregroundStyle(Color.verseNumber)
                                     .frame(width: 24, alignment: .trailing)
 
                                 Text(verse.text)
-                                    .font(Typography.Scripture.body(size: 18))
+                                    .font(Typography.Scripture.body)
                                     .foregroundStyle(Color.primaryText)
                                     .lineSpacing(6)
                                     .textSelection(.enabled)
@@ -83,23 +85,23 @@ struct VersePreviewSheet: View {
 
     // MARK: - Error View
     private func errorView(_ error: Error) -> some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "exclamationmark.triangle")
-                .font(Typography.UI.title1)
+                .font(Typography.Command.title1)
                 .foregroundStyle(Color.warning)
 
             Text("Unable to load verses")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.primaryText)
 
             Button("Try Again") {
                 Task { await loadVerses() }
             }
-            .font(Typography.UI.caption1Bold)
-            .foregroundStyle(Color.scholarAccent)
+            .font(Typography.Command.caption.weight(.semibold))
+            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, AppTheme.Spacing.xl)
+        .padding(.top, Theme.Spacing.xl)
     }
 
     // MARK: - Load Verses

@@ -81,7 +81,7 @@ final class ToastManager {
         dismissTask?.cancel()
         dismissTask = nil
 
-        withAnimation(AppTheme.Animation.quick) {
+        withAnimation(Theme.Animation.fade) {
             currentToast = nil
         }
 
@@ -126,7 +126,7 @@ final class ToastManager {
         dismissTask?.cancel()
 
         // Animate in
-        withAnimation(AppTheme.Animation.sacredSpring) {
+        withAnimation(Theme.Animation.settle) {
             currentToast = toast
         }
 
@@ -177,13 +177,14 @@ enum ToastType: Equatable {
         }
     }
 
-    var accentColor: Color {
+    func accentColor(for colorScheme: ColorScheme) -> Color {
+        let mode = ThemeMode.current(from: colorScheme)
         switch self {
         case .highlight(let color, _): return color.solidColor
-        case .success: return Color.malachite
-        case .info: return Color.lapisLazuli
-        case .bookmark: return Color.divineGold
-        case .note: return Color.divineGold
+        case .success: return Colors.Semantic.success(for: mode)
+        case .info: return Colors.Semantic.info(for: mode)
+        case .bookmark: return Colors.Semantic.accentSeal(for: mode)
+        case .note: return Colors.Semantic.accentSeal(for: mode)
         }
     }
 }
@@ -228,8 +229,8 @@ struct ToastPresenterModifier: ViewModifier {
                         insertion: .move(edge: .bottom).combined(with: .opacity),
                         removal: .move(edge: .bottom).combined(with: .opacity)
                     ))
-                    .padding(.bottom, AppTheme.Spacing.xl)
-                    .padding(.horizontal, AppTheme.Spacing.lg)
+                    .padding(.bottom, Theme.Spacing.xl)
+                    .padding(.horizontal, Theme.Spacing.lg)
                 }
             }
             .environment(\.toastManager, toastManager)

@@ -15,8 +15,9 @@ struct BibleInsightContent: View {
     var onRemoveHighlight: (() -> Void)?
 
     var accentBarWidth: CGFloat = 4
-    var cornerRadius: CGFloat = AppTheme.CornerRadius.card
+    var cornerRadius: CGFloat = Theme.Radius.card
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isRevealed = false
     @State private var expandedSection: InsightSection?
     @State private var chipsRevealed = false
@@ -47,7 +48,7 @@ struct BibleInsightContent: View {
                 indigoAccentBar
             }
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 headerSection
                 heroSummarySection
 
@@ -71,15 +72,15 @@ struct BibleInsightContent: View {
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(Theme.Spacing.lg)
         }
         .opacity(isRevealed ? 1 : 0)
         .scaleEffect(y: isRevealed ? 1 : 0.97, anchor: .top)
         .onAppear {
-            withAnimation(AppTheme.Animation.cardUnfurl) {
+            withAnimation(Theme.Animation.settle) {
                 isRevealed = true
             }
-            withAnimation(AppTheme.Animation.chipExpand.delay(0.4)) {
+            withAnimation(Theme.Animation.settle.delay(0.4)) {
                 chipsRevealed = true
             }
         }
@@ -89,7 +90,7 @@ struct BibleInsightContent: View {
         Rectangle()
             .fill(
                 LinearGradient(
-                    colors: AppTheme.InsightCard.barGradient,
+                    colors: [Color.decorativeGold, Color.accentBronze],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -107,21 +108,21 @@ struct BibleInsightContent: View {
 
     private var headerSection: some View {
         HStack {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "sparkle")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Command.caption.weight(.semibold))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 Text("SCHOLARLY INSIGHT")
                     .editorialLabel()
-                    .foregroundStyle(Color.scholarIndigo)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
 
             Spacer()
 
             Button {
                 HapticService.shared.lightTap()
-                withAnimation(AppTheme.Animation.selection) {
+                withAnimation(Theme.Animation.fade) {
                     isRevealed = false
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -129,7 +130,7 @@ struct BibleInsightContent: View {
                 }
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
                     .frame(width: 28, height: 28)
                     .background(Color.surfaceBackground)
@@ -144,26 +145,27 @@ struct BibleInsightContent: View {
         if viewModel.isLimitReached {
             limitReachedSection
         } else if viewModel.isLoadingExplain {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 ProgressView()
+                    // swiftlint:disable:next hardcoded_scale_effect
                     .scaleEffect(0.8)
-                    .tint(Color.scholarIndigo)
+                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 Text("Analyzing passage...")
                     .insightItalic()
                     .foregroundStyle(Color.tertiaryText)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.sm)
         } else if let structured = viewModel.structuredExplanation {
             Text(structured.summary)
                 .insightHeroSummary()
-                .foregroundStyle(AppTheme.InsightCard.heroText)
+                .foregroundStyle(Color.white)
                 .fixedSize(horizontal: false, vertical: true)
         } else if let explanation = viewModel.explanation {
             Text(BibleInsightSummary.heroSummary(from: explanation))
                 .insightHeroSummary()
-                .foregroundStyle(AppTheme.InsightCard.heroText)
+                .foregroundStyle(Color.white)
                 .lineLimit(4)
         } else {
             Text("Tap to explore this passage")
@@ -173,19 +175,19 @@ struct BibleInsightContent: View {
     }
 
     private var limitReachedSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "lock.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Daily Limit Reached")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(Typography.Command.label.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
 
                     Text("Upgrade for unlimited insights")
-                        .font(.system(size: 12))
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -194,41 +196,41 @@ struct BibleInsightContent: View {
                 HapticService.shared.lightTap()
                 EntitlementManager.shared.showPaywall(trigger: .aiInsightsLimit)
             } label: {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(Typography.Command.caption)
 
                     Text("Unlock Unlimited")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(Typography.Command.caption.weight(.semibold))
 
                     Spacer()
 
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(Typography.Command.caption)
                 }
                 .foregroundStyle(.white)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.sm)
                 .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                        .fill(Color.scholarIndigo)
+                    RoundedRectangle(cornerRadius: Theme.Radius.input)
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 )
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 
     private var chipsSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 ForEach(InsightSection.allCases, id: \.self) { section in
                     BibleChip(
                         title: section.rawValue,
                         icon: section.icon,
                         isSelected: expandedSection == section
                     ) {
-                        withAnimation(AppTheme.Animation.chipExpand) {
+                        withAnimation(Theme.Animation.settle) {
                             HapticService.shared.lightTap()
                             if expandedSection == section {
                                 expandedSection = nil
@@ -248,7 +250,7 @@ struct BibleInsightContent: View {
 
     @ViewBuilder
     private func expandedContent(for section: InsightSection) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             switch section {
             case .keyPoints:
                 keyPointsContent
@@ -260,18 +262,20 @@ struct BibleInsightContent: View {
                 crossRefsContent
             }
         }
-        .padding(.top, AppTheme.Spacing.sm)
+        .padding(.top, Theme.Spacing.sm)
     }
 
     @ViewBuilder
     private var keyPointsContent: some View {
         if let structured = viewModel.structuredExplanation, !structured.keyPoints.isEmpty {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 ForEach(Array(structured.keyPoints.enumerated()), id: \.offset) { _, point in
-                    HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                         Circle()
-                            .fill(Color.scholarIndigo)
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            // swiftlint:disable:next hardcoded_indicator_size
                             .frame(width: 5, height: 5)
+                            // swiftlint:disable:next hardcoded_padding_edge
                             .padding(.top, 7)
 
                         Text(point)
@@ -282,7 +286,7 @@ struct BibleInsightContent: View {
             }
         } else {
             Text("Key points will appear here")
-                .font(.system(size: 13))
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
     }
@@ -291,9 +295,9 @@ struct BibleInsightContent: View {
     private var contextContent: some View {
         if viewModel.isLoadingContext {
             ProgressView("Loading context...")
-                .font(.system(size: 13))
+                .font(Typography.Command.caption)
         } else if let context = viewModel.contextInfo {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 if !context.before.isEmpty {
                     contextBlock(title: "Before", text: context.before)
                 }
@@ -303,13 +307,13 @@ struct BibleInsightContent: View {
             }
         } else {
             Text("Context information unavailable")
-                .font(.system(size: 13))
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
     }
 
     private func contextBlock(title: String, text: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             Text(title)
                 .editorialLabel()
                 .foregroundStyle(Color.tertiaryText)
@@ -325,17 +329,17 @@ struct BibleInsightContent: View {
     private var wordsContent: some View {
         if viewModel.isLoadingLanguage {
             ProgressView("Loading word analysis...")
-                .font(.system(size: 13))
+                .font(Typography.Command.caption)
         } else if !viewModel.languageTokens.isEmpty {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 ForEach(Array(viewModel.languageTokens.prefix(3)), id: \.id) { token in
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         Text(token.surface)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color.greekBlue)
+                            .font(Typography.Command.body.weight(.medium))
+                            .foregroundStyle(Color.navyDeep)
 
                         Text("(\(token.transliteration))")
-                            .font(.system(size: 13))
+                            .font(Typography.Command.caption)
                             .italic()
                             .foregroundStyle(Color.tertiaryText)
 
@@ -343,20 +347,20 @@ struct BibleInsightContent: View {
                             .foregroundStyle(Color.tertiaryText)
 
                         Text(token.gloss)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(Color.scholarIndigo)
+                            .font(Typography.Command.caption.weight(.medium))
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
                 }
 
                 if viewModel.languageTokens.count > 3 {
                     Text("+ \(viewModel.languageTokens.count - 3) more words")
-                        .font(.system(size: 11))
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
         } else {
             Text("No language data available")
-                .font(.system(size: 13))
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
     }
@@ -365,19 +369,19 @@ struct BibleInsightContent: View {
     private var crossRefsContent: some View {
         if viewModel.isLoadingCrossRefs {
             ProgressView("Loading cross-references...")
-                .font(.system(size: 13))
+                .font(Typography.Command.caption)
         } else if !viewModel.crossRefs.isEmpty {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 ForEach(Array(viewModel.crossRefs.prefix(3)), id: \.id) { crossRef in
-                    HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                         Rectangle()
-                            .fill(Color.scholarIndigo.opacity(0.6))
-                            .frame(width: 2)
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.strong))
+                            .frame(width: Theme.Stroke.control)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(crossRef.reference)
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(Color.scholarIndigo)
+                                .font(Typography.Command.caption.weight(.semibold))
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                             Text(crossRef.preview)
                                 .insightBody()
@@ -389,13 +393,13 @@ struct BibleInsightContent: View {
 
                 if viewModel.crossRefs.count > 3 {
                     Text("+ \(viewModel.crossRefs.count - 3) more references")
-                        .font(.system(size: 11))
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
         } else {
             Text("No cross-references found")
-                .font(.system(size: 13))
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
     }
@@ -405,36 +409,36 @@ struct BibleInsightContent: View {
             HapticService.shared.heavyTap()
             onOpenDeepStudy()
         } label: {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "book.pages")
-                    .font(.system(size: 13, weight: .medium))
+                    .font(Typography.Command.caption)
 
                 Text("Open Full Study")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(Typography.Command.caption.weight(.semibold))
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Typography.Command.caption)
             }
-            .foregroundStyle(Color.scholarIndigo)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm + 2)
+            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm + 2)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .fill(Color.scholarIndigo.opacity(0.1))
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .stroke(Color.scholarIndigo.opacity(0.15), lineWidth: 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
     }
 
     private var bottomActionBar: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.sm) {
                 scholarIconButton(icon: "doc.on.doc", label: "Copy") {
                     if let onCopy = onCopy {
                         onCopy()
@@ -453,7 +457,7 @@ struct BibleInsightContent: View {
             }
 
         }
-        .padding(.top, AppTheme.Spacing.sm)
+        .padding(.top, Theme.Spacing.sm)
     }
 
     private func scholarIconButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
@@ -462,7 +466,7 @@ struct BibleInsightContent: View {
             action()
         } label: {
             Image(systemName: icon)
-                .font(.system(size: 16, weight: .medium))
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.tertiaryText)
                 .frame(width: 36, height: 36)
                 .background(Color.surfaceBackground)
@@ -516,41 +520,43 @@ private struct BibleChip: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Typography.Command.caption)
 
                 Text(title)
-                    .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
+                    .font(Typography.Command.caption.weight(isSelected ? .semibold : .regular))
 
                 if isSelected {
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 9, weight: .medium))
+                        .font(Typography.Command.caption)
                 }
             }
-            .foregroundStyle(isSelected ? AppTheme.InsightCard.chipText : Color.tertiaryText)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .foregroundStyle(isSelected ? Color.white : Color.tertiaryText)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? AppTheme.InsightCard.chipSelected : AppTheme.InsightCard.chipBackground)
+                    .fill(isSelected ? Color.accentBronze : Color.gray.opacity(Theme.Opacity.light))
             )
             .overlay(
                 Capsule()
                     .stroke(
-                        isSelected ? Color.scholarIndigo.opacity(0.3) : Color.clear,
-                        lineWidth: 1
+                        isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium) : Color.clear,
+                        lineWidth: Theme.Stroke.hairline
                     )
             )
             .scaleEffect(isPressed ? 0.96 : 1.0)
         }
         .buttonStyle(.plain)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+            // swiftlint:disable:next hardcoded_animation_spring
+            withAnimation(Theme.Animation.settle) {
                 isPressed = pressing
             }
         }, perform: {})

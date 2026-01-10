@@ -204,7 +204,7 @@ final class SearchService {
             if let markEnd = remaining.range(of: "</mark>") {
                 let highlightedText = String(remaining[..<markEnd.lowerBound])
                 var highlighted = AttributedString(highlightedText)
-                highlighted.backgroundColor = .yellow.opacity(AppTheme.Opacity.disabled)
+                highlighted.backgroundColor = Color.yellow.opacity(Theme.Opacity.disabled)
                 highlighted.font = .body.bold()
                 result += highlighted
                 remaining = remaining[markEnd.upperBound...]

@@ -1,10 +1,14 @@
 import SwiftUI
 
 // MARK: - Sanctuary Time of Day
-// Liturgical Hours-inspired time system for the Candlelit Sanctuary variants
-// Each time period creates a spiritually appropriate atmosphere
+// DEPRECATED: Time-awareness removed in Roman/Stoic design system
+// Kept for backward compatibility with DevTools showcases
+//
+// The Roman design uses fixed layout with Bible Reading as primary CTA
+// instead of changing emphasis based on time of day.
 
-enum SanctuaryTimeOfDay: String, CaseIterable, Identifiable {
+@available(*, deprecated, message: "Time-awareness removed - use RomanSanctuaryView with fixed layout")
+enum SanctuaryTimeOfDay: String, CaseIterable, Identifiable, Equatable {
     case dawn       // 5am-9am   - Lauds/Morning Prayer
     case meridian   // 9am-12pm  - Terce/Sext
     case afternoon  // 12pm-5pm  - None/Midday
@@ -184,7 +188,7 @@ enum SanctuaryTimeOfDay: String, CaseIterable, Identifiable {
         case .dawn: return .dawnSlateLight  // Lighter slate for secondary
         case .meridian: return .meridianUmber  // Warm brown secondary
         case .afternoon: return .afternoonMocha  // Mocha brown
-        case .vespers: return .vespersText.opacity(0.7)
+        case .vespers: return .vespersText.opacity(Theme.Opacity.heavy)
         case .compline: return .moonMist
         }
     }
@@ -293,6 +297,67 @@ extension SanctuaryTimeOfDay {
         case 12..<17: return .afternoon
         case 17..<21: return .vespers
         default: return .compline
+        }
+    }
+}
+
+// MARK: - Design Properties Extension
+
+extension SanctuaryTimeOfDay {
+    /// Whether this is an evening time period (uses dark mode)
+    var isEvening: Bool {
+        self == .vespers || self == .compline
+    }
+
+    /// Animation offset for header elements (direction varies by time)
+    var headerAnimationOffset: CGSize {
+        switch self {
+        case .dawn:
+            return CGSize(width: 0, height: -15)  // Upward - awakening
+        case .meridian:
+            return CGSize(width: -15, height: 0)  // Horizontal - focused clarity
+        case .afternoon:
+            return CGSize(width: 0, height: 10)   // Downward - settling
+        case .vespers, .compline:
+            return CGSize(width: 0, height: 8)    // Gentle downward - evening peace
+        }
+    }
+
+    /// Animation offset for verse/content elements
+    var contentAnimationOffset: CGSize {
+        switch self {
+        case .dawn:
+            return CGSize(width: 0, height: -15)
+        case .meridian:
+            return CGSize(width: 20, height: 0)
+        case .afternoon:
+            return CGSize(width: 0, height: 10)
+        case .vespers:
+            return CGSize(width: 0, height: 10)
+        case .compline:
+            return CGSize(width: 0, height: 8)
+        }
+    }
+
+    /// Flame color for streak badges
+    var streakColor: Color {
+        switch self {
+        case .dawn: return .dawnAccent
+        case .meridian: return .meridianIllumination
+        case .afternoon: return .afternoonAmber
+        case .vespers: return .vespersAmber
+        case .compline: return .candleAmber
+        }
+    }
+
+    /// Reference/accent text color for verse citations
+    var referenceColor: Color {
+        switch self {
+        case .dawn: return .dawnAccent
+        case .meridian: return .meridianIllumination
+        case .afternoon: return .afternoonAmber
+        case .vespers: return .vespersGoldAccent
+        case .compline: return .candleAmber
         }
     }
 }

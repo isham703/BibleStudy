@@ -89,6 +89,20 @@ final class SupabaseManager {
         try await client.auth.resend(email: email, type: .signup)
     }
 
+    // MARK: - Session Management
+
+    /// Get the current refresh token from the active session
+    func getCurrentRefreshToken() -> String? {
+        client.auth.currentSession?.refreshToken
+    }
+
+    /// Restore a session using a refresh token (for biometric quick sign-in)
+    /// - Parameter refreshToken: The stored refresh token
+    /// - Returns: The new session with updated tokens
+    func restoreSession(refreshToken: String) async throws -> Session {
+        try await client.auth.refreshSession(refreshToken: refreshToken)
+    }
+
     // MARK: - Profile
 
     private func createProfile(for user: User) async throws {
@@ -287,6 +301,92 @@ final class SupabaseManager {
     //         .execute()
     //         .value
     // }
+
+    // MARK: - Sermons
+
+    func getSermons() async throws -> [SermonDTO] {
+        guard let userId = userId else { return [] }
+
+        return try await client
+            .from("sermons")
+            .select()
+            .eq("user_id", value: userId)
+            .is("deleted_at", value: nil)
+            .order("recorded_at", ascending: false)
+            .execute()
+            .value
+    }
+
+    func deleteSermon(id: String) async throws {
+        try await client
+            .from("sermons")
+            .update(["deleted_at": AnyEncodable(Date())])
+            .eq("id", value: id)
+            .execute()
+    }
+
+    func uploadSermonAudio(data: Data, path: String, contentType: String = "audio/mp4") async throws -> String {
+        _ = try await client.storage
+            .from("sermons")
+            .upload(path, data: data, options: .init(contentType: contentType))
+        return path
+    }
+
+    func getSermonAudioURL(path: String, expiresIn: Int = 3600) async throws -> URL {
+        let signedURL = try await client.storage
+            .from("sermons")
+            .createSignedURL(path: path, expiresIn: expiresIn)
+        return signedURL
+    }
+
+    func getSermon(id: String) async throws -> SermonDTO? {
+        guard userId != nil else { return nil }
+
+        let result: [SermonDTO] = try await client
+            .from("sermons")
+            .select()
+            .eq("id", value: id)
+            .limit(1)
+            .execute()
+            .value
+        return result.first
+    }
+
+    func upsertSermon(_ sermon: SermonDTO) async throws {
+        try await client
+            .from("sermons")
+            .upsert(sermon)
+            .execute()
+    }
+
+    func upsertSermonTranscript(_ transcript: SermonTranscriptDTO) async throws {
+        try await client
+            .from("sermon_transcripts")
+            .upsert(transcript)
+            .execute()
+    }
+
+    func upsertSermonStudyGuide(_ guide: SermonStudyGuideDTO) async throws {
+        try await client
+            .from("sermon_study_guides")
+            .upsert(guide)
+            .execute()
+    }
+
+    func upsertSermonBookmark(_ bookmark: SermonBookmarkDTO) async throws {
+        try await client
+            .from("sermon_bookmarks")
+            .upsert(bookmark)
+            .execute()
+    }
+
+    func deleteSermonBookmark(id: String) async throws {
+        try await client
+            .from("sermon_bookmarks")
+            .update(["deleted_at": AnyEncodable(Date())])
+            .eq("id", value: id)
+            .execute()
+    }
 }
 
 // MARK: - DTOs

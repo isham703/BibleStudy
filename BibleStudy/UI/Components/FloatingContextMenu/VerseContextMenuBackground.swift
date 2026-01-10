@@ -94,14 +94,14 @@ struct VerseContextMenuBackground: View {
                 .opacity(colorScheme == .dark ? 1 : 0)
         }
         .shadow(
-            color: .black.opacity(AppTheme.Opacity.subtle),
-            radius: AppTheme.Blur.light,
+            color: .black.opacity(Theme.Opacity.subtle),
+            radius: 4,
             x: 0,
             y: 2
         )
         .shadow(
-            color: .black.opacity(AppTheme.Opacity.faint),
-            radius: AppTheme.Blur.medium,
+            color: .black.opacity(Theme.Opacity.faint),
+            radius: 8,
             x: 0,
             y: 4
         )
@@ -109,9 +109,9 @@ struct VerseContextMenuBackground: View {
 
     private var arrowView: some View {
         MenuArrow(pointsUp: arrowDirection == .up)
-            .fill(colorScheme == .dark
-                ? Color.elevatedBackground.opacity(AppTheme.Opacity.high)
-                : Color.elevatedBackground
+            .fill(
+                Color.Surface.card(colorScheme: colorScheme)
+                    .opacity(colorScheme == .dark ? Theme.Opacity.high : 1.0)
             )
             .frame(width: arrowWidth, height: arrowHeight)
     }
@@ -123,14 +123,14 @@ struct VerseContextMenuBackground: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             VerseContextMenuBackground(arrowDirection: .down)
                 .frame(width: 300, height: 64)
 
             Text("Selected verse here")
                 .padding()
                 .background(Color.selectedBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
         }
     }
 }
@@ -139,11 +139,11 @@ struct VerseContextMenuBackground: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             Text("Selected verse here")
                 .padding()
                 .background(Color.selectedBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
 
             VerseContextMenuBackground(arrowDirection: .up)
                 .frame(width: 300, height: 64)
@@ -155,7 +155,7 @@ struct VerseContextMenuBackground: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             VerseContextMenuBackground(arrowDirection: .down, arrowOffset: -80)
                 .frame(width: 300, height: 64)
 
@@ -163,7 +163,7 @@ struct VerseContextMenuBackground: View {
                 Text("Verse at edge")
                     .padding()
                     .background(Color.selectedBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
                 Spacer()
             }
             .padding(.horizontal)

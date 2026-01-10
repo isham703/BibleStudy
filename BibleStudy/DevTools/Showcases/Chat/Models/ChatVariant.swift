@@ -59,9 +59,9 @@ enum ChatVariant: String, CaseIterable, Identifiable {
     var accentColor: Color {
         switch self {
         case .minimalStudio:
-            return Color(hex: "18181b") // Zinc-900 - minimal black
+            return Color.surfaceRaised // Zinc-900 - minimal black
         case .scholarlyCompanion:
-            return .scholarIndigo
+            return Color.accentIndigo // accentAction indigo
         case .warmSanctuary:
             return Color(hex: "c9943d") // Burnished gold
         }

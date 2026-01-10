@@ -8,6 +8,7 @@ struct InlineCitationView: View {
     let citations: [VerseRange]
     let onCitationTap: (VerseRange) -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var threadLength: CGFloat = 0
     @State private var pillsVisible: Bool = false
 
@@ -22,7 +23,7 @@ struct InlineCitationView: View {
                 .frame(height: 20)
 
             // Citation pills
-            CitationFlowLayout(spacing: AppTheme.Spacing.sm) {
+            CitationFlowLayout(spacing: Theme.Spacing.sm) {
                 ForEach(citations) { citation in
                     CitationPill(citation: citation) {
                         onCitationTap(citation)
@@ -55,9 +56,9 @@ struct InlineCitationView: View {
             }
             .trim(from: 0, to: threadLength)
             .stroke(
-                Color.divineGold.opacity(AppTheme.Opacity.strong),
+                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
                 style: StrokeStyle(
-                    lineWidth: AppTheme.Border.thin,
+                    lineWidth: Theme.Stroke.hairline,
                     lineCap: .round,
                     dash: [4, 4]
                 )
@@ -65,10 +66,10 @@ struct InlineCitationView: View {
 
             // Connection node
             Circle()
-                .fill(Color.divineGold)
-                .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 4, height: 4)
                 .position(x: geometry.size.width * 0.15, y: 0)
-                .opacity(threadLength > 0 ? AppTheme.Opacity.pressed : 0)
+                .opacity(threadLength > 0 ? Theme.Opacity.pressed : 0)
         }
     }
 
@@ -82,13 +83,13 @@ struct InlineCitationView: View {
         }
 
         // Thread draws first
-        withAnimation(AppTheme.Animation.slow) {
+        withAnimation(Theme.Animation.slowFade) {
             threadLength = 1
         }
 
         // Then pills fade in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 pillsVisible = true
             }
         }
@@ -101,30 +102,31 @@ struct CitationPill: View {
     let citation: VerseRange
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "book.closed")
-                    .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.divineGold)
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
                 Text(citation.shortReference)
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.divineGold)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(Color.divineGold.opacity(AppTheme.Opacity.subtle))
+                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
                     .overlay(
                         Capsule()
-                            .strokeBorder(Color.divineGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                            .strokeBorder(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
                     )
             )
-            .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1)
+            .scaleEffect(isPressed ? 0.98 : 1)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
@@ -200,43 +202,47 @@ struct CitationGroup: View {
                 citations: citations,
                 onCitationTap: onCitationTap
             )
-            .padding(.top, AppTheme.Spacing.xs)
+            .padding(.top, Theme.Spacing.xs)
         }
     }
 }
 
 // MARK: - Preview
 
-#Preview("Inline Citations") {
-    VStack(spacing: AppTheme.Spacing.xxxl) {
-        Text("Inline Citations")
-            .font(Typography.UI.headline)
+#if DEBUG
+struct InlineCitationView_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: Theme.Spacing.xxl) {
+            Text("Inline Citations")
+                .font(Typography.Command.headline)
 
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            Text("When Jesus saw the crowds, he went up on a mountainside and sat down. His disciples came to him, and he began to teach them.")
-                .font(.system(.body, design: .serif))
-                .foregroundStyle(Color.primaryText)
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                Text("When Jesus saw the crowds, he went up on a mountainside and sat down. His disciples came to him, and he began to teach them.")
+                    .font(.system(.body, design: .serif))
+                    .foregroundStyle(Color.primaryText)
 
-            InlineCitationView(
-                citations: [
-                    VerseRange(bookId: 40, chapter: 5, verseStart: 1, verseEnd: 2),
-                    VerseRange(bookId: 42, chapter: 6, verse: 20)
-                ],
-                onCitationTap: { _ in }
+                InlineCitationView(
+                    citations: [
+                        VerseRange(bookId: 40, chapter: 5, verseStart: 1, verseEnd: 2),
+                        VerseRange(bookId: 42, chapter: 6, verse: 20)
+                    ],
+                    onCitationTap: { _ in }
+                )
+            }
+            .padding()
+            .background(Color.surfaceBackground)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+
+            Text("Single Citation")
+                .font(Typography.Command.headline)
+
+            CitationPill(
+                citation: VerseRange(bookId: 43, chapter: 3, verse: 16),
+                onTap: {}
             )
         }
         .padding()
-        .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
-
-        Text("Single Citation")
-            .font(Typography.UI.headline)
-
-        CitationPill(
-            citation: VerseRange(bookId: 43, chapter: 3, verse: 16),
-            onTap: {}
-        )
+        .background(Color.appBackground)
     }
-    .padding()
-    .background(Color.appBackground)
 }
+#endif

@@ -372,6 +372,8 @@ struct FreeTierLimits {
     static let maxMemorizationVerses = 1
     static let maxHighlightsPerDay = 3
     static let maxNotesPerDay = 50  // Generous limit to prevent abuse while supporting real usage
+    static let dailyPrayers = 10  // Free tier: 10 prayers/day
+    static let dailyPrayersPremium = 100  // Premium tier: 100 prayers/day
 
     // Translations available in free tier
     static let freeTranslations = ["KJV"]

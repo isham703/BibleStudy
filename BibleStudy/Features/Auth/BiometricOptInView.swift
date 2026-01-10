@@ -8,10 +8,11 @@ struct BiometricOptInView: View {
     let onEnable: () -> Void
     let onSkip: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isAnimating = false
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             Spacer()
 
             // Sacred Seal Icon
@@ -25,55 +26,50 @@ struct BiometricOptInView: View {
 
             // Description
             Text("Use \(biometricType.displayName) to sign in instantly next time. Your data stays secure.")
-                .font(Typography.UI.warmBody)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, AppTheme.Spacing.lg)
+                .padding(.horizontal, Theme.Spacing.lg)
 
             Spacer()
 
             // Action Buttons
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 // Enable button with sacred styling
                 Button(action: onEnable) {
-                    HStack(spacing: AppTheme.Spacing.md) {
+                    HStack(spacing: Theme.Spacing.md) {
                         Image(systemName: "sparkles")
-                            .font(Typography.UI.iconMd.weight(.medium))
+                            .font(Typography.Icon.md.weight(.medium))
 
                         Text("Enable \(biometricType.displayName)")
-                            .font(Typography.UI.bodyBold)
+                            .font(Typography.Command.body.weight(.semibold))
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(AppTheme.Spacing.md)
-                    .background(
-                        LinearGradient(
-                            colors: [
-                                Color.divineGold,
-                                Color.burnishedGold
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .padding(Theme.Spacing.md)
+                    .background(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                     .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
-                    .shadow(AppTheme.Shadow.medium)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+                    .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
                 }
+                .accessibilityLabel("Enable \(biometricType.displayName)")
+                .accessibilityHint("Secure biometric authentication for quick sign-in")
 
                 // Skip button
                 Button(action: onSkip) {
                     Text("Maybe Later")
-                        .font(Typography.UI.body)
+                        .font(Typography.Command.body)
                         .foregroundStyle(Color.secondaryText)
                 }
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .padding(.vertical, Theme.Spacing.sm)
+                .accessibilityLabel("Skip biometric setup")
+                .accessibilityHint("You can enable this later in Settings")
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.bottom, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.bottom, Theme.Spacing.xl)
         }
         .background(Color.primaryBackground)
         .onAppear {
-            withAnimation(AppTheme.Animation.contemplative) {
+            withAnimation(Theme.Animation.slowFade) {
                 isAnimating = true
             }
         }
@@ -82,20 +78,9 @@ struct BiometricOptInView: View {
     // MARK: - Sacred Seal Icon
     private var sealIcon: some View {
         ZStack {
-            // Outer decorative ring with gold gradient
+            // Outer decorative ring
             Circle()
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Color.illuminatedGold,
-                            Color.divineGold,
-                            Color.burnishedGold
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: AppTheme.Border.thick
-                )
+                .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.control)
                 .frame(width: 100, height: 100)
                 .scaleEffect(isAnimating ? 1 : 0.9)
                 .opacity(isAnimating ? 1 : 0.5)
@@ -104,7 +89,7 @@ struct BiometricOptInView: View {
             Circle()
                 .fill(Color.Glow.indigoAmbient)
                 .frame(width: 90, height: 90)
-                .blur(radius: AppTheme.Blur.heavy)
+                .blur(radius: 16)
                 .scaleEffect(isAnimating ? 1.1 : 0.9)
 
             // Inner background
@@ -114,21 +99,13 @@ struct BiometricOptInView: View {
 
             // Biometric icon
             Image(systemName: biometricType.systemImage)
-                .font(.system(size: Typography.Scale.xxxl + 6, weight: .medium))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            Color.divineGold,
-                            Color.burnishedGold
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                .font(Typography.Icon.hero)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                 .scaleEffect(isAnimating ? 1 : 0.8)
                 .opacity(isAnimating ? 1 : 0)
         }
-        .animation(AppTheme.Animation.sacredSpring, value: isAnimating)
+        .animation(Theme.Animation.settle, value: isAnimating)
+        .accessibilityHidden(true)
     }
 }
 

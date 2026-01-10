@@ -51,6 +51,11 @@ protocol AIServiceProtocol {
     /// Generate a prayer in a specified tradition based on user's context
     func generatePrayer(input: PrayerGenerationInput) async throws -> PrayerGenerationOutput
 
+    // MARK: - Sermon Analysis
+
+    /// Generate a study guide from a sermon transcript
+    func generateSermonStudyGuide(input: SermonStudyGuideInput) async throws -> SermonStudyGuideOutput
+
     /// Check if the service is available
     var isAvailable: Bool { get }
 }
@@ -517,14 +522,24 @@ struct StoryGenerationOutput: Codable {
 
 // MARK: - Prayer Generation Input/Output
 
-/// Input for generating a prayer in a tradition
+/// Input for generating a prayer in a tradition or category
 struct PrayerGenerationInput {
     let userContext: String        // What the user is praying about
-    let tradition: PrayerTradition // Which prayer tradition to use
+    let tradition: PrayerTradition? // Which prayer tradition to use (legacy)
+    let category: PrayerCategory?   // Which intention category to use (new)
 
+    /// Initialize with tradition (legacy)
     init(userContext: String, tradition: PrayerTradition) {
         self.userContext = userContext
         self.tradition = tradition
+        self.category = nil
+    }
+
+    /// Initialize with category (new intention-based)
+    init(userContext: String, category: PrayerCategory) {
+        self.userContext = userContext
+        self.tradition = nil
+        self.category = category
     }
 }
 
@@ -534,6 +549,218 @@ struct PrayerGenerationOutput: Codable {
     let amen: String      // Tradition-appropriate closing
 }
 
+// MARK: - Sermon Study Guide Input/Output
+
+/// Input for generating a sermon study guide
+struct SermonStudyGuideInput {
+    let transcript: String                    // Full transcript text
+    let title: String?                        // Optional sermon title
+    let speakerName: String?                  // Optional speaker name
+    let durationMinutes: Int?                 // Sermon length for context
+    let explicitReferences: [String]          // Verse references detected in transcript
+
+    // MARK: - Enrichment Fields (Phase: Cross-Reference Integration)
+
+    /// Pre-built enrichment context with verified cross-refs and insights
+    let enrichmentContext: SermonEnrichmentContext?
+
+    /// Parsed verse ranges from explicit references
+    let parsedVerseRanges: [VerseRange]?
+
+    /// Whether enrichment data is available (controls AI behavior)
+    let hasEnrichmentData: Bool
+
+    init(
+        transcript: String,
+        title: String? = nil,
+        speakerName: String? = nil,
+        durationMinutes: Int? = nil,
+        explicitReferences: [String] = [],
+        enrichmentContext: SermonEnrichmentContext? = nil,
+        parsedVerseRanges: [VerseRange]? = nil,
+        hasEnrichmentData: Bool = false
+    ) {
+        self.transcript = transcript
+        self.title = title
+        self.speakerName = speakerName
+        self.durationMinutes = durationMinutes
+        self.explicitReferences = explicitReferences
+        self.enrichmentContext = enrichmentContext
+        self.parsedVerseRanges = parsedVerseRanges
+        self.hasEnrichmentData = hasEnrichmentData
+    }
+}
+
+/// Output from sermon study guide generation
+struct SermonStudyGuideOutput: Codable {
+    let title: String
+    let summary: String
+    let keyThemes: [String]
+
+    // Navigation and grounding
+    let outline: [SermonOutlineSection]?
+    let notableQuotes: [SermonQuote]?
+    let bibleReferencesMentioned: [AIVerseReference]
+    let bibleReferencesSuggested: [AIVerseReference]
+
+    // Study prompts
+    let discussionQuestions: [AIStudyQuestion]
+    let reflectionPrompts: [String]
+    let applicationPoints: [String]
+
+    // Diagnostics
+    let confidenceNotes: [String]?
+    let promptVersion: String
+
+    enum CodingKeys: String, CodingKey {
+        case title, summary, outline
+        case keyThemes = "key_themes"
+        case notableQuotes = "notable_quotes"
+        case bibleReferencesMentioned = "bible_references_mentioned"
+        case bibleReferencesSuggested = "bible_references_suggested"
+        case discussionQuestions = "discussion_questions"
+        case reflectionPrompts = "reflection_prompts"
+        case applicationPoints = "application_points"
+        case confidenceNotes = "confidence_notes"
+        case promptVersion = "prompt_version"
+    }
+}
+
+/// An outline section from a sermon
+struct SermonOutlineSection: Codable, Hashable, Sendable, Identifiable {
+    var id: String { title }
+    let title: String
+    let startSeconds: Double?
+    let endSeconds: Double?
+    let summary: String?
+
+    enum CodingKeys: String, CodingKey {
+        case title, summary
+        case startSeconds = "start_seconds"
+        case endSeconds = "end_seconds"
+    }
+}
+
+/// A notable quote from a sermon
+struct SermonQuote: Codable, Hashable, Sendable, Identifiable {
+    var id: String { text }
+    let text: String
+    let timestampSeconds: Double?
+    let context: String?
+
+    enum CodingKeys: String, CodingKey {
+        case text, context
+        case timestampSeconds = "timestamp_seconds"
+    }
+}
+
+/// A verse reference from AI analysis
+struct AIVerseReference: Codable, Hashable, Sendable, Identifiable {
+    var id: String { reference }
+    let reference: String           // e.g., "John 3:16"
+    let bookId: Int?
+    let chapter: Int?
+    let verseStart: Int?
+    let verseEnd: Int?
+    let isMentioned: Bool           // Explicitly mentioned vs AI-suggested
+    let rationale: String?          // Why this reference is relevant
+    let timestampSeconds: Double?   // When mentioned in sermon
+
+    // MARK: - Enrichment Hints (from AI for post-processing)
+
+    /// Hint from AI: "crossref_db", "ai_only", etc.
+    let verificationHint: String?
+
+    /// Source canonical IDs from AI (if it found cross-ref match)
+    let verifiedBy: [String]?
+
+    enum CodingKeys: String, CodingKey {
+        case reference
+        case bookId = "book_id"
+        case chapter
+        case verseStart = "verse_start"
+        case verseEnd = "verse_end"
+        case isMentioned = "is_mentioned"
+        case rationale
+        case timestampSeconds = "timestamp_seconds"
+        case verificationHint = "verification_hint"
+        case verifiedBy = "verified_by"
+    }
+}
+
+// MARK: - AIVerseReference → SermonVerseReference Conversion
+
+extension AIVerseReference {
+    /// Convert to SermonVerseReference for storage
+    func toSermonVerseReference(isMentioned: Bool) -> SermonVerseReference {
+        SermonVerseReference(
+            reference: reference,
+            bookId: bookId,
+            chapter: chapter,
+            verseStart: verseStart,
+            verseEnd: verseEnd,
+            isMentioned: isMentioned,
+            rationale: rationale,
+            timestampSeconds: timestampSeconds
+        )
+    }
+}
+
+/// A study question from AI analysis
+struct AIStudyQuestion: Codable, Hashable, Sendable, Identifiable {
+    let id: String
+    let question: String
+    let type: AIQuestionType
+    let relatedVerses: [String]?
+    let discussionHint: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, question, type
+        case relatedVerses = "related_verses"
+        case discussionHint = "discussion_hint"
+    }
+
+    init(
+        id: String = UUID().uuidString,
+        question: String,
+        type: AIQuestionType,
+        relatedVerses: [String]? = nil,
+        discussionHint: String? = nil
+    ) {
+        self.id = id
+        self.question = question
+        self.type = type
+        self.relatedVerses = relatedVerses
+        self.discussionHint = discussionHint
+    }
+}
+
+/// Question type for AI-generated study questions
+enum AIQuestionType: String, Codable, Sendable, CaseIterable {
+    case comprehension
+    case interpretation
+    case application
+    case discussion
+
+    var displayName: String {
+        switch self {
+        case .comprehension: return "Comprehension"
+        case .interpretation: return "Interpretation"
+        case .application: return "Application"
+        case .discussion: return "Discussion"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .comprehension: return "book"
+        case .interpretation: return "lightbulb"
+        case .application: return "hand.raised"
+        case .discussion: return "bubble.left.and.bubble.right"
+        }
+    }
+}
+
 // MARK: - Prayer Generation Errors
 
 enum PrayerGenerationError: Error, LocalizedError {
@@ -541,6 +768,7 @@ enum PrayerGenerationError: Error, LocalizedError {
     case inputTooLong
     case contentFlagged           // OpenAI moderation flagged the input
     case selfHarmDetected         // Self-harm content detected (show crisis modal)
+    case moderationUnavailable    // Content safety check unavailable (network/API error)
     case networkError(Error)
     case rateLimited
     case generationFailed(Error)
@@ -550,15 +778,17 @@ enum PrayerGenerationError: Error, LocalizedError {
         case .inputEmpty:
             return "Please share what's on your heart."
         case .inputTooLong:
-            return "Please try a shorter message."
+            return "Please try a shorter message (500 characters max)."
         case .contentFlagged:
-            return "Your request couldn't be processed. Please try rephrasing."
+            return "Unable to verify safety. Please try again or rephrase your request."
         case .selfHarmDetected:
             return nil  // Handled by crisis modal
+        case .moderationUnavailable:
+            return "Unable to verify content safety. Please try again."
         case .networkError:
-            return "Unable to connect. Please check your internet connection."
+            return "Unable to connect. Please check your internet and try again."
         case .rateLimited:
-            return "Too many requests. Please wait a moment."
+            return "Too many requests. Please wait a moment and try again."
         case .generationFailed:
             return "Something went wrong. Please try again."
         }
@@ -568,6 +798,16 @@ enum PrayerGenerationError: Error, LocalizedError {
     var isCrisis: Bool {
         if case .selfHarmDetected = self { return true }
         return false
+    }
+
+    /// Whether this error can be resolved by retrying
+    var isRetryable: Bool {
+        switch self {
+        case .networkError, .rateLimited, .generationFailed, .moderationUnavailable:
+            return true
+        case .inputEmpty, .inputTooLong, .contentFlagged, .selfHarmDetected:
+            return false
+        }
     }
 }
 
@@ -581,6 +821,8 @@ enum AIServiceError: Error, LocalizedError {
     case contentFiltered
     case quotaExceeded
     case modelUnavailable
+    case moderationUnavailable  // Content safety check unavailable (network/API error)
+    case circuitOpen(retryAfter: TimeInterval?)  // Service temporarily unavailable due to repeated failures
 
     var errorDescription: String? {
         switch self {
@@ -598,6 +840,13 @@ enum AIServiceError: Error, LocalizedError {
             return "AI usage quota exceeded. Please try again later."
         case .modelUnavailable:
             return "The AI model is currently unavailable."
+        case .moderationUnavailable:
+            return "Unable to verify content safety. Please try again."
+        case .circuitOpen(let retryAfter):
+            if let seconds = retryAfter {
+                return "Service temporarily unavailable. Please try again in \(Int(seconds)) seconds."
+            }
+            return "Service temporarily unavailable. Please try again later."
         }
     }
 }
@@ -717,6 +966,25 @@ struct ModerationCategories {
     let sexualMinors: Bool
     let violence: Bool
     let violenceGraphic: Bool
+
+    /// Fail-safe state when moderation API is unavailable.
+    /// Returns all categories as false (non-flagged) but the overall
+    /// ModerationResult.flagged should be set to true to block content.
+    static var allClear: ModerationCategories {
+        ModerationCategories(
+            hate: false,
+            hateThreatening: false,
+            harassment: false,
+            harassmentThreatening: false,
+            selfHarm: false,
+            selfHarmIntent: false,
+            selfHarmInstructions: false,
+            sexual: false,
+            sexualMinors: false,
+            violence: false,
+            violenceGraphic: false
+        )
+    }
 }
 
 /// Output from a chat message (structured for trust UX)

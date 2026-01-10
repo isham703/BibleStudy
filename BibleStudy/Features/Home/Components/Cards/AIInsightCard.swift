@@ -1,117 +1,76 @@
 import SwiftUI
 
-// MARK: - Mock AI Insight Card
-// Displays AI-generated insight with rotating gold border
+// MARK: - AI Insight Card
+// Displays AI-generated insight with flat styling
+// Stoic-Existential Renaissance design
 
 struct AIInsightCard: View {
     let insight: MockAIInsight
-    var showRadiantStar: Bool = false
-
-    @State private var rotationAngle: Double = 0
-    @State private var isGlowing = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        ZStack {
-            // Rotating gold gradient border
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            // Header
+            HStack(spacing: Theme.Spacing.sm) {
+                Image(systemName: "sparkles")
+                    .font(Typography.Icon.md)
+                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+
+                Text(insight.title)
+                    .font(Typography.Scripture.heading)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+            }
+
+            // Summary
+            Text(insight.summary)
+                .font(Typography.Scripture.body)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .lineSpacing(6)
+
+            // Explore button
+            HStack {
+                Spacer()
+
+                Text("Explore")
+                    .font(Typography.Command.cta)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .background(
+                        RoundedRectangle(cornerRadius: Theme.Radius.button)
+                            .stroke(
+                                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
+                                lineWidth: Theme.Stroke.control
+                            )
+                    )
+            }
+        }
+        .padding(Theme.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .stroke(
-                    AngularGradient(
-                        colors: [.divineGold, .illuminatedGold, .burnishedGold, .divineGold],
-                        center: .center,
-                        angle: .degrees(rotationAngle)
-                    ),
-                    lineWidth: 2
+                    Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                    lineWidth: Theme.Stroke.hairline
                 )
-
-            // Content
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-                // Header
-                HStack(spacing: AppTheme.Spacing.sm) {
-                    if showRadiantStar {
-                        radiantStar
-                    } else {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color.divineGold)
-                    }
-
-                    Text(insight.title)
-                        .font(SanctuaryTypography.Dashboard.cardTitle)
-                        .foregroundStyle(Color.moonlitParchment)
-                }
-
-                // Summary
-                Text(insight.summary)
-                    .font(SanctuaryTypography.Dashboard.cardBody)
-                    .foregroundStyle(Color.fadedMoonlight)
-                    .lineSpacing(4)
-
-                // Explore button
-                HStack {
-                    Spacer()
-
-                    Text("Explore")
-                        .font(SanctuaryTypography.Dashboard.button)
-                        .foregroundStyle(Color.divineGold)
-                        .padding(.horizontal, AppTheme.Spacing.lg)
-                        .padding(.vertical, AppTheme.Spacing.sm)
-                        .background(
-                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                                .stroke(Color.divineGold, lineWidth: 1)
-                        )
-                }
-            }
-            .padding(AppTheme.Spacing.lg)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                    .fill(Color.candlelitStone)
-            )
-        }
-        // Gold glow
-        .shadow(color: Color.divineGold.opacity(isGlowing ? 0.4 : 0.2), radius: isGlowing ? 16 : 8)
-        .onAppear {
-            withAnimation(AppTheme.Animation.gradientRotation) {
-                rotationAngle = 360
-            }
-
-            withAnimation(AppTheme.Animation.pulse) {
-                isGlowing = true
-            }
-        }
-    }
-
-    // MARK: - Radiant Star
-
-    private var radiantStar: some View {
-        ZStack {
-            // Glow behind
-            Image(systemName: "sparkle")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(Color.divineGold)
-                .blur(radius: 4)
-                .opacity(0.6)
-
-            // Star
-            Image(systemName: "sparkle")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(Color.illuminatedGold)
-        }
+        )
     }
 }
 
 // MARK: - Preview
 
 #Preview {
+    @Previewable @Environment(\.colorScheme) var colorScheme
+    let themeMode = ThemeMode.current(from: colorScheme)
+
     ZStack {
-        Color.candlelitStone.ignoresSafeArea()
+        Colors.Surface.background(for: themeMode).ignoresSafeArea()
 
-        VStack(spacing: 20) {
-            AIInsightCard(insight: HomeShowcaseMockData.currentInsight)
-
-            AIInsightCard(
-                insight: HomeShowcaseMockData.currentInsight,
-                showRadiantStar: true
-            )
+        VStack(spacing: Theme.Spacing.xl) {
+            AIInsightCard(insight: SanctuaryMockData.currentInsight)
         }
         .padding()
     }

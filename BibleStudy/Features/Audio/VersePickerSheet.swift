@@ -45,7 +45,7 @@ struct AudioVersePickerSheet: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     if let chapter = audioService.currentChapter {
                         Text("\(chapter.bookName) \(chapter.chapterNumber)")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.secondaryText)
                     }
                 }
@@ -72,7 +72,7 @@ private struct VerseRow: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 // Verse number badge
                 ZStack {
                     Circle()
@@ -80,25 +80,25 @@ private struct VerseRow: View {
                         .frame(width: 32, height: 32)
 
                     Text("\(verse.number)")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(isPlaying ? .white : Color.secondaryText)
                 }
 
                 // Verse preview text
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(verse.text)
-                        .font(Typography.UI.body)
+                        .font(Typography.Command.body)
                         .foregroundStyle(isPlaying ? Color.primaryText : Color.secondaryText)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
 
                     if isPlaying {
-                        HStack(spacing: AppTheme.Spacing.xs) {
+                        HStack(spacing: Theme.Spacing.xs) {
                             Image(systemName: "speaker.wave.2.fill")
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
                             Text("Now playing")
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
                         }
                         .foregroundStyle(Color.Semantic.accent)
                     }
@@ -108,16 +108,16 @@ private struct VerseRow: View {
                 // Play indicator
                 if isPlaying {
                     Image(systemName: "waveform")
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.Semantic.accent)
                         .symbolEffect(.variableColor.iterative)
                 }
             }
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.sm)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowBackground(isPlaying ? Color.Semantic.accent.opacity(AppTheme.Opacity.subtle) : Color.clear)
+        .listRowBackground(isPlaying ? Color.Semantic.accent.opacity(Theme.Opacity.subtle) : Color.clear)
         .accessibilityLabel("Verse \(verse.number)")
         .accessibilityHint(isPlaying ? "Currently playing. Double tap to restart from beginning of verse" : "Double tap to play from this verse")
         .accessibilityAddTraits(isPlaying ? .isSelected : [])

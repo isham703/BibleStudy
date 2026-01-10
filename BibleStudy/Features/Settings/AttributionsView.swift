@@ -12,7 +12,7 @@ struct AttributionsView: View {
             // Introduction
             Section {
                 Text("This app uses the following open-source data and resources. We are grateful to the organizations and individuals who make this data freely available.")
-                    .font(Typography.UI.warmBody)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
             }
 
@@ -69,10 +69,10 @@ struct AttributionsView: View {
                     Link(destination: ccUrl) {
                         HStack {
                             Text("View CC BY 4.0 License")
-                                .font(Typography.UI.subheadline)
+                                .font(Typography.Command.subheadline)
                             Spacer()
                             Image(systemName: "arrow.up.right")
-                                .font(Typography.UI.caption1)
+                                .font(Typography.Command.caption)
                                 .foregroundStyle(Color.tertiaryText)
                         }
                     }
@@ -117,43 +117,45 @@ struct AttributionRow: View {
     let description: String
     let sourceUrl: URL?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             HStack {
                 Text(name)
-                    .font(Typography.UI.bodyBold)
+                    .font(Typography.Command.body.weight(.semibold))
 
                 Spacer()
 
                 Text(license)
-                    .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.scholarAccent)
-                    .padding(.horizontal, AppTheme.Spacing.sm)
-                    .padding(.vertical, AppTheme.Spacing.xxs)
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .padding(.horizontal, Theme.Spacing.sm)
+                    .padding(.vertical, 2)
                     .background(
                         Capsule()
-                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                     )
             }
 
             Text(description)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
 
             if let url = sourceUrl {
                 Link(destination: url) {
-                    HStack(spacing: AppTheme.Spacing.xxs) {
+                    HStack(spacing: 2) {
                         Text("View Source")
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                         Image(systemName: "arrow.up.right")
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                     }
-                    .foregroundStyle(Color.accentBlue)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
-                .padding(.top, AppTheme.Spacing.xxs)
+                .padding(.top, 2)
             }
         }
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
     }
 }
 
@@ -163,15 +165,15 @@ struct LicenseInfoRow: View {
     let description: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             Text(licenseName)
-                .font(Typography.UI.bodyBold)
+                .font(Typography.Command.body.weight(.semibold))
 
             Text(description)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
         }
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
     }
 }
 

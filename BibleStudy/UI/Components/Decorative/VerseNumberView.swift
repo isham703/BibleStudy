@@ -46,7 +46,7 @@ struct VerseNumberView: View {
         Text("\(number)")
             .font(style.font)
             .foregroundStyle(Color.verseNumber)
-            .padding(.trailing, AppTheme.Spacing.xs)
+            .padding(.trailing, Theme.Spacing.xs)
             .accessibilityLabel("Verse \(number)")
     }
 
@@ -65,13 +65,13 @@ struct VerseNumberView: View {
             // Subtle gold glow
             Text("\(number)")
                 .font(style.font)
-                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.lightMedium))
-                .blur(radius: AppTheme.Spacing.xxs)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                .blur(radius: 2)
 
             // Main number
             Text("\(number)")
                 .font(style.font)
-                .foregroundStyle(Color.divineGold)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
         }
         .accessibilityLabel("Verse \(number)")
     }
@@ -93,10 +93,12 @@ struct VerseLineNumber: View {
     let style: VerseNumberStyle
     let width: CGFloat
 
+    @Environment(\.colorScheme) private var colorScheme
+
     init(
         number: Int,
         style: VerseNumberStyle = .marginal,
-        width: CGFloat = AppTheme.Spacing.xxl
+        width: CGFloat = Theme.Spacing.xxl
     ) {
         self.number = number
         self.style = style
@@ -113,13 +115,13 @@ struct VerseLineNumber: View {
             if style == .ornamental {
                 // Decorative dot separator
                 Circle()
-                    .fill(Color.divineGold.opacity(AppTheme.Opacity.disabled))
+                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
                     .frame(width: 3, height: 3)
-                    .padding(.horizontal, AppTheme.Spacing.sm)
+                    .padding(.horizontal, Theme.Spacing.sm)
             } else {
                 // Simple spacing
                 Spacer()
-                    .frame(width: AppTheme.Spacing.md)
+                    .frame(width: Theme.Spacing.md)
             }
         }
     }
@@ -153,31 +155,31 @@ struct InlineVerseText: View {
         switch verseStyle {
         case .superscript, .ornamental, .minimal:
             // Inline presentation
-            HStack(alignment: .firstTextBaseline, spacing: AppTheme.Spacing.xxs) {
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
                 VerseNumberView(number: verseNumber, style: verseStyle)
                 Text(text)
-                    .font(Typography.Illuminated.bodyWithSize(fontSize, font: scriptureFont))
+                    .font(Typography.Scripture.bodyWithSize(CGFloat(fontSize.rawValue)))
                     .foregroundStyle(Color.primaryText)
             }
 
         case .inline:
             // Number and text on same line with space
-            HStack(alignment: .firstTextBaseline, spacing: AppTheme.Spacing.xs) {
+            HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.xs) {
                 Text("\(verseNumber)")
                     .font(verseStyle.font)
                     .foregroundStyle(Color.verseNumber)
                 Text(text)
-                    .font(Typography.Illuminated.bodyWithSize(fontSize, font: scriptureFont))
+                    .font(Typography.Scripture.bodyWithSize(CGFloat(fontSize.rawValue)))
                     .foregroundStyle(Color.primaryText)
             }
 
         case .marginal:
             // Number in margin, text flows normally
-            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 VerseNumberView(number: verseNumber, style: verseStyle)
                     .frame(width: 24, alignment: .trailing)
                 Text(text)
-                    .font(Typography.Illuminated.bodyWithSize(fontSize, font: scriptureFont))
+                    .font(Typography.Scripture.bodyWithSize(CGFloat(fontSize.rawValue)))
                     .foregroundStyle(Color.primaryText)
             }
         }
@@ -202,27 +204,29 @@ struct RedLetterText: View {
         self.scriptureFont = scriptureFont
     }
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Text(text)
-            .font(Typography.Illuminated.wordsOfChrist(size: fontSize.rawValue, font: scriptureFont))
-            .foregroundStyle(Color.vermillion)
+            .font(Typography.Scripture.body)
+            .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
     }
 }
 
 // MARK: - Preview
 
 #Preview("Verse Number Styles") {
-    VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
+    VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
         ForEach(VerseNumberStyle.allCases, id: \.self) { style in
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text(style.displayName)
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
 
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     VerseNumberView(number: 1, style: style)
                     Text("In the beginning God created...")
-                        .font(Typography.Scripture.body())
+                        .font(Typography.Scripture.body)
                 }
             }
         }
@@ -231,7 +235,7 @@ struct RedLetterText: View {
 }
 
 #Preview("Inline Verse Text") {
-    VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+    VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
         InlineVerseText(
             verseNumber: 1,
             text: "In the beginning God created the heaven and the earth.",
@@ -254,9 +258,9 @@ struct RedLetterText: View {
 }
 
 #Preview("Red Letter Text") {
-    VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+    VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
         Text("Jesus said:")
-            .font(Typography.Scripture.body())
+            .font(Typography.Scripture.body)
             .foregroundStyle(Color.primaryText)
 
         RedLetterText(

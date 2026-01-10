@@ -63,7 +63,7 @@ struct OnboardingView: View {
                 .transition(.opacity)
             }
         }
-        .animation(AppTheme.Animation.spring, value: currentStep)
+        .animation(Theme.Animation.settle, value: currentStep)
     }
 
     private func advanceToNameEntry() {
@@ -128,6 +128,7 @@ struct ValuePropsView: View {
     let onComplete: () -> Void
     let onSkip: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var currentPage = 0
 
     private let pages: [OnboardingPage] = [
@@ -161,7 +162,7 @@ struct ValuePropsView: View {
                 Button("Skip") {
                     onSkip()
                 }
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .padding()
             }
@@ -179,7 +180,7 @@ struct ValuePropsView: View {
             }
 
             // Bottom section
-            VStack(spacing: AppTheme.Spacing.lg) {
+            VStack(spacing: Theme.Spacing.lg) {
                 // Page indicator
                 OnboardingPageIndicator(
                     currentPage: currentPage,
@@ -189,7 +190,7 @@ struct ValuePropsView: View {
                 // Action button
                 Button(action: {
                     if currentPage < pages.count - 1 {
-                        withAnimation(AppTheme.Animation.spring) {
+                        withAnimation(Theme.Animation.settle) {
                             currentPage += 1
                         }
                     } else {
@@ -197,16 +198,16 @@ struct ValuePropsView: View {
                     }
                 }) {
                     Text(currentPage < pages.count - 1 ? "Continue" : "Get Started")
-                        .font(Typography.UI.buttonLabel)
+                        .font(Typography.Command.cta)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppTheme.Spacing.md)
-                        .background(Color.scholarAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+                        .padding(.vertical, Theme.Spacing.md)
+                        .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 }
-                .padding(.horizontal, AppTheme.Spacing.xl)
+                .padding(.horizontal, Theme.Spacing.xl)
             }
-            .padding(.bottom, AppTheme.Spacing.xl)
+            .padding(.bottom, Theme.Spacing.xl)
         }
     }
 }
@@ -244,7 +245,7 @@ struct OnboardingPageView: View {
     let page: OnboardingPage
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xxl) {
+        VStack(spacing: Theme.Spacing.xxl) {
             Spacer()
 
             // Animation
@@ -252,17 +253,17 @@ struct OnboardingPageView: View {
                 .frame(width: 250, height: 250)
 
             // Text content
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 Text(page.title)
-                    .font(Typography.Display.title1)
+                    .font(Typography.Scripture.title)
                     .foregroundStyle(Color.primaryText)
                     .multilineTextAlignment(.center)
 
                 Text(page.subtitle)
-                    .font(Typography.UI.warmBody)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, AppTheme.Spacing.xl)
+                    .padding(.horizontal, Theme.Spacing.xl)
             }
 
             Spacer()
@@ -276,13 +277,15 @@ struct OnboardingPageIndicator: View {
     let currentPage: Int
     let pageCount: Int
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             ForEach(0..<pageCount, id: \.self) { index in
                 Capsule()
-                    .fill(index == currentPage ? Color.divineGold : Color.divineGold.opacity(AppTheme.Opacity.medium))
+                    .fill(index == currentPage ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
                     .frame(width: index == currentPage ? 24 : 8, height: 8)
-                    .animation(AppTheme.Animation.spring, value: currentPage)
+                    .animation(Theme.Animation.settle, value: currentPage)
             }
         }
     }
@@ -296,6 +299,7 @@ struct NameEntryView: View {
     let onComplete: () -> Void
     let onSkip: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var nameText: String = ""
     @FocusState private var isNameFieldFocused: Bool
 
@@ -307,7 +311,7 @@ struct NameEntryView: View {
                 Button("Skip") {
                     onSkip()
                 }
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .padding()
             }
@@ -315,53 +319,53 @@ struct NameEntryView: View {
             Spacer()
 
             // Content
-            VStack(spacing: AppTheme.Spacing.xxl) {
+            VStack(spacing: Theme.Spacing.xxl) {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                         .frame(width: 120, height: 120)
 
                     Image(systemName: "person.fill")
-                        .font(.system(size: Typography.Scale.xxxl + 6))
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Icon.hero)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Title
-                VStack(spacing: AppTheme.Spacing.sm) {
+                VStack(spacing: Theme.Spacing.sm) {
                     Text("What should we call you?")
-                        .font(Typography.Display.title2)
+                        .font(Typography.Scripture.heading)
                         .foregroundStyle(Color.primaryText)
                         .multilineTextAlignment(.center)
 
                     Text("This helps personalize your experience")
-                        .font(Typography.UI.warmBody)
+                        .font(Typography.Command.body)
                         .foregroundStyle(Color.secondaryText)
                         .multilineTextAlignment(.center)
                 }
 
                 // Name input field
-                VStack(spacing: AppTheme.Spacing.sm) {
+                VStack(spacing: Theme.Spacing.sm) {
                     TextField("Your first name", text: $nameText)
-                        .font(Typography.Display.headline)
+                        .font(Typography.Scripture.heading)
                         .foregroundStyle(Color.primaryText)
                         .multilineTextAlignment(.center)
                         .textContentType(.givenName)
                         .autocorrectionDisabled()
                         .focused($isNameFieldFocused)
-                        .padding(AppTheme.Spacing.lg)
+                        .padding(Theme.Spacing.lg)
                         .background(
-                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+                            RoundedRectangle(cornerRadius: Theme.Radius.card)
                                 .fill(Color.surfaceBackground)
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+                            RoundedRectangle(cornerRadius: Theme.Radius.card)
                                 .stroke(
-                                    isNameFieldFocused ? Color.scholarAccent : Color.cardBorder,
+                                    isNameFieldFocused ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder,
                                     lineWidth: isNameFieldFocused ? 2 : 1
                                 )
                         )
-                        .padding(.horizontal, AppTheme.Spacing.xl)
+                        .padding(.horizontal, Theme.Spacing.xl)
                 }
             }
 
@@ -375,15 +379,15 @@ struct NameEntryView: View {
                 onComplete()
             }) {
                 Text("Continue")
-                    .font(Typography.UI.buttonLabel)
+                    .font(Typography.Command.cta)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppTheme.Spacing.md)
-                    .background(Color.scholarAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+                    .padding(.vertical, Theme.Spacing.md)
+                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             }
-            .padding(.horizontal, AppTheme.Spacing.xl)
-            .padding(.bottom, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xl)
+            .padding(.bottom, Theme.Spacing.xl)
         }
         .onAppear {
             // Auto-focus the text field

@@ -9,6 +9,7 @@ final class OpenAIProvider: AIServiceProtocol {
     private let baseURL = URL(string: "https://api.openai.com/v1")!
     private let rateLimiter: RateLimiter
     private let session: URLSession
+    private let longRunningSession: URLSession  // For sermon study guides, stories, etc.
 
     var isAvailable: Bool {
         !apiKey.isEmpty
@@ -22,10 +23,18 @@ final class OpenAIProvider: AIServiceProtocol {
             timeWindow: 60
         )
 
+        // Default session for quick operations (quick insights, explanations, etc.)
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 60
         self.session = URLSession(configuration: config)
+
+        // Long-running session for sermon study guides, stories, and other complex operations
+        // GPT-4o with large context + structured output can take 60-120 seconds
+        let longRunningConfig = URLSessionConfiguration.default
+        longRunningConfig.timeoutIntervalForRequest = 180  // 3 minutes per request
+        longRunningConfig.timeoutIntervalForResource = 300  // 5 minutes total
+        self.longRunningSession = URLSession(configuration: longRunningConfig)
     }
 
     // MARK: - API Methods
@@ -338,11 +347,13 @@ final class OpenAIProvider: AIServiceProtocol {
         )
 
         // Use gpt-4o for story generation (higher quality narratives)
+        // Use long-running session since stories are complex with 2000 tokens output
         let response = try await callChatCompletion(
             prompt: prompt,
             systemPrompt: PromptTemplates.systemPromptStoryGeneration,
             model: AppConfiguration.AI.advancedModel,  // gpt-4o for better narratives
-            maxTokens: 2000  // Stories need more tokens
+            maxTokens: 2000,  // Stories need more tokens
+            useLongRunningSession: true
         )
 
         let cleanedResponse = Self.stripMarkdownCodeFences(response)
@@ -560,18 +571,59 @@ final class OpenAIProvider: AIServiceProtocol {
     func generatePrayer(input: PrayerGenerationInput) async throws -> PrayerGenerationOutput {
         try await rateLimiter.checkLimit()
 
-        let prompt = PromptTemplates.prayerGeneration(
-            userContext: input.userContext,
-            tradition: input.tradition
-        )
+        // Check circuit breaker - fail fast if service is unavailable
+        guard await CircuitBreaker.shared.shouldAllowRequest() else {
+            let retryAfter = await CircuitBreaker.shared.timeUntilRetry
+            throw AIServiceError.circuitOpen(retryAfter: retryAfter)
+        }
+
+        let prompt: String
+        let systemPrompt: String
+
+        // Use category-based generation if category is set, otherwise use tradition
+        if let category = input.category {
+            prompt = PromptTemplates.prayerGenerationByCategory(
+                userContext: input.userContext,
+                category: category
+            )
+            systemPrompt = PromptTemplates.systemPromptCategoryPrayer
+        } else if let tradition = input.tradition {
+            prompt = PromptTemplates.prayerGeneration(
+                userContext: input.userContext,
+                tradition: tradition
+            )
+            systemPrompt = PromptTemplates.systemPromptPrayer
+        } else {
+            // Fallback to gratitude category
+            prompt = PromptTemplates.prayerGenerationByCategory(
+                userContext: input.userContext,
+                category: .gratitude
+            )
+            systemPrompt = PromptTemplates.systemPromptCategoryPrayer
+        }
 
         // Use gpt-4o-mini for cost-effective prayer generation
-        let response = try await callChatCompletion(
-            prompt: prompt,
-            systemPrompt: PromptTemplates.systemPromptPrayer,
-            model: AppConfiguration.AI.defaultModel,
-            maxTokens: 500
-        )
+        // Use long-running session (180s timeout) to prevent timeouts during high load
+        let response: String
+        do {
+            response = try await callChatCompletion(
+                prompt: prompt,
+                systemPrompt: systemPrompt,
+                model: AppConfiguration.AI.defaultModel,
+                maxTokens: 500,
+                useLongRunningSession: true
+            )
+            // Record success with circuit breaker
+            await CircuitBreaker.shared.recordSuccess()
+        } catch {
+            // Record failure with circuit breaker for transient errors
+            if case AIServiceError.networkError = error {
+                await CircuitBreaker.shared.recordFailure()
+            } else if case AIServiceError.modelUnavailable = error {
+                await CircuitBreaker.shared.recordFailure()
+            }
+            throw error
+        }
 
         // Strip markdown code fences if present
         let cleanedResponse = Self.stripMarkdownCodeFences(response)
@@ -583,6 +635,53 @@ final class OpenAIProvider: AIServiceProtocol {
         }
 
         return output
+    }
+
+    // MARK: - Sermon Study Guide Generation
+
+    func generateSermonStudyGuide(input: SermonStudyGuideInput) async throws -> SermonStudyGuideOutput {
+        try await rateLimiter.checkLimit()
+
+        // Calculate duration in minutes if not provided
+        let estimatedDuration = input.durationMinutes ?? max(1, input.transcript.count / 1500) // ~1500 chars/min spoken
+
+        // Format enrichment context for prompt if available
+        let enrichmentContextString = input.enrichmentContext?.promptContext.formatForPrompt()
+
+        let prompt = PromptTemplates.sermonStudyGuide(
+            transcript: input.transcript,
+            title: input.title,
+            speakerName: input.speakerName,
+            durationMinutes: estimatedDuration,
+            explicitReferences: input.explicitReferences,
+            enrichmentContext: enrichmentContextString,
+            hasEnrichmentData: input.hasEnrichmentData
+        )
+
+        // Use gpt-4o for sermon analysis (complex structured output)
+        // Use long-running session since transcripts + enrichment context can be large
+        let response = try await callChatCompletion(
+            prompt: prompt,
+            systemPrompt: PromptTemplates.systemPromptSermonStudyGuide,
+            model: AppConfiguration.AI.advancedModel,
+            maxTokens: 3000,  // Study guides need substantial output
+            useLongRunningSession: true  // Allow up to 3 minutes for complex transcripts
+        )
+
+        let cleanedResponse = Self.stripMarkdownCodeFences(response)
+
+        guard let data = cleanedResponse.data(using: .utf8) else {
+            throw AIServiceError.invalidResponse
+        }
+
+        do {
+            let output = try JSONDecoder().decode(SermonStudyGuideOutput.self, from: data)
+            return output
+        } catch {
+            print("OpenAIProvider: Sermon study guide JSON decode failed: \(error)")
+            print("OpenAIProvider: Response preview: \(cleanedResponse.prefix(500))")
+            throw AIServiceError.invalidResponse
+        }
     }
 
     // MARK: - Embeddings
@@ -643,11 +742,13 @@ final class OpenAIProvider: AIServiceProtocol {
         do {
             (data, response) = try await session.data(for: request)
         } catch let urlError as URLError {
+            // Throw distinct error - caller handles with neutral message (NOT crisis modal)
             print("OpenAIProvider: Moderation URLError - \(urlError.localizedDescription)")
-            throw AIServiceError.networkError(urlError)
+            throw AIServiceError.moderationUnavailable
         } catch {
+            // Throw distinct error - caller handles with neutral message (NOT crisis modal)
             print("OpenAIProvider: Moderation network error - \(error.localizedDescription)")
-            throw AIServiceError.networkError(error)
+            throw AIServiceError.moderationUnavailable
         }
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -693,7 +794,8 @@ final class OpenAIProvider: AIServiceProtocol {
         prompt: String,
         systemPrompt: String,
         model: String,
-        maxTokens: Int = 1000
+        maxTokens: Int = 1000,
+        useLongRunningSession: Bool = false
     ) async throws -> String {
         let url = baseURL.appendingPathComponent("chat/completions")
 
@@ -715,11 +817,14 @@ final class OpenAIProvider: AIServiceProtocol {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
+        // Use appropriate session based on operation type
+        let targetSession = useLongRunningSession ? longRunningSession : session
+
         let data: Data
         let response: URLResponse
 
         do {
-            (data, response) = try await session.data(for: request)
+            (data, response) = try await targetSession.data(for: request)
         } catch let urlError as URLError {
             print("OpenAIProvider: URLError - \(urlError.localizedDescription)")
             throw AIServiceError.networkError(urlError)

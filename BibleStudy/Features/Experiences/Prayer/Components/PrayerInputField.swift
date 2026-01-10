@@ -8,35 +8,41 @@ struct PrayerInputField: View {
     let placeholder: String
     @FocusState.Binding var isFocused: Bool
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             // Placeholder
             if text.isEmpty {
                 Text(placeholder)
-                    .font(.custom("CormorantGaramond-Italic", size: 17))
-                    .foregroundStyle(Color.tertiaryText.opacity(0.6))
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 17, weight: .regular, design: .serif).italic())
+                    .foregroundStyle(Color.tertiaryText.opacity(Theme.Opacity.strong))
+                    .padding(.horizontal, Theme.Spacing.xl)
+                    .padding(.top, Theme.Spacing.lg)
             }
 
             TextEditor(text: $text)
-                .font(.custom("CormorantGaramond-Italic", size: 17))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 17, weight: .regular, design: .serif).italic())
                 .foregroundStyle(Color.primaryText)
                 .scrollContentBackground(.hidden)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.md)
                 .focused($isFocused)
         }
+        // swiftlint:disable:next hardcoded_frame_size
         .frame(height: 140)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.appBackground.opacity(0.5))
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .fill(Color.appBackground.opacity(Theme.Opacity.heavy))
         )
         .overlay(
-            ManuscriptBorder(isFocused: isFocused)
+            ManuscriptBorder(isFocused: isFocused, colorScheme: colorScheme)
         )
         .shadow(
-            color: isFocused ? Color.divineGold.opacity(0.2) : Color.clear,
+            color: isFocused ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium) : Color.clear,
+            // swiftlint:disable:next hardcoded_shadow_radius
             radius: 12
         )
     }
@@ -46,6 +52,11 @@ struct PrayerInputField: View {
 
 private struct ManuscriptBorder: View {
     let isFocused: Bool
+    let colorScheme: ColorScheme
+
+    private var sealColor: Color {
+        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -60,7 +71,7 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: 0, y: 0))
                     path.addLine(to: CGPoint(x: cornerLength, y: 0))
                 }
-                .stroke(Color.divineGold, lineWidth: 2)
+                .stroke(sealColor, lineWidth: Theme.Stroke.control)
 
                 // Top-right corner
                 Path { path in
@@ -68,7 +79,7 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: width, y: 0))
                     path.addLine(to: CGPoint(x: width, y: cornerLength))
                 }
-                .stroke(Color.divineGold, lineWidth: 2)
+                .stroke(sealColor, lineWidth: Theme.Stroke.control)
 
                 // Bottom-left corner
                 Path { path in
@@ -76,7 +87,7 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: 0, y: height))
                     path.addLine(to: CGPoint(x: cornerLength, y: height))
                 }
-                .stroke(Color.divineGold, lineWidth: 2)
+                .stroke(sealColor, lineWidth: Theme.Stroke.control)
 
                 // Bottom-right corner
                 Path { path in
@@ -84,9 +95,9 @@ private struct ManuscriptBorder: View {
                     path.addLine(to: CGPoint(x: width, y: height))
                     path.addLine(to: CGPoint(x: width, y: height - cornerLength))
                 }
-                .stroke(Color.divineGold, lineWidth: 2)
+                .stroke(sealColor, lineWidth: Theme.Stroke.control)
             }
-            .animation(.easeOut(duration: 0.3), value: isFocused)
+            .animation(Theme.Animation.settle, value: isFocused)
         }
     }
 }

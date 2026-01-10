@@ -30,6 +30,7 @@ struct ManuscriptMessageView: View {
 private struct UserMessageView: View {
     let content: String
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var appearProgress: CGFloat = 0
     @State private var rotationAngle: Double = -2
     @State private var borderGlow: CGFloat = 0
@@ -40,39 +41,39 @@ private struct UserMessageView: View {
 
     var body: some View {
         HStack {
-            Spacer(minLength: AppTheme.Spacing.xxxl)
+            Spacer(minLength: Theme.Spacing.xxl)
 
             Text(content)
-                .font(Typography.UI.body)
-                .foregroundStyle(Color.white)
-                .padding(AppTheme.Spacing.md)
+                .font(Typography.Command.body)
+                .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
+                .padding(Theme.Spacing.md)
                 .background(messageBackground)
                 .rotation3DEffect(
                     .degrees(rotationAngle),
                     axis: (x: 0, y: 0, z: 1),
                     anchor: .bottomTrailing
                 )
-                .scaleEffect(AppTheme.Scale.subtle + ((1 - AppTheme.Scale.subtle) * appearProgress))
+                .scaleEffect(0.99 + ((1 - 0.99) * appearProgress))
                 .opacity(Double(appearProgress))
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
         .onAppear {
             startEntranceAnimation()
         }
     }
 
     private var messageBackground: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large, style: .continuous)
-            .fill(Color.scholarIndigo)
+        RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                     .strokeBorder(
-                        Color.scholarIndigo.opacity(AppTheme.Opacity.medium + borderGlow * 0.3),
-                        lineWidth: AppTheme.Border.thin + (borderGlow * 1)
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary + borderGlow * 0.3),
+                        lineWidth: Theme.Stroke.hairline + (borderGlow * 1)
                     )
             )
             .shadow(
-                color: Color.scholarIndigo.opacity(borderGlow * 0.2),
+                color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(borderGlow * 0.2),
                 radius: 8 * borderGlow,
                 y: 2
             )
@@ -87,22 +88,22 @@ private struct UserMessageView: View {
         }
 
         // Phase 1: Ascent (0-200ms) - Message floats up with rotation
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             appearProgress = 1
         }
 
-        withAnimation(AppTheme.Animation.spring) {
+        withAnimation(Theme.Animation.settle) {
             rotationAngle = 0
         }
 
         // Phase 2: Seal (200-400ms) - Gold border materializes with shimmer
-        withAnimation(AppTheme.Animation.quick.delay(0.15)) {
+        withAnimation(Theme.Animation.fade.delay(0.15)) {
             borderGlow = 1
         }
 
         // Phase 3: Settle (400-600ms) - Border glow fades to normal
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 borderGlow = 0
             }
         }
@@ -118,6 +119,7 @@ private struct AIMessageView: View {
     let isAnimating: Bool
     let onCitationTap: (VerseRange) -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showContent = false
     @State private var ambientGlowOpacity: CGFloat = 0
     @State private var showCitations = false
@@ -133,7 +135,7 @@ private struct AIMessageView: View {
                 ambientGlow
             }
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 // Crisis support banner if needed
                 if message.isCrisisSupport {
                     ManuscriptCrisisBanner()
@@ -157,7 +159,7 @@ private struct AIMessageView: View {
                 }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
         .onAppear {
             startRevealSequence()
         }
@@ -170,8 +172,8 @@ private struct AIMessageView: View {
             .fill(
                 RadialGradient(
                     colors: [
-                        Color.scholarIndigo.opacity(AppTheme.Opacity.medium),
-                        Color.scholarIndigo.opacity(AppTheme.Opacity.subtle),
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
                         Color.clear
                     ],
                     center: .center,
@@ -180,7 +182,7 @@ private struct AIMessageView: View {
                 )
             )
             .frame(width: 200, height: 200)
-            .blur(radius: AppTheme.Blur.intense)
+            .blur(radius: 16)
             .opacity(ambientGlowOpacity)
             .offset(x: -20, y: 20)
     }
@@ -195,7 +197,7 @@ private struct AIMessageView: View {
         }
 
         // Phase 1: Ambient glow pulses (0-400ms)
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             ambientGlowOpacity = 1
         }
 
@@ -204,7 +206,7 @@ private struct AIMessageView: View {
             showContent = true
 
             // Glow fades as content appears
-            withAnimation(AppTheme.Animation.slow) {
+            withAnimation(Theme.Animation.slowFade) {
                 ambientGlowOpacity = 0
             }
         }
@@ -213,7 +215,7 @@ private struct AIMessageView: View {
         // Delay based on content length (longer content = longer wait)
         let citationDelay = min(Double(message.content.count) * 0.015, 2.0) + 0.5
         DispatchQueue.main.asyncAfter(deadline: .now() + citationDelay) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 showCitations = true
             }
         }
@@ -260,7 +262,7 @@ private struct SequentialCitationGroup: View {
                 .frame(height: 20)
 
             // Citation pills with staggered appearance
-            CitationFlowLayout(spacing: AppTheme.Spacing.sm) {
+            CitationFlowLayout(spacing: Theme.Spacing.sm) {
                 ForEach(Array(citations.enumerated()), id: \.element.id) { index, citation in
                     CitationPill(citation: citation) {
                         onCitationTap(citation)
@@ -271,7 +273,7 @@ private struct SequentialCitationGroup: View {
                 }
             }
         }
-        .padding(.top, AppTheme.Spacing.xs)
+        .padding(.top, Theme.Spacing.xs)
         .onAppear {
             animateCitationsSequentially()
         }
@@ -286,7 +288,7 @@ private struct SequentialCitationGroup: View {
         // Stagger each citation appearance by 150ms
         for (index, citation) in citations.enumerated() {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.15 + 0.1) {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(Theme.Animation.settle) {
                     _ = visibleCitations.insert(citation.id)
                 }
 
@@ -303,6 +305,7 @@ private struct SequentialCitationGroup: View {
 private struct SequentialGoldenThread: View {
     let citationCount: Int
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var threadLength: CGFloat = 0
 
     private var respectsReducedMotion: Bool {
@@ -322,9 +325,9 @@ private struct SequentialGoldenThread: View {
             }
             .trim(from: 0, to: threadLength)
             .stroke(
-                Color.scholarIndigo.opacity(AppTheme.Opacity.strong),
+                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
                 style: StrokeStyle(
-                    lineWidth: AppTheme.Border.thin,
+                    lineWidth: Theme.Stroke.hairline,
                     lineCap: .round,
                     dash: [4, 4]
                 )
@@ -332,10 +335,10 @@ private struct SequentialGoldenThread: View {
 
             // Connection node
             Circle()
-                .fill(Color.scholarIndigo)
-                .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 4, height: 4)
                 .position(x: geometry.size.width * 0.15, y: 0)
-                .opacity(threadLength > 0 ? AppTheme.Opacity.pressed : 0)
+                .opacity(threadLength > 0 ? Theme.Opacity.pressed : 0)
         }
         .onAppear {
             animateThread()
@@ -348,7 +351,7 @@ private struct SequentialGoldenThread: View {
             return
         }
 
-        withAnimation(AppTheme.Animation.slow) {
+        withAnimation(Theme.Animation.slowFade) {
             threadLength = 1
         }
     }
@@ -406,21 +409,23 @@ private struct CitationFlowLayout: Layout {
 // Visual indicator for crisis support responses (local to this file)
 
 private struct ManuscriptCrisisBanner: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "heart.fill")
-                .foregroundStyle(Color.error)
+                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
 
             Text("If you're in crisis, please reach out for help")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.primaryText)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
             Spacer()
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .fill(Color.error.opacity(AppTheme.Opacity.subtle))
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
         )
     }
 }
@@ -430,11 +435,12 @@ private struct ManuscriptCrisisBanner: View {
 
 struct MessageTimestamp: View {
     let date: Date
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Text(date.formatted(date: .omitted, time: .shortened))
-            .font(Typography.UI.caption2)
-            .foregroundStyle(Color.tertiaryText)
+            .font(Typography.Command.meta)
+            .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
     }
 }
 
@@ -443,24 +449,25 @@ struct MessageTimestamp: View {
 
 private struct ManuscriptUncertaintyBanner: View {
     let level: ManuscriptUncertaintyLevel
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: level.iconName)
-                .foregroundStyle(level.color)
+                .foregroundStyle(level.color(for: ThemeMode.current(from: colorScheme)))
 
             Text(level.message)
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
 
             Spacer()
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .fill(level.color.opacity(AppTheme.Opacity.subtle))
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(level.color(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
         )
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
     }
 }
 
@@ -480,11 +487,11 @@ private enum ManuscriptUncertaintyLevel {
         }
     }
 
-    var color: Color {
+    func color(for mode: ThemeMode) -> Color {
         switch self {
-        case .low: return .success
-        case .medium: return .warning
-        case .high: return .error
+        case .low: return Colors.Semantic.success(for: mode)
+        case .medium: return Colors.Semantic.warning(for: mode)
+        case .high: return Colors.Semantic.error(for: mode)
         }
     }
 
@@ -501,9 +508,9 @@ private enum ManuscriptUncertaintyLevel {
 
 #Preview("Manuscript Messages") {
     ScrollView {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             Text("User Message")
-                .font(Typography.UI.headline)
+                .font(Typography.Command.headline)
 
             ManuscriptMessageView(
                 message: ChatMessage(
@@ -516,7 +523,7 @@ private enum ManuscriptUncertaintyLevel {
             )
 
             Text("AI Response")
-                .font(Typography.UI.headline)
+                .font(Typography.Command.headline)
 
             ManuscriptMessageView(
                 message: ChatMessage(
@@ -533,7 +540,7 @@ private enum ManuscriptUncertaintyLevel {
             )
 
             Text("Uncertainty Banner")
-                .font(Typography.UI.headline)
+                .font(Typography.Command.headline)
 
             ManuscriptUncertaintyBanner(level: .medium)
         }

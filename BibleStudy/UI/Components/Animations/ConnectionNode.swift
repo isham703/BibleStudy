@@ -6,7 +6,7 @@ import SwiftUI
 
 struct ConnectionNode: View {
     let size: CGFloat
-    var color: Color = .divineGold
+    var color: Color = .accentBronze
     var isActive: Bool = false
     var isPulsing: Bool = false
     var glowIntensity: CGFloat = 0.5
@@ -23,7 +23,7 @@ struct ConnectionNode: View {
             // Outer glow ring (when active)
             if isActive && !respectsReducedMotion {
                 Circle()
-                    .fill(color.opacity(AppTheme.Opacity.lightMedium * glowIntensity))
+                    .fill(color.opacity(Theme.Opacity.lightMedium * glowIntensity))
                     .frame(width: size * 2, height: size * 2)
                     .opacity(glowOpacity)
             }
@@ -31,7 +31,7 @@ struct ConnectionNode: View {
             // Middle pulse ring
             if isPulsing && !respectsReducedMotion {
                 Circle()
-                    .stroke(color.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.medium)
+                    .stroke(color.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.control)
                     .frame(width: size * 1.5, height: size * 1.5)
                     .scaleEffect(pulseScale)
                     .opacity(2 - pulseScale)
@@ -85,7 +85,7 @@ struct ConnectionNode: View {
             if newValue && !respectsReducedMotion {
                 startGlowAnimation()
             } else {
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     glowOpacity = 0
                 }
             }
@@ -95,7 +95,7 @@ struct ConnectionNode: View {
     private func startPulseAnimation() {
         pulseScale = 1.0
         withAnimation(
-            AppTheme.Animation.slow
+            Theme.Animation.slowFade
             .repeatForever(autoreverses: false)
         ) {
             pulseScale = 2.0
@@ -103,7 +103,7 @@ struct ConnectionNode: View {
     }
 
     private func startGlowAnimation() {
-        withAnimation(AppTheme.Animation.slow.repeatForever(autoreverses: true)) {
+        withAnimation(Theme.Animation.slowFade.repeatForever(autoreverses: true)) {
             glowOpacity = 1.0
         }
     }
@@ -119,9 +119,9 @@ enum NodeState {
 
     var color: Color {
         switch self {
-        case .idle: return .divineGold.opacity(AppTheme.Opacity.heavy)
-        case .active: return .divineGold
-        case .pulsing: return .divineGold
+        case .idle: return .accentBronze.opacity(Theme.Opacity.heavy)
+        case .active: return .accentBronze
+        case .pulsing: return .accentBronze
         case .success: return .highlightGreen
         case .dimmed: return .tertiaryText
         }
@@ -156,38 +156,38 @@ struct StatefulConnectionNode: View {
 
 // MARK: - Preview
 #Preview("Connection Node States") {
-    VStack(spacing: AppTheme.Spacing.xxxl) {
-        HStack(spacing: AppTheme.Spacing.xxxl) {
+    VStack(spacing: Theme.Spacing.xxl) {
+        HStack(spacing: Theme.Spacing.xxl) {
             VStack {
                 ConnectionNode(size: 16, isActive: false)
-                Text("Idle").font(Typography.UI.caption1)
+                Text("Idle").font(Typography.Command.caption)
             }
 
             VStack {
                 ConnectionNode(size: 16, isActive: true)
-                Text("Active").font(Typography.UI.caption1)
+                Text("Active").font(Typography.Command.caption)
             }
 
             VStack {
                 ConnectionNode(size: 16, isPulsing: true)
-                Text("Pulsing").font(Typography.UI.caption1)
+                Text("Pulsing").font(Typography.Command.caption)
             }
         }
 
-        HStack(spacing: AppTheme.Spacing.xxxl) {
+        HStack(spacing: Theme.Spacing.xxl) {
             VStack {
                 StatefulConnectionNode(size: 20, state: .success)
-                Text("Success").font(Typography.UI.caption1)
+                Text("Success").font(Typography.Command.caption)
             }
 
             VStack {
                 StatefulConnectionNode(size: 20, state: .dimmed)
-                Text("Dimmed").font(Typography.UI.caption1)
+                Text("Dimmed").font(Typography.Command.caption)
             }
         }
 
         // Various sizes
-        HStack(spacing: AppTheme.Spacing.xxl) {
+        HStack(spacing: Theme.Spacing.xxl) {
             ConnectionNode(size: 8, isActive: true)
             ConnectionNode(size: 12, isActive: true)
             ConnectionNode(size: 16, isActive: true)

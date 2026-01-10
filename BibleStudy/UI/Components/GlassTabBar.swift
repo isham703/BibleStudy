@@ -1,12 +1,13 @@
 import SwiftUI
 
-// MARK: - Glass Tab Bar
-// Liquid Glass tab bar with pill-shaped segment control + Ask FAB
-// Uses iOS 26 glass effect APIs for modern material design
+// MARK: - Tab Bar
+// Flat tab bar with pill-shaped segment control + Ask FAB
+// Stoic-Existential Renaissance design with minimal glass effects
 
 struct GlassTabBar: View {
     @Binding var selectedTab: Tab
     @Binding var showAskModal: Bool
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - Animation State
     @State private var tabBarAppeared = false
@@ -16,26 +17,42 @@ struct GlassTabBar: View {
     }
 
     var body: some View {
-        GlassEffectContainer {
-            HStack(spacing: AppTheme.Spacing.md) {
-                // Tab pill (left side) - segmented glass control
-                GeometryReader { geometry in
-                    GlassSegmentedControl(
-                        size: geometry.size,
-                        selectedTab: $selectedTab
-                    )
-                    .glassEffect(.regular.interactive(), in: .capsule)
-                }
-
-                // Ask FAB (right side) - gold accent with glass backing
-                askButton
-                    .frame(width: 55, height: 55)
-                    .glassEffect(.regular.interactive(), in: .capsule)
+        HStack(spacing: Theme.Spacing.md) {
+            // Tab pill (left side) - segmented control
+            GeometryReader { geometry in
+                GlassSegmentedControl(
+                    size: geometry.size,
+                    selectedTab: $selectedTab
+                )
+                .background(
+                    Capsule()
+                        .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                )
             }
+
+            // Ask FAB (right side) - accent with flat backing
+            askButton
+                .frame(width: 55, height: 55)
+                .background(
+                    Circle()
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.divider))
+                )
+                .overlay(
+                    Circle()
+                        .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
+                )
         }
         .frame(height: 55)
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.sheet)
+                .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+        )
         .offset(y: tabBarAppeared ? 0 : 80)
         .opacity(tabBarAppeared ? 1 : 0)
         .onAppear {
@@ -57,7 +74,7 @@ struct GlassTabBar: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 24, height: 24)
-                    .foregroundStyle(Color.divineGold)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
         }
         .accessibilityLabel("Ask AI")
@@ -76,7 +93,7 @@ struct GlassTabBar: View {
 
         // Delay entrance after content
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.sacredSpring) {
+            withAnimation(Theme.Animation.settle) {
                 tabBarAppeared = true
             }
         }
@@ -89,9 +106,10 @@ struct GlassTabBar: View {
 private struct GlassSegmentedControl: UIViewRepresentable {
     var size: CGSize
     var activeTint: Color = .primary
-    var inactiveTint: Color = .primary.opacity(AppTheme.Opacity.midHeavy)
-    var barTint: Color = Color.scholarAccent.opacity(AppTheme.Opacity.quarter)
+    var inactiveTint: Color = .primary.opacity(Theme.Opacity.tertiary)
+    var barTint: Color = Colors.Semantic.accentAction(for: .dark).opacity(Theme.Opacity.quarter)
     @Binding var selectedTab: Tab
+    @Environment(\.colorScheme) private var colorScheme
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -156,7 +174,7 @@ private struct GlassSegmentedControl: UIViewRepresentable {
 
     @ViewBuilder
     private func tabItemView(for tab: Tab) -> some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: Theme.Spacing.xs) {
             Image(tab.icon)
                 .renderingMode(.template)
                 .resizable()
@@ -164,10 +182,10 @@ private struct GlassSegmentedControl: UIViewRepresentable {
                 .frame(width: 22, height: 22)
 
             Text(tab.title)
-                .font(Typography.UI.tabLabel)
+                .font(Typography.Command.meta)
                 .fontWeight(.medium)
         }
-        .foregroundStyle(selectedTab == tab ? Color.scholarAccent : Color.secondaryText)
+        .foregroundStyle(selectedTab == tab ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
     }
 
     // MARK: - Coordinator
@@ -181,7 +199,7 @@ private struct GlassSegmentedControl: UIViewRepresentable {
 
         @objc func tabSelected(_ control: UISegmentedControl) {
             HapticService.shared.tabSwitch()
-            withAnimation(AppTheme.Animation.reverent) {
+            withAnimation(Theme.Animation.slowFade) {
                 parent.selectedTab = Tab.allCases[control.selectedSegmentIndex]
             }
         }

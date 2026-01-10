@@ -66,13 +66,17 @@ private struct SheetHeightModifier: ViewModifier, Animatable {
             if #available(iOS 26, *) {
                 content
             } else {
+                // Sheet presentation fallback for iOS < 26
+                // swiftlint:disable:next hardcoded_rounded_rectangle
                 content
-                    .clipShape(.rect(cornerRadius: 30, style: .continuous))
+                    .clipShape(.rect(cornerRadius: Theme.Radius.sheet, style: .continuous))
                     .background {
-                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        // swiftlint:disable:next hardcoded_rounded_rectangle
+                        RoundedRectangle(cornerRadius: Theme.Radius.sheet, style: .continuous)
                             .fill(.background)
                             .frame(height: height)
                     }
+                    // swiftlint:disable:next hardcoded_padding_edge
                     .padding(.horizontal, 15)
                     .presentationBackground(.clear)
                     .presentationCornerRadius(0)
@@ -108,8 +112,9 @@ extension View {
             }
             .sheet(isPresented: $showSheet) {
                 DynamicSheet(animation: .snappy(duration: 0.3)) {
-                    VStack(spacing: 16) {
+                    VStack(spacing: Theme.Spacing.lg) {
                         Text("Dynamic Height Sheet")
+                            // swiftlint:disable:next hardcoded_swiftui_text_style
                             .font(.headline)
 
                         Text("The sheet automatically adjusts its height based on content.")
@@ -117,7 +122,7 @@ extension View {
                             .foregroundStyle(.secondary)
 
                         if showMore {
-                            VStack(spacing: 12) {
+                            VStack(spacing: Theme.Spacing.md) {
                                 Text("Additional Content")
                                     .font(.subheadline.weight(.semibold))
 
@@ -141,6 +146,7 @@ extension View {
                         }
                         .buttonStyle(.borderedProminent)
                     }
+                    // swiftlint:disable:next hardcoded_padding_single
                     .padding(24)
                 }
                 .presentationDragIndicator(.visible)

@@ -9,7 +9,7 @@ struct PrayerActionToolbar: View {
     let onNew: () -> Void
 
     var body: some View {
-        HStack(spacing: 32) {
+        HStack(spacing: Theme.Spacing.xxl) {
             ManuscriptActionButton(icon: "bookmark", label: "Save", action: onSave)
             ManuscriptActionButton(icon: "square.and.arrow.up", label: "Share", action: onShare)
             ManuscriptActionButton(icon: "arrow.counterclockwise", label: "New", action: onNew)
@@ -23,39 +23,44 @@ private struct ManuscriptActionButton: View {
     let icon: String
     let label: String
     let action: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: {
             // Soft haptic
+            // swiftlint:disable:next hardcoded_haptic_intensity
             UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.4)
             action()
         }) {
-            VStack(spacing: 8) {
+            VStack(spacing: Theme.Spacing.sm) {
                 ZStack {
                     Circle()
-                        .stroke(Color.divineGold, lineWidth: 1.5)
-                        .frame(width: 48, height: 48)
+                        // swiftlint:disable:next hardcoded_line_width
+                        .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: 1.5)
+                        .frame(width: 32, height: 32)
 
                     Image(systemName: icon)
-                        .font(.system(size: 20))
-                        .foregroundStyle(Color.divineGold)
+                        .font(Typography.Icon.xl)
+                        .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                 }
-                .scaleEffect(isPressed ? 0.95 : 1.0)
+                .scaleEffect(isPressed ? 0.98 : 1.0)
                 .shadow(
-                    color: isPressed ? Color.divineGold.opacity(0.4) : Color.clear,
+                    color: isPressed ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled) : Color.clear,
+                    // swiftlint:disable:next hardcoded_shadow_radius
                     radius: 8
                 )
 
                 Text(label)
-                    .font(.custom("Cinzel-Regular", size: 10))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 10, weight: .medium, design: .serif))
                     .tracking(1)
                     .foregroundStyle(Color.tertiaryText)
             }
         }
         .buttonStyle(.plain)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.3)) {
+            withAnimation(Theme.Animation.settle) {
                 isPressed = pressing
             }
         }, perform: {})
@@ -69,14 +74,16 @@ struct PrayerToast: View {
 
     var body: some View {
         Text(message)
-            .font(.system(size: 14, weight: .medium))
+            // swiftlint:disable:next hardcoded_font_system
+            .font(Typography.Icon.sm)
             .foregroundStyle(Color.primaryText)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
+            .padding(.horizontal, Theme.Spacing.xl)
+            .padding(.vertical, Theme.Spacing.md)
             .background(
                 Capsule()
                     .fill(Color.surfaceBackground)
-                    .shadow(color: .black.opacity(0.2), radius: 10, y: 4)
+                    // swiftlint:disable:next hardcoded_shadow_radius
+                    .shadow(color: .black.opacity(Theme.Opacity.lightMedium), radius: 10, y: 4)
             )
     }
 }
@@ -93,7 +100,8 @@ struct PrayerToast: View {
                 onShare: {},
                 onNew: {}
             )
-            .padding(.bottom, 40)
+            // swiftlint:disable:next hardcoded_padding_edge
+            .padding(.bottom, 40)  // Safe area offset
         }
     }
 }

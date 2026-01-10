@@ -5,6 +5,7 @@ import SwiftUI
 // 7 circles arranged in sacred geometry
 
 struct SacredGeometryThinking: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var rotationAngle: Double = 0
     @State private var pulseScale: CGFloat = 1.0
     @State private var circleOpacities: [Double] = Array(repeating: 0.4, count: 7)
@@ -17,7 +18,7 @@ struct SacredGeometryThinking: View {
     private let patternRadius: CGFloat = 20
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.lg) {
             // Flower of Life pattern
             ZStack {
                 flowerOfLifePattern
@@ -28,7 +29,7 @@ struct SacredGeometryThinking: View {
 
             // Thinking text
             Text("Contemplating...")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
         }
         .onAppear {
@@ -60,7 +61,7 @@ struct SacredGeometryThinking: View {
 
     private func sacredCircle(at position: CGPoint, index: Int) -> some View {
         Circle()
-            .stroke(Color.scholarIndigo, lineWidth: AppTheme.Border.medium)
+            .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.control)
             .frame(width: circleRadius * 2, height: circleRadius * 2)
             .opacity(circleOpacities[index])
             .offset(x: position.x, y: position.y)
@@ -72,9 +73,9 @@ struct SacredGeometryThinking: View {
             let angle = (Double(index) * 60.0 + 30.0) * .pi / 180.0
             let distance = patternRadius * 0.5
             Circle()
-                .fill(Color.scholarIndigo)
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 .frame(width: 3, height: 3)
-                .opacity(AppTheme.Opacity.strong)
+                .opacity(Theme.Opacity.primary)
                 .offset(
                     x: distance * cos(angle),
                     y: distance * sin(angle)
@@ -91,12 +92,12 @@ struct SacredGeometryThinking: View {
         }
 
         // Slow rotation (20 seconds per revolution)
-        withAnimation(AppTheme.Animation.sacredRotation) {
+        withAnimation(Theme.Animation.slowFade) {
             rotationAngle = 360
         }
 
         // Gentle pulse (4 seconds, very subtle)
-        withAnimation(AppTheme.Animation.meditativePulse) {
+        withAnimation(Theme.Animation.fade) {
             pulseScale = 1.05
         }
 
@@ -111,7 +112,7 @@ struct SacredGeometryThinking: View {
                 return
             }
 
-            withAnimation(AppTheme.Animation.circleWave) {
+            withAnimation(Theme.Animation.fade) {
                 // Rotate which circle is brightest
                 let brightIndex = Int(Date().timeIntervalSince1970 * 2) % 7
                 for i in 0..<7 {
@@ -126,6 +127,7 @@ struct SacredGeometryThinking: View {
 // Smaller variant for inline use
 
 struct CompactSacredGeometry: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var rotationAngle: Double = 0
 
     private var respectsReducedMotion: Bool {
@@ -138,7 +140,7 @@ struct CompactSacredGeometry: View {
             ForEach(0..<3, id: \.self) { index in
                 let angle = Double(index) * 120.0 * .pi / 180.0
                 Circle()
-                    .stroke(Color.scholarIndigo, lineWidth: AppTheme.Border.thin)
+                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
                     .frame(width: 16, height: 16)
                     .offset(
                         x: 8 * cos(angle),
@@ -148,15 +150,15 @@ struct CompactSacredGeometry: View {
 
             // Center point
             Circle()
-                .fill(Color.scholarIndigo)
-                .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 4, height: 4)
         }
         .frame(width: 32, height: 32)
         .rotationEffect(.degrees(rotationAngle))
         .onAppear {
             guard !respectsReducedMotion else { return }
 
-            withAnimation(AppTheme.Animation.sacredRotationFast) {
+            withAnimation(Theme.Animation.fade) {
                 rotationAngle = 360
             }
         }
@@ -167,6 +169,7 @@ struct CompactSacredGeometry: View {
 // Decorative separator with sacred geometry motif
 
 struct DivineLightDivider: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var shimmerPosition: CGFloat = 0
 
     private var respectsReducedMotion: Bool {
@@ -174,7 +177,7 @@ struct DivineLightDivider: View {
     }
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             gradientLine
             CompactSacredGeometry()
             gradientLine
@@ -183,7 +186,7 @@ struct DivineLightDivider: View {
         .onAppear {
             guard !respectsReducedMotion else { return }
 
-            withAnimation(AppTheme.Animation.shimmer) {
+            withAnimation(Theme.Animation.fade) {
                 shimmerPosition = 1
             }
         }
@@ -194,44 +197,48 @@ struct DivineLightDivider: View {
             .fill(
                 LinearGradient(
                     colors: [
-                        Color.scholarIndigo.opacity(0),
-                        Color.scholarIndigo.opacity(AppTheme.Opacity.medium + shimmerPosition * AppTheme.Opacity.lightMedium),
-                        Color.scholarIndigo.opacity(0)
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(0),
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary + shimmerPosition * Theme.Opacity.lightMedium),
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(0)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
             )
-            .frame(height: AppTheme.Border.thin)
+            .frame(height: Theme.Stroke.hairline)
     }
 }
 
 // MARK: - Preview
 
-#Preview("Sacred Geometry Thinking") {
-    VStack(spacing: AppTheme.Spacing.xxxl) {
-        Text("Full Thinking State")
-            .font(Typography.UI.headline)
+#if DEBUG
+struct SacredGeometryThinking_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: Theme.Spacing.xxl) {
+            Text("Full Thinking State")
+                .font(Typography.Command.headline)
 
-        SacredGeometryThinking()
-            .padding()
-            .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+            SacredGeometryThinking()
+                .padding()
+                .background(Color.surfaceBackground)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
-        Text("Compact Variant")
-            .font(Typography.UI.headline)
+            Text("Compact Variant")
+                .font(Typography.Command.headline)
 
-        CompactSacredGeometry()
-            .padding()
-            .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+            CompactSacredGeometry()
+                .padding()
+                .background(Color.surfaceBackground)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
-        Text("Divine Light Divider")
-            .font(Typography.UI.headline)
+            Text("Divine Light Divider")
+                .font(Typography.Command.headline)
 
-        DivineLightDivider()
-            .padding(.horizontal)
+            DivineLightDivider()
+                .padding(.horizontal)
+        }
+        .padding()
+        .background(Color.appBackground)
     }
-    .padding()
-    .background(Color.appBackground)
 }
+#endif

@@ -8,6 +8,7 @@ struct EmailConfirmationView: View {
     let onResend: () async -> Void
     let onChangeEmail: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var secondsRemaining: Int = 0
     @State private var isResending: Bool = false
     @State private var showResendSuccess: Bool = false
@@ -16,7 +17,7 @@ struct EmailConfirmationView: View {
     private let cooldownDuration: Int = 60
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xxl) {
+        VStack(spacing: Theme.Spacing.xxl) {
             Spacer()
 
             // Sacred confirmation icon
@@ -28,13 +29,13 @@ struct EmailConfirmationView: View {
                 .foregroundStyle(Color.primaryText)
 
             // Email display (masked)
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.sm) {
                 Text("We've sent a confirmation link to:")
-                    .font(Typography.UI.warmBody)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
 
                 Text(maskedEmail)
-                    .font(Typography.UI.bodyBold)
+                    .font(Typography.Command.body.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
             }
 
@@ -44,20 +45,22 @@ struct EmailConfirmationView: View {
             Spacer()
 
             // Action buttons
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 // Resend button with timer
                 resendButton
 
                 // Change email button
                 Button(action: onChangeEmail) {
                     Text("Use a different email")
-                        .font(Typography.UI.body)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
+                .accessibilityLabel("Change email")
+                .accessibilityHint("Go back to enter a different email address")
             }
-            .padding(.bottom, AppTheme.Spacing.xl)
+            .padding(.bottom, Theme.Spacing.xl)
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(Color.primaryBackground)
         .onAppear {
             // Start initial cooldown (user just signed up)
@@ -71,36 +74,27 @@ struct EmailConfirmationView: View {
     // MARK: - Confirmation Icon
     private var confirmationIcon: some View {
         ZStack {
-            // Outer glow ring
+            // Outer glow ring - simplified
             Circle()
-                .fill(Color.Glow.indigoAmbient)
+                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                 .frame(width: 120, height: 120)
-                .blur(radius: AppTheme.Blur.heavy)
+                .blur(radius: 16)
 
-            // Icon circle
+            // Icon circle - simplified to single color
             Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.divineGold,
-                            Color.burnishedGold
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                 .frame(width: 80, height: 80)
 
             // Mail icon
             Image(systemName: "envelope.open.fill")
-                .font(.system(size: Typography.Scale.xxl, weight: .medium))
+                .font(Typography.Icon.xxl)
                 .foregroundStyle(.white)
         }
     }
 
     // MARK: - Guidance Card
     private var guidanceCard: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             GuidanceRow(
                 icon: "clock",
                 text: "The link expires in 24 hours"
@@ -114,12 +108,12 @@ struct EmailConfirmationView: View {
                 text: "Click the link to verify your account"
             )
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(Color.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                .stroke(Color.divider, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -130,7 +124,7 @@ struct EmailConfirmationView: View {
                 await resendEmail()
             }
         } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 if isResending {
                     ProgressView()
                         .tint(secondsRemaining > 0 ? Color.tertiaryText : .white)
@@ -142,32 +136,34 @@ struct EmailConfirmationView: View {
                     )
                 } else if showResendSuccess {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(Typography.UI.iconLg)
-                        .foregroundStyle(Color.malachite)
+                        .font(Typography.Icon.lg)
+                        .foregroundStyle(Colors.Semantic.success(for: ThemeMode.current(from: colorScheme)))
                 } else {
                     Image(systemName: "arrow.clockwise")
-                        .font(Typography.UI.iconMd.weight(.medium))
+                        .font(Typography.Icon.md.weight(.medium))
                 }
 
                 Text(buttonText)
-                    .font(Typography.UI.bodyBold)
+                    .font(Typography.Command.body.weight(.semibold))
             }
             .frame(maxWidth: .infinity)
-            .padding(AppTheme.Spacing.md)
-            .background(secondsRemaining > 0 ? Color.secondaryBackground : Color.scholarAccent)
+            .padding(Theme.Spacing.md)
+            .background(secondsRemaining > 0 ? Color.secondaryBackground : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             .foregroundStyle(secondsRemaining > 0 ? Color.tertiaryText : .white)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .stroke(
                         secondsRemaining > 0 ? Color.divider : Color.clear,
-                        lineWidth: AppTheme.Border.thin
+                        lineWidth: Theme.Stroke.hairline
                     )
             )
         }
         .disabled(secondsRemaining > 0 || isResending)
-        .animation(AppTheme.Animation.sacredSpring, value: secondsRemaining)
-        .animation(AppTheme.Animation.sacredSpring, value: showResendSuccess)
+        .animation(Theme.Animation.settle, value: secondsRemaining)
+        .animation(Theme.Animation.settle, value: showResendSuccess)
+        .accessibilityLabel("Resend confirmation email")
+        .accessibilityHint(secondsRemaining > 0 ? "Wait \(secondsRemaining) seconds" : "Double tap to resend")
     }
 
     // MARK: - Helpers
@@ -234,41 +230,39 @@ struct VespersTimerRing: View {
     let secondsRemaining: Int
     let totalSeconds: Int
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private var progress: CGFloat {
         CGFloat(secondsRemaining) / CGFloat(totalSeconds)
     }
 
     var body: some View {
         ZStack {
-            // Background ring - aged parchment color
+            // Background ring - subtle divider color
             Circle()
-                .stroke(Color.monasteryStone, lineWidth: AppTheme.Border.thick)
+                .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Border.thick)
 
-            // Active ring - gold gradient with glow
+            // Active ring - simplified to single accent color
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
-                    AngularGradient(
-                        colors: [
-                            Color.illuminatedGold,
-                            Color.divineGold,
-                            Color.burnishedGold
-                        ],
-                        center: .center
-                    ),
-                    style: StrokeStyle(lineWidth: AppTheme.Border.thick, lineCap: .round)
+                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                    style: StrokeStyle(lineWidth: Theme.Border.thick, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .shadow(AppTheme.Shadow.small)
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
 
             // Inner number using Cinzel-style
             Text("\(secondsRemaining)")
-                .font(Typography.UI.caption1.weight(.semibold))
+                .font(Typography.Command.caption.weight(.semibold))
                 .foregroundStyle(Color.primaryText)
                 .monospacedDigit()
         }
         .frame(width: 36, height: 36)
-        .animation(AppTheme.Animation.quick, value: secondsRemaining)
+        .animation(Theme.Animation.fade, value: secondsRemaining)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Resend timer")
+        .accessibilityValue("\(secondsRemaining) seconds remaining")
     }
 }
 
@@ -277,15 +271,17 @@ struct GuidanceRow: View {
     let icon: String
     let text: String
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
-                .font(Typography.UI.iconMd.weight(.medium))
-                .foregroundStyle(Color.divineGold)
-                .frame(width: AppTheme.IconContainer.small)
+                .font(Typography.Icon.md.weight(.medium))
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 24)
 
             Text(text)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
 
             Spacer()

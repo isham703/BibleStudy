@@ -33,7 +33,7 @@ struct InlineHighlightColorRow: View {
     @ScaledMetric(relativeTo: .body) private var checkmarkSize: CGFloat = 12
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             // Empty circle (remove highlight)
             removeCircle
 
@@ -42,7 +42,7 @@ struct InlineHighlightColorRow: View {
                 colorCircle(for: color)
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.xs)
     }
 
     // MARK: - Subviews
@@ -56,34 +56,34 @@ struct InlineHighlightColorRow: View {
             Circle()
                 .strokeBorder(
                     existingColor == nil
-                        ? Color.secondaryText.opacity(AppTheme.Opacity.heavy)
+                        ? Color.secondaryText.opacity(Theme.Opacity.heavy)
                         : Color.primaryText,
                     style: existingColor == nil
-                        ? StrokeStyle(lineWidth: AppTheme.Border.thin, dash: [3, 2])
-                        : StrokeStyle(lineWidth: AppTheme.Border.regular)
+                        ? StrokeStyle(lineWidth: Theme.Stroke.hairline, dash: [3, 2])
+                        : StrokeStyle(lineWidth: Theme.Stroke.control)
                 )
                 .frame(width: circleSize, height: circleSize)
                 .overlay {
                     // Show X icon when there's an existing highlight to remove
                     if existingColor != nil {
                         Image(systemName: "xmark")
-                            .font(Typography.UI.iconXs.weight(.medium))
+                            .font(Typography.Icon.xs.weight(.medium))
                             .foregroundStyle(Color.primaryText)
                     }
                 }
-                .scaleEffect(isRemovePressed ? AppTheme.Scale.pressed : 1.0)
+                .scaleEffect(isRemovePressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)
-        .frame(minWidth: AppTheme.TouchTarget.minimum, minHeight: AppTheme.TouchTarget.minimum)
+        .frame(minWidth: 44, minHeight: 44)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         isRemovePressed = true
                     }
                 }
                 .onEnded { _ in
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         isRemovePressed = false
                     }
                 }
@@ -117,7 +117,7 @@ struct InlineHighlightColorRow: View {
                     // Checkmark for currently applied color (accessibility: not color alone)
                     if isSelected {
                         Image(systemName: "checkmark")
-                            .font(Typography.UI.iconXs.weight(.bold))
+                            .font(Typography.Icon.xs.weight(.bold))
                             .foregroundStyle(.white)
                     }
                 }
@@ -125,29 +125,29 @@ struct InlineHighlightColorRow: View {
                     // Selection ring
                     if isSelected {
                         Circle()
-                            .stroke(Color.primaryText, lineWidth: AppTheme.Border.regular)
+                            .stroke(Color.primaryText, lineWidth: Theme.Stroke.control)
                             .frame(width: circleSize + 4, height: circleSize + 4)
                     }
                 }
-                .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1.0)
+                .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(.plain)
-        .frame(minWidth: AppTheme.TouchTarget.minimum, minHeight: AppTheme.TouchTarget.minimum)
+        .frame(minWidth: 44, minHeight: 44)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         pressedColor = color
                     }
                 }
                 .onEnded { _ in
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         pressedColor = nil
                     }
                 }
         )
         .simultaneousGesture(
-            LongPressGesture(minimumDuration: AppTheme.Gesture.longPressDuration)
+            LongPressGesture(minimumDuration: Theme.Gesture.longPressDuration)
                 .onEnded { _ in
                     HapticService.shared.selectionChanged()
                     onLongPress?(color)
@@ -171,7 +171,7 @@ struct InlineHighlightColorRow: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             InlineHighlightColorRow(
                 existingColor: nil,
                 onSelectColor: { color in
@@ -195,7 +195,7 @@ struct InlineHighlightColorRow: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             InlineHighlightColorRow(
                 existingColor: .amber,
                 onSelectColor: { color in
@@ -219,7 +219,7 @@ struct InlineHighlightColorRow: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             ForEach(HighlightColor.allCases, id: \.self) { color in
                 HStack {
                     Text(color.displayName)

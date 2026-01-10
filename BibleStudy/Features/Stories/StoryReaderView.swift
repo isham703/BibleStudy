@@ -158,7 +158,7 @@ final class StoryReaderViewModel {
     // MARK: - Navigation
     func goToSegment(_ index: Int) {
         guard index >= 0 && index < segments.count else { return }
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             currentIndex = index
         }
         updateProgress()
@@ -212,22 +212,22 @@ final class StoryReaderViewModel {
 // MARK: - AI Disclaimer Banner
 struct AIDisclaimerBanner: View {
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkles")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
 
             Text("Narrative retelling (AI-generated)")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
 
             Spacer()
 
             Image(systemName: "info.circle")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
         }
         .foregroundStyle(Color.accentBlue)
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .background(Color.accentBlue.opacity(AppTheme.Opacity.subtle))
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
+        .background(Color.accentBlue.opacity(Theme.Opacity.subtle))
     }
 }
 
@@ -243,14 +243,14 @@ struct SegmentNavigationBar: View {
     private var isLast: Bool { currentIndex >= totalSegments - 1 }
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             // Previous button
             Button(action: onPrevious) {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "chevron.left")
                     Text("Previous")
                 }
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
             }
             .disabled(isFirst)
             .opacity(isFirst ? 0.4 : 1)
@@ -259,7 +259,7 @@ struct SegmentNavigationBar: View {
 
             // Progress indicator
             Text("\(currentIndex + 1) of \(totalSegments)")
-                .font(Typography.UI.caption1.monospacedDigit())
+                .font(Typography.Command.caption.monospacedDigit())
                 .foregroundStyle(Color.secondaryText)
 
             Spacer()
@@ -267,26 +267,26 @@ struct SegmentNavigationBar: View {
             // Next/Complete button
             if isLast {
                 Button(action: onComplete) {
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Text("Complete")
                         Image(systemName: "checkmark.circle.fill")
                     }
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .fontWeight(.semibold)
                 }
                 .tint(Color.highlightGreen)
             } else {
                 Button(action: onNext) {
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Text("Next")
                         Image(systemName: "chevron.right")
                     }
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                 }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
         .background(Color.surfaceBackground)
         .overlay(
             Divider(),
@@ -298,21 +298,22 @@ struct SegmentNavigationBar: View {
 // MARK: - Story Info Sheet
 struct StoryInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     let story: Story
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     // Description
                     Text(story.description)
-                        .font(Typography.UI.body)
+                        .font(Typography.Command.body)
                         .foregroundStyle(Color.primaryText)
 
                     Divider()
 
                     // Metadata
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                         InfoRow(label: "Type", value: story.type.displayName)
                         InfoRow(label: "Reading Level", value: story.readingLevel.displayName)
                         InfoRow(label: "Duration", value: "\(story.estimatedMinutes) minutes", useMonospacedDigits: true)
@@ -322,9 +323,9 @@ struct StoryInfoSheet: View {
                             Divider()
 
                             // Provenance for AI stories
-                            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                                 Text("Generation Info")
-                                    .font(Typography.Display.headline)
+                                    .font(Typography.Scripture.heading)
                                     .foregroundStyle(Color.primaryText)
 
                                 if let modelId = story.modelId {
@@ -335,9 +336,9 @@ struct StoryInfoSheet: View {
                                 }
 
                                 Text("This story is an AI-generated retelling based on the source scripture. Always refer to the original text for authoritative guidance.")
-                                    .font(Typography.UI.caption1)
+                                    .font(Typography.Command.caption)
                                     .foregroundStyle(Color.secondaryText)
-                                    .padding(.top, AppTheme.Spacing.xs)
+                                    .padding(.top, Theme.Spacing.xs)
                             }
                         }
                     }
@@ -346,15 +347,15 @@ struct StoryInfoSheet: View {
                     if !story.verseAnchors.isEmpty {
                         Divider()
 
-                        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                             Text("Source Scripture")
-                                .font(Typography.Display.headline)
+                                .font(Typography.Scripture.heading)
                                 .foregroundStyle(Color.primaryText)
 
                             ForEach(story.verseAnchors, id: \.id) { anchor in
                                 Text(anchor.reference)
-                                    .font(Typography.UI.body)
-                                    .foregroundStyle(Color.scholarAccent)
+                                    .font(Typography.Command.body)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                             }
                         }
                     }
@@ -382,11 +383,11 @@ struct InfoRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
             Spacer()
             Text(value)
-                .font(useMonospacedDigits ? Typography.UI.body.monospacedDigit() : Typography.UI.body)
+                .font(useMonospacedDigits ? Typography.Command.body.monospacedDigit() : Typography.Command.body)
                 .foregroundStyle(Color.primaryText)
         }
     }

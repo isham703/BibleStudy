@@ -1,51 +1,48 @@
 import SwiftUI
 
-// MARK: - Settings View
-// Illuminated manuscript-styled settings with subscription integration
+// MARK: - Settings View (DEPRECATED)
+// ⚠️ DEPRECATED: Use FloatingSanctuarySettings instead.
+// This view and its section views (AccountSectionView, SubscriptionSectionView, etc.)
+// are legacy code retained for reference. FloatingSanctuarySettings is the primary settings UI.
+//
+// TODO: Remove this file and associated section views in a future cleanup.
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel = SettingsViewModel()
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: AppTheme.Spacing.lg) {
+                VStack(spacing: Theme.Spacing.lg) {
                     // Settings header
                     settingsHeader
                         .opacity(viewModel.appeared ? 1 : 0)
                         .offset(y: viewModel.appeared ? 0 : -10)
 
                     // Section cards with staggered animation
-                    ForEach(Array(sections.enumerated()), id: \.offset) { index, section in
-                        section
-                            .opacity(viewModel.appeared ? 1 : 0)
-                            .offset(y: viewModel.appeared ? 0 : 20)
-                            .animation(
-                                AppTheme.Animation.slow.delay(Double(index) * 0.08),
-                                value: viewModel.appeared
-                            )
-                    }
+                    sectionContent
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.xxl)
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("SETTINGS")
-                        .font(.system(size: Typography.Scale.xs, weight: .medium, design: .serif))
+                        .font(Typography.Scripture.footnote)
                         .tracking(3)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
                         dismiss()
                     }
-                    .font(Typography.UI.body)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
             .sheet(isPresented: $viewModel.showPaywall) {
@@ -68,48 +65,71 @@ struct SettingsView: View {
     // MARK: - Settings Header
 
     private var settingsHeader: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             // Decorative ornament
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.clear, Color.scholarAccent.opacity(AppTheme.Opacity.medium)],
+                            colors: [Color.clear, Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
-                    .frame(height: AppTheme.Divider.thin)
+                    .frame(height: Theme.Stroke.hairline)
 
                 Diamond()
-                    .fill(Color.scholarAccent)
-                    .frame(width: AppTheme.ComponentSize.indicator, height: AppTheme.ComponentSize.indicator)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .frame(width: 8, height: 8)
 
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.scholarAccent.opacity(AppTheme.Opacity.medium), Color.clear],
+                            colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), Color.clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
-                    .frame(height: AppTheme.Divider.thin)
+                    .frame(height: Theme.Stroke.hairline)
             }
-            .padding(.horizontal, AppTheme.Spacing.xxl)
-            .padding(.top, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.xxl)
+            .padding(.top, Theme.Spacing.md)
         }
     }
 
-    // MARK: - Sections Array
+    // MARK: - Section Content
 
-    private var sections: [AnyView] {
-        [
-            AnyView(AccountSectionView(viewModel: viewModel)),
-            AnyView(SubscriptionSectionView(viewModel: viewModel)),
-            AnyView(ReadingSectionView(viewModel: viewModel)),
-            AnyView(NotificationsSectionView(viewModel: viewModel)),
-            AnyView(AboutSectionView(viewModel: viewModel))
-        ]
+    @ViewBuilder
+    private var sectionContent: some View {
+        AccountSectionView(viewModel: viewModel)
+            .opacity(viewModel.appeared ? 1 : 0)
+            .offset(y: viewModel.appeared ? 0 : 20)
+            .animation(Theme.Animation.slowFade.delay(0.08), value: viewModel.appeared)
+
+        SubscriptionSectionView(viewModel: viewModel)
+            .opacity(viewModel.appeared ? 1 : 0)
+            .offset(y: viewModel.appeared ? 0 : 20)
+            .animation(Theme.Animation.slowFade.delay(0.16), value: viewModel.appeared)
+
+        ReadingSectionView(viewModel: viewModel)
+            .opacity(viewModel.appeared ? 1 : 0)
+            .offset(y: viewModel.appeared ? 0 : 20)
+            .animation(Theme.Animation.slowFade.delay(0.24), value: viewModel.appeared)
+
+        NotificationsSectionView(viewModel: viewModel)
+            .opacity(viewModel.appeared ? 1 : 0)
+            .offset(y: viewModel.appeared ? 0 : 20)
+            .animation(Theme.Animation.slowFade.delay(0.32), value: viewModel.appeared)
+
+        AboutSectionView(viewModel: viewModel)
+            .opacity(viewModel.appeared ? 1 : 0)
+            .offset(y: viewModel.appeared ? 0 : 20)
+            .animation(Theme.Animation.slowFade.delay(0.40), value: viewModel.appeared)
+
+        DeveloperSectionView(viewModel: viewModel)
+            .opacity(viewModel.appeared ? 1 : 0)
+            .offset(y: viewModel.appeared ? 0 : 20)
+            .animation(Theme.Animation.slowFade.delay(0.48), value: viewModel.appeared)
     }
 }
 

@@ -7,6 +7,8 @@ struct NotificationsSectionView: View {
     @Bindable var viewModel: SettingsViewModel
     @State private var showTimePicker = false
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         IlluminatedSettingsCard(title: "Notifications", icon: "bell.fill") {
             if viewModel.notificationsAuthorized {
@@ -20,15 +22,15 @@ struct NotificationsSectionView: View {
     // MARK: - Authorized Content
 
     private var authorizedContent: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Daily Reading Reminder
-            VStack(spacing: AppTheme.Spacing.sm) {
-                IlluminatedToggle(
+            VStack(spacing: Theme.Spacing.sm) {
+                SettingsToggle(
                     isOn: $viewModel.dailyReminderEnabled,
                     label: "Daily Reading Reminder",
                     description: nil,
                     icon: "bell.fill",
-                    iconColor: .scholarAccent
+                    iconColor: Color.accentIndigo
                 )
 
                 if viewModel.dailyReminderEnabled {
@@ -36,13 +38,13 @@ struct NotificationsSectionView: View {
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
-            .animation(AppTheme.Animation.unfurl, value: viewModel.dailyReminderEnabled)
+            .animation(Theme.Animation.settle, value: viewModel.dailyReminderEnabled)
 
             SettingsDivider()
 
             // Streak Protection Reminder
-            VStack(spacing: AppTheme.Spacing.sm) {
-                IlluminatedToggle(
+            VStack(spacing: Theme.Spacing.sm) {
+                SettingsToggle(
                     isOn: $viewModel.streakReminderEnabled,
                     label: "Streak Protection",
                     description: nil,
@@ -55,19 +57,19 @@ struct NotificationsSectionView: View {
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
-            .animation(AppTheme.Animation.unfurl, value: viewModel.streakReminderEnabled)
+            .animation(Theme.Animation.settle, value: viewModel.streakReminderEnabled)
         }
     }
 
     private var timePickerRow: some View {
         HStack {
             Image(systemName: "clock")
-                .font(Typography.UI.iconSm)
+                .font(Typography.Icon.sm)
                 .foregroundStyle(Color.secondaryText)
                 .frame(width: 28)
 
             Text("Reminder Time")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
 
             Spacer()
@@ -78,47 +80,47 @@ struct NotificationsSectionView: View {
                 displayedComponents: .hourAndMinute
             )
             .labelsHidden()
-            .tint(Color.scholarAccent)
+            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
         }
-        .padding(.leading, AppTheme.Spacing.xxxl - 12) // Align with toggle content
+        .padding(.leading, Theme.Spacing.xxl - 12) // Align with toggle content
     }
 
     private var streakReminderInfo: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "info.circle")
-                .font(Typography.UI.iconXs)
+                .font(Typography.Icon.xs)
                 .foregroundStyle(Color.tertiaryText)
 
             Text("We'll remind you at 8 PM if you haven't read today.")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
-        .padding(.leading, AppTheme.Spacing.xxxl - 12) // Align with toggle content
+        .padding(.leading, Theme.Spacing.xxl - 12) // Align with toggle content
     }
 
     // MARK: - Permission Prompt
 
     private var permissionPrompt: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: "bell.badge")
-                    .font(.system(size: Typography.Scale.xl + 6, weight: .light))
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Icon.xl.weight(.light))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
 
             // Description
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Text("Stay on Track")
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
 
                 Text("Enable notifications to receive daily reading reminders and streak protection alerts.")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
             }
@@ -130,15 +132,15 @@ struct NotificationsSectionView: View {
                 }
             }) {
                 Text("Enable Notifications")
-                    .font(Typography.UI.buttonLabel)
+                    .font(Typography.Command.cta)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppTheme.Spacing.md)
-                    .background(Color.scholarAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+                    .padding(.vertical, Theme.Spacing.md)
+                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             }
         }
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.md)
     }
 }
 

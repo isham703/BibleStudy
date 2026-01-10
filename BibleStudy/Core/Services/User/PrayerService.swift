@@ -187,9 +187,73 @@ final class PrayerService {
         Array(savedPrayers.prefix(limit))
     }
 
+    /// Search prayers using FTS5 full-text search
+    /// Falls back to in-memory filtering if FTS5 query fails
     func searchPrayers(query: String) -> [SavedPrayer] {
         guard !query.isEmpty else { return savedPrayers }
-        return savedPrayers.filter { prayer in
+        guard let userId = supabase.currentUser?.id,
+              let dbQueue = db.dbQueue else {
+            return fallbackSearch(query: query)
+        }
+
+        do {
+            return try searchPrayersFTS5(query: query, userId: userId, dbQueue: dbQueue)
+        } catch {
+            // FTS5 failed (table not yet created, malformed query, etc.)
+            // Fall back to in-memory search
+            print("⚠️ PrayerService: FTS5 search failed, using fallback: \(error)")
+            return fallbackSearch(query: query)
+        }
+    }
+
+    /// FTS5 full-text search - returns matching prayers ordered by relevance
+    private nonisolated func searchPrayersFTS5(
+        query: String,
+        userId: UUID,
+        dbQueue: DatabaseQueue
+    ) throws -> [SavedPrayer] {
+        // Sanitize query for FTS5 (escape special characters)
+        let sanitizedQuery = sanitizeFTS5Query(query)
+
+        return try dbQueue.read { db in
+            // Use FTS5 MATCH with JOIN to get full SavedPrayer records
+            // bm25() provides relevance ranking (lower = more relevant)
+            let sql = """
+                SELECT saved_prayers.*
+                FROM saved_prayers
+                INNER JOIN saved_prayers_fts ON saved_prayers.rowid = saved_prayers_fts.rowid
+                WHERE saved_prayers_fts MATCH ?
+                  AND saved_prayers.user_id = ?
+                  AND saved_prayers.deleted_at IS NULL
+                ORDER BY bm25(saved_prayers_fts) ASC
+                LIMIT 100
+                """
+
+            return try SavedPrayer.fetchAll(db, sql: sql, arguments: [sanitizedQuery, userId])
+        }
+    }
+
+    /// Sanitize user input for FTS5 MATCH query
+    /// Escapes special FTS5 operators and wraps terms in quotes for phrase matching
+    private nonisolated func sanitizeFTS5Query(_ query: String) -> String {
+        // Remove FTS5 special characters that could cause syntax errors
+        let specialChars = CharacterSet(charactersIn: "\"*():-^")
+        let cleaned = query.unicodeScalars
+            .filter { !specialChars.contains($0) }
+            .map { Character($0) }
+
+        // Split into words and join with OR for broad matching
+        let terms = String(cleaned)
+            .components(separatedBy: .whitespaces)
+            .filter { !$0.isEmpty }
+
+        // Use prefix matching (*) for partial word matches
+        return terms.map { "\($0)*" }.joined(separator: " OR ")
+    }
+
+    /// In-memory fallback search when FTS5 is unavailable
+    private func fallbackSearch(query: String) -> [SavedPrayer] {
+        savedPrayers.filter { prayer in
             prayer.content.localizedCaseInsensitiveContains(query) ||
             prayer.userContext.localizedCaseInsensitiveContains(query)
         }

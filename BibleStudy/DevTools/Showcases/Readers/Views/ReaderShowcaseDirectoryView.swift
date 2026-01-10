@@ -16,7 +16,7 @@ struct ReaderShowcaseDirectoryView: View {
             LinearGradient(
                 colors: [
                     Color.clear,
-                    Color.divineGold.opacity(0.03)
+                    Color.accentBronze.opacity(Theme.Opacity.faint)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -28,18 +28,18 @@ struct ReaderShowcaseDirectoryView: View {
                 VStack(spacing: 0) {
                     // Header
                     headerSection
-                        .padding(.top, AppTheme.Spacing.xl)
+                        .padding(.top, Theme.Spacing.xl)
 
                     // Divider
                     headerDivider
-                        .padding(.vertical, AppTheme.Spacing.xxl)
+                        .padding(.vertical, Theme.Spacing.xxl)
 
                     // Card list
                     cardList
-                        .padding(.horizontal, AppTheme.Spacing.lg)
+                        .padding(.horizontal, Theme.Spacing.lg)
 
                     Spacer()
-                        .frame(height: AppTheme.Spacing.xxxl)
+                        .frame(height: Theme.Spacing.xxl)
                 }
             }
         }
@@ -55,14 +55,14 @@ struct ReaderShowcaseDirectoryView: View {
     // MARK: - Header Section
 
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Decorative icon
             Image(systemName: "book.pages.fill")
-                .font(.system(size: 32, weight: .light))
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.xxl.weight(.light))
+                .foregroundStyle(Color.accentBronze)
                 .opacity(isVisible ? 1 : 0)
                 .scaleEffect(isVisible ? 1 : 0.8)
-                .animation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.1), value: isVisible)
+                .animation(Theme.Animation.settle.delay(0.1), value: isVisible)
 
             // Title
             Text("Reading the Bible")
@@ -74,7 +74,7 @@ struct ReaderShowcaseDirectoryView: View {
 
             // Subtitle
             Text("Explore different reading experiences")
-                .font(.system(size: 15, weight: .regular))
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.showcaseSecondaryText)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(0.3), value: isVisible)
@@ -90,7 +90,7 @@ struct ReaderShowcaseDirectoryView: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            Color.divineGold.opacity(0.4)
+                            Color.accentBronze.opacity(Theme.Opacity.lightMedium)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -100,14 +100,14 @@ struct ReaderShowcaseDirectoryView: View {
 
             // Center ornament
             Image(systemName: "sparkle")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.divineGold.opacity(0.6))
+                .font(Typography.Icon.xxs)
+                .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.tertiary))
 
             Rectangle()
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.divineGold.opacity(0.4),
+                            Color.accentBronze.opacity(Theme.Opacity.lightMedium),
                             Color.clear
                         ],
                         startPoint: .leading,
@@ -116,7 +116,7 @@ struct ReaderShowcaseDirectoryView: View {
                 )
                 .frame(height: 1)
         }
-        .padding(.horizontal, AppTheme.Spacing.xxxl)
+        .padding(.horizontal, Theme.Spacing.xxl)
         .opacity(isVisible ? 1 : 0)
         .animation(.easeOut(duration: 0.6).delay(0.4), value: isVisible)
     }
@@ -124,7 +124,7 @@ struct ReaderShowcaseDirectoryView: View {
     // MARK: - Card List
 
     private var cardList: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             ForEach(Array(ReaderVariant.allCases.enumerated()), id: \.element.id) { index, variant in
                 ShowcaseReaderCard(variant: variant) {
                     destinationView(for: variant)
@@ -132,7 +132,7 @@ struct ReaderShowcaseDirectoryView: View {
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 30)
                 .animation(
-                    .spring(response: 0.5, dampingFraction: 0.8).delay(0.5 + Double(index) * 0.1),
+                    Theme.Animation.settle.delay(0.5 + Double(index) * 0.1),
                     value: isVisible
                 )
             }

@@ -7,7 +7,7 @@ import SwiftUI
 // Quick golden connection pulse
 
 struct CorrectAnswerCelebration: View {
-    var color: Color = .divineGold
+    var color: Color = .accentBronze
     var onComplete: (() -> Void)? = nil
 
     @State private var showPulse = false
@@ -32,8 +32,8 @@ struct CorrectAnswerCelebration: View {
 
                 context.stroke(
                     trimmed,
-                    with: .color(color.opacity(AppTheme.Opacity.strong)),
-                    style: StrokeStyle(lineWidth: AppTheme.Border.thick, lineCap: .round)
+                    with: .color(color.opacity(Theme.Opacity.strong)),
+                    style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round)
                 )
             }
 
@@ -50,7 +50,7 @@ struct CorrectAnswerCelebration: View {
                         .fill(color)
                         .frame(width: 50, height: 50)
 
-                    AnimatedCheckmark(color: .white, lineWidth: AppTheme.Border.heavy, size: 30)
+                    AnimatedCheckmark(color: .white, lineWidth: Theme.Stroke.control, size: 30)
                 }
             }
         }
@@ -69,7 +69,7 @@ struct CorrectAnswerCelebration: View {
         }
 
         // Line draws across
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             lineProgress = 1.0
         }
 
@@ -80,7 +80,7 @@ struct CorrectAnswerCelebration: View {
 
         // Checkmark appears
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showCheckmark = true
             }
         }
@@ -112,7 +112,7 @@ struct WrongAnswerFeedback: View {
                 start: CGPoint(x: 30, y: 40),
                 end: CGPoint(x: 170, y: 40),
                 color: .tertiaryText,
-                lineWidth: AppTheme.Border.regular,
+                lineWidth: Theme.Stroke.control,
                 isActive: false
             )
             .opacity(lineOpacity)
@@ -122,8 +122,8 @@ struct WrongAnswerFeedback: View {
                 CurvedConnectionLine(
                     start: CGPoint(x: 30, y: 40),
                     end: CGPoint(x: 170, y: 40),
-                    color: .divineGold.opacity(AppTheme.Opacity.disabled),
-                    lineWidth: AppTheme.Border.regular,
+                    color: .accentBronze.opacity(Theme.Opacity.disabled),
+                    lineWidth: Theme.Stroke.control,
                     isActive: false,
                     curvature: 0.2
                 )
@@ -146,13 +146,13 @@ struct WrongAnswerFeedback: View {
         }
 
         // Dim the line
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             lineOpacity = 0.2
         }
 
         // Start reconnection
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 showReconnect = true
                 lineOpacity = 0.5
             }
@@ -194,8 +194,8 @@ struct FirstVerseMasteredCelebration: View {
                         CurvedConnectionLine(
                             start: CGPoint(x: 150, y: 150),
                             end: CGPoint(x: endX, y: endY),
-                            color: .divineGold,
-                            lineWidth: AppTheme.Border.regular,
+                            color: .accentBronze,
+                            lineWidth: Theme.Stroke.control,
                             isActive: true,
                             curvature: 0.1
                         )
@@ -209,7 +209,7 @@ struct FirstVerseMasteredCelebration: View {
             // Center burst
             if showCenterBurst {
                 ZStack {
-                    RippleEffect(color: .divineGold, rippleCount: 3, maxScale: 2.5)
+                    RippleEffect(color: .accentBronze, rippleCount: 3, maxScale: 2.5)
                         .frame(width: 60, height: 60)
 
                     StatefulConnectionNode(size: 24, state: .success)
@@ -219,14 +219,14 @@ struct FirstVerseMasteredCelebration: View {
 
             // Celebration text
             if showText {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     Text("First Verse")
-                        .font(Typography.Display.headline)
+                        .font(Typography.Scripture.heading)
                     Text("Mastered!")
-                        .font(Typography.Display.title2)
+                        .font(Typography.Scripture.heading)
                         .fontWeight(.bold)
                 }
-                .foregroundStyle(Color.divineGold)
+                .foregroundStyle(Color.accentBronze)
                 .position(x: 150, y: 260)
                 .transition(.scale.combined(with: .opacity))
             }
@@ -249,14 +249,14 @@ struct FirstVerseMasteredCelebration: View {
         }
 
         // Center burst first
-        withAnimation(AppTheme.Animation.spring) {
+        withAnimation(Theme.Animation.settle) {
             showCenterBurst = true
         }
 
         // Connections light up in sequence
         for i in 0..<connectionCount {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3 + Double(i) * 0.1) {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(Theme.Animation.settle) {
                     _ = activeConnections.insert(i)
                 }
             }
@@ -264,7 +264,7 @@ struct FirstVerseMasteredCelebration: View {
 
         // Show text
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showText = true
             }
         }
@@ -305,8 +305,8 @@ struct StreakCelebration: View {
                     ConnectionLine(
                         start: CGPoint(x: spacing * CGFloat(index), y: 100),
                         end: CGPoint(x: x, y: 100),
-                        color: litNodes.contains(index) ? .divineGold : .tertiaryText,
-                        lineWidth: AppTheme.Border.regular,
+                        color: litNodes.contains(index) ? .accentBronze : .tertiaryText,
+                        lineWidth: Theme.Stroke.control,
                         isActive: litNodes.contains(index)
                     )
                 }
@@ -322,10 +322,10 @@ struct StreakCelebration: View {
             // Flame/fire icon at end
             if showFlame {
                 Image(systemName: streakCount >= 30 ? "flame.fill" : "flame")
-                    .font(Typography.UI.largeTitle)
+                    .font(Typography.Command.largeTitle)
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.orange, .divineGold],
+                            colors: [.orange, .accentBronze],
                             startPoint: .bottom,
                             endPoint: .top
                         )
@@ -336,14 +336,14 @@ struct StreakCelebration: View {
 
             // Streak text
             if showText {
-                VStack(spacing: AppTheme.Spacing.xxs) {
+                VStack(spacing: 2) {
                     Text("\(streakCount)")
-                        .font(Typography.Display.title1.monospacedDigit())
+                        .font(Typography.Scripture.title.monospacedDigit())
                         .fontWeight(.bold)
                     Text("Day Streak!")
-                        .font(Typography.UI.warmSubheadline)
+                        .font(Typography.Command.subheadline)
                 }
-                .foregroundStyle(Color.divineGold)
+                .foregroundStyle(Color.accentBronze)
                 .position(x: 125, y: 160)
             }
         }
@@ -369,7 +369,7 @@ struct StreakCelebration: View {
         // Light up nodes in sequence
         for i in 0..<displayCount {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.15) {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(Theme.Animation.settle) {
                     _ = litNodes.insert(i)
                 }
             }
@@ -377,14 +377,14 @@ struct StreakCelebration: View {
 
         // Show flame
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(displayCount) * 0.15 + 0.2) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showFlame = true
             }
         }
 
         // Show text
         DispatchQueue.main.asyncAfter(deadline: .now() + Double(displayCount) * 0.15 + 0.4) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 showText = true
             }
         }
@@ -428,16 +428,16 @@ struct LevelUpCelebration: View {
             }
 
             // From level node
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 StatefulConnectionNode(size: 16, state: .dimmed)
                 Text(fromLevel.displayName)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
             }
             .position(x: 50, y: 150)
 
             // To level node with pulse
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 ZStack {
                     if showPulse {
                         NodePulse(color: toLevel.uiColor, maxScale: 2.5, ringCount: 2)
@@ -452,7 +452,7 @@ struct LevelUpCelebration: View {
                 }
 
                 Text(toLevel.displayName)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .fontWeight(showNewLevel ? .semibold : .regular)
                     .foregroundStyle(showNewLevel ? toLevel.uiColor : Color.secondaryText)
             }
@@ -461,7 +461,7 @@ struct LevelUpCelebration: View {
             // Level up text
             if showNewLevel {
                 Text("Level Up!")
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
                     .foregroundStyle(toLevel.uiColor)
                     .position(x: 150, y: 50)
                     .transition(.scale.combined(with: .opacity))
@@ -485,7 +485,7 @@ struct LevelUpCelebration: View {
         }
 
         // Lines thicken
-        withAnimation(AppTheme.Animation.slow) {
+        withAnimation(Theme.Animation.slowFade) {
             lineWidth = 4
         }
 
@@ -496,7 +496,7 @@ struct LevelUpCelebration: View {
 
         // New level appears
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showNewLevel = true
             }
         }
@@ -513,43 +513,49 @@ extension MasteryLevel {
     var uiColor: Color {
         switch self {
         case .learning: return .accentBlue
-        case .reviewing: return .scholarAccent
+        case .reviewing: return .accentIndigo
         case .mastered: return .highlightGreen
         }
     }
 }
 
 // MARK: - Preview
-#Preview("Connection Celebrations") {
-    ScrollView {
-        VStack(spacing: AppTheme.Spacing.xxxl + AppTheme.Spacing.md) {
-            Text("Correct Answer").font(Typography.UI.headline)
-            CorrectAnswerCelebration()
-                .frame(width: 200, height: 80)
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
 
-            Text("Wrong Answer").font(Typography.UI.headline)
-            WrongAnswerFeedback()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+#if DEBUG
+struct ConnectionCelebration_Previews: PreviewProvider {
+    static var previews: some View {
+        ScrollView {
+            VStack(spacing: Theme.Spacing.xxl + Theme.Spacing.md) {
+                Text("Correct Answer").font(Typography.Command.headline)
+                CorrectAnswerCelebration()
+                    .frame(width: 200, height: 80)
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
-            Text("First Verse Mastered").font(Typography.UI.headline)
-            FirstVerseMasteredCelebration()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+                Text("Wrong Answer").font(Typography.Command.headline)
+                WrongAnswerFeedback()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
-            Text("7-Day Streak").font(Typography.UI.headline)
-            StreakCelebration(streakCount: 7)
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+                Text("First Verse Mastered").font(Typography.Command.headline)
+                FirstVerseMasteredCelebration()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
-            Text("Level Up").font(Typography.UI.headline)
-            LevelUpCelebration(fromLevel: .learning, toLevel: .reviewing)
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+                Text("7-Day Streak").font(Typography.Command.headline)
+                StreakCelebration(streakCount: 7)
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+
+                Text("Level Up").font(Typography.Command.headline)
+                LevelUpCelebration(fromLevel: .learning, toLevel: .reviewing)
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+            }
+            .padding()
         }
-        .padding()
+        .background(Color.appBackground)
+        .previewDisplayName("Connection Celebrations")
     }
-    .background(Color.appBackground)
 }
+#endif

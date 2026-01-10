@@ -272,3 +272,123 @@ custom_rules:
     regex: 'minWidth:\s*44|minHeight:\s*44'
     message: "Use AppTheme.TouchTarget.minimum (44) for touch targets"
     severity: warning
+
+  # ---------------------------------------------------------------------------
+  # ROMAN/STOIC DESIGN SYSTEM MIGRATION (Phase 9)
+  # ---------------------------------------------------------------------------
+  # These rules guide migration from Scholar/Manuscript theme to Roman/Stoic
+  # Phase 1: warnings (non-blocking)
+  # Phase 2: errors (after migration complete)
+
+  deprecated_scholar_indigo:
+    name: "Deprecated Scholar Indigo - Migrate to Imperial Purple"
+    regex: '\.scholarIndigo(?!Light|Dark|Accessible|Pressed)'
+    message: "Migrate to .imperialPurple or Color.Stoic.accent for Roman/Stoic design"
+    severity: warning
+
+  deprecated_divine_gold:
+    name: "Deprecated Divine Gold - Migrate to Laurel Gold"
+    regex: '\.divineGold'
+    message: "Migrate to .laurelGold or Color.Stoic.decorativeAccent"
+    severity: warning
+
+  deprecated_fresh_vellum:
+    name: "Deprecated Fresh Vellum - Use Surface"
+    regex: '\.freshVellum'
+    message: "Use Color.Surface.backgroundPrimary or .marbleWhite"
+    severity: warning
+
+  deprecated_candlelit_stone:
+    name: "Deprecated Candlelit Stone - Use Surface"
+    regex: '\.candlelitStone'
+    message: "Use Color.Surface.background(for:) or .forumNight for dark mode"
+    severity: warning
+
+  deprecated_aged_parchment:
+    name: "Deprecated Aged Parchment - Use Surface"
+    regex: '\.agedParchment'
+    message: "Use Color.Surface.sepiaBackground or .antiqueStone"
+    severity: warning
+
+  deprecated_monastery_stone:
+    name: "Deprecated Monastery Stone - Use Surface"
+    regex: '\.monasteryStone'
+    message: "Use Color.Surface.sepiaElevated"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # 3-LAYER ARCHITECTURE ENFORCEMENT (Phase 9b)
+  # ---------------------------------------------------------------------------
+  # The Roman/Stoic design system uses a 3-layer color architecture:
+  #   Layer 1: Pigments (raw colors) - ONLY in BibleStudy/UI/Theme/
+  #   Layer 2: Surfaces (Color.Surface.*) - Theme-aware backgrounds/text
+  #   Layer 3: Semantics (Color.Stoic.*) - Role-based colors
+  #
+  # Components should use Layer 2 or 3, not Layer 1 pigments directly.
+  # NOTE: BibleStudy/UI/Theme/ is excluded in global config (definitions allowed there)
+  #
+  # For intentional decorative pigment use, add comment: // DECORATIVE: reason
+
+  direct_pigment_status:
+    name: "Direct Status Pigment - Use Semantic Layer"
+    regex: '\.(cinnabarRed|malachiteGreen|orpimentYellow)\b'
+    message: "Use Color.Stoic.error/success/warning instead of raw status pigments"
+    severity: warning
+
+  direct_pigment_accent:
+    name: "Direct Accent Pigment - Consider Semantic Layer"
+    regex: '\.(tyrianPurple|terracottaRed|basilicaBlue)\b'
+    message: "Consider using Color.Stoic.* semantic colors unless intentionally decorative"
+    severity: warning
+
+  direct_pigment_neutral:
+    name: "Direct Neutral Pigment - Use Surface Layer"
+    regex: '\.(stoicCharcoal|stoicSlate|moonlitMarble|forumNight|marbleWhite)\b(?!\.opacity)'
+    message: "Use Color.Surface.textPrimary/textSecondary/background(for:) for theme-aware neutrals"
+    severity: warning
+
+  surface_hardcoded_dark_check:
+    name: "Hardcoded Dark Mode Check - Use Surface Layer"
+    regex: 'colorScheme\s*==\s*\.dark\s*\?\s*Color\.'
+    message: "Consider Color.Surface.*(for:) or Color.Surface.*(colorScheme:) for theme-aware colors"
+    severity: warning
+
+  # ---------------------------------------------------------------------------
+  # TIME-AWARE DEPRECATION (Cleanup Phase)
+  # ---------------------------------------------------------------------------
+  # These colors are deprecated as part of removing time-awareness from Home
+  # They will be removed after all usages are migrated
+
+  deprecated_dawn_palette:
+    name: "Deprecated Dawn Palette - Time-awareness removed"
+    regex: '\.(dawnLavender|dawnPeriwinkle|dawnRosePink|dawnAccent|dawnFrost|dawnSlate)\b'
+    message: "Dawn palette deprecated - use Roman/Stoic colors with Surface layer"
+    severity: warning
+
+  deprecated_meridian_palette:
+    name: "Deprecated Meridian Palette - Time-awareness removed"
+    regex: '\.(meridianParchment|meridianGilded|meridianSepia|meridianLinen|meridianUmber)\b'
+    message: "Meridian palette deprecated - use Roman/Stoic colors with Surface layer"
+    severity: warning
+
+  deprecated_afternoon_palette:
+    name: "Deprecated Afternoon Palette - Time-awareness removed"
+    regex: '\.(afternoonIvory|afternoonHoney|afternoonAmber|afternoonEspresso|afternoonMocha)\b'
+    message: "Afternoon palette deprecated - use Roman/Stoic colors with Surface layer"
+    severity: warning
+
+  deprecated_vespers_palette:
+    name: "Deprecated Vespers Palette - Time-awareness removed"
+    regex: '\.(vespersIndigo|vespersSky|vespersAmber|vespersText)\b'
+    message: "Vespers palette deprecated - use Roman/Stoic colors with Surface layer"
+    severity: warning
+
+  deprecated_compline_palette:
+    name: "Deprecated Compline Palette - Time-awareness removed"
+    regex: '\.(nightVoid|starlight|moonMist|candleAmber|roseIncense)\b'
+    message: "Compline palette deprecated - use Roman/Stoic colors with Surface layer"
+    severity: warning
+
+  # NOTE: imperialPurple and laurelGold are NOT linted here
+  # They are acceptable as Layer 1 decorative accents when used intentionally
+  # The Swift @available deprecations on scholarIndigo/divineGold guide migration

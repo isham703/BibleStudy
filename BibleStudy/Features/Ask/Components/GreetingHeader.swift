@@ -29,7 +29,7 @@ struct GreetingHeader: View {
 
     var body: some View {
         Text("\(greeting)\(displayName)")
-            .font(Typography.Display.title2)
+            .font(Typography.Scripture.heading)
             .foregroundStyle(Color.primaryText)
     }
 }
@@ -37,7 +37,7 @@ struct GreetingHeader: View {
 // MARK: - Preview
 
 #Preview {
-    VStack(spacing: 20) {
+    VStack(spacing: Theme.Spacing.lg + 4) {
         GreetingHeader(userName: "Sarah")
         GreetingHeader(userName: nil)
         GreetingHeader(userName: "")

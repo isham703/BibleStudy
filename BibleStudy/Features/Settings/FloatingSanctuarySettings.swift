@@ -8,104 +8,107 @@ import SwiftUI
 struct FloatingSanctuarySettings: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel = SettingsViewModel()
 
-    @State private var activeSection: SanctuarySection = .ai
-    @State private var scrollOffset: CGFloat = 0
+    @State private var activeSection: SanctuarySection = .reading
     @State private var showQuickNav = true
-    @State private var showAIPreferences = false
 
-    // AI Preferences (local state until wired to AppState)
-    @State private var aiInsightsEnabled = true
-    @State private var scholarModeEnabled = false
-    @State private var voiceGuidanceEnabled = false
+    // Confirmation dialogs
+    @State private var showSignOutConfirmation = false
+    @State private var showClearCacheConfirmation = false
 
-    // Reading Preferences (local state until wired to AppState)
-    @State private var fontSize: Double = 18
+    // Reading mode preference
+    @AppStorage(AppConfiguration.UserDefaultsKeys.usePagedReader) private var usePagedReader: Bool = false
 
-    // Account Preferences (local state until wired to AppState)
-    @State private var cloudSyncEnabled = true
+    // User preferences (using @AppStorage for automatic persistence + SwiftUI integration)
+    @AppStorage(AppConfiguration.UserDefaultsKeys.devotionalModeEnabled) private var devotionalModeEnabled: Bool = false
+    // Note: scholarModeEnabled, voiceGuidanceEnabled, aiInsightsEnabled removed - features not wired
+    @AppStorage(AppConfiguration.UserDefaultsKeys.hapticFeedbackEnabled) private var hapticFeedbackEnabled: Bool = true
+    @AppStorage(AppConfiguration.UserDefaultsKeys.cloudSyncEnabled) private var cloudSyncEnabled: Bool = false
 
-    // Notification Preferences (local state until wired to AppState)
-    @State private var dailyVerseEnabled = true
-
-    // Interaction Preferences (local state until wired to AppState)
-    @State private var hapticFeedback = true
+    // Entry animation state
+    @State private var appeared = false
+    @State private var headerAppeared = false
 
     var body: some View {
-        ZStack {
-            // Ambient background
-            ambientBackground
+        NavigationStack {
+            // Full settings view with all sections
+            ScrollView {
+                VStack(spacing: Theme.Spacing.xl) {
+                    // Header
+                    headerSection
 
-            // Main content
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: AppTheme.Spacing.xxl) {
-                        headerSection
+                    // Reading Section
+                    readingSection
 
-                        // AI Section
-                        sectionAnchor(.ai)
-                        aiSection
+                    // Subscription Section
+                    subscriptionSection
 
-                        // Reading Section
-                        sectionAnchor(.reading)
-                        readingSection
+                    // Account Section
+                    accountSection
 
-                        // Account Section
-                        sectionAnchor(.account)
-                        accountSection
+                    // More Section
+                    moreSection
 
-                        // More Section
-                        sectionAnchor(.more)
-                        moreSection
-
-                        footerSection
-                    }
-                    .padding(.horizontal, AppTheme.Spacing.lg)
-                    .padding(.top, 100)
-                    .padding(.bottom, 120)
-                    .background(
-                        GeometryReader { geo in
-                            Color.clear.preference(
-                                key: ScrollOffsetKey.self,
-                                value: geo.frame(in: .named("scroll")).minY
-                            )
-                        }
-                    )
+                    // Footer
+                    footerSection
                 }
-                .coordinateSpace(name: "scroll")
-                .onPreferenceChange(ScrollOffsetKey.self) { value in
-                    scrollOffset = value
-                }
-                .onChange(of: activeSection) { _, newSection in
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        proxy.scrollTo(newSection, anchor: .top)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Theme.Spacing.lg)
+                // swiftlint:disable:next hardcoded_padding_edge
+                .padding(.bottom, 120)
+            }
+            .background(ambientBackground)
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(Typography.Command.body.weight(.medium))
+                            .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                     }
                 }
-            }
-
-            // Floating quick navigation
-            VStack {
-                Spacer()
-                floatingQuickNav
-            }
-
-            // Top navigation bar
-            VStack {
-                topNavBar
-                Spacer()
             }
         }
-        .navigationBarHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
-        .toolbarBackground(.hidden, for: .navigationBar)
         .preferredColorScheme(appState.colorScheme)
-        .sheet(isPresented: $showAIPreferences) {
-            AIPreferencesDetailView(
-                scholarModeEnabled: $scholarModeEnabled,
-                aiInsightsEnabled: $aiInsightsEnabled,
-                voiceGuidanceEnabled: $voiceGuidanceEnabled
-            )
+        .task {
+            await viewModel.loadInitialData()
+        }
+        .sheet(isPresented: $viewModel.showPaywall) {
+            PaywallView(trigger: viewModel.paywallTrigger)
+        }
+        .alert("Error", isPresented: $viewModel.showError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.errorMessage ?? "An error occurred.")
+        }
+        .confirmationDialog("Sign Out", isPresented: $showSignOutConfirmation, titleVisibility: .visible) {
+            Button("Sign Out", role: .destructive) {
+                Task { @MainActor in
+                    await viewModel.signOut()
+                    // Update AppState to trigger navigation to AuthView
+                    appState.isAuthenticated = false
+                    appState.userId = nil
+                    // Dismiss settings sheet so navigation takes effect
+                    dismiss()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to sign out?")
+        }
+        .confirmationDialog("Clear Audio Cache", isPresented: $showClearCacheConfirmation, titleVisibility: .visible) {
+            Button("Clear Cache", role: .destructive) {
+                viewModel.clearAudioCache()
+                HapticService.shared.success()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will remove all downloaded audio files. They will be re-downloaded when needed.")
         }
     }
 
@@ -113,7 +116,7 @@ struct FloatingSanctuarySettings: View {
 
     private func sectionAnchor(_ section: SanctuarySection) -> some View {
         Color.clear
-            .frame(height: 1)
+            .frame(height: Theme.Stroke.hairline)
             .id(section)
     }
 
@@ -137,81 +140,40 @@ struct FloatingSanctuarySettings: View {
 
     private var ambientBackground: some View {
         ZStack {
-            Color.appBackground
+            Colors.Surface.background(for: ThemeMode.current(from: colorScheme))
                 .ignoresSafeArea()
 
-            // Dynamic ambient glow based on active section
+            // Subtle ambient glow based on active section
             RadialGradient(
                 colors: [
-                    activeSection.accentColor.opacity(0.08),
+                    Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
                     Color.clear
                 ],
-                center: .center,
+                center: UnitPoint(x: 0.5, y: 0.3),
                 startRadius: 50,
                 endRadius: 500
             )
             .ignoresSafeArea()
-            .animation(.easeInOut(duration: 0.8), value: activeSection)
 
-            // Floating particles effect
+            // Golden dust motes with subtle glow
             FloatingSanctuaryParticles()
-                .opacity(0.3)
+                .opacity(Theme.Opacity.secondary)
+                .allowsHitTesting(false)
         }
-    }
-
-    // MARK: - Top Navigation Bar
-
-    private var topNavBar: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    HStack(spacing: AppTheme.Spacing.xs) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("Back")
-                            .font(Typography.body)
-                    }
-                    .foregroundStyle(Color.scholarAccent)
-                }
-
-                Spacer()
-
-                Text("Settings")
-                    .font(.custom("Cinzel-Regular", size: 18))
-                    .foregroundStyle(Color.primaryText)
-
-                Spacer()
-
-                // Placeholder for balance
-                Color.clear.frame(width: 60)
-            }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.top, AppTheme.Spacing.sm)
-            .padding(.bottom, AppTheme.Spacing.md)
-        }
-        .background {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .opacity(scrollOffset < -50 ? 1 : 0)
-                .ignoresSafeArea(edges: .top)
-        }
-        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - Header Section
 
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Profile avatar with glow
             ZStack {
                 Circle()
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.scholarAccent.opacity(0.3),
-                                Color.scholarAccent.opacity(0.0)
+                                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                                .clear
                             ],
                             center: .center,
                             startRadius: 30,
@@ -221,111 +183,43 @@ struct FloatingSanctuarySettings: View {
                     .frame(width: 120, height: 120)
 
                 Circle()
-                    .fill(Color.surfaceBackground)
+                    .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 80, height: 80)
                     .overlay {
                         Text(userInitials)
-                            .font(.custom("Cinzel-Regular", size: 28))
-                            .foregroundStyle(Color.scholarAccent)
+                            .font(Typography.Scripture.title)
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
                     .overlay {
                         Circle()
                             .strokeBorder(
                                 LinearGradient(
-                                    colors: [Color.scholarAccent.opacity(0.6), Color.scholarAccent.opacity(0.2)],
+                                    colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary), Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
-                                lineWidth: 2
+                                lineWidth: Theme.Stroke.control
                             )
                     }
             }
 
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Text(viewModel.displayName ?? "Guest")
-                    .font(.custom("Cinzel-Regular", size: 22))
-                    .foregroundStyle(Color.primaryText)
+                    .font(Typography.Scripture.heading)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                 Text(viewModel.tierDisplayName)
-                    .font(Typography.caption)
-                    .foregroundStyle(Color.scholarAccent)
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.xxs)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.vertical, 2)
                     .background(
                         Capsule()
-                            .fill(Color.scholarAccent.opacity(0.15))
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                     )
             }
         }
-        .padding(.bottom, AppTheme.Spacing.lg)
-    }
-
-    // MARK: - AI Section
-
-    private var aiSection: some View {
-        FloatingSectionCard(
-            title: "AI & Insights",
-            icon: "sparkles",
-            accentColor: .scholarAccent
-        ) {
-            VStack(spacing: 0) {
-                FloatingToggleRow(
-                    title: "Scholar Insights",
-                    subtitle: "AI-powered verse analysis and context",
-                    icon: "brain.head.profile",
-                    isOn: $aiInsightsEnabled
-                )
-
-                FloatingDivider()
-
-                FloatingToggleRow(
-                    title: "Scholar Mode",
-                    subtitle: "Advanced theological commentary",
-                    icon: "graduationcap.fill",
-                    isOn: $scholarModeEnabled
-                )
-
-                FloatingDivider()
-
-                FloatingToggleRow(
-                    title: "Voice Guidance",
-                    subtitle: "Audio narration of insights",
-                    icon: "waveform",
-                    isOn: $voiceGuidanceEnabled
-                )
-
-                FloatingDivider()
-
-                Button {
-                    showAIPreferences = true
-                } label: {
-                    HStack(spacing: AppTheme.Spacing.md) {
-                        Image(systemName: "slider.horizontal.3")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color.secondaryText)
-                            .frame(width: 32)
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("AI Preferences")
-                                .font(Typography.body)
-                                .foregroundStyle(Color.primaryText)
-
-                            Text("Customize insight types and depth")
-                                .font(Typography.caption)
-                                .foregroundStyle(Color.tertiaryText)
-                        }
-
-                        Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Color.tertiaryText)
-                    }
-                    .padding(.vertical, AppTheme.Spacing.sm)
-                    .contentShape(Rectangle())
-                }
-            }
-        }
+        .padding(.bottom, Theme.Spacing.lg)
     }
 
     // MARK: - Reading Section
@@ -334,85 +228,485 @@ struct FloatingSanctuarySettings: View {
         FloatingSectionCard(
             title: "Reading Experience",
             icon: "book.fill",
-            accentColor: Color(hex: "6B8E9F")
+            accentColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
         ) {
-            VStack(spacing: 0) {
-                // Font Size Slider
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Font Size with Discrete Slider
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     HStack {
                         Image(systemName: "textformat.size")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color(hex: "6B8E9F"))
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                             .frame(width: 32)
 
-                        Text("Font Size")
-                            .font(Typography.body)
-                            .foregroundStyle(Color.primaryText)
+                        Text("Text Size")
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                         Spacer()
 
-                        Text("\(Int(fontSize))pt")
-                            .font(Typography.monospacedBody)
-                            .foregroundStyle(Color.secondaryText)
+                        Text(appState.scriptureFontSize.displayName)
+                            .font(Typography.Command.caption)
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
 
-                    FloatingSlider(value: $fontSize, range: 12...28)
+                    HStack(spacing: Theme.Spacing.md) {
+                        Text("A")
+                            .font(Typography.Scripture.body)
+                            .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+
+                        FontSizeSlider(
+                            selectedSize: Binding(
+                                get: { appState.scriptureFontSize },
+                                set: { newSize in
+                                    appState.scriptureFontSize = newSize
+                                    UserDefaults.standard.set(newSize.rawValue, forKey: AppConfiguration.UserDefaultsKeys.preferredFontSize)
+                                }
+                            )
+                        )
+
+                        Text("A")
+                            .font(Typography.Scripture.body)
+                            .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    }
 
                     // Preview text
                     Text("In the beginning was the Word...")
-                        .font(.system(size: fontSize))
-                        .foregroundStyle(Color.secondaryText)
-                        .padding(.top, AppTheme.Spacing.xs)
+                        .font(Typography.Scripture.body)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                        .padding(.top, Theme.Spacing.xs)
                 }
-                .padding(AppTheme.Spacing.lg)
+                .padding(Theme.Spacing.lg)
 
                 FloatingDivider()
 
                 // Theme Selection
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     HStack {
                         Image(systemName: "paintpalette.fill")
-                            .font(.system(size: 18))
-                            .foregroundStyle(Color(hex: "6B8E9F"))
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                             .frame(width: 32)
 
                         Text("Theme")
-                            .font(Typography.body)
-                            .foregroundStyle(Color.primaryText)
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                     }
 
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         ForEach(AppThemeOption.allCases) { theme in
                             ThemePill(
                                 theme: theme,
                                 isSelected: AppThemeOption(from: appState.preferredTheme) == theme
                             ) {
-                                withAnimation(.spring(response: 0.3)) {
+                                withAnimation(Theme.Animation.settle) {
                                     appState.preferredTheme = theme.toAppThemeMode
+                                    UserDefaults.standard.set(theme.rawValue, forKey: AppConfiguration.UserDefaultsKeys.preferredTheme)
                                 }
                             }
                         }
                     }
                 }
-                .padding(AppTheme.Spacing.lg)
+                .padding(Theme.Spacing.lg)
 
                 FloatingDivider()
 
-                FloatingNavigationRow(
-                    title: "Typography",
-                    subtitle: "Font family, line spacing, margins",
-                    icon: "text.alignleft"
-                )
+                // Reading Mode Picker
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    HStack {
+                        Image(systemName: "book.pages")
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .frame(width: 32)
+
+                        Text("Reading Mode")
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    }
+
+                    Picker("Reading Mode", selection: $usePagedReader) {
+                        Text("Scroll").tag(false)
+                        Text("Page").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                }
+                .padding(Theme.Spacing.lg)
 
                 FloatingDivider()
 
-                FloatingNavigationRow(
-                    title: "Reading Modes",
-                    subtitle: "Page curl, scroll, continuous",
-                    icon: "book.pages"
-                )
+                // Audio Cache Section
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    HStack {
+                        Image(systemName: "speaker.wave.3.fill")
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .frame(width: 32)
+
+                        Text("Audio Cache")
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+
+                        Spacer()
+
+                        Text(viewModel.audioCacheSize)
+                            .font(Typography.Command.caption)
+                            .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    }
+
+                    // Cache limit picker
+                    HStack {
+                        Text("Cache Limit")
+                            .font(Typography.Command.caption)
+                            .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+
+                        Spacer()
+
+                        Menu {
+                            ForEach(viewModel.audioCacheSizeOptions, id: \.mb) { option in
+                                Button {
+                                    viewModel.audioCacheLimitMB = option.mb
+                                } label: {
+                                    HStack {
+                                        Text(option.label)
+                                        if viewModel.audioCacheLimitMB == option.mb {
+                                            Image(systemName: "checkmark")
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 2) {
+                                Text("\(viewModel.audioCacheLimitMB) MB")
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(Typography.Command.caption)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+                            }
+                        }
+                    }
+
+                    // Clear cache button
+                    Button {
+                        showClearCacheConfirmation = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                                .font(Typography.Command.caption)
+                            Text("Clear Cache")
+                                .font(Typography.Command.caption)
+                        }
+                        .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Theme.Spacing.sm)
+                        .background(
+                            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                                .stroke(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
+                        )
+                    }
+                }
+                .padding(Theme.Spacing.lg)
             }
         }
+    }
+
+    // MARK: - Subscription Section
+
+    private var subscriptionSection: some View {
+        FloatingSectionCard(
+            title: "Subscription",
+            icon: "crown.fill",
+            accentColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+        ) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Tier Status Card
+                tierStatusCard
+                    .padding(Theme.Spacing.lg)
+
+                if viewModel.isPremiumOrHigher {
+                    // Premium/Scholar user content
+                    premiumSubscriptionContent
+                } else {
+                    // Free user content
+                    freeSubscriptionContent
+                }
+            }
+        }
+    }
+
+    private var tierStatusCard: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            // Tier icon with glow for premium
+            ZStack {
+                if viewModel.isPremiumOrHigher {
+                    Circle()
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                        .blur(radius: 8)
+                        .frame(width: 48, height: 48)
+                }
+
+                Image(systemName: viewModel.tierIcon)
+                    .font(Typography.Command.body.weight(.medium))
+                    .foregroundStyle(viewModel.isPremiumOrHigher ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .frame(width: 44, height: 44)
+                    .background(
+                        Circle()
+                            .fill(viewModel.isPremiumOrHigher
+                                ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
+                                : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                    )
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: Theme.Spacing.sm) {
+                    Text(viewModel.tierDisplayName)
+                        .font(Typography.Command.cta)
+                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+
+                    if viewModel.isScholar {
+                        Text("BEST VALUE")
+                            .font(Typography.Command.caption.weight(.bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, Theme.Spacing.sm - 2)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))))
+                    }
+                }
+
+                Text(viewModel.tierDescription)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+            }
+
+            Spacer()
+
+            if !viewModel.isPremiumOrHigher {
+                Button {
+                    viewModel.showUpgradePaywall()
+                } label: {
+                    Text("Upgrade")
+                        .font(Typography.Command.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, Theme.Spacing.md)
+                        .padding(.vertical, Theme.Spacing.xs)
+                        .background(Capsule().fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))))
+                }
+            }
+        }
+        .padding(Theme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(viewModel.isPremiumOrHigher
+                    ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
+                    : Color.clear)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(
+                    viewModel.isPremiumOrHigher
+                        ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium)
+                        : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                    lineWidth: Theme.Stroke.hairline
+                )
+        )
+    }
+
+    private var freeSubscriptionContent: some View {
+        VStack(spacing: Theme.Spacing.lg) {
+            FloatingDivider()
+
+            // Usage Statistics
+            VStack(spacing: Theme.Spacing.md) {
+                usageRow(
+                    title: "AI Insights",
+                    used: viewModel.aiInsightsUsed,
+                    total: viewModel.aiInsightsTotal,
+                    icon: "sparkles"
+                )
+
+                usageRow(
+                    title: "Highlights",
+                    used: viewModel.highlightsUsed,
+                    total: viewModel.highlightsTotal,
+                    icon: "highlighter"
+                )
+
+                usageRow(
+                    title: "Notes",
+                    used: viewModel.notesUsed,
+                    total: viewModel.notesTotal,
+                    icon: "note.text"
+                )
+            }
+            .padding(.horizontal, Theme.Spacing.lg)
+
+            // Feature preview
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Text("Unlock with Premium:")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    featurePreviewRow(icon: "text.book.closed", text: "All Bible translations")
+                    featurePreviewRow(icon: "sparkles", text: "Unlimited AI insights")
+                    featurePreviewRow(icon: "note.text", text: "Unlimited notes")
+                }
+            }
+            .padding(.horizontal, Theme.Spacing.lg)
+
+            // Restore purchases
+            restorePurchasesButton
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.lg)
+        }
+    }
+
+    private func usageRow(title: String, used: Int, total: Int, icon: String) -> some View {
+        // Clamp total to prevent layout issues with large/invalid values
+        let safeTotal = max(0, min(total, 10))
+        let safeUsed = max(0, min(used, safeTotal))
+
+        return HStack(spacing: Theme.Spacing.md) {
+            Image(systemName: icon)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 20)
+
+            Text(title)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+
+            Spacer()
+
+            // Usage dots - use Array to avoid ForEach range issues
+            if safeTotal > 0 {
+                HStack(spacing: Theme.Spacing.xs) {
+                    ForEach(Array(0..<safeTotal), id: \.self) { index in
+                        Circle()
+                            .fill(index < safeUsed ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                            .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
+                    }
+                }
+            }
+
+            Text("\(safeUsed)/\(safeTotal)")
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+        }
+    }
+
+    private func featurePreviewRow(icon: String, text: String) -> some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            Image(systemName: icon)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 20)
+
+            Text(text)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+        }
+    }
+
+    private var premiumSubscriptionContent: some View {
+        VStack(spacing: Theme.Spacing.md) {
+            FloatingDivider()
+
+            // Benefits summary
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                Text("Your benefits:")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .padding(.horizontal, Theme.Spacing.lg)
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Theme.Spacing.xs) {
+                    benefitBadge(icon: "checkmark.circle.fill", text: "All translations")
+                    benefitBadge(icon: "checkmark.circle.fill", text: "Unlimited AI")
+                    benefitBadge(icon: "checkmark.circle.fill", text: "Unlimited notes")
+                    if viewModel.isScholar {
+                        benefitBadge(icon: "checkmark.circle.fill", text: "Hebrew & Greek")
+                    }
+                }
+                .padding(.horizontal, Theme.Spacing.lg)
+            }
+
+            FloatingDivider()
+
+            // Renewal info
+            if let renewalDate = viewModel.formattedRenewalDate {
+                HStack {
+                    Image(systemName: "calendar")
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+
+                    Text("Renews \(renewalDate)")
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+
+                    Spacer()
+                }
+                .padding(.horizontal, Theme.Spacing.lg)
+            }
+
+            // Manage subscription button
+            Button {
+                Task { await viewModel.manageSubscription() }
+            } label: {
+                HStack {
+                    Image(systemName: "gearshape")
+                        .font(Typography.Command.caption)
+                    Text("Manage Subscription")
+                        .font(Typography.Command.caption)
+                }
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.Radius.card)
+                        .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
+                )
+            }
+            .padding(.horizontal, Theme.Spacing.lg)
+
+            // Restore purchases
+            restorePurchasesButton
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.lg)
+        }
+    }
+
+    private func benefitBadge(icon: String, text: String) -> some View {
+        HStack(spacing: 2) {
+            Image(systemName: icon)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.success(for: ThemeMode.current(from: colorScheme)))
+
+            Text(text)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+        }
+    }
+
+    private var restorePurchasesButton: some View {
+        Button {
+            Task { await viewModel.restorePurchases() }
+        } label: {
+            HStack(spacing: Theme.Spacing.xs) {
+                if viewModel.isRestoringPurchases {
+                    ProgressView()
+                        // swiftlint:disable:next hardcoded_scale_effect
+                        .scaleEffect(0.8)
+                        .tint(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                } else {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(Typography.Command.caption)
+                }
+                Text("Restore Purchases")
+                    .font(Typography.Command.caption)
+            }
+            .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+        }
+        .disabled(viewModel.isRestoringPurchases)
     }
 
     // MARK: - Account Section
@@ -421,41 +715,120 @@ struct FloatingSanctuarySettings: View {
         FloatingSectionCard(
             title: "Account & Sync",
             icon: "person.crop.circle.fill",
-            accentColor: Color(hex: "7A9E7A")
+            accentColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
         ) {
-            VStack(spacing: 0) {
-                FloatingToggleRow(
-                    title: "Cloud Sync",
-                    subtitle: "Sync highlights and notes across devices",
-                    icon: "icloud.fill",
-                    isOn: $cloudSyncEnabled
-                )
+            VStack(alignment: .leading, spacing: 0) {
+                if viewModel.isAuthenticated {
+                    // Authenticated user content
+                    NavigationLink {
+                        AccountDetailView(viewModel: viewModel)
+                    } label: {
+                        HStack(spacing: Theme.Spacing.md) {
+                            // Avatar
+                            ZStack {
+                                Circle()
+                                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                                    .frame(width: 44, height: 44)
 
-                FloatingDivider()
+                                Text(userInitials)
+                                    .font(Typography.Command.cta)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            }
 
-                FloatingNavigationRow(
-                    title: "Subscription",
-                    subtitle: "Premium • Renews Jan 2027",
-                    icon: "crown.fill"
-                )
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(viewModel.displayName ?? "Bible Student")
+                                    .font(Typography.Command.body)
+                                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
-                FloatingDivider()
+                                if let email = viewModel.email {
+                                    Text(email)
+                                        .font(Typography.Command.caption)
+                                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                                }
+                            }
 
-                FloatingNavigationRow(
-                    title: "Data & Privacy",
-                    subtitle: "Export, delete, privacy settings",
-                    icon: "hand.raised.fill"
-                )
+                            Spacer()
 
-                FloatingDivider()
+                            Image(systemName: "chevron.right")
+                                .font(Typography.Command.caption.weight(.semibold))
+                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                        }
+                        .padding(Theme.Spacing.lg)
+                    }
+                    .buttonStyle(.plain)
 
-                FloatingNavigationRow(
-                    title: "Sign Out",
-                    subtitle: "john.smith@email.com",
-                    icon: "rectangle.portrait.and.arrow.right",
-                    showChevron: false,
-                    isDestructive: true
-                )
+                    FloatingDivider()
+
+                    FloatingToggleRow(
+                        title: "Cloud Sync",
+                        subtitle: "Sync highlights and notes across devices",
+                        icon: "icloud.fill",
+                        isOn: $cloudSyncEnabled
+                    )
+
+                    FloatingDivider()
+
+                    // Sign Out
+                    Button {
+                        showSignOutConfirmation = true
+                    } label: {
+                        HStack(spacing: Theme.Spacing.md) {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                                .font(Typography.Command.body)
+                                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+                                .frame(width: 32)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Sign Out")
+                                    .font(Typography.Command.body)
+                                    .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+
+                                Text(viewModel.email ?? "")
+                                    .font(Typography.Command.caption)
+                                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                            }
+
+                            Spacer()
+                        }
+                        .padding(Theme.Spacing.lg)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    // Sign in prompt
+                    NavigationLink {
+                        AuthView()
+                    } label: {
+                        HStack(spacing: Theme.Spacing.md) {
+                            ZStack {
+                                Circle()
+                                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                                    .frame(width: 52, height: 52)
+
+                                Image(systemName: "person.circle")
+                                    .font(Typography.Command.cta.weight(.light))
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            }
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Sign In")
+                                    .font(Typography.Command.body)
+                                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+
+                                Text("Sync highlights and notes across devices")
+                                    .font(Typography.Command.caption)
+                                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(Typography.Command.caption.weight(.semibold))
+                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                        }
+                        .padding(Theme.Spacing.lg)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
@@ -466,24 +839,80 @@ struct FloatingSanctuarySettings: View {
         FloatingSectionCard(
             title: "Notifications & More",
             icon: "bell.fill",
-            accentColor: Color(hex: "9E7A8E")
+            accentColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
         ) {
-            VStack(spacing: 0) {
-                FloatingToggleRow(
-                    title: "Notifications",
-                    subtitle: "Reading reminders and updates",
-                    icon: "bell.badge.fill",
-                    isOn: $viewModel.dailyReminderEnabled
-                )
+            VStack(alignment: .leading, spacing: 0) {
+                // Notifications section
+                if viewModel.notificationsAuthorized {
+                    FloatingToggleRow(
+                        title: "Daily Reminder",
+                        subtitle: "Reading reminders and updates",
+                        icon: "bell.badge.fill",
+                        isOn: $viewModel.dailyReminderEnabled
+                    )
 
-                FloatingDivider()
+                    FloatingDivider()
 
-                FloatingToggleRow(
-                    title: "Daily Verse",
-                    subtitle: "Morning inspiration widget",
-                    icon: "sun.horizon.fill",
-                    isOn: $dailyVerseEnabled
-                )
+                    // Time picker row
+                    HStack(spacing: Theme.Spacing.md) {
+                        Image(systemName: "clock.fill")
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                            .frame(width: 32)
+
+                        Text("Reminder Time")
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+
+                        Spacer()
+
+                        DatePicker("", selection: $viewModel.dailyReminderTime, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    }
+                    .padding(Theme.Spacing.lg)
+                    .opacity(viewModel.dailyReminderEnabled ? 1.0 : Theme.Opacity.primary)
+                    .disabled(!viewModel.dailyReminderEnabled)
+
+                    FloatingDivider()
+
+                    FloatingToggleRow(
+                        title: "Streak Protection",
+                        subtitle: "Extra reminders to maintain your streak",
+                        icon: "flame.fill",
+                        isOn: $viewModel.streakReminderEnabled
+                    )
+                } else {
+                    // Notification permission prompt
+                    Button {
+                        Task { await viewModel.requestNotificationPermission() }
+                    } label: {
+                        HStack(spacing: Theme.Spacing.md) {
+                            Image(systemName: "bell.badge.fill")
+                                .font(Typography.Command.body)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .frame(width: 32)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Enable Notifications")
+                                    .font(Typography.Command.body)
+                                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+
+                                Text("Get reading reminders and updates")
+                                    .font(Typography.Command.caption)
+                                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(Typography.Command.body)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        }
+                        .padding(Theme.Spacing.lg)
+                    }
+                    .buttonStyle(.plain)
+                }
 
                 FloatingDivider()
 
@@ -491,15 +920,19 @@ struct FloatingSanctuarySettings: View {
                     title: "Haptic Feedback",
                     subtitle: "Tactile response for interactions",
                     icon: "hand.tap.fill",
-                    isOn: $hapticFeedback
+                    isOn: $hapticFeedbackEnabled
                 )
 
                 FloatingDivider()
 
+                // About row with dynamic version
                 FloatingNavigationRow(
                     title: "About",
-                    subtitle: "Version 1.0.0 • What's New",
-                    icon: "info.circle.fill"
+                    subtitle: "Version \(AppConfiguration.App.version) • Build \(AppConfiguration.App.build)",
+                    icon: "info.circle.fill",
+                    action: {
+                        // TODO: Navigate to about screen
+                    }
                 )
             }
         }
@@ -508,72 +941,74 @@ struct FloatingSanctuarySettings: View {
     // MARK: - Footer
 
     private var footerSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            OrnamentalDivider(style: .simple)
-                .frame(width: 40)
-                .foregroundStyle(Color.scholarAccent.opacity(0.3))
+        VStack(spacing: Theme.Spacing.lg) {
+            Rectangle()
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                .frame(width: 40, height: Theme.Stroke.hairline)
 
             Text("Bible Study • Floating Sanctuary")
-                .font(Typography.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
         }
-        .padding(.top, AppTheme.Spacing.xl)
+        .padding(.top, Theme.Spacing.xl)
     }
 
     // MARK: - Floating Quick Navigation
 
     private var floatingQuickNav: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             ForEach(SanctuarySection.allCases) { section in
                 Button {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    // swiftlint:disable:next hardcoded_animation_spring hardcoded_with_animation
+                    withAnimation(Theme.Animation.settle) {
                         activeSection = section
                     }
                 } label: {
-                    VStack(spacing: 4) {
+                    VStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: section.icon)
-                            .font(.system(size: 16, weight: .medium))
+                            .font(Typography.Command.body.weight(.medium))
 
                         Text(section.shortTitle)
-                            .font(.system(size: 10, weight: .medium))
+                            .font(Typography.Command.caption.weight(.medium))
                     }
-                    .foregroundStyle(activeSection == section ? Color.scholarAccent : Color.secondaryText)
+                    .foregroundStyle(activeSection == section ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 56, height: 50)
                     .background {
                         if activeSection == section {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.scholarAccent.opacity(0.15))
+                            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                         }
                     }
                 }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.xs)
         .background {
             Capsule()
                 .fill(.ultraThinMaterial)
                 .overlay {
                     Capsule()
-                        .strokeBorder(Color.scholarAccent.opacity(0.2), lineWidth: 0.5)
+                        // swiftlint:disable:next hardcoded_line_width
+                        .strokeBorder(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium), lineWidth: 0.5)
                 }
         }
-        .shadow(color: .black.opacity(0.4), radius: 20, y: 10)
-        .padding(.bottom, AppTheme.Spacing.xl)
+        .shadow(color: .black.opacity(Theme.Opacity.disabled), radius: 20, y: 10)
+        .padding(.bottom, Theme.Spacing.xl)
     }
 }
 
 // MARK: - Sanctuary Section
 
 enum SanctuarySection: String, CaseIterable, Identifiable {
-    case ai, reading, account, more
+    case reading, subscription, account, more
 
     var id: String { rawValue }
 
     var icon: String {
         switch self {
-        case .ai: return "sparkles"
         case .reading: return "book.fill"
+        case .subscription: return "crown.fill"
         case .account: return "person.fill"
         case .more: return "ellipsis"
         }
@@ -581,211 +1016,13 @@ enum SanctuarySection: String, CaseIterable, Identifiable {
 
     var shortTitle: String {
         switch self {
-        case .ai: return "AI"
         case .reading: return "Read"
+        case .subscription: return "Plan"
         case .account: return "Account"
         case .more: return "More"
         }
     }
 
-    var accentColor: Color {
-        switch self {
-        case .ai: return .scholarAccent
-        case .reading: return Color(hex: "6B8E9F")
-        case .account: return Color(hex: "7A9E7A")
-        case .more: return Color(hex: "9E7A8E")
-        }
-    }
-}
-
-// MARK: - Floating Section Card
-
-struct FloatingSectionCard<Content: View>: View {
-    let title: String
-    let icon: String
-    let accentColor: Color
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Section header
-            HStack(spacing: AppTheme.Spacing.sm) {
-                Image(systemName: icon)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(accentColor)
-
-                Text(title)
-                    .font(.custom("Cinzel-Regular", size: 14))
-                    .foregroundStyle(accentColor)
-                    .textCase(.uppercase)
-                    .kerning(1.5)
-            }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.bottom, AppTheme.Spacing.md)
-
-            // Content card
-            content
-                .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                        .fill(Color.surfaceBackground)
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    accentColor.opacity(0.3),
-                                    accentColor.opacity(0.1),
-                                    accentColor.opacity(0.3)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.5
-                        )
-                }
-                .shadow(color: accentColor.opacity(0.1), radius: 20, y: 8)
-        }
-    }
-}
-
-// MARK: - Floating Toggle Row
-
-struct FloatingToggleRow: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    @Binding var isOn: Bool
-
-    var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundStyle(Color.secondaryText)
-                .frame(width: 32)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(Typography.body)
-                    .foregroundStyle(Color.primaryText)
-
-                Text(subtitle)
-                    .font(Typography.caption)
-                    .foregroundStyle(Color.tertiaryText)
-            }
-
-            Spacer()
-
-            Toggle("", isOn: $isOn)
-                .toggleStyle(GoldToggleStyle())
-                .labelsHidden()
-        }
-        .padding(AppTheme.Spacing.lg)
-    }
-}
-
-// MARK: - Floating Navigation Row
-
-struct FloatingNavigationRow: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    var showChevron: Bool = true
-    var isDestructive: Bool = false
-
-    var body: some View {
-        Button {
-            // Navigation action
-        } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
-                Image(systemName: icon)
-                    .font(.system(size: 18))
-                    .foregroundStyle(isDestructive ? Color(hex: "C94A4A") : Color.secondaryText)
-                    .frame(width: 32)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(Typography.body)
-                        .foregroundStyle(isDestructive ? Color(hex: "C94A4A") : Color.primaryText)
-
-                    Text(subtitle)
-                        .font(Typography.caption)
-                        .foregroundStyle(Color.tertiaryText)
-                }
-
-                Spacer()
-
-                if showChevron {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.tertiaryText)
-                }
-            }
-            .padding(AppTheme.Spacing.lg)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Floating Divider
-
-struct FloatingDivider: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.06))
-            .frame(height: 1)
-            .padding(.leading, 56)
-    }
-}
-
-// MARK: - Floating Slider
-
-struct FloatingSlider: View {
-    @Binding var value: Double
-    let range: ClosedRange<Double>
-
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                // Track
-                Capsule()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(height: 6)
-
-                // Filled track
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.scholarAccent.opacity(0.8), Color.scholarAccent],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(width: thumbPosition(in: geometry.size.width), height: 6)
-
-                // Thumb
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 24, height: 24)
-                    .shadow(color: Color.scholarAccent.opacity(0.4), radius: 8)
-                    .offset(x: thumbPosition(in: geometry.size.width) - 12)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { gesture in
-                                let newValue = Double(gesture.location.x / geometry.size.width)
-                                let clampedValue = min(max(newValue, 0), 1)
-                                value = range.lowerBound + clampedValue * (range.upperBound - range.lowerBound)
-                            }
-                    )
-            }
-        }
-        .frame(height: 24)
-    }
-
-    private func thumbPosition(in width: CGFloat) -> CGFloat {
-        let percentage = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
-        return CGFloat(percentage) * width
-    }
 }
 
 // MARK: - Theme Pill
@@ -795,30 +1032,32 @@ struct ThemePill: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 6) {
+            VStack(spacing: Theme.Spacing.xs + 2) {
                 Circle()
                     .fill(theme.previewColor)
-                    .frame(width: 32, height: 32)
+                    .frame(width: 24 + 8, height: 24 + 8)
                     .overlay {
                         Circle()
                             .strokeBorder(
-                                isSelected ? Color.scholarAccent : Color.white.opacity(0.2),
-                                lineWidth: isSelected ? 2 : 1
+                                isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
+                                lineWidth: isSelected ? Theme.Stroke.control : Theme.Stroke.hairline
                             )
                     }
 
                 Text(theme.name)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(isSelected ? Color.scholarAccent : Color.secondaryText)
+                    .font(Typography.Command.caption.weight(.medium))
+                    .foregroundStyle(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
             .background {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.scholarAccent.opacity(0.1))
+                    RoundedRectangle(cornerRadius: Theme.Radius.card)
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
                 }
             }
         }
@@ -845,11 +1084,11 @@ enum AppThemeOption: String, CaseIterable, Identifiable {
 
     var previewColor: Color {
         switch self {
-        case .system: return Color(hex: "8B7355")
-        case .light: return Color(hex: "FBF7F0")
-        case .dark: return Color(hex: "1A1816")
-        case .sepia: return Color(hex: "F5EDE0")
-        case .oled: return Color(hex: "000000")
+        case .system: return Colors.Semantic.accentSeal(for: .dark)  // Bronze as neutral
+        case .light: return Colors.Surface.background(for: .light)   // Light parchment
+        case .dark: return Colors.Surface.background(for: .dark)     // Near-black
+        case .sepia: return Color.sepiaPreview  // Sepia preview (Phase 8 feature)
+        case .oled: return Color.oledPreview   // Pure black (Phase 8 feature)
         }
     }
 
@@ -876,89 +1115,32 @@ enum AppThemeOption: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Gold Toggle Style
+// MARK: - Section Reveal Modifier
+/// Staggered reveal animation for settings sections with "manuscript unfurling" effect.
 
-struct GoldToggleStyle: ToggleStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        HStack {
-            configuration.label
+struct SectionRevealModifier: ViewModifier {
+    let appeared: Bool
+    let delay: Double
 
-            ZStack {
-                Capsule()
-                    .fill(configuration.isOn ? Color.scholarAccent : Color.white.opacity(0.15))
-                    .frame(width: 50, height: 30)
-
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 26, height: 26)
-                    .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
-                    .offset(x: configuration.isOn ? 10 : -10)
-            }
-            .onTapGesture {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    configuration.isOn.toggle()
-                }
-            }
+    func body(content: Content) -> some View {
+        if Theme.Animation.isReduceMotionEnabled {
+            // Simple fade for accessibility
+            content
+                .opacity(appeared ? 1 : 0)
+                .animation(Theme.Animation.settle, value: appeared)
+        } else {
+            // Full staggered reveal with "manuscript unfurling" effect
+            content
+                .opacity(appeared ? 1 : 0)
+                // swiftlint:disable:next hardcoded_offset
+                .offset(y: appeared ? 0 : 30)
+                // swiftlint:disable:next hardcoded_animation_spring
+                .animation(
+                    Theme.Animation.settle
+                    .delay(delay),
+                    value: appeared
+                )
         }
-    }
-}
-
-// MARK: - Floating Sanctuary Particles
-
-struct FloatingSanctuaryParticles: View {
-    @State private var particles: [SanctuaryParticle] = (0..<20).map { _ in SanctuaryParticle() }
-
-    var body: some View {
-        GeometryReader { geometry in
-            ForEach(particles) { particle in
-                Circle()
-                    .fill(Color.scholarAccent)
-                    .frame(width: particle.size, height: particle.size)
-                    .position(
-                        x: particle.x * geometry.size.width,
-                        y: particle.y * geometry.size.height
-                    )
-                    .opacity(particle.opacity)
-                    .blur(radius: particle.blur)
-            }
-        }
-        .onAppear {
-            animateParticles()
-        }
-    }
-
-    private func animateParticles() {
-        for index in particles.indices {
-            let delay = Double.random(in: 0...3)
-            let duration = Double.random(in: 8...15)
-
-            withAnimation(
-                .easeInOut(duration: duration)
-                .repeatForever(autoreverses: true)
-                .delay(delay)
-            ) {
-                particles[index].y = CGFloat.random(in: 0...1)
-                particles[index].opacity = Double.random(in: 0.1...0.4)
-            }
-        }
-    }
-}
-
-struct SanctuaryParticle: Identifiable {
-    let id = UUID()
-    var x: CGFloat = .random(in: 0...1)
-    var y: CGFloat = .random(in: 0...1)
-    var size: CGFloat = .random(in: 2...6)
-    var opacity: Double = .random(in: 0.1...0.3)
-    var blur: CGFloat = .random(in: 0...2)
-}
-
-// MARK: - Scroll Offset Key
-
-struct ScrollOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 

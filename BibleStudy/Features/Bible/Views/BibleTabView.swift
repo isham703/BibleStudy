@@ -15,7 +15,7 @@ struct BibleTabView: View {
                 .toolbar {
                     ToolbarItem(placement: .principal) {
                         Text("Bible")
-                            .font(Typography.UI.headline)
+                            .font(Typography.Command.headline)
                             .foregroundStyle(Color.primaryText)
                     }
                 }

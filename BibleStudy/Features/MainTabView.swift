@@ -8,6 +8,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedTab: Tab = .home
     @State private var showAskModal = false
     @State private var askViewModel = AskViewModel()
@@ -22,29 +23,30 @@ struct MainTabView: View {
     }
 
     var body: some View {
+        let themeMode = ThemeMode.current(from: colorScheme)
         // Tab content (fills available space, tab bar floats over it)
         ZStack {
             SanctuaryHomeView()
                 .opacity(selectedTab == .home ? 1 : 0)
-                .blur(radius: selectedTab == .home ? 0 : AppTheme.Blur.subtle)
+                .blur(radius: selectedTab == .home ? 0 : 4)
                 .allowsHitTesting(selectedTab == .home)
                 .accessibilityHidden(selectedTab != .home)
 
             BibleTabView()
                 .opacity(selectedTab == .bible ? 1 : 0)
-                .blur(radius: selectedTab == .bible ? 0 : AppTheme.Blur.subtle)
+                .blur(radius: selectedTab == .bible ? 0 : 4)
                 .allowsHitTesting(selectedTab == .bible)
                 .accessibilityHidden(selectedTab != .bible)
 
             // Golden flash overlay for tab switches
             if !respectsReducedMotion {
                 Rectangle()
-                    .fill(Color.divineGold.opacity(tabSwitchFlash ? AppTheme.Opacity.light : 0))
+                    .fill(Colors.Semantic.accentSeal(for: themeMode).opacity(tabSwitchFlash ? Theme.Opacity.light : 0))
                     .allowsHitTesting(false)
                     .ignoresSafeArea()
             }
         }
-        .animation(AppTheme.Animation.reverent, value: selectedTab)
+        .animation(Theme.Animation.slowFade, value: selectedTab)
         // Floating glass tab bar overlays content at bottom (hidden when in child views)
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
@@ -56,14 +58,14 @@ struct MainTabView: View {
                             showFullPlayer = true
                         },
                         onClose: {
-                            withAnimation(AppTheme.Animation.quick) {
+                            withAnimation(Theme.Animation.fade) {
                                 audioService.stop()
                             }
                         }
                     )
-                    .padding(.bottom, appState.hideTabBar ? 0 : AppTheme.Spacing.sm)
+                    .padding(.bottom, appState.hideTabBar ? 0 : Theme.Spacing.sm)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .animation(AppTheme.Animation.spring, value: audioService.playbackState)
+                    .animation(Theme.Animation.settle, value: audioService.playbackState)
                 }
 
                 // Glass tab bar floats over content with see-through background (hidden in child views)
@@ -73,7 +75,7 @@ struct MainTabView: View {
                 }
             }
         }
-        .animation(AppTheme.Animation.standard, value: appState.hideTabBar)
+        .animation(Theme.Animation.settle, value: appState.hideTabBar)
         .ignoresSafeArea(.keyboard)
         .background(Color.appBackground)
         .onChange(of: selectedTab) { _, _ in
@@ -116,7 +118,7 @@ struct MainTabView: View {
         guard !respectsReducedMotion else { return }
 
         tabSwitchFlash = true
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             tabSwitchFlash = false
         }
     }

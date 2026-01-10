@@ -32,39 +32,40 @@ struct BibleInsightCard: View {
             onSelectHighlightColor: onSelectHighlightColor,
             onRemoveHighlight: onRemoveHighlight,
             accentBarWidth: 4,
-            cornerRadius: AppTheme.CornerRadius.card
+            cornerRadius: Theme.Radius.card
         )
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         .overlay(cardBorder)
-        .shadow(color: AppTheme.Shadow.cardColor, radius: 8, x: 0, y: 4)
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 
     private var cardBackground: some View {
-        AppTheme.InsightCard.background
+        Color.surfaceRaised
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card, style: .continuous)
-            .stroke(AppTheme.InsightCard.border, lineWidth: 1)
+        RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+            .stroke(Color.gray.opacity(Theme.Opacity.divider), lineWidth: Theme.Stroke.hairline)
     }
 }
 
 #Preview("Scholar Insight Card") {
     struct PreviewContainer: View {
         @State private var isVisible = true
+        @Environment(\.colorScheme) private var colorScheme
 
         var body: some View {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: Theme.Spacing.lg) {
                     Text("20 built on the foundation of the apostles and prophets, Christ Jesus himself being the cornerstone,")
                         .readingVerse(size: .medium, font: .newYork)
                         .padding()
                         .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.scholarIndigo.opacity(0.3), lineWidth: 1)
+                            // swiftlint:disable:next hardcoded_rounded_rectangle
+                            RoundedRectangle(cornerRadius: Theme.Radius.input)
+                                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
                         )
                         .padding(.horizontal)
 

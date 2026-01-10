@@ -6,26 +6,27 @@ import SwiftUI
 // MARK: - Show Why Expander
 /// Expandable section that shows the reasoning behind AI-generated insights
 struct ShowWhyExpander: View {
+    @Environment(\.colorScheme) private var colorScheme
     let reasoning: [ReasoningPoint]
     @State private var isExpanded: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Expand/Collapse Button
             Button {
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     isExpanded.toggle()
                 }
             } label: {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "questionmark.circle")
-                        .foregroundStyle(Color.accentBlue)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     Text("Why this interpretation?")
-                        .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.accentBlue)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -33,14 +34,14 @@ struct ShowWhyExpander: View {
 
             // Reasoning Content
             if isExpanded {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     ForEach(reasoning) { point in
                         ReasoningPointView(point: point)
                     }
                 }
-                .padding(AppTheme.Spacing.md)
+                .padding(Theme.Spacing.md)
                 .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
                         .fill(Color.surfaceBackground)
                 )
                 .transition(.opacity.combined(with: .move(edge: .top)))
@@ -51,26 +52,27 @@ struct ShowWhyExpander: View {
 
 // MARK: - Reasoning Point View
 struct ReasoningPointView: View {
+    @Environment(\.colorScheme) private var colorScheme
     let point: ReasoningPoint
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             // The phrase from the text
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "text.quote")
-                    .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 Text("\"\(point.phrase)\"")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
                     .italic()
             }
 
             // Why it's significant
             Text(point.explanation)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
-                .padding(.leading, AppTheme.Spacing.lg)
+                .padding(.leading, Theme.Spacing.lg)
         }
     }
 }
@@ -82,31 +84,31 @@ struct DifferentViewsSection: View {
     @State private var isExpanded: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Header with expand toggle
             Button {
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     isExpanded.toggle()
                 }
             } label: {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "arrow.triangle.branch")
                         .foregroundStyle(Color.info)
                     Text("Different interpretive views")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.info)
                     Spacer()
                     Text("\(views.count)")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
-                        .padding(.horizontal, AppTheme.Spacing.xs)
-                        .padding(.vertical, AppTheme.Spacing.xxs)
+                        .padding(.horizontal, Theme.Spacing.xs)
+                        .padding(.vertical, 2)
                         .background(
                             Capsule()
-                                .fill(Color.info.opacity(AppTheme.Opacity.lightMedium))
+                                .fill(Color.info.opacity(Theme.Opacity.lightMedium))
                         )
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -114,7 +116,7 @@ struct DifferentViewsSection: View {
 
             // Views Content
             if isExpanded {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     ForEach(views) { view in
                         AlternativeViewCard(view: view)
                     }
@@ -130,39 +132,39 @@ struct AlternativeViewCard: View {
     let view: AlternativeView
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // View name
             Text(view.viewName)
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color.primaryText)
 
             // Summary
             Text(view.summary)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
 
             // Traditions (if available)
             if let traditions = view.traditions, !traditions.isEmpty {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Text("Traditions:")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                     Text(traditions.joined(separator: ", "))
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.secondaryText)
                 }
             }
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
                 .fill(Color.surfaceBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
         )
     }
 }
@@ -170,35 +172,36 @@ struct AlternativeViewCard: View {
 // MARK: - Translation Notes Section
 /// Collapsible section showing translation differences
 struct TranslationNotesSection: View {
+    @Environment(\.colorScheme) private var colorScheme
     let notes: [TranslationNote]
     @State private var isExpanded: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Header with expand toggle
             Button {
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     isExpanded.toggle()
                 }
             } label: {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "character.book.closed")
-                        .foregroundStyle(Color.scholarAccent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     Text("Translation differences")
-                        .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     Spacer()
                     Text("\(notes.count)")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
-                        .padding(.horizontal, AppTheme.Spacing.xs)
-                        .padding(.vertical, AppTheme.Spacing.xxs)
+                        .padding(.horizontal, Theme.Spacing.xs)
+                        .padding(.vertical, 2)
                         .background(
                             Capsule()
-                                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
+                                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
                         )
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -206,7 +209,7 @@ struct TranslationNotesSection: View {
 
             // Notes Content
             if isExpanded {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     ForEach(notes) { note in
                         TranslationNoteCard(note: note)
                     }
@@ -219,51 +222,52 @@ struct TranslationNotesSection: View {
 
 // MARK: - Translation Note Card
 struct TranslationNoteCard: View {
+    @Environment(\.colorScheme) private var colorScheme
     let note: TranslationNote
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // The phrase
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "text.quote")
-                    .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 Text("\"\(note.phrase)\"")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
                     .italic()
             }
 
             // Translation variants
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 ForEach(note.translations, id: \.self) { translation in
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Circle()
-                            .fill(Color.scholarAccent)
-                            .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .frame(width: 6, height: 6)
                         Text(translation)
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.secondaryText)
                     }
                 }
             }
-            .padding(.leading, AppTheme.Spacing.md)
+            .padding(.leading, Theme.Spacing.md)
 
             // Explanation
             Text(note.explanation)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
-                .padding(.leading, AppTheme.Spacing.md)
+                .padding(.leading, Theme.Spacing.md)
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
                 .fill(Color.surfaceBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
         )
     }
 }
@@ -274,11 +278,11 @@ struct GroundingSourcesRow: View {
     let sources: [String]
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: "checkmark.shield")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
             Text("Based on: \(sources.joined(separator: ", "))")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
         .foregroundStyle(Color.tertiaryText)
     }
@@ -286,7 +290,7 @@ struct GroundingSourcesRow: View {
 
 // MARK: - Previews
 #Preview("Show Why Expander") {
-    VStack(spacing: AppTheme.Spacing.xl) {
+    VStack(spacing: Theme.Spacing.xl) {
         ShowWhyExpander(reasoning: [
             ReasoningPoint(
                 phrase: "Let there be light",
@@ -303,7 +307,7 @@ struct GroundingSourcesRow: View {
 }
 
 #Preview("Different Views Section") {
-    VStack(spacing: AppTheme.Spacing.xl) {
+    VStack(spacing: Theme.Spacing.xl) {
         DifferentViewsSection(views: [
             AlternativeView(
                 viewName: "Literal Day View",
@@ -333,7 +337,7 @@ struct GroundingSourcesRow: View {
 }
 
 #Preview("Translation Notes") {
-    VStack(spacing: AppTheme.Spacing.xl) {
+    VStack(spacing: Theme.Spacing.xl) {
         TranslationNotesSection(notes: [
             TranslationNote(
                 phrase: "charity",

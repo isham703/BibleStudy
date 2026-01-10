@@ -9,12 +9,13 @@ struct SegmentContentView: View {
     var existingReflection: String?
     var onSaveReflection: ((String) -> Void)?
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showReflection = false
     @State private var reflectionText: String = ""
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 // Segment header
                 segmentHeader
 
@@ -51,9 +52,9 @@ struct SegmentContentView: View {
                     )
                 }
 
-                Spacer(minLength: AppTheme.Spacing.xxxl)
+                Spacer(minLength: Theme.Spacing.xxl)
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(Theme.Spacing.lg)
         }
         .onAppear {
             reflectionText = existingReflection ?? ""
@@ -62,21 +63,21 @@ struct SegmentContentView: View {
 
     // MARK: - Segment Header
     private var segmentHeader: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Timeline label
             if let label = segment.timelineLabel {
                 Text(label)
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .textCase(.uppercase)
                     .tracking(1)
             }
 
             // Title with mood indicator
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 if let mood = segment.mood {
                     Image(systemName: mood.icon)
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color(mood.accentColorName))
                 }
 
@@ -90,7 +91,7 @@ struct SegmentContentView: View {
     // MARK: - Narrative Content
     private var narrativeContent: some View {
         Text(segment.content)
-            .font(Typography.Scripture.body(size: 18))
+            .font(Typography.Scripture.body)
             .foregroundStyle(Color.primaryText)
             .lineSpacing(8)
             .textSelection(.enabled)
@@ -102,15 +103,15 @@ struct LocationBadge: View {
     let location: String
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: "mappin.circle.fill")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
             Text(location)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
         }
         .foregroundStyle(Color.secondaryText)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.xs)
         .background(
             Capsule()
                 .fill(Color.surfaceBackground)
@@ -122,44 +123,46 @@ struct LocationBadge: View {
 struct KeyTermCard: View {
     let keyTerm: KeyTermHighlight
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "character.book.closed")
-                    .font(Typography.UI.subheadline)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.subheadline)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 Text("Key Term")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.secondaryText)
             }
 
-            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(keyTerm.term)
-                        .font(Typography.Display.headline)
+                        .font(Typography.Scripture.heading)
                         .foregroundStyle(Color.primaryText)
 
                     if let original = keyTerm.originalWord {
                         Text(original)
                             .font(Typography.Language.transliteration)
-                            .foregroundStyle(Color.scholarAccent)
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
                 }
 
                 Spacer()
 
                 Text(keyTerm.briefMeaning)
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.trailing)
             }
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
         )
     }
 }
@@ -169,24 +172,26 @@ struct VerseAnchorButton: View {
     let verseRange: VerseRange
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "book.closed.fill")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
 
                 Text("Read Scripture: \(verseRange.shortReference)")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
             }
-            .foregroundStyle(Color.scholarAccent)
-            .padding(AppTheme.Spacing.md)
-            .background(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .padding(Theme.Spacing.md)
+            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
         .buttonStyle(.plain)
     }
@@ -202,31 +207,31 @@ struct ReflectionCard: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Button {
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     isExpanded.toggle()
                 }
             } label: {
                 HStack {
                     Image(systemName: "heart.fill")
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.accentRose)
 
                     Text("Reflection")
-                        .font(Typography.UI.caption1Bold)
+                        .font(Typography.Command.caption.weight(.semibold))
                         .foregroundStyle(Color.secondaryText)
 
                     if !reflectionText.isEmpty {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.highlightGreen)
                     }
 
                     Spacer()
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -234,19 +239,19 @@ struct ReflectionCard: View {
 
             if isExpanded {
                 Text(question)
-                    .font(Typography.UI.warmBody)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.primaryText)
                     .italic()
-                    .padding(.top, AppTheme.Spacing.xs)
+                    .padding(.top, Theme.Spacing.xs)
 
                 // Reflection text input
                 TextField("Write your reflection...", text: $reflectionText, axis: .vertical)
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .lineLimit(3...8)
                     .textFieldStyle(.plain)
-                    .padding(AppTheme.Spacing.sm)
+                    .padding(Theme.Spacing.sm)
                     .background(Color.appBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
                     .focused($isFocused)
 
                 // Save button
@@ -257,15 +262,15 @@ struct ReflectionCard: View {
                             isFocused = false
                             onSave()
                         } label: {
-                            HStack(spacing: AppTheme.Spacing.xs) {
+                            HStack(spacing: Theme.Spacing.xs) {
                                 Image(systemName: "checkmark")
-                                    .font(Typography.UI.caption1)
+                                    .font(Typography.Command.caption)
                                 Text("Save")
-                                    .font(Typography.UI.caption1Bold)
+                                    .font(Typography.Command.caption.weight(.semibold))
                             }
                             .foregroundStyle(.white)
-                            .padding(.horizontal, AppTheme.Spacing.md)
-                            .padding(.vertical, AppTheme.Spacing.sm)
+                            .padding(.horizontal, Theme.Spacing.md)
+                            .padding(.vertical, Theme.Spacing.sm)
                             .background(Color.accentRose)
                             .clipShape(Capsule())
                         }
@@ -274,9 +279,9 @@ struct ReflectionCard: View {
                 }
             }
         }
-        .padding(AppTheme.Spacing.md)
-        .background(Color.accentRose.opacity(AppTheme.Opacity.faint))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+        .padding(Theme.Spacing.md)
+        .background(Color.accentRose.opacity(Theme.Opacity.faint))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }
 

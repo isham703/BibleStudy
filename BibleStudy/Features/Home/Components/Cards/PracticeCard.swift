@@ -1,45 +1,47 @@
 import SwiftUI
 
-// MARK: - Mock Practice Card
+// MARK: - Practice Card
 // Displays memorization practice status and CTA
+// Stoic-Existential Renaissance design
 
 struct PracticeCard: View {
     let practice: MockPracticeData
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Header
             HStack {
                 Text("\(practice.dueCount) verses due")
-                    .font(SanctuaryTypography.Dashboard.cardTitle)
-                    .foregroundStyle(Color.moonlitParchment)
+                    .font(Typography.Scripture.heading)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                 Text("·")
-                    .foregroundStyle(Color.fadedMoonlight)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
 
                 Text("~\(practice.estimatedMinutes) min")
-                    .font(SanctuaryTypography.Dashboard.cardBody)
-                    .foregroundStyle(Color.fadedMoonlight)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
             }
 
             // Breakdown
-            HStack(spacing: AppTheme.Spacing.lg) {
-                HStack(spacing: 4) {
+            HStack(spacing: Theme.Spacing.lg) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Circle()
-                        .fill(Color.malachite)
-                        .frame(width: 8, height: 8)
+                        .fill(Colors.Semantic.success(for: ThemeMode.current(from: colorScheme)))
+                        .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
                     Text("\(practice.learningCount) learning")
-                        .font(SanctuaryTypography.Dashboard.cardBody)
-                        .foregroundStyle(Color.fadedMoonlight)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                 }
 
-                HStack(spacing: 4) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Circle()
-                        .fill(Color.lapisLazuli)
-                        .frame(width: 8, height: 8)
+                        .fill(Colors.Semantic.info(for: ThemeMode.current(from: colorScheme)))
+                        .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
                     Text("\(practice.reviewingCount) reviewing")
-                        .font(SanctuaryTypography.Dashboard.cardBody)
-                        .foregroundStyle(Color.fadedMoonlight)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                 }
             }
 
@@ -48,71 +50,44 @@ struct PracticeCard: View {
                 Spacer()
 
                 Text("Start Practice")
-                    .font(SanctuaryTypography.Dashboard.button)
-                    .foregroundStyle(Color.candlelitStone)
-                    .padding(.horizontal, AppTheme.Spacing.xl)
-                    .padding(.vertical, AppTheme.Spacing.md)
+                    .font(Typography.Command.cta)
+                    .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
+                    .padding(.horizontal, Theme.Spacing.xl)
+                    .padding(.vertical, Theme.Spacing.md)
                     .background(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                            .fill(Color.divineGold)
+                        RoundedRectangle(cornerRadius: Theme.Radius.button)
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     )
 
                 Spacer()
             }
-            .padding(.top, AppTheme.Spacing.xs)
+            .padding(.top, Theme.Spacing.xs)
         }
-        .padding(AppTheme.Spacing.lg)
-        .glassCard()
-    }
-}
-
-// MARK: - Compact Practice Card (for minimalist style)
-
-struct PracticeCardCompact: View {
-    let practice: MockPracticeData
-    @State private var isPressed = false
-
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Practice Verses")
-                    .font(SanctuaryTypography.Minimalist.action)
-                    .foregroundStyle(Color.divineGold)
-
-                Text("\(practice.dueCount) verses due")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(Color.fadedMoonlight)
-            }
-
-            Spacer()
-
-            Image(systemName: "arrow.right")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.divineGold)
-                .offset(x: isPressed ? 4 : 0)
-        }
-        .padding(.vertical, AppTheme.Spacing.lg)
-        .contentShape(Rectangle())
-        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.3)) {
-                isPressed = pressing
-            }
-        }, perform: {})
+        .padding(Theme.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(
+                    Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                    lineWidth: Theme.Stroke.hairline
+                )
+        )
     }
 }
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Practice Card") {
+    @Previewable @Environment(\.colorScheme) var colorScheme
+    let themeMode = ThemeMode.current(from: colorScheme)
+
     ZStack {
-        Color.candlelitStone.ignoresSafeArea()
+        Colors.Surface.background(for: themeMode).ignoresSafeArea()
 
-        VStack(spacing: 20) {
-            PracticeCard(practice: HomeShowcaseMockData.practiceData)
-
-            PracticeCardCompact(practice: HomeShowcaseMockData.practiceData)
-                .padding(.horizontal)
-        }
-        .padding()
+        PracticeCard(practice: SanctuaryMockData.practiceData)
+            .padding()
     }
 }

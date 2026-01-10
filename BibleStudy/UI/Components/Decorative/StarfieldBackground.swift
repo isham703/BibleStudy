@@ -30,7 +30,7 @@ struct StarfieldBackground: View {
                                 width: radius * 2,
                                 height: radius * 2
                             )),
-                            with: .color(Color.starlight.opacity(opacity))
+                            with: .color(Color.moonlitMarble.opacity(opacity))
                         )
                     }
                 }
@@ -79,15 +79,17 @@ private struct TwinklingStar: View {
 
     var body: some View {
         ZStack {
-            // Glow layer
+            // Glow layer - decorative star effect
+            // swiftlint:disable:next hardcoded_opacity
             Circle()
-                .fill(Color.starlight.opacity(0.3))
+                .fill(Color.moonlitMarble.opacity(Theme.Opacity.subtle))
                 .frame(width: 12, height: 12)
+                // swiftlint:disable:next hardcoded_blur_radius
                 .blur(radius: 4)
 
             // Core star
             Circle()
-                .fill(Color.starlight)
+                .fill(Color.moonlitMarble)
                 .frame(width: 3, height: 3)
         }
         .opacity(opacity)
@@ -110,7 +112,7 @@ private struct TwinklingStar: View {
 
 #Preview {
     ZStack {
-        Color.nightVoid.ignoresSafeArea()
+        Color.surfaceInk.ignoresSafeArea()
         StarfieldBackground()
     }
 }

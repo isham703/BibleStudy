@@ -5,34 +5,36 @@ import Combine
 // Displays a loading indicator with optional message
 
 struct LoadingView: View {
+    @Environment(\.colorScheme) private var colorScheme
     var message: String = "Loading..."
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             ProgressView()
-                .scaleEffect(AppTheme.Scale.enlarged)
-                .tint(Color.scholarAccent)
+                .scaleEffect(1.2)
+                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Text(message)
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.appBackground.opacity(AppTheme.Opacity.high))
+        .background(Color.appBackground.opacity(Theme.Opacity.high))
     }
 }
 
 // MARK: - Inline Loading
 struct InlineLoadingView: View {
+    @Environment(\.colorScheme) private var colorScheme
     var message: String = "Loading..."
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             ProgressView()
-                .tint(Color.scholarAccent)
+                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Text(message)
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
         }
         .padding()
@@ -44,12 +46,12 @@ struct SkeletonView: View {
     @State private var opacity: Double = 0.3
 
     var body: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+        RoundedRectangle(cornerRadius: Theme.Radius.input)
             .fill(Color.secondaryText)
             .opacity(opacity)
             .onAppear {
                 withAnimation(
-                    AppTheme.Animation.slow
+                    Theme.Animation.slowFade
                     .repeatForever(autoreverses: true)
                 ) {
                     opacity = 0.6
@@ -60,27 +62,28 @@ struct SkeletonView: View {
 
 // MARK: - AI Loading View
 struct AILoadingView: View {
+    @Environment(\.colorScheme) private var colorScheme
     var message: String = "Generating explanation..."
 
     @State private var dotCount = 0
     private let timer = Timer.publish(every: 0.4, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // AI Icon with animation
             Image(systemName: "sparkles")
-                .font(Typography.UI.title1)
-                .foregroundStyle(Color.scholarAccent)
+                .font(Typography.Command.title1)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 .symbolEffect(.pulse)
 
             Text(message + String(repeating: ".", count: dotCount))
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .frame(minWidth: 200)
         }
-        .padding(AppTheme.Spacing.xl)
+        .padding(Theme.Spacing.xl)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .fill(Color.surfaceBackground)
         )
         .onReceive(timer) { _ in
@@ -92,19 +95,20 @@ struct AILoadingView: View {
 // MARK: - Data Loading Progress View
 /// Shows progress during first-launch data loading
 struct DataLoadingProgressView: View {
+    @Environment(\.colorScheme) private var colorScheme
     let phase: DataLoadingPhase
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             // App icon placeholder
             Image(systemName: "book.closed.fill")
-                .font(Typography.UI.largeTitle)
-                .foregroundStyle(Color.scholarAccent)
+                .font(Typography.Command.largeTitle)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 .symbolEffect(.pulse.byLayer, isActive: phase.isLoading)
 
             // Title
             Text("Bible Study")
-                .font(Typography.UI.title2)
+                .font(Typography.Command.title2)
                 .foregroundStyle(Color.primaryText)
 
             // Progress section
@@ -121,41 +125,41 @@ struct DataLoadingProgressView: View {
             EmptyView()
 
         case let .loading(description, progress):
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 ProgressView(value: progress)
-                    .tint(Color.scholarAccent)
+                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 200)
 
                 Text(description)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
 
                 if progress > 0 {
                     Text("\(Int(progress * 100))%")
-                        .font(Typography.UI.caption1.monospacedDigit())
+                        .font(Typography.Command.caption.monospacedDigit())
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
-            .padding(.top, AppTheme.Spacing.lg)
+            .padding(.top, Theme.Spacing.lg)
 
         case .completed:
             Image(systemName: "checkmark.circle.fill")
-                .font(Typography.UI.title2)
+                .font(Typography.Command.title2)
                 .foregroundStyle(Color.success)
                 .transition(.scale.combined(with: .opacity))
 
         case let .failed(error):
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(Typography.UI.title2)
+                    .font(Typography.Command.title2)
                     .foregroundStyle(Color.warning)
 
                 Text("Failed to load data")
-                    .font(Typography.UI.warmSubheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.primaryText)
 
                 Text(error)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
@@ -167,6 +171,7 @@ struct DataLoadingProgressView: View {
 // MARK: - First Launch Overlay
 /// Full-screen overlay for first launch data loading
 struct FirstLaunchOverlay: View {
+    @Environment(\.colorScheme) private var colorScheme
     let phase: DataLoadingPhase
     let onRetry: () -> Void
 
@@ -183,14 +188,14 @@ struct FirstLaunchOverlay: View {
 
                     Button(action: onRetry) {
                         Text("Retry")
-                            .font(Typography.UI.headline)
+                            .font(Typography.Command.headline)
                             .foregroundStyle(.white)
-                            .padding(.horizontal, AppTheme.Spacing.xl)
-                            .padding(.vertical, AppTheme.Spacing.md)
-                            .background(Color.scholarAccent)
+                            .padding(.horizontal, Theme.Spacing.xl)
+                            .padding(.vertical, Theme.Spacing.md)
+                            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                             .clipShape(Capsule())
                     }
-                    .padding(.bottom, AppTheme.Spacing.xxxl)
+                    .padding(.bottom, Theme.Spacing.xxl)
                 }
             }
         }
@@ -201,6 +206,7 @@ struct FirstLaunchOverlay: View {
 /// Displays progressive AI response with skeleton loading and phased reveals
 /// Implements the "ink-bleed" animation effect from illuminated manuscript design
 struct StreamingContentView: View {
+    @Environment(\.colorScheme) private var colorScheme
     /// The content to display (nil = loading)
     let content: StreamingContent?
 
@@ -217,7 +223,7 @@ struct StreamingContentView: View {
     @State private var showSources = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Progress indicator
             progressIndicator
 
@@ -239,30 +245,30 @@ struct StreamingContentView: View {
     // MARK: - Progress Indicator
 
     private var progressIndicator: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             if isLoading {
                 ProgressView()
-                    .scaleEffect(AppTheme.Scale.reduced)
-                    .tint(Color.divineGold)
+                    .scaleEffect(0.8)
+                    .tint(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
             } else {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(Typography.UI.iconSm)
+                    .font(Typography.Icon.sm)
                     .foregroundStyle(Color.success)
             }
 
             Text(progressStage.message)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
         }
-        .animation(AppTheme.Animation.standard, value: progressStage)
+        .animation(Theme.Animation.settle, value: progressStage)
     }
 
     // MARK: - Skeleton Content
 
     private var skeletonContent: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Summary skeleton
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 GoldShimmerLine(width: .infinity)
                 GoldShimmerLine(width: 280)
                 GoldShimmerLine(width: 220)
@@ -270,15 +276,15 @@ struct StreamingContentView: View {
 
             // Key points label skeleton
             GoldShimmerLine(width: 100)
-                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.top, Theme.Spacing.sm)
 
             // Key points skeletons
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 ForEach(0..<3, id: \.self) { _ in
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         Circle()
-                            .fill(Color.secondaryText.opacity(AppTheme.Opacity.medium))
-                            .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                            .fill(Color.secondaryText.opacity(Theme.Opacity.medium))
+                            .frame(width: 6, height: 6)
                         GoldShimmerLine(width: .random(in: 180...280))
                     }
                 }
@@ -292,7 +298,7 @@ struct StreamingContentView: View {
     private func actualContent(_ content: StreamingContent) -> some View {
         // Summary with ink-bleed animation
         Text(content.summary)
-            .font(Typography.UI.body)
+            .font(Typography.Command.body)
             .foregroundStyle(Color.primaryText)
             .fixedSize(horizontal: false, vertical: true)
             .opacity(showSummary ? 1 : 0)
@@ -302,21 +308,21 @@ struct StreamingContentView: View {
         // Key points section
         if !content.keyPoints.isEmpty {
             Text("Key Points")
-                .font(Typography.UI.caption1Bold)
+                .font(Typography.Command.caption.weight(.semibold))
                 .foregroundStyle(Color.secondaryText)
-                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.top, Theme.Spacing.sm)
                 .opacity(showKeyPoints ? 1 : 0)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 ForEach(Array(content.keyPoints.enumerated()), id: \.offset) { index, point in
-                    HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                         Circle()
-                            .fill(Color.divineGold)
-                            .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
-                            .padding(.top, AppTheme.Spacing.sm - 2)
+                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                            .frame(width: 6, height: 6)
+                            .padding(.top, Theme.Spacing.sm - 2)
 
                         Text(point)
-                            .font(Typography.UI.subheadline)
+                            .font(Typography.Command.subheadline)
                             .foregroundStyle(Color.primaryText)
                     }
                     .opacity(index < visibleKeyPointCount ? 1 : 0)
@@ -328,15 +334,15 @@ struct StreamingContentView: View {
 
         // Sources
         if !content.sources.isEmpty {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "checkmark.shield")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                 Text("Sources: \(content.sources.joined(separator: ", "))")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
             }
             .foregroundStyle(Color.tertiaryText)
             .opacity(showSources ? 1 : 0)
-            .padding(.top, AppTheme.Spacing.sm)
+            .padding(.top, Theme.Spacing.sm)
         }
     }
 
@@ -344,12 +350,12 @@ struct StreamingContentView: View {
 
     private func startRevealAnimation() {
         // Summary appears first
-        withAnimation(AppTheme.Animation.sacredSpring) {
+        withAnimation(Theme.Animation.settle) {
             showSummary = true
         }
 
         // Key points label after delay
-        withAnimation(AppTheme.Animation.standard.delay(0.3)) {
+        withAnimation(Theme.Animation.settle.delay(0.3)) {
             showKeyPoints = true
         }
 
@@ -358,7 +364,7 @@ struct StreamingContentView: View {
             for index in 0..<content.keyPoints.count {
                 let delay = 0.5 + Double(index) * 0.15
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    withAnimation(AppTheme.Animation.spring) {
+                    withAnimation(Theme.Animation.settle) {
                         visibleKeyPointCount = index + 1
                     }
                 }
@@ -367,7 +373,7 @@ struct StreamingContentView: View {
             // Sources appear last
             let sourcesDelay = 0.5 + Double(content.keyPoints.count) * 0.15 + 0.2
             DispatchQueue.main.asyncAfter(deadline: .now() + sourcesDelay) {
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     showSources = true
                 }
             }
@@ -409,13 +415,13 @@ private struct GoldShimmerLine: View {
     @State private var shimmerOffset: CGFloat = -200
 
     var body: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+        RoundedRectangle(cornerRadius: Theme.Radius.xs)
             .fill(
                 LinearGradient(
                     colors: [
-                        Color.secondaryText.opacity(AppTheme.Opacity.lightMedium),
-                        Color.goldLeafShimmer.opacity(AppTheme.Opacity.disabled),
-                        Color.secondaryText.opacity(AppTheme.Opacity.lightMedium)
+                        Color.secondaryText.opacity(Theme.Opacity.lightMedium),
+                        Color.accentBronze.opacity(Theme.Opacity.disabled),
+                        Color.secondaryText.opacity(Theme.Opacity.lightMedium)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
@@ -435,7 +441,7 @@ private struct GoldShimmerLine: View {
                     .offset(x: shimmerOffset)
             )
             .onAppear {
-                withAnimation(AppTheme.Animation.shimmer) {
+                withAnimation(Theme.Animation.fade) {
                     shimmerOffset = 300
                 }
             }
@@ -444,7 +450,7 @@ private struct GoldShimmerLine: View {
 
 // MARK: - Preview
 #Preview("Loading Views") {
-    VStack(spacing: AppTheme.Spacing.xxxl) {
+    VStack(spacing: Theme.Spacing.xxl) {
         LoadingView()
             .frame(height: 200)
 

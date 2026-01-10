@@ -34,7 +34,7 @@ extension Color {
 extension Animation {
     /// Standard showcase transition
     static var showcaseSpring: Animation {
-        .spring(response: 0.4, dampingFraction: 0.8)
+        Theme.Animation.settle
     }
 
     /// Quick feedback animation
@@ -53,7 +53,7 @@ extension Animation {
 extension View {
     /// Apply showcase card styling
     func showcaseCard(
-        cornerRadius: CGFloat = AppTheme.CornerRadius.lg,
+        cornerRadius: CGFloat = 16,
         borderColor: Color = .scholarAccent,
         borderOpacity: Double = 0.15
     ) -> some View {
@@ -86,13 +86,13 @@ extension View {
 
 enum ShowcaseConstants {
     /// Standard content padding
-    static let contentPadding: CGFloat = AppTheme.Spacing.lg
+    static let contentPadding: CGFloat = Theme.Spacing.lg
 
     /// Card spacing
-    static let cardSpacing: CGFloat = AppTheme.Spacing.md
+    static let cardSpacing: CGFloat = Theme.Spacing.md
 
     /// Section spacing
-    static let sectionSpacing: CGFloat = AppTheme.Spacing.xxl
+    static let sectionSpacing: CGFloat = Theme.Spacing.xxl
 
     /// Header height for parallax calculations
     static let headerHeight: CGFloat = 320
@@ -105,13 +105,13 @@ enum ShowcaseConstants {
 
 enum ShowcaseBackground {
     /// Main dark background
-    static let primary = Color(hex: "0A0908")
+    static let primary = Color.surfaceDeep
 
     /// Elevated card background
     static let elevated = Color(hex: "141210")
 
     /// Surface background with slight warmth
-    static let surface = Color(hex: "1A1816")
+    static let surface = Color.surfaceCharcoal
 
     /// Subtle overlay for depth
     static let overlay = Color.white.opacity(0.02)

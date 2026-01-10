@@ -94,7 +94,7 @@ struct NetworkGraph: View {
         for (index, node) in nodes.enumerated() {
             let delay = Double(index) * staggerDelay
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(Theme.Animation.settle) {
                     _ = visibleNodes.insert(node.id)
                 }
             }
@@ -105,7 +105,7 @@ struct NetworkGraph: View {
         for (index, connection) in connections.enumerated() {
             let delay = connectionStartDelay + Double(index) * staggerDelay * 0.5
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     _ = visibleConnections.insert(connection.id)
                 }
             }
@@ -133,7 +133,7 @@ struct NetworkConnection: Identifiable {
     let id: String
     let fromId: String
     let toId: String
-    var color: Color = .divineGold
+    var color: Color = .accentBronze
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var isFlowing: Bool = false
@@ -145,7 +145,7 @@ struct NetworkConnection: Identifiable {
     init(
         from: String,
         to: String,
-        color: Color = .divineGold,
+        color: Color = .accentBronze,
         lineWidth: CGFloat = 2,
         isActive: Bool = false,
         isFlowing: Bool = false,
@@ -263,21 +263,21 @@ extension NetworkGraph {
 // MARK: - Preview
 #Preview("Network Graph Patterns") {
     ScrollView {
-        VStack(spacing: AppTheme.Spacing.xxxl) {
-            Text("Linear").font(Typography.UI.headline)
+        VStack(spacing: Theme.Spacing.xxl) {
+            Text("Linear").font(Typography.Command.headline)
             NetworkGraph.linear(nodeCount: 5, activeIndex: 2)
                 .frame(height: 60)
                 .padding(.horizontal)
 
-            Text("Star").font(Typography.UI.headline)
+            Text("Star").font(Typography.Command.headline)
             NetworkGraph.star(rayCount: 6, centerActive: true)
                 .frame(height: 200)
 
-            Text("Mesh").font(Typography.UI.headline)
+            Text("Mesh").font(Typography.Command.headline)
             NetworkGraph.mesh(rows: 3, cols: 4)
                 .frame(height: 200)
 
-            Text("Custom").font(Typography.UI.headline)
+            Text("Custom").font(Typography.Command.headline)
             NetworkGraph(
                 nodes: [
                     NetworkNode(id: "a", x: 0.2, y: 0.3, state: .pulsing),

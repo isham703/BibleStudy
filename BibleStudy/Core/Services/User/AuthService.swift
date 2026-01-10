@@ -8,9 +8,10 @@ import Security
 
 @MainActor
 @Observable
-final class AuthService {
+final class AuthService: AuthServiceProtocol {
     // MARK: - Singleton
-    static let shared = AuthService()
+    // nonisolated(unsafe) allows access as default parameter values in @MainActor class inits
+    nonisolated(unsafe) static let shared = AuthService()
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
@@ -28,7 +29,8 @@ final class AuthService {
     var error: AuthError?
 
     // MARK: - Initialization
-    private init() {}
+    // Note: nonisolated to allow initialization from nonisolated(unsafe) static let shared
+    private nonisolated init() {}
 
     // MARK: - Cryptographic Utilities
 
@@ -62,7 +64,8 @@ final class AuthService {
         }
     }
 
-    func signIn(email: String, password: String) async throws {
+    @discardableResult
+    func signIn(email: String, password: String) async throws -> String {
         isLoading = true
         error = nil
         defer { isLoading = false }
@@ -70,13 +73,22 @@ final class AuthService {
         do {
             _ = try await supabase.signIn(email: email, password: password)
             try await loadProfile()
+
+            guard let refreshToken = supabase.getCurrentRefreshToken() else {
+                throw AuthError.signInFailed("Failed to retrieve session token")
+            }
+            return refreshToken
+        } catch let authError as AuthError {
+            self.error = authError
+            throw authError
         } catch {
             self.error = AuthError.signInFailed(error.localizedDescription)
             throw self.error!
         }
     }
 
-    func signInWithApple(authorization: ASAuthorization) async throws {
+    @discardableResult
+    func signInWithApple(authorization: ASAuthorization) async throws -> String {
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
               let identityToken = appleIDCredential.identityToken,
               let idTokenString = String(data: identityToken, encoding: .utf8) else {
@@ -96,6 +108,14 @@ final class AuthService {
                 nonce: nonce
             )
             try await loadProfile()
+
+            guard let refreshToken = supabase.getCurrentRefreshToken() else {
+                throw AuthError.appleSignInFailed("Failed to retrieve session token")
+            }
+            return refreshToken
+        } catch let authError as AuthError {
+            self.error = authError
+            throw authError
         } catch {
             self.error = AuthError.appleSignInFailed(error.localizedDescription)
             throw self.error!
@@ -138,6 +158,27 @@ final class AuthService {
             try await supabase.resendConfirmation(email: email)
         } catch {
             self.error = AuthError.resendConfirmationFailed(error.localizedDescription)
+            throw self.error!
+        }
+    }
+
+    // MARK: - Session Restoration
+
+    /// Restore a session using a stored refresh token (for biometric quick sign-in)
+    /// - Parameter refreshToken: The stored refresh token
+    /// - Returns: The new refresh token from the restored session
+    @discardableResult
+    func restoreSession(refreshToken: String) async throws -> String {
+        isLoading = true
+        error = nil
+        defer { isLoading = false }
+
+        do {
+            let session = try await supabase.restoreSession(refreshToken: refreshToken)
+            try await loadProfile()
+            return session.refreshToken
+        } catch {
+            self.error = AuthError.signInFailed("Session expired. Please sign in again.")
             throw self.error!
         }
     }

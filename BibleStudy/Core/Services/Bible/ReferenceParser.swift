@@ -66,7 +66,7 @@ enum ReferenceParser {
     /// Parse a Bible reference string into a ParsedReference
     /// - Parameter input: The reference string (e.g., "John 3:16", "Gen 1", "1 Cor 13:4-8")
     /// - Returns: A Result with either ParsedReference or ReferenceParseError
-    static func parse(_ input: String) -> Result<ParsedReference, ReferenceParseError> {
+    nonisolated static func parse(_ input: String) -> Result<ParsedReference, ReferenceParseError> {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return .failure(.emptyInput)
@@ -136,7 +136,7 @@ enum ReferenceParser {
     // MARK: - Book Lookup with Fuzzy Matching
 
     /// Find a book by name or abbreviation with fuzzy matching
-    private static func findBook(_ input: String) -> Book? {
+    private nonisolated static func findBook(_ input: String) -> Book? {
         let normalized = input.lowercased().trimmingCharacters(in: .whitespaces)
 
         // 1. Try exact name match
@@ -176,7 +176,8 @@ enum ReferenceParser {
     // MARK: - Alias Dictionaries
 
     /// Common informal abbreviations and aliases
-    private static let commonAliases: [String: Book] = {
+    /// Note: nonisolated(unsafe) is required to allow access from nonisolated functions.
+    private nonisolated(unsafe) static let commonAliases: [String: Book] = {
         var aliases: [String: Book] = [:]
 
         // Genesis aliases
@@ -259,7 +260,7 @@ enum ReferenceParser {
     }()
 
     /// Compacted versions for numbered books (no spaces)
-    private static let compactedAliases: [String: Book] = {
+    private nonisolated(unsafe) static let compactedAliases: [String: Book] = {
         var aliases: [String: Book] = [:]
 
         // Samuel
@@ -371,7 +372,7 @@ enum ReferenceParser {
 
 extension ReferenceParser {
     /// Provide suggestions based on partial input
-    static func suggestions(for input: String, limit: Int = 5) -> [Book] {
+    nonisolated static func suggestions(for input: String, limit: Int = 5) -> [Book] {
         let normalized = input.lowercased().trimmingCharacters(in: .whitespaces)
         guard !normalized.isEmpty else { return [] }
 
@@ -388,5 +389,188 @@ extension ReferenceParser {
         }
 
         return Array(matches.prefix(limit))
+    }
+}
+
+// MARK: - Canonical ID Support
+
+extension ReferenceParser {
+    /// Generate a canonical ID for stable verification index lookup
+    /// Format: "bookId.chapter.verse" or "bookId.chapter.verseStart-verseEnd"
+    /// Examples: "43.3.16" (John 3:16), "45.8.28-30" (Romans 8:28-30), "1.1" (Genesis 1)
+    nonisolated static func canonicalId(for parsed: ParsedReference) -> String {
+        if let start = parsed.verseStart, let end = parsed.verseEnd, start != end {
+            return "\(parsed.book.id).\(parsed.chapter).\(start)-\(end)"
+        } else if let verse = parsed.verseStart {
+            return "\(parsed.book.id).\(parsed.chapter).\(verse)"
+        }
+        return "\(parsed.book.id).\(parsed.chapter)"
+    }
+
+    /// Generate a canonical ID from individual components
+    /// Used by CrossRefService for building verification index
+    nonisolated static func canonicalId(bookId: Int, chapter: Int, verseStart: Int, verseEnd: Int) -> String {
+        if verseStart != verseEnd {
+            return "\(bookId).\(chapter).\(verseStart)-\(verseEnd)"
+        }
+        return "\(bookId).\(chapter).\(verseStart)"
+    }
+
+    /// Try to parse a canonical ID back into components
+    /// Returns (bookId, chapter, verseStart, verseEnd) or nil if invalid
+    nonisolated static func parseCanonicalId(_ id: String) -> (bookId: Int, chapter: Int, verseStart: Int?, verseEnd: Int?)? {
+        let parts = id.split(separator: ".")
+        guard parts.count >= 2,
+              let bookId = Int(parts[0]),
+              let chapter = Int(parts[1]) else {
+            return nil
+        }
+
+        if parts.count >= 3 {
+            let versePart = String(parts[2])
+            if versePart.contains("-") {
+                let verseParts = versePart.split(separator: "-")
+                if verseParts.count == 2,
+                   let start = Int(verseParts[0]),
+                   let end = Int(verseParts[1]) {
+                    return (bookId, chapter, start, end)
+                }
+            } else if let verse = Int(versePart) {
+                return (bookId, chapter, verse, nil)
+            }
+        }
+
+        return (bookId, chapter, nil, nil)
+    }
+}
+
+// MARK: - Space-Separated Format Support
+
+extension ReferenceParser {
+    /// Parse a reference that may use space instead of colon (e.g., "Romans 5 8")
+    /// Falls back to standard parse if colon format detected
+    nonisolated static func parseFlexible(_ input: String) -> Result<ParsedReference, ReferenceParseError> {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return .failure(.emptyInput)
+        }
+
+        // Normalize dashes (en-dash, em-dash → hyphen)
+        let normalized = trimmed
+            .replacingOccurrences(of: "–", with: "-")
+            .replacingOccurrences(of: "—", with: "-")
+
+        // If it contains a colon, use standard parsing
+        if normalized.contains(":") {
+            return parse(normalized)
+        }
+
+        // Try space-separated format: "Book chapter verse" or "Book chapter verse-verse"
+        // Pattern: book name, chapter number, optional verse (with optional range)
+        let spacePattern = #"^((?:\d\s*)?[a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s+(\d+)\s+(\d+)(?:\s*-\s*(\d+))?$"#
+
+        guard let regex = try? NSRegularExpression(pattern: spacePattern, options: .caseInsensitive),
+              let match = regex.firstMatch(in: normalized, range: NSRange(normalized.startIndex..., in: normalized)) else {
+            // Fall back to standard parse (handles "Book chapter" without verse)
+            return parse(normalized)
+        }
+
+        // Extract book name
+        guard let bookRange = Range(match.range(at: 1), in: normalized) else {
+            return parse(normalized)
+        }
+        let bookStr = String(normalized[bookRange]).trimmingCharacters(in: .whitespaces)
+
+        // Extract chapter
+        guard let chapterRange = Range(match.range(at: 2), in: normalized),
+              let chapter = Int(normalized[chapterRange]) else {
+            return parse(normalized)
+        }
+
+        // Extract verse
+        guard let verseStartRange = Range(match.range(at: 3), in: normalized),
+              let verseStart = Int(normalized[verseStartRange]) else {
+            return parse(normalized)
+        }
+
+        // Extract optional verse end
+        var verseEnd: Int?
+        if match.range(at: 4).location != NSNotFound,
+           let verseEndRange = Range(match.range(at: 4), in: normalized) {
+            verseEnd = Int(normalized[verseEndRange])
+        }
+
+        // Find the book
+        guard let book = findBook(bookStr) else {
+            return .failure(.bookNotFound(bookStr))
+        }
+
+        // Validate chapter
+        guard chapter >= 1 && chapter <= book.chapters else {
+            return .failure(.invalidChapter(book: book.name, chapter: chapter, maxChapter: book.chapters))
+        }
+
+        // Validate verses
+        if verseStart < 1 {
+            return .failure(.invalidVerse(verseStart))
+        }
+        if let end = verseEnd, end < 1 {
+            return .failure(.invalidVerse(end))
+        }
+
+        return .success(ParsedReference(
+            book: book,
+            chapter: chapter,
+            verseStart: verseStart,
+            verseEnd: verseEnd
+        ))
+    }
+
+}
+
+// MARK: - Multi-Reference Extraction
+
+extension ReferenceParser {
+    /// Extract all Bible references from a text block
+    /// Replaces regex-based extraction with parser-validated results
+    /// - Parameter text: The text to search for references
+    /// - Returns: Array of successfully parsed references (deduped by canonical ID)
+    nonisolated static func extractAll(from text: String) -> [ParsedReference] {
+        var results: [ParsedReference] = []
+        var seenCanonicalIds = Set<String>()
+
+        // Pattern to find potential Bible references in text
+        // Matches: "Book chapter:verse", "Book chapter verse", "1 Book chapter:verse"
+        let candidatePattern = #"(?:\d\s*)?[A-Za-z]+(?:\s+[A-Za-z]+)?\s+\d+(?:[:\s]\d+)?(?:\s*[-–—]\s*\d+)?"#
+
+        guard let regex = try? NSRegularExpression(pattern: candidatePattern, options: []) else {
+            return []
+        }
+
+        let range = NSRange(text.startIndex..., in: text)
+        let matches = regex.matches(in: text, options: [], range: range)
+
+        for match in matches {
+            guard let matchRange = Range(match.range, in: text) else { continue }
+            let candidate = String(text[matchRange]).trimmingCharacters(in: .whitespaces)
+
+            // Try flexible parsing (handles both colon and space formats)
+            if case .success(let parsed) = parseFlexible(candidate) {
+                let canonicalId = Self.canonicalId(for: parsed)
+
+                // Dedupe by canonical ID
+                if !seenCanonicalIds.contains(canonicalId) {
+                    seenCanonicalIds.insert(canonicalId)
+                    results.append(parsed)
+                }
+            }
+        }
+
+        return results
+    }
+
+    /// Extract all references and return as canonical IDs
+    nonisolated static func extractCanonicalIds(from text: String) -> [String] {
+        extractAll(from: text).map { canonicalId(for: $0) }
     }
 }

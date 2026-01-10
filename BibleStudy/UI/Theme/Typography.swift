@@ -1,781 +1,403 @@
+//
+//  Typography.swift
+//  BibleStudy
+//
+//  Stoic-Existential Renaissance Design System
+//
+//  Typographic Philosophy: "Serif for truth. Sans for command."
+//  - New York (Serif) = Contemplation (scripture, readings, prompts, reflection)
+//  - SF Pro (Sans) = Action (buttons, navigation, system, execution)
+//  - Typography signals mode - font switching tells user when to think vs act
+//
+//  Hard Rules (Non-Negotiable):
+//  1. Buttons are ALWAYS Sans - no poetic button labels
+//  2. Serif = contemplation, Sans = execution (creates "codex + field manual" effect)
+//  3. ALL CAPS only for tiny tags with tracking
+//  4. Emphasis: Use italics (serif) for maxims/quotes, Use weight (sans) for system
+//  5. Measure: Reading blocks constrained to max width, ~45-70 chars/line
+//
+
 import SwiftUI
 
-// MARK: - Typography
-// Illuminated Manuscript Design System
-// Scripture: Customizable serif (New York, Georgia, EB Garamond)
-// Display: Premium serif (Cormorant Garamond, Cinzel) for headers
-// UI: System sans (SF Pro) for interface elements
-//
-// Type Scale: Perfect Fourth (1.333 ratio)
-// Base: 18pt → 14pt → 18pt → 24pt → 32pt → 42pt → 56pt → 75pt
+// MARK: - Typography (Temporary Name - Will Be Renamed to Typography in Phase 7)
 
-struct Typography {
+enum Typography {
 
-    // MARK: - Type Scale (Perfect Fourth: 1.333)
-    // Each step multiplies by 1.333
-    enum Scale {
-        static let xs: CGFloat = 11      // Captions, footnotes
-        static let sm: CGFloat = 14      // Secondary text
-        static let base: CGFloat = 18    // Body text (scripture)
-        static let lg: CGFloat = 22      // Section titles
-        static let xl: CGFloat = 28      // Subheadings
-        static let xxl: CGFloat = 32     // Book titles
-        static let xxxl: CGFloat = 42    // Chapter numbers
-        static let display: CGFloat = 56 // Hero text
-        static let dropCap: CGFloat = 72 // Illuminated initials
-    }
-    // MARK: - Scripture Text Styles
-    struct Scripture {
-        static func body(size: CGFloat = 18) -> Font {
-            .system(size: size, design: .serif)
+    // MARK: - Scripture Tokens (New York Serif)
+
+    /// Scripture tokens use New York serif for contemplation
+    /// Use for: titles, examen prompts, readings, maxims, section headings
+    enum Scripture {
+        // S-Display: Hero titles ("Evening Examen")
+        static let display: Font = .system(size: 34, weight: .semibold, design: .serif)
+        static let displayLineSpacing: CGFloat = 5  // ~1.15 line height
+
+        // S-Title: Screen/session titles
+        static let title: Font = .system(size: 28, weight: .semibold, design: .serif)
+        static let titleLineSpacing: CGFloat = 5  // ~1.18 line height
+
+        // S-Heading: Section headers ("Daily Office")
+        static let heading: Font = .system(size: 22, weight: .semibold, design: .serif)
+        static let headingLineSpacing: CGFloat = 4  // ~1.20 line height
+
+        // S-Prompt: Examination statements (questions to user)
+        static let prompt: Font = .system(size: 24, weight: .regular, design: .serif)
+        static let promptLineSpacing: CGFloat = 6  // ~1.25 line height
+
+        // S-Body: Reading body text (scripture passages)
+        // CRITICAL: Reading blocks must constrain to max width, target 45-70 characters/line
+        static let body: Font = .system(size: 17, weight: .regular, design: .serif)
+        static let bodyLineSpacing: CGFloat = 6  // ~1.45 line height
+
+        // S-Quote: Maxims / quotations (italic for gravity)
+        static let quote: Font = .system(size: 17, weight: .regular, design: .serif).italic()
+        static let quoteLineSpacing: CGFloat = 6  // ~1.45 line height
+
+        // S-Footnote: Footnotes / references
+        static let footnote: Font = .system(size: 13, weight: .regular, design: .serif)
+        static let footnoteLineSpacing: CGFloat = 4  // ~1.35 line height
+
+        // S-Body with size: Dynamic sizing for user-selected font preferences
+        // Used by Bible reader with ScriptureFontSize enum
+        static func bodyWithSize(_ size: CGFloat) -> Font {
+            .system(size: size, weight: .regular, design: .serif)
         }
 
-        static func bodyWithSize(_ size: ScriptureFontSize) -> Font {
-            .system(size: size.rawValue, design: .serif)
-        }
-
-        static let verseNumber: Font = .system(size: 12, weight: .medium, design: .serif)
-
-        static let chapterNumber: Font = .system(size: 48, weight: .light, design: .serif)
-
-        static let title: Font = .system(size: 28, weight: .light, design: .serif)
-
-        static func quote(size: CGFloat = 16) -> Font {
-            .system(size: size, design: .serif).italic()
-        }
+        // RULES:
+        // - Use italics for scripture-like emphasis; avoid bolding passages
+        // - Keep serif text blocks narrower (measure control) for readability
+        // - Target ~45-70 characters per line for reading text
     }
 
-    // MARK: - Display Text Styles (Serif for premium headlines)
-    struct Display {
-        static let largeTitle: Font = .system(size: 34, weight: .medium, design: .serif)
-        static let title1: Font = .system(size: 28, weight: .medium, design: .serif)
-        static let title2: Font = .system(size: 22, weight: .medium, design: .serif)
-        static let title3: Font = .system(size: 20, weight: .medium, design: .serif)
-        static let headline: Font = .system(size: 17, weight: .semibold, design: .serif)
+    // MARK: - Command Tokens (SF Pro Sans)
+
+    /// Command tokens use SF Pro sans for action/execution
+    /// Use for: buttons, navigation, labels, instructions, system states
+    enum Command {
+        // C-CTA: Primary buttons ("Begin", "Commit", "Review")
+        static let cta: Font = .system(size: 17, weight: .semibold)
+        static let ctaLineSpacing: CGFloat = 3  // ~1.20 line height
+
+        // C-Body: Short instructions
+        static let body: Font = .system(size: 17, weight: .regular)
+        static let bodyLineSpacing: CGFloat = 5  // ~1.35 line height
+
+        // C-Label: Field labels, chips
+        static let label: Font = .system(size: 15, weight: .medium)
+        static let labelLineSpacing: CGFloat = 3  // ~1.20 line height
+
+        // C-Meta: Dates, tags, verse numbers (e.g., "LESSON", verse numbers)
+        // HARD RULE: Verse numbers are ALWAYS sans (functional, not sacred)
+        static let meta: Font = .system(size: 13, weight: .medium)
+        static let metaLineSpacing: CGFloat = 2  // ~1.20 line height
+
+        // C-Caption: Hints, helper text
+        static let caption: Font = .system(size: 12, weight: .regular)
+        static let captionLineSpacing: CGFloat = 2  // ~1.20 line height
+
+        // C-ErrorTitle: Error titles
+        static let errorTitle: Font = .system(size: 15, weight: .semibold)
+        static let errorTitleLineSpacing: CGFloat = 3  // ~1.25 line height
+
+        // C-ErrorBody: Error guidance
+        static let errorBody: Font = .system(size: 13, weight: .regular)
+        static let errorBodyLineSpacing: CGFloat = 3  // ~1.30 line height
+
+        // C-LargeTitle: Large navigation titles
+        static let largeTitle: Font = .system(size: 34, weight: .bold)
+
+        // C-Title1: Primary titles
+        static let title1: Font = .system(size: 28, weight: .bold)
+
+        // C-Title2: Secondary titles
+        static let title2: Font = .system(size: 22, weight: .bold)
+
+        // C-Title3: Tertiary titles
+        static let title3: Font = .system(size: 20, weight: .semibold)
+
+        // C-Headline: Section headlines
+        static let headline: Font = .system(size: 17, weight: .semibold)
+
+        // C-Subheadline: Supporting text
+        static let subheadline: Font = .system(size: 15, weight: .regular)
+
+        // C-Callout: Callout text
+        static let callout: Font = .system(size: 16, weight: .regular)
+
+        // RULES:
+        // - Use weight (not italics) for system emphasis
+        // - Sentence case for labels, Title Case for buttons (pick one)
     }
 
-    // MARK: - UI Text Styles
-    struct UI {
-        static let largeTitle: Font = .system(size: 34, weight: .bold, design: .default)
-        static let title1: Font = .system(size: 28, weight: .bold, design: .default)
-        static let title2: Font = .system(size: 22, weight: .bold, design: .default)
-        static let title3: Font = .system(size: 20, weight: .semibold, design: .default)
-        static let headline: Font = .system(size: 17, weight: .semibold, design: .default)
-        static let body: Font = .system(size: 17, weight: .regular, design: .default)
-        static let bodyBold: Font = .system(size: 17, weight: .bold, design: .default)
-        static let callout: Font = .system(size: 16, weight: .regular, design: .default)
-        static let subheadline: Font = .system(size: 15, weight: .regular, design: .default)
-        static let footnote: Font = .system(size: 13, weight: .medium, design: .default)
-        static let caption1: Font = .system(size: 12, weight: .medium, design: .default)
-        static let caption1Bold: Font = .system(size: 12, weight: .bold, design: .default)
-        static let caption2: Font = .system(size: 11, weight: .regular, design: .default)
+    // MARK: - Label (Uppercase Tags)
 
-        // Interactive elements (Rounded for warmth)
-        static let tabLabel: Font = .system(size: 10, weight: .medium, design: .rounded)
-        static let buttonLabel: Font = .system(size: 17, weight: .semibold, design: .rounded)
-        static let chipLabel: Font = .system(size: 14, weight: .medium, design: .rounded)
+    /// Uppercase labels for tiny tags with tracking
+    /// Use for: metadata tags, small labels
+    enum Label {
+        static let uppercase: Font = .system(size: 12, weight: .medium)
+        static let tracking: CGFloat = 2.2  // Letterspacing for ALL CAPS
 
-        // Warm variants for welcoming/friendly contexts
-        static let warmBody: Font = .system(size: 17, weight: .regular, design: .rounded)
-        static let warmHeadline: Font = .system(size: 17, weight: .semibold, design: .rounded)
-        static let warmSubheadline: Font = .system(size: 15, weight: .regular, design: .rounded)
-
-        // MARK: - Icon Fonts
-        // SF Symbol icon sizes with semantic naming
-        static let iconXs: Font = .system(size: Scale.xs, weight: .medium)         // 11pt - tiny icons
-        static let iconXxs: Font = .system(size: Scale.xs - 1, weight: .medium)    // 10pt - chevrons, badges
-        static let iconXxxs: Font = .system(size: Scale.xs - 3, weight: .medium)   // 8pt - micro chevrons
-        static let iconSm: Font = .system(size: Scale.sm, weight: .medium)         // 14pt - small icons
-        static let iconMd: Font = .system(size: Scale.sm + 2, weight: .medium)     // 16pt - medium icons
-        static let iconLg: Font = .system(size: Scale.base, weight: .medium)       // 18pt - large icons
-        static let iconXl: Font = .system(size: AppTheme.IconSize.large, weight: .medium) // 24pt - extra large icons
-        static let iconXxl: Font = .system(size: AppTheme.IconSize.celebration, weight: .medium) // 36pt - oversized icons
+        // Apply: .font(Typography.Label.uppercase).textCase(.uppercase).tracking(Typography.Label.tracking)
     }
 
-    // MARK: - Hebrew/Greek Text
-    struct Language {
-        static let hebrew: Font = .system(size: 20, design: .serif)
-        static let greek: Font = .system(size: 18, design: .serif)
-        static let transliteration: Font = .system(size: 16, design: .monospaced).italic()
-        static let gloss: Font = .system(size: 14, weight: .medium, design: .default)
-    }
+    // MARK: - Editorial Tokens (Tracked Uppercase)
 
-    // MARK: - Code/Monospaced Text
-    struct Code {
-        static let inline: Font = .system(size: 13, design: .monospaced)
-        static let block: Font = .system(size: 14, design: .monospaced)
-        static let small: Font = .system(size: 11, design: .monospaced)
-    }
-
-    // MARK: - Reading Typography (NEW - Modern Scripture)
-    // Verse content and biblical text with user-customizable fonts
-    // Replaces Scripture + Illuminated.body* tokens
-
-    struct Reading {
-        // MARK: - Verse Text (User-Customizable Font)
-
-        /// Primary verse text - respects user's font preference
-        /// Example: Verse display in Scholar Reader, reading modes
-        static func verse(size: ScriptureFontSize = .medium, font: ScriptureFont = .newYork) -> Font {
-            font.font(size: size.rawValue)
-        }
-
-        /// Poetic verse text - italic variant for poetry, quoted speech
-        /// Example: Psalms, quoted passages, Words of Christ
-        static func verseItalic(size: ScriptureFontSize = .medium, font: ScriptureFont = .newYork) -> Font {
-            font.font(size: size.rawValue).italic()
-        }
-
-        /// Verse emphasis - semibold for red letter editions
-        /// Example: Words of Christ when emphasis needed
-        static func verseEmphasis(size: ScriptureFontSize = .medium, font: ScriptureFont = .newYork) -> Font {
-            font.font(size: size.rawValue).weight(.semibold)
-        }
-
-        // MARK: - Chapter Headers
-
-        /// Large chapter number - editorial bold serif
-        /// Example: "Chapter 1" in reader headers
-        static let chapterNumber: Font = .system(size: 28, weight: .bold, design: .serif)
-
-        /// Chapter label - small tracked uppercase
-        /// Example: "CHAPTER" text above number
-        static let chapterLabel: Font = .system(size: 11, weight: .bold)
-
-        // MARK: - Verse Numbers
-
-        /// Standard verse number - bold system
-        /// Example: Default verse number style
-        static let verseNumber: Font = .system(size: 14, weight: .bold)
-
-        /// Subtle verse number - light weight
-        /// Example: Minimal verse number style
-        static let verseNumberSubtle: Font = .system(size: 12, weight: .regular)
-
-        // MARK: - Line Spacing
-
-        /// Standard verse line spacing
-        static let verseLineSpacing: CGFloat = 8
-
-        /// Poetic verse line spacing (more generous)
-        static let poeticLineSpacing: CGFloat = 10
-    }
-
-    // MARK: - Editorial Typography (NEW - Scholar Patterns)
-    // Metadata, labels, references following editorial/newspaper conventions
-    // Distinctive patterns for scholarly precision
-
-    struct Editorial {
-        // MARK: - Headers & Labels (Tracked Uppercase)
-
-        /// Section headers - bold tracked uppercase
-        /// Example: "TODAY'S STUDY", "DEEPEN YOUR UNDERSTANDING"
-        /// Use with: .tracking(Editorial.sectionTracking).textCase(.uppercase)
+    /// Editorial tokens for section headers and labels with tracking
+    /// Use for: section headers, editorial labels, references
+    /// Apply with: .tracking(Typography.Editorial.sectionTracking).textCase(.uppercase)
+    enum Editorial {
+        // E-SectionHeader: Section headers (11pt bold + tracking)
         static let sectionHeader: Font = .system(size: 11, weight: .bold)
 
-        /// Small label - medium tracked uppercase
-        /// Example: "SCHOLARLY INSIGHT", "CONNECTION"
-        /// Use with: .tracking(Editorial.labelTracking).textCase(.uppercase)
+        // E-Label: Editorial labels (10pt bold + tracking)
         static let label: Font = .system(size: 10, weight: .bold)
 
-        /// Tiny label - for compact spaces
-        /// Example: Chip labels, tags, badges
+        // E-LabelSmall: Small editorial labels (9pt bold + tracking)
         static let labelSmall: Font = .system(size: 9, weight: .bold)
 
-        // MARK: - References (Cinzel + Tracking)
-
-        /// Scripture reference - Cinzel with tracking
-        /// Example: "Gen 1:1", "Eph 2:20"
-        /// Use with: .tracking(Editorial.referenceTracking)
-        static var reference: Font {
-            CustomFonts.cinzelRegular(size: 11)
-        }
-
-        /// Large reference - for hero displays
-        /// Example: Main passage reference in study cards
-        static let referenceHero: Font = .system(size: 14, weight: .semibold, design: .serif)
-
-        /// Display reference - large decorative Cinzel
-        /// Example: 72pt decorative quotes in home variants
-        static var referenceDisplay: Font {
-            CustomFonts.cinzelRegular(size: 32)
-        }
-
-        // MARK: - Tracking Constants (Liturgical Spacing: 20-30%)
-
-        /// Section header tracking (~23% on 11pt)
-        /// Creates contemplative, architectural spacing
-        static let sectionTracking: CGFloat = 2.5
-
-        /// Label tracking (~15% on 10pt)
-        /// Legibility in small sizes
-        static let labelTracking: CGFloat = 1.5
-
-        /// Reference tracking (~27% on 11pt)
-        /// Inscriptional quality for citations
-        static let referenceTracking: CGFloat = 3.0
+        // Tracking Constants (Liturgical Spacing: 20-30%)
+        static let sectionTracking: CGFloat = 2.5   // ~23% on 11pt
+        static let labelTracking: CGFloat = 2.0     // ~20% on 10pt
+        static let referenceTracking: CGFloat = 1.5 // Subtler for references
     }
 
-    // MARK: - Insight Typography (NEW - AI Content)
-    // AI-generated content (insights, commentary, chat)
-    // Replaces Codex.* tokens with better fallback support
+    // MARK: - Icon Tokens (SF Symbol Sizes)
 
-    struct Insight {
-        // MARK: - Headers (Cinzel for Manuscript Feel)
+    /// Icon tokens for SF Symbols - use on Image(systemName:)
+    /// Follows Apple's recommended icon sizing scale
+    enum Icon {
+        // Tiny icons (badges, indicators)
+        static let xxxs: Font = .system(size: 8, weight: .medium)
+        static let xxs: Font = .system(size: 10, weight: .medium)
+        static let xs: Font = .system(size: 12, weight: .medium)
 
-        /// Insight card header - small Cinzel uppercase
-        /// Example: "SCHOLARLY INSIGHT", "ILLUMINATED INSIGHT"
-        static var header: Font {
-            CustomFonts.cinzelRegular(size: 11)
-        }
+        // Standard icons (buttons, list rows)
+        static let sm: Font = .system(size: 14, weight: .medium)
+        static let md: Font = .system(size: 16, weight: .medium)
+        static let base: Font = .system(size: 18, weight: .medium)
 
-        /// Section title within insight
-        /// Example: "Key Points", "Context", "Words"
-        static var sectionTitle: Font {
-            CustomFonts.cinzelRegular(size: 10)
-        }
+        // Large icons (empty states, feature cards)
+        static let lg: Font = .system(size: 24, weight: .medium)
+        static let xl: Font = .system(size: 28, weight: .medium)
+        static let xxl: Font = .system(size: 32, weight: .medium)
 
-        // MARK: - Body (Cormorant for Readability)
-
-        /// Hero summary - primary insight text
-        /// Example: Main insight summary, chat responses
-        static var heroSummary: Font {
-            CustomFonts.cormorantRegular(size: 17)
-        }
-
-        /// Standard body text
-        /// Example: Expanded content, detailed explanations
-        static var body: Font {
-            CustomFonts.cormorantRegular(size: 15)
-        }
-
-        /// Small body - compact displays
-        /// Example: Dense content areas
-        static var bodySmall: Font {
-            CustomFonts.cormorantRegular(size: 14)
-        }
-
-        // MARK: - Emphasis Variants
-
-        /// Italic - for marginalia, quotes, loading states
-        static var italic: Font {
-            CustomFonts.cormorantItalic(size: 15)
-        }
-
-        /// Emphasis - semibold for key points
-        static var emphasis: Font {
-            CustomFonts.cormorantSemiBold(size: 15)
-        }
-
-        // MARK: - Cross-References
-
-        /// Reference in insight content
-        static var reference: Font {
-            CustomFonts.cormorantSemiBold(size: 14)
-        }
-
-        /// Quote preview
-        static var quote: Font {
-            CustomFonts.cormorantItalic(size: 15)
-        }
-
-        // MARK: - Line Spacing
-
-        /// Hero summary line spacing
-        static let heroLineSpacing: CGFloat = 6
-
-        /// Body line spacing
-        static let bodyLineSpacing: CGFloat = 5
-
-        /// Caption line spacing
-        static let captionLineSpacing: CGFloat = 3
+        // Hero icons (onboarding, celebrations)
+        static let hero: Font = .system(size: 40, weight: .medium)
+        static let display: Font = .system(size: 76, weight: .medium)
     }
 
-    // MARK: - Illuminated Manuscript Typography
-    // Premium typography for the illuminated manuscript theme
-    // Uses custom fonts with system fallbacks
-    //
-    // ⚠️ **DEPRECATED**: This struct is being phased out in favor of semantic tokens.
-    //
-    // **Migration Guide**:
-    // - `Illuminated.body()` → Use `Typography.Reading.verse()` for scripture text
-    // - `Illuminated.bodyWithSize()` → Use `Typography.Reading.verse(size:font:)` with ScriptureFontSize
-    // - `Illuminated.footnote` → Use `Typography.UI.footnote` for standard footnotes
-    // - `Illuminated.quote()` → Use `Typography.Reading.verseItalic()` for poetic/quoted passages
-    // - Drop caps and decorative elements → Keep using Illuminated tokens (feature-specific)
-    //
-    // See Typography.Reading and TypographyModifiers.swift for new patterns
-
-    struct Illuminated {
-
-        // MARK: - Scripture Body (User-Selected Font)
-
-        /// Scripture body with user's selected font
-        static func body(size: CGFloat = Scale.base, font: ScriptureFont = .newYork) -> Font {
-            font.font(size: size)
-        }
-
-        /// Scripture body with font size enum
-        static func bodyWithSize(_ size: ScriptureFontSize, font: ScriptureFont = .newYork) -> Font {
-            font.font(size: size.rawValue)
-        }
-
-        // MARK: - Drop Caps (Cinzel for Roman capitals)
-
-        /// Large illuminated initial for paragraph/chapter starts
-        /// Use Cinzel for decorative Roman capitals
-        static func dropCap(size: CGFloat = Scale.dropCap) -> Font {
-            DisplayFont.cinzel.font(size: size, weight: .semibold)
-        }
-
-        /// Smaller drop cap for less prominent sections
-        static func dropCapSmall(size: CGFloat = Scale.display) -> Font {
-            DisplayFont.cinzel.font(size: size, weight: .medium)
-        }
-
-        // MARK: - Chapter Numbers
-
-        /// Large chapter number (56pt by default)
-        static func chapterNumber(size: CGFloat = Scale.display) -> Font {
-            DisplayFont.cinzel.font(size: size, weight: .regular)
-        }
-
-        /// Chapter number label ("CHAPTER" text above number)
-        static var chapterLabel: Font {
-            .system(size: Scale.xs, weight: .medium, design: .serif)
-                .smallCaps()
-        }
-
-        // MARK: - Book Titles (Cormorant Garamond)
-
-        /// Large book title (32pt)
-        static func bookTitle(size: CGFloat = Scale.xxl) -> Font {
-            DisplayFont.cormorantGaramond.font(size: size, weight: .semibold)
-        }
-
-        /// Section title within a book (22pt)
-        static func sectionTitle(size: CGFloat = Scale.lg) -> Font {
-            DisplayFont.cormorantGaramond.font(size: size, weight: .medium)
-        }
-
-        // MARK: - Verse Numbers
-
-        /// Superscript verse number style
-        static var verseNumberSuperscript: Font {
-            .system(size: Scale.xs, weight: .medium, design: .serif)
-        }
-
-        /// Inline verse number (same baseline as text)
-        static var verseNumberInline: Font {
-            .system(size: Scale.sm, weight: .semibold, design: .serif)
-        }
-
-        /// Marginal verse number (for margin placement)
-        static var verseNumberMarginal: Font {
-            .system(size: Scale.sm, weight: .regular, design: .serif)
-        }
-
-        /// Ornamental verse number (with decorative styling)
-        static var verseNumberOrnamental: Font {
-            DisplayFont.cinzel.font(size: Scale.sm, weight: .regular)
-        }
-
-        // MARK: - Footnotes & References
-
-        /// Footnote text
-        static var footnote: Font {
-            .system(size: Scale.xs, weight: .regular, design: .serif)
-        }
-
-        /// Cross-reference text
-        static var crossReference: Font {
-            .system(size: Scale.xs, weight: .medium, design: .serif)
-        }
-
-        // MARK: - Quotes & Special Text
-
-        /// Block quote style (Words of Christ, etc.)
-        static func quote(size: CGFloat = Scale.base) -> Font {
-            .system(size: size, design: .serif).italic()
-        }
-
-        /// Words of Christ (red letter)
-        static func wordsOfChrist(size: CGFloat = Scale.base, font: ScriptureFont = .newYork) -> Font {
-            font.font(size: size)
-        }
-
-        // MARK: - Navigation & UI Headers
-
-        /// Navigation bar title (book name)
-        static var navTitle: Font {
-            DisplayFont.cormorantGaramond.font(size: Scale.lg, weight: .semibold)
-        }
-
-        /// Tab bar labels (minimal)
-        static var tabLabel: Font {
-            .system(size: 10, weight: .medium, design: .rounded)
-        }
-    }
-
-    // MARK: - Codex Typography (AI Insight Components)
-    // Dedicated typography for Illuminated Insight cards, Deep Study Sheet, and Context Menu
-    // Uses Cinzel for headers (Roman inscriptional) and CormorantGaramond for body (humanist serif)
-    // Creates authentic manuscript aesthetic with intentional hierarchy
-    //
-    // ⚠️ **DEPRECATED**: This struct is being replaced by Typography.Insight with semantic tokens.
-    //
-    // **Migration Guide**:
-    // - `Codex.heroSummary` → Use `Typography.Insight.heroSummary` or `.insightHeroSummary()` modifier
-    // - `Codex.body` → Use `Typography.Insight.body` or `.insightBody()` modifier
-    // - `Codex.emphasis` → Use `Typography.Insight.emphasis` or `.insightEmphasis()` modifier
-    // - `Codex.italic` → Use `Typography.Insight.italic` or `.insightItalic()` modifier
-    // - `Codex.illuminatedHeader` → Use `Typography.Insight.header` or `.insightHeader()` modifier
-    // - `Codex.sectionLabel` → Use `Typography.Editorial.label` or `.editorialLabel()` modifier
-    //
-    // See Typography.Insight and TypographyModifiers.swift for new patterns
-
-    struct Codex {
-        // MARK: - Headers (Cinzel - Roman Capitals)
-
-        /// "ILLUMINATED INSIGHT" header - small caps with generous tracking
-        static let illuminatedHeader: Font = .custom("Cinzel-Regular", size: 11)
-
-        /// Category labels in book lists
-        static let sectionLabel: Font = .custom("Cinzel-Regular", size: 10)
-
-        /// Book initial glyph for headers
-        static let bookInitial: Font = .custom("Cinzel-Regular", size: 28)
-
-        /// Small Cinzel initial for search results
-        static let inlineInitial: Font = .custom("Cinzel-Regular", size: 16)
-
-        /// Chapter titles in Deep Study Sheet
-        static let chapterTitle: Font = .custom("Cinzel-Regular", size: 14)
-
-        /// Large verse reference in Deep Study header
-        static let verseReference: Font = .custom("CormorantGaramond-Bold", size: 22)
-
-        // MARK: - Body Text (CormorantGaramond - Humanist Serif)
-
-        /// Hero summary - primary insight text (InlineInsightCard, Context Menu)
-        static let heroSummary: Font = .custom("CormorantGaramond-Regular", size: 17)
-
-        /// Standard body text in expanded sections
-        static let body: Font = .custom("CormorantGaramond-Regular", size: 15)
-
-        /// Smaller body for dense content areas
-        static let bodySmall: Font = .custom("CormorantGaramond-Regular", size: 14)
-
-        // MARK: - Emphasis Variants
-
-        /// Semi-bold for emphasis (key points, references)
-        static let emphasis: Font = .custom("CormorantGaramond-SemiBold", size: 15)
-
-        /// Italic for loading states, marginalia, quotes
-        static let italic: Font = .custom("CormorantGaramond-Italic", size: 15)
-
-        /// Small italic for scholar's notes, secondary info
-        static let italicSmall: Font = .custom("CormorantGaramond-Italic", size: 13)
-
-        /// Tiny italic for attribution lines
-        static let italicTiny: Font = .custom("CormorantGaramond-Italic", size: 11)
-
-        // MARK: - Captions & Labels
-
-        /// Caption text for section labels, metadata
-        static let caption: Font = .custom("CormorantGaramond-Regular", size: 13)
-
-        /// Small caption for tertiary information
-        static let captionSmall: Font = .custom("CormorantGaramond-Regular", size: 12)
-
-        /// Bold caption for emphasized labels
-        static let captionBold: Font = .custom("CormorantGaramond-SemiBold", size: 13)
-
-        // MARK: - Cross-References
-
-        /// Reference labels (book:chapter:verse)
-        static let reference: Font = .custom("CormorantGaramond-SemiBold", size: 14)
-
-        /// Preview quote text
-        static let quotePreview: Font = .custom("CormorantGaramond-Italic", size: 15)
-
-        // MARK: - Original Language
-
-        /// Greek script (SBL Greek Unicode)
-        static let greek: Font = .custom("SBLGreek", size: 18)
-
-        /// Greek in compact displays
-        static let greekSmall: Font = .custom("SBLGreek", size: 16)
-
-        /// Transliteration (italic)
-        static let transliteration: Font = .custom("CormorantGaramond-Italic", size: 14)
-
-        /// Gloss/translation of terms
-        static let gloss: Font = .custom("CormorantGaramond-SemiBold", size: 13)
-
-        // MARK: - Decorative
-
-        /// Chapter symbols (✦, 𝔏, 𝔗, ℭ, 𝔘)
-        static let chapterSymbol: Font = .custom("CormorantGaramond-Bold", size: 28)
-
-        /// Colophon text
-        static let colophon: Font = .custom("CormorantGaramond-Regular", size: 12)
-
-        // MARK: - Line Spacing
-
-        /// Standard line spacing for body text
-        static let bodyLineSpacing: CGFloat = 5
-
-        /// Generous line spacing for hero summaries
-        static let heroLineSpacing: CGFloat = 6
-
-        /// Tight line spacing for captions
-        static let captionLineSpacing: CGFloat = 3
-
-        // MARK: - Tracking (Letter Spacing)
-
-        /// Header tracking for Cinzel
-        static let headerTracking: CGFloat = 2.5
-
-        /// Title tracking
-        static let titleTracking: CGFloat = 1.5
-
-        /// Body tracking (minimal)
-        static let bodyTracking: CGFloat = 0.3
+    // MARK: - Decorative Tokens (Illuminated Manuscript)
+
+    /// Decorative tokens for illuminated manuscript effects
+    /// Use for: drop caps, ornamental elements
+    enum Decorative {
+        // Drop cap - large illuminated first letter
+        static let dropCap: Font = .system(size: 72, weight: .bold, design: .serif)
+        static let dropCapCompact: Font = .system(size: 52, weight: .bold, design: .serif)
     }
 }
 
-// MARK: - Illuminated Layout Constants
-// Margins and spacing based on manuscript design principles
+// MARK: - User Preference Types (Move to Settings/Models in future refactor)
 
-extension Typography {
-    enum Layout {
-        /// Left margin (wider for thumb grip)
-        static let marginLeft: CGFloat = 28
-
-        /// Right margin
-        static let marginRight: CGFloat = 20
-
-        /// Top margin
-        static let marginTop: CGFloat = 32
-
-        /// Bottom margin (space for navigation)
-        static let marginBottom: CGFloat = 48
-
-        /// Maximum reading width (optimal ~66 characters per line)
-        static let maxReadingWidth: CGFloat = 540
-
-        /// Generous line height for meditation (1.6x)
-        static let lineHeightMultiplier: CGFloat = 1.6
-
-        /// Standard paragraph spacing
-        static let paragraphSpacing: CGFloat = 16
-
-        /// Verse spacing (verse-per-line mode)
-        static let verseSpacing: CGFloat = 8
-
-        /// Drop cap indent (how far text wraps around drop cap)
-        static let dropCapIndent: CGFloat = 48
-
-        /// Drop cap lines (how many lines drop cap spans)
-        static let dropCapLines: Int = 3
-    }
-}
-
-// MARK: - Scripture Font Size Options
-enum ScriptureFontSize: CGFloat, CaseIterable {
-    case extraSmall = 14
-    case small = 16
-    case medium = 18
+/// User font size selection for Bible reading
+/// This is a functional type for user preferences, not a design token
+/// Consider moving to Core/Models/Settings/ in future refactor
+enum ScriptureFontSize: Int, CaseIterable {
+    case small = 14
+    case medium = 17
     case large = 20
-    case extraLarge = 22
-    case huge = 24
 
     var displayName: String {
         switch self {
-        case .extraSmall: return "Extra Small"
         case .small: return "Small"
         case .medium: return "Medium"
         case .large: return "Large"
-        case .extraLarge: return "Extra Large"
-        case .huge: return "Huge"
-        }
-    }
-
-    var lineSpacing: CGFloat {
-        switch self {
-        case .extraSmall: return 6
-        case .small: return 7
-        case .medium: return 8
-        case .large: return 9
-        case .extraLarge: return 10
-        case .huge: return 12
         }
     }
 }
 
-// MARK: - Verse Number Style Options
-// Different styles for displaying verse numbers
 
-enum VerseNumberStyle: String, CaseIterable, Codable {
-    case superscript = "superscript"    // Traditional superscript (default)
-    case inline = "inline"              // Same baseline as text
-    case marginal = "marginal"          // In the margin
-    case ornamental = "ornamental"      // Decorative Cinzel font
-    case minimal = "minimal"            // Subtle, nearly hidden
 
-    var displayName: String {
-        switch self {
-        case .superscript: return "Superscript"
-        case .inline: return "Inline"
-        case .marginal: return "Marginal"
-        case .ornamental: return "Ornamental"
-        case .minimal: return "Minimal"
-        }
-    }
+// MARK: - View Extensions (Convenience Helpers)
 
-    var manuscriptDescription: String {
-        switch self {
-        case .superscript: return "Traditional raised numbers"
-        case .inline: return "Numbers on the same line"
-        case .marginal: return "Numbers in the margin"
-        case .ornamental: return "Decorative Roman numerals"
-        case .minimal: return "Subtle, unobtrusive"
-        }
-    }
-
-    /// Font for this verse number style
-    var font: Font {
-        switch self {
-        case .superscript: return Typography.Illuminated.verseNumberSuperscript
-        case .inline: return Typography.Illuminated.verseNumberInline
-        case .marginal: return Typography.Illuminated.verseNumberMarginal
-        case .ornamental: return Typography.Illuminated.verseNumberOrnamental
-        case .minimal: return .system(size: 10, weight: .light, design: .serif)
-        }
-    }
-
-    /// Opacity for verse number
-    var opacity: Double {
-        switch self {
-        case .superscript, .inline, .ornamental: return 1.0
-        case .marginal: return 0.8
-        case .minimal: return 0.5
-        }
-    }
-}
-
-// MARK: - Drop Cap Style Options
-// Different illuminated initial styles
-
-enum DropCapStyle: String, CaseIterable, Codable {
-    case none = "none"              // No drop cap
-    case simple = "simple"          // Large first letter, no decoration
-    case illuminated = "illuminated" // Gold accent, glow effect
-    case uncial = "uncial"          // Celtic/medieval style
-    case floriate = "floriate"      // Floral/vine decoration
-    case versal = "versal"          // Manuscript versal letter
-
-    var displayName: String {
-        switch self {
-        case .none: return "None"
-        case .simple: return "Simple"
-        case .illuminated: return "Illuminated"
-        case .uncial: return "Uncial"
-        case .floriate: return "Floriate"
-        case .versal: return "Versal"
-        }
-    }
-
-    var manuscriptDescription: String {
-        switch self {
-        case .none: return "No decorative initial"
-        case .simple: return "Clean, large first letter"
-        case .illuminated: return "Golden glow, luxurious"
-        case .uncial: return "Celtic monastery style"
-        case .floriate: return "Vine and flower motifs"
-        case .versal: return "Classic manuscript initial"
-        }
-    }
-
-    /// Whether this style uses gold/accent coloring
-    var usesGoldAccent: Bool {
-        switch self {
-        case .none, .simple: return false
-        case .illuminated, .uncial, .floriate, .versal: return true
-        }
-    }
-}
-
-// MARK: - View Extension for Typography
+@available(iOS 13.0, *)
 extension View {
-    func scriptureStyle(size: ScriptureFontSize = .medium) -> some View {
+    // MARK: Scripture Helpers
+
+    /// Apply Scripture display style (hero titles)
+    func scriptureDisplay() -> some View {
         self
-            .font(Typography.Scripture.bodyWithSize(size))
-            .lineSpacing(size.lineSpacing)
+            .font(Typography.Scripture.display)
+            .lineSpacing(Typography.Scripture.displayLineSpacing)
     }
 
-    func verseNumberStyle() -> some View {
+    /// Apply Scripture title style (screen/session titles)
+    func scriptureTitle() -> some View {
         self
-            .font(Typography.Scripture.verseNumber)
-            .foregroundStyle(Color.verseNumber)
+            .font(Typography.Scripture.title)
+            .lineSpacing(Typography.Scripture.titleLineSpacing)
     }
 
-    /// Apply illuminated scripture style with custom font
-    func illuminatedScriptureStyle(
-        size: ScriptureFontSize = .medium,
-        font: ScriptureFont = .newYork,
-        lineSpacing: LineSpacing = .normal
-    ) -> some View {
+    /// Apply Scripture heading style (section headers)
+    func scriptureHeading() -> some View {
         self
-            .font(Typography.Illuminated.bodyWithSize(size, font: font))
-            .lineSpacing(lineSpacing.value + size.lineSpacing)
+            .font(Typography.Scripture.heading)
+            .lineSpacing(Typography.Scripture.headingLineSpacing)
     }
 
-    /// Apply verse number style based on preference
-    func verseNumberStyle(_ style: VerseNumberStyle) -> some View {
+    /// Apply Scripture prompt style (examination questions)
+    func scripturePrompt() -> some View {
         self
-            .font(style.font)
-            .opacity(style.opacity)
-            .foregroundStyle(Color.verseNumber)
+            .font(Typography.Scripture.prompt)
+            .lineSpacing(Typography.Scripture.promptLineSpacing)
     }
 
-    /// Apply drop cap styling
-    func dropCapStyle(
-        _ style: DropCapStyle = .illuminated,
-        size: CGFloat = Typography.Scale.dropCap
-    ) -> some View {
+    /// Apply Scripture body style (reading text)
+    /// CRITICAL: Constrain reading width to 45-65 chars/line externally
+    func scriptureBody() -> some View {
         self
-            .font(Typography.Illuminated.dropCap(size: size))
-            .foregroundStyle(style.usesGoldAccent ? Color.divineGold : Color.primaryText)
+            .font(Typography.Scripture.body)
+            .lineSpacing(Typography.Scripture.bodyLineSpacing)
     }
 
-    /// Apply chapter number styling
-    func chapterNumberStyle() -> some View {
+    /// Apply Scripture quote style (maxims, quotations)
+    func scriptureQuote() -> some View {
         self
-            .font(Typography.Illuminated.chapterNumber())
-            .foregroundStyle(Color.divineGold)
+            .font(Typography.Scripture.quote)
+            .lineSpacing(Typography.Scripture.quoteLineSpacing)
     }
 
-    /// Apply book title styling
-    func bookTitleStyle() -> some View {
+    /// Apply Scripture footnote style (references)
+    func scriptureFootnote() -> some View {
         self
-            .font(Typography.Illuminated.bookTitle())
-            .foregroundStyle(Color.primaryText)
+            .font(Typography.Scripture.footnote)
+            .lineSpacing(Typography.Scripture.footnoteLineSpacing)
     }
 
-    /// Apply illuminated manuscript margins
-    func illuminatedMargins() -> some View {
-        self.padding(EdgeInsets(
-            top: Typography.Layout.marginTop,
-            leading: Typography.Layout.marginLeft,
-            bottom: Typography.Layout.marginBottom,
-            trailing: Typography.Layout.marginRight
-        ))
+    // MARK: Command Helpers
+
+    /// Apply Command CTA style (primary buttons)
+    func commandCTA() -> some View {
+        self
+            .font(Typography.Command.cta)
+            .lineSpacing(Typography.Command.ctaLineSpacing)
     }
 
-    /// Constrain to optimal reading width
-    func readingWidth() -> some View {
-        self.frame(maxWidth: Typography.Layout.maxReadingWidth)
+    /// Apply Command body style (short instructions)
+    func commandBody() -> some View {
+        self
+            .font(Typography.Command.body)
+            .lineSpacing(Typography.Command.bodyLineSpacing)
+    }
+
+    /// Apply Command label style (field labels, chips)
+    func commandLabel() -> some View {
+        self
+            .font(Typography.Command.label)
+            .lineSpacing(Typography.Command.labelLineSpacing)
+    }
+
+    /// Apply Command meta style (dates, tags, verse numbers)
+    func commandMeta() -> some View {
+        self
+            .font(Typography.Command.meta)
+            .lineSpacing(Typography.Command.metaLineSpacing)
+    }
+
+    /// Apply Command caption style (hints, helper text)
+    func commandCaption() -> some View {
+        self
+            .font(Typography.Command.caption)
+            .lineSpacing(Typography.Command.captionLineSpacing)
+    }
+
+    /// Apply Command error title style
+    func commandErrorTitle() -> some View {
+        self
+            .font(Typography.Command.errorTitle)
+            .lineSpacing(Typography.Command.errorTitleLineSpacing)
+    }
+
+    /// Apply Command error body style
+    func commandErrorBody() -> some View {
+        self
+            .font(Typography.Command.errorBody)
+            .lineSpacing(Typography.Command.errorBodyLineSpacing)
+    }
+
+    // MARK: Label Helpers
+
+    /// Apply uppercase label style (tiny tags with tracking)
+    func uppercaseLabel() -> some View {
+        self
+            .font(Typography.Label.uppercase)
+            .textCase(.uppercase)
+            .tracking(Typography.Label.tracking)
     }
 }
+
+// MARK: - Typography Avoids (Documentation)
+
+/*
+ Typography Avoids:
+ - ❌ Edge-to-edge paragraphs (constrain reading width)
+ - ❌ Bolding scripture passages (use italics for gravity)
+ - ❌ Italics in sans (use weight instead)
+ - ❌ Poetic/metaphorical button labels
+
+ Critical Migrations from Old System:
+ - Typography.Scripture.body(size:) → Typography.Scripture.body (with .scriptureBody() helper)
+ - Typography.Codex.heroSummary → Typography.Scripture.heading
+ - Typography.Command.body → Typography.Command.body
+ - Typography.Editorial.label → Typography.Label.uppercase
+ - ALL buttons → Typography.Command.cta (with .commandCTA() helper)
+ */
+
+// MARK: - Bible Reading Layout Specification (Documentation)
+
+/*
+ Bible Reading Layout:
+
+ Mode A - Canonical Reading (Bible chapters, Psalms, long passages):
+ - Chapter Header: S-Heading (22pt semibold), SMALL CAPS, left align, letterspacing +0.5pt
+   Example: "PSALM 23"
+   Optional subtitle: C-Meta (sans), 70-80% opacity ("A Psalm of David")
+
+ - Body Text: S-Body (17pt), line spacing .lineSpacing(6-7), max width 45-65 chars/line
+   CRITICAL: Max width constraint required - "codex page, not blog post"
+   Alignment: Left (never justified)
+
+ - Verse Numbers: SF Pro (Command.meta), 12-13pt Medium, 60-70% opacity, slightly raised
+   HARD RULE: Verse numbers are ALWAYS sans (functional, not sacred)
+   Example: "¹ The Lord is my shepherd; I shall not want."
+
+ Mode B - Meditative Reading (short passages, verse-by-verse):
+ - Same typography as Mode A
+ - Each verse stands alone with extra vertical spacing (16-24pt)
+ - Encourages pause and deliberation
+
+ Emphasis Rules:
+ - Use italic (serif) for emphasis only
+ - NO bolding scripture body
+ - NO color highlights
+ - If emphasis needed: use spacing, isolation, silence
+
+ Red-Letter Treatment (Christ's words):
+ - Keep New York serif
+ - Subtle ivory/gold tint (felt, not seen)
+ - NO font/weight change, NO red color
+
+ Margins & Measure:
+ - iPhone: 20-24pt horizontal padding
+ - iPad: constrained text column (do NOT go full width)
+ - Paragraph separation: 12-16pt
+ - Section breaks: 24-32pt
+
+ Dark Mode (Default):
+ - Background: near-black/deep charcoal
+ - Text: soft ivory (NOT pure white)
+ - High contrast for night reading, not clinical
+
+ What This Layout Achieves:
+ "Scripture for men who intend to live it" - authoritative, disciplined, permanent, worthy of daily return
+ */

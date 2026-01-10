@@ -6,9 +6,11 @@ import SwiftUI
 struct AboutSectionView: View {
     @Bindable var viewModel: SettingsViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         IlluminatedSettingsCard(title: "About", icon: "info.circle.fill", showDivider: false) {
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 // Version info
                 versionRow
 
@@ -59,12 +61,12 @@ struct AboutSectionView: View {
     // MARK: - Version Row
 
     private var versionRow: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             // App icon placeholder
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium + 2)
+            RoundedRectangle(cornerRadius: Theme.Radius.card + 2)
                 .fill(
                     LinearGradient(
-                        colors: [Color.scholarAccent, Color.scholarAccent.opacity(AppTheme.Opacity.overlay)],
+                        colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -72,17 +74,17 @@ struct AboutSectionView: View {
                 .frame(width: 44, height: 44)
                 .overlay(
                     Image(systemName: "book.closed.fill")
-                        .font(.system(size: AppTheme.IconSize.large - 4, weight: .medium))
+                        .font(Typography.Icon.lg)
                         .foregroundStyle(.white)
                 )
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("BibleStudy")
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
 
                 Text("Version \(AppConfiguration.App.version) (\(AppConfiguration.App.build))")
-                    .font(Typography.UI.caption1.monospacedDigit())
+                    .font(Typography.Command.caption.monospacedDigit())
                     .foregroundStyle(Color.secondaryText)
             }
 
@@ -98,24 +100,24 @@ struct AboutSectionView: View {
         title: String,
         isExternal: Bool = false
     ) -> some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
-                .font(Typography.UI.iconSm.weight(.medium))
+                .font(Typography.Icon.sm.weight(.medium))
                 .foregroundStyle(iconColor)
                 .frame(width: 28, height: 28)
                 .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                        .fill(iconColor.opacity(AppTheme.Opacity.subtle + 0.02))
+                    RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
+                        .fill(iconColor.opacity(Theme.Opacity.faint + 0.02))
                 )
 
             Text(title)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.primaryText)
 
             Spacer()
 
             Image(systemName: isExternal ? "arrow.up.right" : "chevron.right")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
         .contentShape(Rectangle())
@@ -124,21 +126,23 @@ struct AboutSectionView: View {
     // MARK: - Colophon Footer
 
     private var colophonFooter: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            OrnamentalDivider(style: .sectionBreak, color: Color.scholarAccent.opacity(AppTheme.Opacity.disabled))
+        VStack(spacing: Theme.Spacing.md) {
+            Rectangle()
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                .frame(height: Theme.Stroke.hairline)
 
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Text("Made with care for Scripture study")
-                    .font(Typography.Codex.italicTiny)
+                    .font(Typography.Scripture.footnote.italic())
                     .foregroundStyle(Color.tertiaryText)
 
                 // Small decorative cross or ornament
                 Image(systemName: "cross.fill")
-                    .font(Typography.UI.iconXxxs)
-                    .foregroundStyle(Color.scholarAccent.opacity(AppTheme.Opacity.disabled))
+                    .font(Typography.Icon.xxxs)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
             }
         }
-        .padding(.top, AppTheme.Spacing.lg)
+        .padding(.top, Theme.Spacing.lg)
     }
 }
 

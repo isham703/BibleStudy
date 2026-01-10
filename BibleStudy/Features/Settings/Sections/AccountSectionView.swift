@@ -6,6 +6,8 @@ import SwiftUI
 struct AccountSectionView: View {
     @Bindable var viewModel: SettingsViewModel
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         IlluminatedSettingsCard(title: "Account", icon: "person.fill") {
             if viewModel.isAuthenticated {
@@ -24,19 +26,19 @@ struct AccountSectionView: View {
     // MARK: - Authenticated Content
 
     private var authenticatedContent: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             // Avatar with gold border
             avatarView
 
             // User info
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.displayName ?? "Bible Student")
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
 
                 if let email = viewModel.email {
                     Text(email)
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
                 }
 
@@ -48,7 +50,7 @@ struct AccountSectionView: View {
 
             // Edit profile chevron
             Image(systemName: "chevron.right")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
         .contentShape(Rectangle())
@@ -58,8 +60,8 @@ struct AccountSectionView: View {
         ZStack {
             // Gold glow
             Circle()
-                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
-                .blur(radius: AppTheme.Blur.light + 1)
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                .blur(radius: 4 + 1)
                 .frame(width: 56, height: 56)
 
             // Avatar background
@@ -67,8 +69,8 @@ struct AccountSectionView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium),
-                            Color.scholarAccent.opacity(AppTheme.Opacity.subtle)
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -78,49 +80,49 @@ struct AccountSectionView: View {
 
             // Avatar icon
             Image(systemName: "person.fill")
-                .font(Typography.UI.iconXl.weight(.medium))
-                .foregroundStyle(Color.scholarAccent)
+                .font(Typography.Icon.xl.weight(.medium))
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             // Gold border
             Circle()
                 .stroke(
                     LinearGradient(
                         colors: [
-                            Color.scholarAccent.opacity(AppTheme.Opacity.strong),
-                            Color.scholarAccent.opacity(AppTheme.Opacity.medium),
-                            Color.scholarAccent.opacity(AppTheme.Opacity.strong)
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
-                    lineWidth: AppTheme.Border.regular
+                    lineWidth: Theme.Stroke.control
                 )
                 .frame(width: 52, height: 52)
         }
     }
 
     private var tierBadge: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             Image(systemName: viewModel.tierIcon)
-                .font(Typography.UI.iconXxs)
+                .font(Typography.Icon.xxs)
 
             Text(viewModel.tierDisplayName)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .fontWeight(.medium)
         }
         .foregroundStyle(badgeColor)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(badgeColor.opacity(AppTheme.Opacity.subtle + 0.02))
+                .fill(badgeColor.opacity(Theme.Opacity.faint + 0.02))
         )
     }
 
     private var badgeColor: Color {
         switch viewModel.currentTier {
         case .free: return Color.secondaryText
-        case .premium, .scholar: return Color.scholarAccent
+        case .premium, .scholar: return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
         }
     }
 
@@ -130,26 +132,26 @@ struct AccountSectionView: View {
         NavigationLink {
             AuthView()
         } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
                         .frame(width: 52, height: 52)
 
                     Image(systemName: "person.circle")
-                        .font(.system(size: Typography.Scale.xl + 6, weight: .light))
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Icon.xl.weight(.light))
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Text content
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Sign In")
-                        .font(Typography.Display.headline)
+                        .font(Typography.Scripture.heading)
                         .foregroundStyle(Color.primaryText)
 
                     Text("Sync highlights and notes across devices")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
                         .lineLimit(2)
                 }
@@ -157,7 +159,7 @@ struct AccountSectionView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
         }
@@ -169,7 +171,7 @@ struct AccountSectionView: View {
 
 #Preview("Account Section") {
     ScrollView {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             // Authenticated state
             AccountSectionView(viewModel: SettingsViewModel())
 

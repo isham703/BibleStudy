@@ -42,11 +42,11 @@ struct TimelineView: View {
                         }
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.vertical, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.md)
             }
             .onChange(of: currentIndex) { _, newIndex in
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     proxy.scrollTo(newIndex, anchor: .center)
                 }
             }
@@ -73,23 +73,25 @@ enum TimelineNodeState {
     case current
     case completed
 
-    var circleColor: Color {
+    func circleColor(for colorScheme: ColorScheme) -> Color {
+        let mode = ThemeMode.current(from: colorScheme)
         switch self {
         case .upcoming: return Color.surfaceBackground
-        case .current: return Color.scholarAccent
+        case .current: return Colors.Semantic.accentAction(for: mode)
         case .completed: return Color.highlightGreen
         }
     }
 
-    var borderColor: Color {
+    func borderColor(for colorScheme: ColorScheme) -> Color {
+        let mode = ThemeMode.current(from: colorScheme)
         switch self {
         case .upcoming: return Color.cardBorder
-        case .current: return Color.scholarAccent
+        case .current: return Colors.Semantic.accentAction(for: mode)
         case .completed: return Color.highlightGreen
         }
     }
 
-    var textColor: Color {
+    func textColor(for colorScheme: ColorScheme) -> Color {
         switch self {
         case .upcoming: return Color.tertiaryText
         case .current: return Color.primaryText
@@ -97,7 +99,7 @@ enum TimelineNodeState {
         }
     }
 
-    var iconColor: Color {
+    func iconColor(for colorScheme: ColorScheme) -> Color {
         switch self {
         case .upcoming: return Color.tertiaryText
         case .current: return .white

@@ -9,6 +9,8 @@ struct HighlightLibraryView: View {
     @State private var showGroupOptions = false
     @State private var navigateToVerse: VerseRange?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var onNavigate: ((VerseRange) -> Void)?
 
     var body: some View {
@@ -42,14 +44,14 @@ struct HighlightLibraryView: View {
     // MARK: - Filter Bar
 
     private var filterBar: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             // Search field
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(Color.tertiaryText)
 
                 TextField("Search highlights...", text: $viewModel.searchQuery)
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
 
                 if !viewModel.searchQuery.isEmpty {
                     Button {
@@ -60,14 +62,14 @@ struct HighlightLibraryView: View {
                     }
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
 
             // Color filter chips
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     // All chip
                     HighlightFilterChip(
                         label: "All",
@@ -92,33 +94,33 @@ struct HighlightLibraryView: View {
 
                     Divider()
                         .frame(height: 24)
-                        .padding(.horizontal, AppTheme.Spacing.xs)
+                        .padding(.horizontal, Theme.Spacing.xs)
 
                     // Sort/Group button
                     Button {
                         showSortOptions = true
                     } label: {
-                        HStack(spacing: AppTheme.Spacing.xxs) {
+                        HStack(spacing: 2) {
                             Image(systemName: "arrow.up.arrow.down")
                             Text("Sort")
                         }
-                        .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.accentBlue)
-                        .padding(.horizontal, AppTheme.Spacing.sm)
-                        .padding(.vertical, AppTheme.Spacing.xs)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .padding(.horizontal, Theme.Spacing.sm)
+                        .padding(.vertical, Theme.Spacing.xs)
                         .background(
                             Capsule()
-                                .stroke(Color.accentBlue.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
                         )
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
             }
 
             // Category filter chips (if any categories in use)
             if hasUsedCategories {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         ForEach(usedCategories, id: \.self) { category in
                             CategoryHighlightFilterChip(
                                 category: category,
@@ -129,7 +131,7 @@ struct HighlightLibraryView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.horizontal, Theme.Spacing.md)
                 }
             }
 
@@ -137,7 +139,7 @@ struct HighlightLibraryView: View {
             if viewModel.hasActiveFilters {
                 HStack {
                     Text("\(viewModel.filteredHighlights.count) of \(viewModel.allHighlights.count) highlights")
-                        .font(Typography.UI.caption1.monospacedDigit())
+                        .font(Typography.Command.caption.monospacedDigit())
                         .foregroundStyle(Color.secondaryText)
 
                     Spacer()
@@ -145,13 +147,13 @@ struct HighlightLibraryView: View {
                     Button("Clear Filters") {
                         viewModel.clearFilters()
                     }
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.accentBlue)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
             }
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
         .background(Color.elevatedBackground)
     }
 
@@ -169,7 +171,7 @@ struct HighlightLibraryView: View {
 
     private var highlightList: some View {
         ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.md, pinnedViews: .sectionHeaders) {
+            LazyVStack(spacing: Theme.Spacing.md, pinnedViews: .sectionHeaders) {
                 ForEach(viewModel.groupedHighlights) { group in
                     Section {
                         ForEach(group.highlights, id: \.id) { highlight in
@@ -207,32 +209,34 @@ struct HighlightFilterChip: View {
     let color: HighlightColor?
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 2) {
                 if let color = color {
                     Circle()
                         .fill(color.color)
-                        .frame(width: AppTheme.ComponentSize.indicator + 2, height: AppTheme.ComponentSize.indicator + 2)
+                        .frame(width: 8 + 2, height: 8 + 2)
                 }
                 Text(label)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                 if count > 0 {
                     Text("\(count)")
-                        .font(Typography.UI.caption2.monospacedDigit())
+                        .font(Typography.Command.meta.monospacedDigit())
                         .foregroundStyle(isSelected ? Color.primaryText : Color.tertiaryText)
                 }
             }
             .foregroundStyle(isSelected ? Color.primaryText : Color.secondaryText)
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? (color?.color.opacity(AppTheme.Opacity.lightMedium) ?? Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium)) : Color.surfaceBackground)
+                    .fill(isSelected ? (color?.color.opacity(Theme.Opacity.lightMedium) ?? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium)) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? (color?.color ?? Color.scholarAccent) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? (color?.color ?? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -249,24 +253,24 @@ struct CategoryHighlightFilterChip: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 2) {
                 categoryIcon
                 Text(category.displayName)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                 Text("\(count)")
-                    .font(Typography.UI.caption2.monospacedDigit())
+                    .font(Typography.Command.meta.monospacedDigit())
                     .foregroundStyle(isSelected ? Color.primaryText : Color.tertiaryText)
             }
             .foregroundStyle(isSelected ? category.suggestedColor.color : Color.secondaryText)
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? category.suggestedColor.color.opacity(AppTheme.Opacity.light) : Color.surfaceBackground)
+                    .fill(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.light) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? category.suggestedColor.color.opacity(AppTheme.Opacity.heavy) : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.heavy) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -282,7 +286,7 @@ struct CategoryHighlightFilterChip: View {
                 .frame(width: 12, height: 12)
         } else {
             Image(systemName: category.icon)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
     }
 }
@@ -296,7 +300,7 @@ struct GroupHeader: View {
     let count: Int
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             if let color = color {
                 Circle()
                     .fill(color.color)
@@ -307,18 +311,18 @@ struct GroupHeader: View {
             }
 
             Text(title)
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(Color.primaryText)
 
             Text("(\(count))")
-                .font(Typography.UI.caption1.monospacedDigit())
+                .font(Typography.Command.caption.monospacedDigit())
                 .foregroundStyle(Color.tertiaryText)
 
             Spacer()
         }
-        .padding(.vertical, AppTheme.Spacing.xs)
-        .padding(.horizontal, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.sm)
         .background(Color.appBackground)
     }
 
@@ -332,7 +336,7 @@ struct GroupHeader: View {
                 .frame(width: 14, height: 14)
         } else {
             Image(systemName: category.icon)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
         }
     }
 }
@@ -351,32 +355,32 @@ struct HighlightListCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 // Color indicator
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
                     .fill(highlight.color.color)
                     .frame(width: 4)
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     // Reference and category
                     HStack {
                         Text(highlight.reference)
-                            .font(Typography.UI.subheadline)
+                            .font(Typography.Command.subheadline)
                             .fontWeight(.semibold)
                             .foregroundStyle(Color.primaryText)
 
                         if highlight.category != .none {
-                            HStack(spacing: AppTheme.Spacing.xxs) {
+                            HStack(spacing: 2) {
                                 categoryIcon(for: highlight.category)
                                 Text(highlight.category.displayName)
-                                    .font(Typography.UI.caption2)
+                                    .font(Typography.Command.meta)
                             }
                             .foregroundStyle(highlight.category.suggestedColor.color)
-                            .padding(.horizontal, AppTheme.Spacing.xs)
-                            .padding(.vertical, AppTheme.Spacing.xxs)
+                            .padding(.horizontal, Theme.Spacing.xs)
+                            .padding(.vertical, 2)
                             .background(
                                 Capsule()
-                                    .fill(highlight.category.suggestedColor.color.opacity(AppTheme.Opacity.subtle))
+                                    .fill(highlight.category.suggestedColor.color.opacity(Theme.Opacity.subtle))
                             )
                         }
 
@@ -387,7 +391,7 @@ struct HighlightListCard: View {
                             showDeleteConfirmation = true
                         } label: {
                             Image(systemName: "trash")
-                                .font(Typography.UI.caption1)
+                                .font(Typography.Command.caption)
                                 .foregroundStyle(Color.tertiaryText)
                         }
                     }
@@ -395,25 +399,25 @@ struct HighlightListCard: View {
                     // Verse preview
                     if !verseText.isEmpty {
                         Text(verseText)
-                            .font(Typography.Scripture.body(size: 14))
+                            .font(Typography.Scripture.footnote)
                             .foregroundStyle(Color.secondaryText)
                             .lineLimit(2)
                     }
 
                     // Date
                     Text(highlight.createdAt.formatted(.dateTime.month(.abbreviated).day()))
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
                     .fill(Color.elevatedBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                    .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -453,7 +457,7 @@ struct HighlightListCard: View {
                 .frame(width: 12, height: 12)
         } else {
             Image(systemName: category.icon)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
     }
 }
@@ -462,6 +466,7 @@ struct HighlightListCard: View {
 
 struct SortOptionsSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var sortOption: SortOption
     @Binding var groupOption: GroupOption
 
@@ -475,12 +480,12 @@ struct SortOptionsSheet: View {
                         } label: {
                             HStack {
                                 Image(systemName: option.icon)
-                                    .frame(width: AppTheme.IconContainer.small)
+                                    .frame(width: 24)
                                 Text(option.rawValue)
                                 Spacer()
                                 if sortOption == option {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.scholarAccent)
+                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 }
                             }
                             .foregroundStyle(Color.primaryText)
@@ -495,12 +500,12 @@ struct SortOptionsSheet: View {
                         } label: {
                             HStack {
                                 Image(systemName: option.icon)
-                                    .frame(width: AppTheme.IconContainer.small)
+                                    .frame(width: 24)
                                 Text(option.rawValue)
                                 Spacer()
                                 if groupOption == option {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.scholarAccent)
+                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 }
                             }
                             .foregroundStyle(Color.primaryText)

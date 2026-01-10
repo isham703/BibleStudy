@@ -6,6 +6,7 @@ import SwiftUI
 
 struct BibleHomeView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(BibleService.self) private var bibleService
     @State private var selectedBook: Book?
     @State private var showBookPicker = false
@@ -28,7 +29,7 @@ struct BibleHomeView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: AppTheme.Spacing.xxl) {
+            VStack(spacing: Theme.Spacing.xxl) {
                 // Hero section with featured book
                 heroSection
 
@@ -46,12 +47,12 @@ struct BibleHomeView: View {
                 // About section
                 aboutSection
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.vertical, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.xl)
         }
-        .background(Color.appBackground)
+        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
         .onAppear {
-            withAnimation(AppTheme.Animation.cardUnfurl.delay(0.1)) {
+            withAnimation(Theme.Animation.settle.delay(0.1)) {
                 isAppeared = true
             }
         }
@@ -73,8 +74,8 @@ struct BibleHomeView: View {
                     showSettings = true
                 } label: {
                     Image(systemName: "slider.horizontal.3")
-                        .font(Typography.UI.body)
-                        .foregroundStyle(Color.scholarIndigo)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
                 .accessibilityLabel("Bible Settings")
             }
@@ -84,71 +85,74 @@ struct BibleHomeView: View {
     // MARK: - Hero Section
 
     private var heroSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Decorative book cover - Scholar themed
             ZStack {
                 // Book shadow
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.black.opacity(0.15))
+                // swiftlint:disable:next hardcoded_rounded_rectangle
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .fill(Color.black.opacity(Theme.Opacity.light))
                     .frame(width: 120, height: 160)
                     .offset(x: 4, y: 6)
 
                 // Book cover
-                RoundedRectangle(cornerRadius: 8)
+                // swiftlint:disable:next hardcoded_rounded_rectangle
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
                     .fill(
                         LinearGradient(
-                            colors: [Color.scholarIndigo, Color.scholarIndigo.opacity(0.8)],
+                            colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
                     .frame(width: 120, height: 160)
                     .overlay(
+                        // swiftlint:disable:next hardcoded_stack_spacing
                         VStack(spacing: 8) {
                             Text(bibleService.currentTranslation?.abbreviation ?? "KJV")
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(Typography.Icon.xxs.weight(.semibold))
                                 .tracking(2)
-                                .foregroundStyle(Color.white.opacity(0.7))
+                                .foregroundStyle(Color.white.opacity(Theme.Opacity.overlay))
 
                             Image(systemName: "book.pages")
-                                .font(.system(size: 32, weight: .light))
+                                .font(Typography.Icon.xxl.weight(.light))
                                 .foregroundStyle(Color.white)
 
                             // Decorative line
                             Rectangle()
-                                .fill(Color.divineGold)
-                                .frame(width: 40, height: 1)
+                                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                                .frame(width: 40, height: Theme.Stroke.hairline)
                         }
                     )
                     .overlay(
                         // Spine effect
                         HStack {
                             Rectangle()
-                                .fill(Color.black.opacity(0.1))
+                                .fill(Color.black.opacity(Theme.Opacity.subtle))
                                 .frame(width: 4)
                             Spacer()
                         }
                     )
             }
-            .padding(.top, AppTheme.Spacing.lg)
+            .padding(.top, Theme.Spacing.lg)
             .opacity(isAppeared ? 1 : 0)
             .offset(y: isAppeared ? 0 : 20)
-            .animation(AppTheme.Animation.cardUnfurl.delay(0.1), value: isAppeared)
+            .animation(Theme.Animation.settle.delay(0.1), value: isAppeared)
 
             // Title and description
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.sm) {
                 Text(bibleService.currentTranslation?.name ?? "King James Version")
-                    .font(Typography.Display.title3)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
                     .multilineTextAlignment(.center)
 
                 Text("Deep study with AI-powered insights")
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
             }
             .opacity(isAppeared ? 1 : 0)
-            .animation(AppTheme.Animation.cardUnfurl.delay(0.2), value: isAppeared)
+            .animation(Theme.Animation.settle.delay(0.2), value: isAppeared)
         }
     }
 
@@ -158,27 +162,27 @@ struct BibleHomeView: View {
         Button {
             navigateToChapter(bookId: lastBookId, chapter: lastChapter)
         } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Color.scholarIndigo.opacity(0.12))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
                         .frame(width: 44, height: 44)
 
                     Image(systemName: "book.fill")
-                        .font(Typography.UI.iconMd)
-                        .foregroundStyle(Color.scholarIndigo)
+                        .font(Typography.Icon.md)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Continue Reading")
-                        .font(Typography.UI.subheadline.weight(.medium))
+                        .font(Typography.Command.subheadline.weight(.medium))
                         .foregroundStyle(Color.primaryText)
 
                     if let book = lastBook {
                         Text("\(book.name) Chapter \(lastChapter)")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.secondaryText)
                     }
                 }
@@ -186,22 +190,22 @@ struct BibleHomeView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
                     .fill(Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .stroke(Color.cardBorder, lineWidth: 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
         .opacity(isAppeared ? 1 : 0)
-        .animation(AppTheme.Animation.cardUnfurl.delay(0.3), value: isAppeared)
+        .animation(Theme.Animation.settle.delay(0.3), value: isAppeared)
         .accessibilityLabel("Continue reading \(lastBook?.name ?? "") chapter \(lastChapter)")
         .accessibilityHint("Double tap to resume reading")
     }
@@ -209,21 +213,21 @@ struct BibleHomeView: View {
     // MARK: - Quick Access Section (Gospels)
 
     private var quickAccessSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text("QUICK ACCESS")
-                .font(.system(size: 11, weight: .semibold))
+                .font(Typography.Command.meta.weight(.semibold))
                 .tracking(1.5)
                 .foregroundStyle(Color.tertiaryText)
 
             // Gospels row
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 ForEach([Book.matthew, Book.find(byId: 41)!, Book.find(byId: 42)!, Book.john], id: \.id) { book in
                     quickAccessBookButton(book: book)
                 }
             }
         }
         .opacity(isAppeared ? 1 : 0)
-        .animation(AppTheme.Animation.cardUnfurl.delay(0.4), value: isAppeared)
+        .animation(Theme.Animation.settle.delay(0.4), value: isAppeared)
     }
 
     private func quickAccessBookButton(book: Book) -> some View {
@@ -233,30 +237,30 @@ struct BibleHomeView: View {
             // Navigate to chapter 1 of this book
             navigateToChapter(bookId: book.id, chapter: 1)
         } label: {
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 ZStack {
                     Circle()
-                        .fill(Color.scholarIndigo.opacity(0.1))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
                         .frame(width: 44, height: 44)
 
                     Text(String(book.name.prefix(1)))
-                        .font(CustomFonts.cormorantSemiBold(size: 18))
-                        .foregroundStyle(Color.scholarIndigo)
+                        .font(Typography.Scripture.body.weight(.semibold))
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 Text(book.abbreviation)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Typography.Command.caption.weight(.medium))
                     .foregroundStyle(Color.primaryText)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
                     .fill(Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                    .stroke(Color.scholarIndigo.opacity(0.08), lineWidth: 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -269,78 +273,78 @@ struct BibleHomeView: View {
             HapticService.shared.lightTap()
             showBookPicker = true
         } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "books.vertical")
-                    .font(Typography.UI.iconMd)
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Icon.md)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Browse All Books")
-                        .font(Typography.UI.subheadline.weight(.medium))
+                        .font(Typography.Command.subheadline.weight(.medium))
                         .foregroundStyle(Color.primaryText)
 
                     Text("66 books • Old & New Testament")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
                     .fill(Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .stroke(Color.scholarIndigo.opacity(0.15), lineWidth: 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
         .opacity(isAppeared ? 1 : 0)
-        .animation(AppTheme.Animation.cardUnfurl.delay(0.5), value: isAppeared)
+        .animation(Theme.Animation.settle.delay(0.5), value: isAppeared)
     }
 
     // MARK: - About Section
 
     private var aboutSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "sparkles")
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.divineGold)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
                 Text("AI-Powered Study")
-                    .font(Typography.UI.caption1.weight(.medium))
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Command.caption.weight(.medium))
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
             }
 
             Text("Long-press any verse to reveal theological insights, cross-references, original Greek analysis, and reflection prompts.")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.tertiaryText)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
                 .lineSpacing(4)
 
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "hand.tap")
-                    .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 Text("Tap to select • Long-press for insights")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
             }
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .fill(Color.surfaceBackground.opacity(0.5))
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .fill(Color.surfaceBackground.opacity(Theme.Opacity.heavy))
         )
         .opacity(isAppeared ? 1 : 0)
-        .animation(AppTheme.Animation.cardUnfurl.delay(0.6), value: isAppeared)
+        .animation(Theme.Animation.settle.delay(0.6), value: isAppeared)
     }
 
     // MARK: - Navigation Helper

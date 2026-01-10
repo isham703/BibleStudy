@@ -58,14 +58,22 @@
 		</dict>
 	</array>
 
-	<!-- Custom Fonts -->
-	<key>UIAppFonts</key>
+	<!-- Background Tasks -->
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>Cinzel-Regular.ttf</string>
-		<string>CormorantGaramond-Regular.ttf</string>
-		<string>CormorantGaramond-Italic.ttf</string>
-		<string>CormorantGaramond-SemiBold.ttf</string>
+		<string>com.biblestudy.sermon.upload</string>
+		<string>com.biblestudy.sermon.sync</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+		<string>fetch</string>
+	</array>
+
+	<!-- Privacy Usage Descriptions -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>BibleStudy needs microphone access to record sermons for transcription and study guide generation.</string>
+
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

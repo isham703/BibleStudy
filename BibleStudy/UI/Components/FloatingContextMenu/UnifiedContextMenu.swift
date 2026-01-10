@@ -24,11 +24,11 @@ enum UnifiedMenuMode {
     /// Scholar tab: Actions only, no insight preview
     case actionsFirst
 
-    /// Accent color for this mode
-    var accentColor: Color {
+    /// Accent color for this mode (theme-aware)
+    func accentColor(for mode: ThemeMode) -> Color {
         switch self {
-        case .insightFirst: return Color.divineGold
-        case .actionsFirst: return Color.scholarIndigo
+        case .insightFirst: return Colors.Semantic.accentSeal(for: mode)
+        case .actionsFirst: return Colors.Semantic.accentAction(for: mode)
         }
     }
 
@@ -127,13 +127,13 @@ struct UnifiedContextMenu: View {
                 audioService.pauseForInterruption()
             }
 
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 isAppearing = true
             }
 
             // Staggered insight reveal (insightFirst mode only)
             if mode == .insightFirst {
-                withAnimation(AppTheme.Animation.luminous.delay(0.15)) {
+                withAnimation(Theme.Animation.slowFade.delay(0.15)) {
                     insightRevealed = true
                 }
             }
@@ -170,13 +170,13 @@ struct UnifiedContextMenu: View {
             }
         }
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
         .overlay(cardBorder)
         .shadow(
-            color: .black.opacity(colorScheme == .dark ? AppTheme.Opacity.heavy : AppTheme.Opacity.light),
-            radius: AppTheme.Shadow.menu.radius,
-            x: AppTheme.Shadow.menu.x,
-            y: AppTheme.Shadow.menu.y
+            color: .black.opacity(colorScheme == .dark ? Theme.Opacity.heavy : Theme.Opacity.light),
+            radius: Theme.Shadow.menu.radius,
+            x: Theme.Shadow.menu.x,
+            y: Theme.Shadow.menu.y
         )
         .frame(width: mode.menuWidth)
         .opacity(isAppearing ? 1 : 0)
@@ -187,44 +187,40 @@ struct UnifiedContextMenu: View {
     // MARK: - Card Background & Border
 
     private var cardBackground: some View {
-        Group {
-            if colorScheme == .dark {
-                Color.Menu.backgroundDark
-            } else {
-                Color.Menu.backgroundLight
-            }
-        }
+        Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous)
+        let mode = ThemeMode.current(from: colorScheme)
+        return RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
             .stroke(
                 LinearGradient(
                     colors: [
-                        mode.accentColor.opacity(AppTheme.Opacity.heavy),
-                        mode.accentColor.opacity(AppTheme.Opacity.quarter)
+                        self.mode.accentColor(for: mode).opacity(Theme.Opacity.heavy),
+                        self.mode.accentColor(for: mode).opacity(Theme.Opacity.quarter)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 ),
-                lineWidth: AppTheme.Border.thin
+                lineWidth: Theme.Stroke.hairline
             )
     }
 
     // MARK: - Dividers
 
     private var thinDivider: some View {
-        Rectangle()
-            .fill(mode.accentColor.opacity(AppTheme.Opacity.lightMedium))
-            .frame(height: AppTheme.Border.hairline)
-            .padding(.horizontal, AppTheme.CornerRadius.menu)
+        let themeMode = ThemeMode.current(from: colorScheme)
+        return Rectangle()
+            .fill(mode.accentColor(for: themeMode).opacity(Theme.Opacity.lightMedium))
+            .frame(height: Theme.Stroke.hairline)
+            .padding(.horizontal, 12)
     }
 
     private var scholarDivider: some View {
         Rectangle()
-            .fill(AppTheme.Menu.divider)
-            .frame(height: 1)
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+            .frame(height: Theme.Stroke.hairline)
+            .padding(.horizontal, Theme.Spacing.md)
     }
 
     // MARK: - HERO: Insight Section (insightFirst mode)
@@ -235,7 +231,7 @@ struct UnifiedContextMenu: View {
             // Use inline insight callback if available, otherwise fall back to legacy sheet
             if let openInline = onOpenInlineInsight {
                 // Dismiss context menu first, then open inline card
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     isAppearing = false
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -246,7 +242,7 @@ struct UnifiedContextMenu: View {
                 onStudy()
             }
         } label: {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 if isLimitReached {
                     limitReachedView
                 } else if isInsightLoading {
@@ -257,8 +253,8 @@ struct UnifiedContextMenu: View {
                     noInsightView
                 }
             }
-            .padding(.horizontal, AppTheme.CornerRadius.menu)
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.horizontal, 12)
+            .padding(.vertical, Theme.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .buttonStyle(PlainButtonStyle())
@@ -267,45 +263,47 @@ struct UnifiedContextMenu: View {
     // MARK: - Loading Insight View
 
     private var loadingInsightView: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        return HStack(spacing: Theme.Spacing.sm) {
             ProgressView()
-                .scaleEffect(AppTheme.Scale.small)
-                .tint(Color.divineGold)
+                .scaleEffect(0.98)
+                .tint(Colors.Semantic.accentSeal(for: themeMode))
 
             Text("Illuminating this passage...")
-                .font(Typography.Codex.italic)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Scripture.quote)
+                .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 
     // MARK: - Full Insight View
 
     @ViewBuilder
     private func fullInsightView(_ insight: QuickInsightOutput) -> some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkle")
-                .font(Typography.UI.iconSm.weight(.semibold))
-                .foregroundStyle(Color.divineGold)
-                .padding(.top, AppTheme.Spacing.xxs + 1)
+                .font(Typography.Icon.sm.weight(.semibold))
+                .foregroundStyle(Colors.Semantic.accentSeal(for: themeMode))
+                .padding(.top, 2 + 1)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs + 2) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs + 2) {
                 Text(insight.summary)
-                    .font(Typography.Codex.body)
-                    .foregroundStyle(Color.primaryText)
-                    .lineSpacing(Typography.Codex.bodyLineSpacing)
+                    .font(Typography.Scripture.body)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+                    .lineSpacing(Typography.Scripture.bodyLineSpacing)
                     .lineLimit(5)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(insightRevealed ? 1 : 0)
-                    .blur(radius: insightRevealed ? 0 : AppTheme.Spacing.xs)
+                    .blur(radius: insightRevealed ? 0 : Theme.Spacing.xs)
 
                 // Key term (if present)
                 if let term = insight.keyTerm, let meaning = insight.keyTermMeaning {
                     keyTermView(term: term, meaning: meaning)
                         .opacity(insightRevealed ? 1 : 0)
-                        .offset(y: insightRevealed ? 0 : AppTheme.Spacing.xs)
+                        .offset(y: insightRevealed ? 0 : Theme.Spacing.xs)
                 }
             }
 
@@ -313,75 +311,78 @@ struct UnifiedContextMenu: View {
 
             // Chevron for "tap for more"
             Image(systemName: "chevron.right")
-                .font(Typography.UI.iconXs)
-                .foregroundStyle(Color.tertiaryText)
-                .padding(.top, AppTheme.Spacing.xs)
+                .font(Typography.Icon.xs)
+                .foregroundStyle(Colors.Surface.textTertiary(for: themeMode))
+                .padding(.top, Theme.Spacing.xs)
         }
     }
 
     // MARK: - Key Term View
 
     private func keyTermView(term: String, meaning: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.xs + 2) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        return HStack(spacing: Theme.Spacing.xs + 2) {
             Text(term)
-                .font(Typography.Codex.gloss)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: themeMode))
 
             Text("—")
-                .font(Typography.Codex.captionSmall)
-                .foregroundStyle(Color.tertiaryText)
+                .font(Typography.Scripture.footnote)
+                .foregroundStyle(Colors.Surface.textTertiary(for: themeMode))
 
             Text(meaning)
-                .font(Typography.Codex.caption)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Scripture.footnote)
+                .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
                 .lineLimit(1)
         }
-        .padding(.top, AppTheme.Spacing.xxs)
+        .padding(.top, 2)
     }
 
     // MARK: - No Insight View
 
     private var noInsightView: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        return HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkle")
-                .font(Typography.UI.iconSm)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.sm)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: themeMode))
 
             Text("Tap to explore this passage")
-                .font(Typography.Codex.italic)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Scripture.quote)
+                .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
 
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(Typography.UI.iconXxs)
-                .foregroundStyle(Color.tertiaryText)
+                .font(Typography.Icon.xxs)
+                .foregroundStyle(Colors.Surface.textTertiary(for: themeMode))
         }
     }
 
     // MARK: - Limit Reached View
 
     private var limitReachedView: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        return HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "lock.fill")
-                .font(Typography.UI.iconSm)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.sm)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: themeMode))
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Daily limit reached")
-                    .font(Typography.Codex.emphasis)
-                    .foregroundStyle(Color.primaryText)
+                    .font(Typography.Scripture.quote)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
 
                 Text("Upgrade for unlimited insights")
-                    .font(Typography.Codex.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Scripture.footnote)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
             }
 
             Spacer()
 
             Image(systemName: "arrow.right.circle.fill")
-                .font(Typography.UI.iconLg)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.lg)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: themeMode))
         }
         .opacity(insightRevealed ? 1 : 0)
     }
@@ -389,9 +390,10 @@ struct UnifiedContextMenu: View {
     // MARK: - Compact Action Bar (insightFirst mode)
 
     private var compactActionBar: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        return HStack(spacing: Theme.Spacing.md) {
             // Quick action icons
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 MiniActionIcon(icon: "doc.on.doc", label: "Copy") {
                     HapticService.shared.success()
                     onCopy()
@@ -410,16 +412,16 @@ struct UnifiedContextMenu: View {
 
             // Subtle vertical separator
             Rectangle()
-                .fill(Color.divineGold.opacity(AppTheme.Opacity.lightMedium))
-                .frame(width: AppTheme.Border.thin, height: AppTheme.Spacing.xl)
+                .fill(mode.accentColor(for: themeMode).opacity(Theme.Opacity.lightMedium))
+                .frame(width: Theme.Stroke.hairline, height: Theme.Spacing.xl)
 
             // Color palette
-            HStack(spacing: AppTheme.Spacing.xs + 2) {
+            HStack(spacing: Theme.Spacing.xs + 2) {
                 ForEach(HighlightColor.allCases, id: \.self) { color in
                     CompactColorDot(
                         color: color,
                         isSelected: existingHighlightColor == color,
-                        accentColor: mode.accentColor
+                        accentColor: mode.accentColor(for: themeMode)
                     ) {
                         HapticService.shared.verseHighlighted()
                         onHighlight(color)
@@ -432,8 +434,8 @@ struct UnifiedContextMenu: View {
                         onRemoveHighlight()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(Typography.UI.iconLg)
-                            .foregroundStyle(Color.tertiaryText)
+                            .font(Typography.Icon.lg)
+                            .foregroundStyle(Colors.Surface.textTertiary(for: themeMode))
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -441,14 +443,14 @@ struct UnifiedContextMenu: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, AppTheme.CornerRadius.menu)
-        .padding(.vertical, AppTheme.Spacing.sm + 2)
+        .padding(.horizontal, 12)
+        .padding(.vertical, Theme.Spacing.sm + 2)
     }
 
     // MARK: - Scholar Action Row (actionsFirst mode)
 
     private var scholarActionRow: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             ScholarActionButton(icon: "doc.on.doc", label: "Copy") {
                 HapticService.shared.success()
                 onCopy()
@@ -466,7 +468,7 @@ struct UnifiedContextMenu: View {
 
             // Vertical separator
             Rectangle()
-                .fill(AppTheme.Menu.divider)
+                .fill(Color.gray.opacity(Theme.Opacity.light))
                 .frame(width: 1, height: 32)
 
             // Study button with indigo accent
@@ -475,14 +477,15 @@ struct UnifiedContextMenu: View {
                 onStudy()
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 
     // MARK: - Highlight Row (actionsFirst mode)
 
     private var highlightRow: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        return HStack(spacing: Theme.Spacing.sm) {
             ForEach(HighlightColor.allCases, id: \.self) { color in
                 ScholarColorDot(
                     color: color,
@@ -502,15 +505,15 @@ struct UnifiedContextMenu: View {
                     onRemoveHighlight()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(Typography.UI.iconLg)
-                        .foregroundStyle(Color.tertiaryText)
+                        .font(Typography.Icon.lg)
+                        .foregroundStyle(Colors.Surface.textTertiary(for: themeMode))
                 }
                 .buttonStyle(PlainButtonStyle())
                 .transition(.opacity.combined(with: .scale))
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.sm + 2)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.sm + 2)
     }
 
     // MARK: - Measurement
@@ -531,24 +534,26 @@ private struct MiniActionIcon: View {
     let action: () -> Void
 
     @State private var isPressed = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        let themeMode = ThemeMode.current(from: colorScheme)
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 2) {
                 Image(systemName: icon)
-                    .font(Typography.UI.iconMd)
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Icon.md)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
 
                 Text(label)
-                    .font(Typography.UI.iconXxxs.weight(.medium))
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Icon.xxxs.weight(.medium))
+                    .foregroundStyle(Colors.Surface.textTertiary(for: themeMode))
             }
-            .frame(width: AppTheme.TouchTarget.minimum, height: 40)
+            .frame(width: 44, height: 40)
         }
         .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1)
+        .scaleEffect(isPressed ? 0.98 : 1)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { p in
-            withAnimation(AppTheme.Animation.quick) { isPressed = p }
+            withAnimation(Theme.Animation.fade) { isPressed = p }
         }, perform: {})
     }
 }
@@ -567,16 +572,16 @@ private struct CompactColorDot: View {
         } label: {
             Circle()
                 .fill(color.color)
-                .frame(width: AppTheme.ComponentSize.badge, height: AppTheme.ComponentSize.badge)
+                .frame(width: 20, height: 20)
                 .overlay(
                     Circle()
-                        .stroke(isSelected ? accentColor : Color.clear, lineWidth: AppTheme.Border.regular)
-                        .padding(-AppTheme.Spacing.xxs)
+                        .stroke(isSelected ? accentColor : Color.clear, lineWidth: Theme.Stroke.control)
+                        .padding(-2)
                 )
                 .overlay(
                     isSelected ?
                     Image(systemName: "checkmark")
-                        .font(Typography.UI.iconXxxs.weight(.bold))
+                        .font(Typography.Icon.xxxs.weight(.bold))
                         .foregroundStyle(.white)
                     : nil
                 )
@@ -593,24 +598,26 @@ private struct ScholarActionButton: View {
     let action: () -> Void
 
     @State private var isPressed = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        let themeMode = ThemeMode.current(from: colorScheme)
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xs - 2) {
+            VStack(spacing: Theme.Spacing.xs - 2) {
                 Image(systemName: icon)
-                    .font(Typography.UI.headline)
-                    .foregroundStyle(Color.primaryText.opacity(AppTheme.Opacity.overlay))
+                    .font(Typography.Command.headline)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.overlay))
 
                 Text(label)
-                    .font(Typography.UI.iconXxs)
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Icon.xxs)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: themeMode))
             }
-            .frame(width: AppTheme.TouchTarget.comfortable, height: AppTheme.TouchTarget.minimum)
+            .frame(width: 48, height: 44)
         }
         .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1)
+        .scaleEffect(isPressed ? 0.98 : 1)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(AppTheme.Animation.quick) {
+            withAnimation(Theme.Animation.fade) {
                 isPressed = pressing
             }
         }, perform: {})
@@ -623,28 +630,30 @@ private struct ScholarStudyButton: View {
     let action: () -> Void
 
     @State private var isPressed = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        let themeMode = ThemeMode.current(from: colorScheme)
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "sparkle")
-                    .font(Typography.UI.iconSm.weight(.semibold))
+                    .font(Typography.Icon.sm.weight(.semibold))
 
                 Text("Study")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
             }
-            .foregroundStyle(Color.scholarIndigo)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .foregroundStyle(Colors.Semantic.accentAction(for: themeMode))
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(Color.scholarIndigo.opacity(AppTheme.Opacity.subtle))
+                    .fill(Colors.Semantic.accentAction(for: themeMode).opacity(Theme.Opacity.subtle))
             )
         }
         .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1)
+        .scaleEffect(isPressed ? 0.98 : 1)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(AppTheme.Animation.quick) {
+            withAnimation(Theme.Animation.fade) {
                 isPressed = pressing
             }
         }, perform: {})
@@ -658,23 +667,28 @@ private struct ScholarColorDot: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        Button(action: onTap) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        Button {
+            onTap()
+        } label: {
             Circle()
                 .fill(color.color)
-                .frame(width: AppTheme.ComponentSize.icon, height: AppTheme.ComponentSize.icon)
+                .frame(width: Theme.Size.iconSize, height: Theme.Size.iconSize)
                 .overlay(
                     Circle()
                         .stroke(
-                            isSelected ? Color.scholarIndigo : Color.clear,
-                            lineWidth: AppTheme.Border.regular
+                            isSelected ? Colors.Semantic.accentAction(for: themeMode) : Color.clear,
+                            lineWidth: Theme.Stroke.control
                         )
-                        .padding(-AppTheme.Spacing.xxs - 1)
+                        .padding(-2 - 1)
                 )
                 .overlay(
                     isSelected ?
                     Image(systemName: "checkmark")
-                        .font(Typography.UI.iconXxs.weight(.bold))
+                        .font(Typography.Icon.xxs.weight(.bold))
                         .foregroundStyle(.white)
                     : nil
                 )
@@ -689,13 +703,13 @@ private struct ScholarColorDot: View {
 
 #Preview("Unified Menu - Insight First (Read Tab)") {
     ZStack {
-        Color.freshVellum.ignoresSafeArea()
+        Colors.Surface.background(for: .light).ignoresSafeArea()
 
         VStack {
             Text("10  For we are his workmanship, created in Christ Jesus unto good works.")
-                .font(Typography.Scripture.body())
+                .font(Typography.Scripture.body)
                 .padding()
-                .background(Color.yellow.opacity(0.15))
+                .background(Color.yellow.opacity(Theme.Opacity.divider))
                 .padding(.top, 200)
 
             Spacer()
@@ -729,13 +743,13 @@ private struct ScholarColorDot: View {
 
 #Preview("Unified Menu - Actions First (Scholar Tab)") {
     ZStack {
-        Color.appBackground.ignoresSafeArea()
+        Colors.Surface.background(for: .dark).ignoresSafeArea()
 
         VStack {
             Text("10  For we are his workmanship, created in Christ Jesus unto good works.")
-                .font(Typography.Scripture.body())
+                .font(Typography.Scripture.body)
                 .padding()
-                .background(Color.scholarIndigo.opacity(0.08))
+                .background(Colors.Semantic.accentAction(for: .dark).opacity(Theme.Opacity.overlay))
                 .padding(.top, 180)
 
             Spacer()
@@ -764,7 +778,7 @@ private struct ScholarColorDot: View {
 
 #Preview("Unified Menu - Loading Insight") {
     ZStack {
-        Color.appBackground.ignoresSafeArea()
+        Colors.Surface.background(for: .dark).ignoresSafeArea()
 
         UnifiedContextMenu(
             mode: .insightFirst,
@@ -789,7 +803,7 @@ private struct ScholarColorDot: View {
 
 #Preview("Unified Menu - With Highlight (Scholar)") {
     ZStack {
-        Color.appBackground.ignoresSafeArea()
+        Colors.Surface.background(for: .dark).ignoresSafeArea()
 
         UnifiedContextMenu(
             mode: .actionsFirst,

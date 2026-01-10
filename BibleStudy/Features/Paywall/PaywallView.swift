@@ -8,6 +8,7 @@ private let analytics = AnalyticsService.shared
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var storeManager = StoreManager.shared
     @State private var selectedProduct: Product?
     @State private var isPurchasing = false
@@ -20,7 +21,7 @@ struct PaywallView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: AppTheme.Spacing.xl) {
+                VStack(spacing: Theme.Spacing.xl) {
                     // Header
                     headerSection
 
@@ -36,8 +37,8 @@ struct PaywallView: View {
                     // Legal
                     legalSection
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.xxl)
             }
             .background(Color.appBackground)
             .navigationBarTitleDisplayMode(.inline)
@@ -47,7 +48,7 @@ struct PaywallView: View {
                         analytics.trackPaywallDismissed(trigger: trigger.analyticsValue)
                         dismiss()
                     }
-                    .font(Typography.UI.subheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.secondaryText)
                 }
             }
@@ -65,28 +66,28 @@ struct PaywallView: View {
     // MARK: - Header Section
 
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
                     .frame(width: 80, height: 80)
 
                 Image(systemName: "sparkles")
-                    .font(Typography.UI.largeTitle)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.largeTitle)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.top, AppTheme.Spacing.xl)
+            .padding(.top, Theme.Spacing.xl)
 
             // Title based on trigger
             Text(headerTitle)
-                .font(Typography.Display.title2)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
                 .multilineTextAlignment(.center)
 
             // Subtitle
             Text("Get unlimited access to all features")
-                .font(Typography.UI.warmBody)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
                 .multilineTextAlignment(.center)
         }
@@ -104,6 +105,8 @@ struct PaywallView: View {
             return "Need more highlights?"
         case .noteLimit:
             return "Need more notes?"
+        case .prayerLimit:
+            return "Unlock unlimited prayers"
         case .manual:
             return "Upgrade to Premium"
         case .firstSession:
@@ -114,12 +117,12 @@ struct PaywallView: View {
     // MARK: - Features Section
 
     private var featuresSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text("What you'll get:")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 FeatureRow(icon: "text.book.closed", text: "All Bible translations")
                 FeatureRow(icon: "brain.head.profile", text: "Unlimited AI insights")
                 FeatureRow(icon: "note.text", text: "Unlimited notes")
@@ -127,18 +130,18 @@ struct PaywallView: View {
                 FeatureRow(icon: "headphones", text: "Priority support")
             }
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
     // MARK: - Products Section
 
     private var productsSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             if storeManager.isLoading && storeManager.products.isEmpty {
                 ProgressView()
-                    .tint(Color.scholarAccent)
+                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .padding()
             } else {
                 ForEach(storeManager.products, id: \.id) { product in
@@ -157,17 +160,17 @@ struct PaywallView: View {
                                 .tint(.white)
                         } else {
                             Text(purchaseButtonText)
-                                .font(Typography.UI.buttonLabel)
+                                .font(Typography.Command.cta)
                         }
                     }
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppTheme.Spacing.md)
-                    .background(Color.scholarAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+                    .padding(.vertical, Theme.Spacing.md)
+                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 }
                 .disabled(selectedProduct == nil || isPurchasing)
-                .opacity(selectedProduct == nil ? AppTheme.Opacity.disabled : 1)
+                .opacity(selectedProduct == nil ? Theme.Opacity.disabled : 1)
             }
         }
         .onAppear {
@@ -188,14 +191,14 @@ struct PaywallView: View {
     // MARK: - Trial Info Section
 
     private var trialInfoSection: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             if let product = selectedProduct {
                 Text("7-day free trial, then \(product.displayPrice)/year")
-                    .font(Typography.UI.footnote)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
 
                 Text("Cancel anytime. No commitment.")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
         }
@@ -204,33 +207,33 @@ struct PaywallView: View {
     // MARK: - Legal Section
 
     private var legalSection: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.lg) {
                 Button("Terms of Use") {
                     // Open terms URL
                 }
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(Color.tertiaryText)
 
                 Button("Privacy Policy") {
                     // Open privacy URL
                 }
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(Color.tertiaryText)
 
                 Button("Restore") {
                     Task { await restorePurchases() }
                 }
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(Color.tertiaryText)
             }
 
             Text("Subscription automatically renews unless cancelled at least 24 hours before the end of the current period.")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(Color.tertiaryText)
                 .multilineTextAlignment(.center)
         }
-        .padding(.top, AppTheme.Spacing.md)
+        .padding(.top, Theme.Spacing.md)
     }
 
     // MARK: - Actions
@@ -279,21 +282,23 @@ private struct FeatureRow: View {
     let icon: String
     let text: String
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
-                .font(Typography.UI.body)
-                .foregroundStyle(Color.scholarAccent)
-                .frame(width: AppTheme.IconContainer.small)
+                .font(Typography.Command.body)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 24)
 
             Text(text)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.primaryText)
 
             Spacer()
 
             Image(systemName: "checkmark")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.success)
         }
     }
@@ -306,53 +311,55 @@ private struct ProductCard: View {
     let isSelected: Bool
     let onSelect: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onSelect) {
             HStack {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     HStack {
                         Text(product.displayName)
-                            .font(Typography.Display.headline)
+                            .font(Typography.Scripture.heading)
                             .foregroundStyle(Color.primaryText)
 
                         if isScholar {
                             Text("BEST VALUE")
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.white)
-                                .padding(.horizontal, AppTheme.Spacing.xs)
-                                .padding(.vertical, AppTheme.Spacing.xxs)
-                                .background(Color.scholarAccent)
+                                .padding(.horizontal, Theme.Spacing.xs)
+                                .padding(.vertical, 2)
+                                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 .clipShape(Capsule())
                         }
                     }
 
                     Text(product.description)
-                        .font(Typography.UI.footnote)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
                         .lineLimit(2)
                 }
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .trailing, spacing: 2) {
                     Text(product.displayPrice)
-                        .font(Typography.UI.headline.monospacedDigit())
+                        .font(Typography.Command.headline.monospacedDigit())
                         .foregroundStyle(Color.primaryText)
 
                     Text("/year")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle) : Color.surfaceBackground)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle) : Color.surfaceBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -371,6 +378,7 @@ enum PaywallTrigger {
     case translationLimit
     case highlightLimit
     case noteLimit
+    case prayerLimit  // Prayer generation daily limit reached
     case firstSession
     case manual
 
@@ -381,6 +389,7 @@ enum PaywallTrigger {
         case .translationLimit: return "translation_limit"
         case .highlightLimit: return "highlight_limit"
         case .noteLimit: return "note_limit"
+        case .prayerLimit: return "prayer_limit"
         case .firstSession: return "first_session"
         case .manual: return "manual"
         }

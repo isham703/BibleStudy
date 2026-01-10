@@ -19,7 +19,7 @@ struct VellumScrollToast: View {
 
     // MARK: - Layout Constants
 
-    private let cornerRadius: CGFloat = AppTheme.CornerRadius.xl
+    private let cornerRadius: CGFloat = 20
     private let borderWidth: CGFloat = 1.0
     private let shadowRadius: CGFloat = 24
     private let shadowOpacity: Double = 0.2
@@ -27,45 +27,39 @@ struct VellumScrollToast: View {
     // MARK: - Computed Properties
 
     private var backgroundColor: Color {
-        colorScheme == .dark
-            ? Color.chapelShadow
-            : Color.monasteryStone
+        Color.Surface.card(colorScheme: colorScheme)
     }
 
     private var textColor: Color {
-        colorScheme == .dark
-            ? Color.moonlitParchment
-            : Color.monasteryBlack
+        Color.Surface.textPrimary(colorScheme: colorScheme)
     }
 
     private var secondaryTextColor: Color {
-        colorScheme == .dark
-            ? Color.fadedMoonlight
-            : Color.agedInk
+        Color.Surface.textSecondary(colorScheme: colorScheme)
     }
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             // Sparkle icon
             Image(systemName: toast.type.icon)
-                .font(Typography.UI.iconSm.weight(.semibold))
-                .foregroundStyle(toast.type.accentColor)
+                .font(Typography.Icon.sm.weight(.semibold))
+                .foregroundStyle(toast.type.accentColor(for: colorScheme))
 
             // Content
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 messageText
                 referenceText
             }
 
-            Spacer(minLength: AppTheme.Spacing.sm)
+            Spacer(minLength: Theme.Spacing.sm)
 
             // Undo button (if action available)
             if toast.undoAction != nil {
                 undoButton
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
         .background(toastBackground)
         .overlay(goldBorderOverlay)
         .shadow(
@@ -97,9 +91,9 @@ struct VellumScrollToast: View {
     private var messageText: some View {
         switch toast.type {
         case .highlight(let color, _):
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Text("Highlighted in")
-                    .font(Typography.Codex.emphasis)
+                    .font(Typography.Scripture.quote)
                     .foregroundStyle(textColor)
 
                 // Color dot
@@ -108,23 +102,23 @@ struct VellumScrollToast: View {
                     .frame(width: 12, height: 12)
 
                 Text(color.displayName)
-                    .font(Typography.Codex.emphasis)
+                    .font(Typography.Scripture.quote)
                     .foregroundStyle(color.solidColor)
             }
 
         case .success(let message), .info(let message):
             Text(message)
-                .font(Typography.Codex.emphasis)
+                .font(Typography.Scripture.quote)
                 .foregroundStyle(textColor)
 
         case .bookmark:
             Text("Bookmarked")
-                .font(Typography.Codex.emphasis)
+                .font(Typography.Scripture.quote)
                 .foregroundStyle(textColor)
 
         case .note:
             Text("Note saved")
-                .font(Typography.Codex.emphasis)
+                .font(Typography.Scripture.quote)
                 .foregroundStyle(textColor)
         }
     }
@@ -138,7 +132,7 @@ struct VellumScrollToast: View {
              .bookmark(let reference),
              .note(let reference):
             Text(reference)
-                .font(Typography.Codex.caption)
+                .font(Typography.Scripture.footnote)
                 .foregroundStyle(secondaryTextColor)
 
         case .success, .info:
@@ -150,7 +144,7 @@ struct VellumScrollToast: View {
 
     private var undoButton: some View {
         Button(action: {
-            withAnimation(AppTheme.Animation.quick) {
+            withAnimation(Theme.Animation.fade) {
                 undoButtonPressed = true
             }
             HapticService.shared.lightTap()
@@ -161,18 +155,18 @@ struct VellumScrollToast: View {
             }
         }) {
             Text("Undo")
-                .font(Typography.UI.buttonLabel)
-                .foregroundStyle(Color.divineGold)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .font(Typography.Command.cta)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.sm)
                 .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                        .fill(Color.divineGold.opacity(AppTheme.Opacity.subtle))
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
                 )
                 .scaleEffect(undoButtonPressed ? 0.95 : 1.0)
         }
         .buttonStyle(.plain)
-        .frame(minWidth: AppTheme.TouchTarget.minimum, minHeight: AppTheme.TouchTarget.minimum)
+        .frame(minWidth: 44, minHeight: 44)
         .contentShape(Rectangle())
     }
 
@@ -187,7 +181,7 @@ struct VellumScrollToast: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.divineGold.opacity(AppTheme.Opacity.faint),
+                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
                                 .clear
                             ],
                             center: .leading,
@@ -202,19 +196,7 @@ struct VellumScrollToast: View {
 
     private var goldBorderOverlay: some View {
         RoundedRectangle(cornerRadius: cornerRadius)
-            .stroke(
-                AngularGradient(
-                    colors: [
-                        Color.divineGold,
-                        Color.burnishedGold,
-                        Color.illuminatedGold,
-                        Color.divineGold
-                    ],
-                    center: .center,
-                    angle: .degrees(45)
-                ),
-                lineWidth: borderWidth
-            )
+            .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: borderWidth)
             .opacity(borderProgress)
     }
 
@@ -222,13 +204,13 @@ struct VellumScrollToast: View {
 
     private func animateEntrance() {
         // Border draws in
-        withAnimation(AppTheme.Animation.luminous.delay(0.3)) {
+        withAnimation(Theme.Animation.slowFade.delay(0.3)) {
             borderProgress = 1.0
         }
 
         // Start subtle breathing after entrance
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            withAnimation(AppTheme.Animation.contemplative) {
+            withAnimation(Theme.Animation.slowFade) {
                 isBreathing = true
             }
         }
@@ -295,7 +277,7 @@ struct VellumScrollToast: View {
 
 #Preview("Dark Mode") {
     ZStack {
-        Color.candlelitStone.ignoresSafeArea()
+        Color.surfaceInk.ignoresSafeArea()
 
         VellumScrollToast(
             toast: ToastItem(

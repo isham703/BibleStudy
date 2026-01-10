@@ -30,7 +30,7 @@ struct StoryExplorerView: View {
     // MARK: - Stories Content
     private var storiesContent: some View {
         ScrollView {
-            VStack(spacing: AppTheme.Spacing.lg) {
+            VStack(spacing: Theme.Spacing.lg) {
                 // Filter bar
                 filterBar
 
@@ -42,16 +42,16 @@ struct StoryExplorerView: View {
                 // Story grid
                 storyGrid
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
         }
     }
 
     // MARK: - Filter Bar
     private var filterBar: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Type filter
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     StoryFilterChip(
                         label: "All",
                         isSelected: viewModel.selectedType == nil,
@@ -85,7 +85,7 @@ struct StoryExplorerView: View {
                 GridItem(.flexible()),
                 GridItem(.flexible())
             ],
-            spacing: AppTheme.Spacing.md
+            spacing: Theme.Spacing.md
         ) {
             ForEach(viewModel.filteredStories) { story in
                 NavigationLink(value: story) {
@@ -174,30 +174,32 @@ struct StoryFilterChip: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                 }
                 Text(label)
-                    .font(Typography.UI.chipLabel)
+                    .font(Typography.Command.meta)
             }
             .foregroundStyle(isSelected ? .white : Color.primaryText)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
-        .animation(AppTheme.Animation.quick, value: isSelected)
+        .animation(Theme.Animation.fade, value: isSelected)
     }
 }
 
@@ -206,64 +208,66 @@ struct FeaturedStoryCard: View {
     let story: Story
     let progress: StoryProgress?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         NavigationLink(value: story) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 // Header
                 HStack {
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         Text(progress != nil ? "Continue Reading" : "Featured Story")
-                            .font(Typography.UI.caption1Bold)
-                            .foregroundStyle(Color.scholarAccent)
+                            .font(Typography.Command.caption.weight(.semibold))
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                             .textCase(.uppercase)
                             .tracking(1.2)
 
                         Text(story.title)
-                            .font(Typography.Display.title3)
+                            .font(Typography.Scripture.heading)
                             .foregroundStyle(Color.primaryText)
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right.circle.fill")
-                        .font(Typography.UI.title2)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.title2)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Subtitle
                 if let subtitle = story.subtitle {
                     Text(subtitle)
-                        .font(Typography.UI.subheadline)
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.subheadline)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Description
                 Text(story.description)
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .lineLimit(2)
 
                 // Progress (if started)
                 if let progress = progress, !story.segments.isEmpty {
                     let percentage = progress.progressPercentage(totalSegments: story.segments.count)
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         HStack {
                             Text("\(Int(percentage * 100))% complete")
-                                .font(Typography.UI.caption1)
+                                .font(Typography.Command.caption)
                                 .foregroundStyle(Color.secondaryText)
                             Spacer()
                         }
                         ProgressView(value: percentage)
-                            .tint(Color.scholarAccent)
+                            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
                 }
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(Theme.Spacing.lg)
             .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
             )
         }
     }

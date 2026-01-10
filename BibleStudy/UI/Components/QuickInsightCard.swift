@@ -13,6 +13,8 @@ struct QuickInsightCard: View {
     var onAction: ((QuickInsightAction) -> Void)?
     var onDismiss: (() -> Void)?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     // MARK: - Animation State
     @State private var showContent = false
     @State private var showIcon = false
@@ -20,18 +22,18 @@ struct QuickInsightCard: View {
     @State private var showActions = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Header with dismiss button
             HStack {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "sparkles")
-                        .foregroundStyle(Color.scholarAccent)
-                        .font(Typography.UI.caption1)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .font(Typography.Command.caption)
                         .opacity(showIcon ? 1 : 0)
                         .scaleEffect(showIcon ? 1 : 0.5)
 
                     Text("Quick Insight")
-                        .font(Typography.UI.warmSubheadline)
+                        .font(Typography.Command.subheadline)
                         .foregroundStyle(Color.secondaryText)
                         .opacity(showIcon ? 1 : 0)
                 }
@@ -42,7 +44,7 @@ struct QuickInsightCard: View {
                     dismissWithAnimation()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .opacity(showIcon ? 1 : 0)
@@ -56,21 +58,19 @@ struct QuickInsightCard: View {
                 insightContent(insight)
             }
         }
-        .padding(AppTheme.Spacing.md)
-        .background(Color.elevatedBackground.opacity(AppTheme.Opacity.nearOpaque))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
-        // MARK: - Gold Glow Border (Illuminated Manuscript)
+        .padding(Theme.Spacing.md)
+        .background(Color.elevatedBackground.opacity(Theme.Opacity.nearOpaque))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+        // MARK: - Accent Seal Border
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(Color.divineGold, lineWidth: AppTheme.Border.thin)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(Color.divineGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thick + 1)
-                .blur(radius: AppTheme.Blur.subtle)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.control + 1)
+                .blur(radius: 4)
         )
-        // MARK: - Warm Gold Shadow
-        .shadow(AppTheme.Shadow.medium)
         // MARK: - Appear Animation
         .opacity(showContent ? 1 : 0)
         .scaleEffect(showContent ? 1 : 0.95)
@@ -83,24 +83,24 @@ struct QuickInsightCard: View {
     // MARK: - Animation Methods
 
     private func startAppearAnimation() {
-        withAnimation(AppTheme.Animation.sacredSpring) {
+        withAnimation(Theme.Animation.settle) {
             showContent = true
         }
 
         // Staggered content reveal
-        withAnimation(AppTheme.Animation.standard.delay(0.0)) {
+        withAnimation(Theme.Animation.settle.delay(0.0)) {
             showIcon = true
         }
-        withAnimation(AppTheme.Animation.standard.delay(0.1)) {
+        withAnimation(Theme.Animation.settle.delay(0.1)) {
             showText = true
         }
-        withAnimation(AppTheme.Animation.standard.delay(0.2)) {
+        withAnimation(Theme.Animation.settle.delay(0.2)) {
             showActions = true
         }
     }
 
     private func dismissWithAnimation() {
-        withAnimation(AppTheme.Animation.quick) {
+        withAnimation(Theme.Animation.fade) {
             showContent = false
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -110,11 +110,11 @@ struct QuickInsightCard: View {
 
     // MARK: - Loading State
     private var loadingContent: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             ProgressView()
-                .scaleEffect(AppTheme.Scale.reduced)
+                .scaleEffect(0.8)
             Text("Analyzing passage...")
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -125,7 +125,7 @@ struct QuickInsightCard: View {
     private func insightContent(_ insight: QuickInsightOutput) -> some View {
         // Summary text with ink-bleed animation effect
         Text(insight.summary)
-            .font(Typography.UI.body)
+            .font(Typography.Command.body)
             .foregroundStyle(Color.primaryText)
             .fixedSize(horizontal: false, vertical: true)
             .opacity(showText ? 1 : 0)
@@ -134,14 +134,14 @@ struct QuickInsightCard: View {
 
         // Key term (if present)
         if let term = insight.keyTerm, let meaning = insight.keyTermMeaning {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Text(term)
-                    .font(Typography.UI.caption1Bold)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.caption.weight(.semibold))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 Text("—")
                     .foregroundStyle(Color.tertiaryText)
                 Text(meaning)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
             }
             .opacity(showText ? 1 : 0)
@@ -161,7 +161,7 @@ struct QuickInsightCard: View {
     // MARK: - Action Buttons
     private var actionButtons: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 ForEach(QuickInsightAction.allCases, id: \.self) { action in
                     actionButton(action)
                 }
@@ -173,20 +173,20 @@ struct QuickInsightCard: View {
         Button {
             onAction?(action)
         } label: {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: action.icon)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                 Text(action.buttonTitle)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
             }
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(Color.surfaceBackground)
             .foregroundStyle(Color.primaryText)
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -194,11 +194,11 @@ struct QuickInsightCard: View {
 
     // MARK: - Grounding Row (Trust UX)
     private func groundingRow(_ insight: QuickInsightOutput) -> some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: "checkmark.shield")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
             Text("Based on: \(insight.groundingSources.joined(separator: ", "))")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
         .foregroundStyle(Color.tertiaryText)
     }
@@ -213,7 +213,7 @@ extension QuickInsightAction: CaseIterable {
 
 // MARK: - Preview
 #Preview {
-    VStack(spacing: AppTheme.Spacing.xl) {
+    VStack(spacing: Theme.Spacing.xl) {
         // Loading state
         QuickInsightCard(
             insight: nil,

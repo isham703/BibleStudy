@@ -14,14 +14,16 @@ import SwiftUI
 struct MiniatureActionsView<Actions: View, Background: View>: View {
     var innerScaling: CGFloat = 0.9
     var minimisedButtonSize: CGSize = .init(
-        width: AppTheme.TouchTarget.large,
-        height: AppTheme.TouchTarget.comfortable
+        width: 56,
+        height: 48
     )
     var animation: Animation = .smooth(duration: 0.35, extraBounce: 0)
     @Binding var isExpanded: Bool
     var isAIMode: Bool = false  // When true, shows AI mode indicator
     @ViewBuilder var actions: Actions
     @ViewBuilder var background: Background
+
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         actions
@@ -59,9 +61,9 @@ struct MiniatureActionsView<Actions: View, Background: View>: View {
                         // AI mode indicator (sparkles badge)
                         if isAIMode {
                             Image(systemName: "sparkles")
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
                                 .fontWeight(.medium)
-                                .foregroundStyle(Color.scholarAccent)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 .offset(x: 12, y: -10)
                                 .transition(.scale.combined(with: .opacity))
                         }
@@ -81,7 +83,7 @@ struct MiniatureActionsView<Actions: View, Background: View>: View {
                     .compositingGroup()
                     // Fade out with blur when expanded
                     .opacity(isExpanded ? 0 : 1)
-                    .blur(radius: isExpanded ? AppTheme.Blur.intense : 0)
+                    .blur(radius: isExpanded ? 8 : 0)
             }
             .fixedSize()
             .frame(
@@ -104,7 +106,7 @@ struct MiniatureActionsBackground: View {
         ZStack {
             Capsule()
                 .fill(isAIMode
-                    ? Color.scholarAccent.opacity(colorScheme == .dark ? 0.15 : 0.1)
+                    ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(colorScheme == .dark ? 0.15 : 0.1)
                     : Color.elevatedBackground
                 )
 
@@ -113,16 +115,16 @@ struct MiniatureActionsBackground: View {
                 .opacity(colorScheme == .dark ? 1 : 0)
         }
         .shadow(
-            color: .black.opacity(isExpanded ? 0 : AppTheme.Opacity.subtle),
-            radius: AppTheme.Blur.light,
-            x: AppTheme.Blur.light,
-            y: AppTheme.Blur.light
+            color: .black.opacity(isExpanded ? 0 : Theme.Opacity.subtle),
+            radius: 4,
+            x: 2,
+            y: 2
         )
         .shadow(
-            color: .black.opacity(isExpanded ? 0 : AppTheme.Opacity.subtle),
-            radius: AppTheme.Blur.light,
-            x: -AppTheme.Blur.light,
-            y: -AppTheme.Blur.light
+            color: .black.opacity(isExpanded ? 0 : Theme.Opacity.subtle),
+            radius: 4,
+            x: -2,
+            y: -2
         )
     }
 }
@@ -138,15 +140,15 @@ struct QuickActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 Text(title)
 
                 Spacer(minLength: 0)
 
                 Image(systemName: icon)
             }
-            .font(Typography.UI.body)
-            .padding(.horizontal, AppTheme.Spacing.lg)
+            .font(Typography.Command.body)
+            .padding(.horizontal, Theme.Spacing.lg)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .opacity(isExpanded ? 1 : 0)
             .background {
@@ -213,13 +215,13 @@ struct QuickActionIconButton: View {
 
                 // Dim overlay when expanded
                 if isExpanded {
-                    Color.black.opacity(AppTheme.Opacity.lightMedium)
+                    Color.black.opacity(Theme.Opacity.lightMedium)
                         .ignoresSafeArea()
                         .onTapGesture { isExpanded = false }
                 }
 
                 MiniatureActionsView(isExpanded: $isExpanded) {
-                    VStack(spacing: isExpanded ? AppTheme.Spacing.sm : AppTheme.Spacing.lg) {
+                    VStack(spacing: isExpanded ? Theme.Spacing.sm : Theme.Spacing.lg) {
                         QuickActionButton(
                             title: "Jump to Chapter",
                             icon: "arrow.up.and.down",
@@ -234,7 +236,7 @@ struct QuickActionIconButton: View {
                         )
                         .frame(width: 220, height: 44)
 
-                        HStack(spacing: AppTheme.Spacing.md) {
+                        HStack(spacing: Theme.Spacing.md) {
                             QuickActionIconButton(
                                 icon: "shuffle",
                                 accessibilityLabel: "Random verse",
@@ -251,7 +253,7 @@ struct QuickActionIconButton: View {
                                 isExpanded: $isExpanded
                             )
                         }
-                        .font(Typography.UI.title3)
+                        .font(Typography.Command.title3)
                         .fontWeight(.medium)
                         .frame(width: 220, height: 48)
                     }
@@ -259,10 +261,10 @@ struct QuickActionIconButton: View {
                 } background: {
                     MiniatureActionsBackground(isExpanded: isExpanded)
                 }
-                .padding(.trailing, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.xl)
+                .padding(.trailing, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.xl)
             }
-            .animation(AppTheme.Animation.spring, value: isExpanded)
+            .animation(Theme.Animation.settle, value: isExpanded)
         }
     }
 

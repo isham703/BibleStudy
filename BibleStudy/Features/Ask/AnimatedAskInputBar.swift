@@ -7,74 +7,75 @@ import SwiftUI
 struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction: View>: View {
     var highlightWhenEmpty: Bool = true
     var hint: String
-    var tint: Color = Color.divineGold
+    var tint: Color = Colors.Semantic.accentSeal(for: .dark)  // Same in both modes
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
     @ViewBuilder var leadingAction: () -> LeadingAction
     @ViewBuilder var trailingAction: () -> TrailingAction
     @ViewBuilder var mainAction: () -> MainAction
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - View State
 
     @State private var isHighlighting: Bool = false
-    private let slideOffset: CGFloat = AppTheme.InputBar.slideOffset
+    private let slideOffset: CGFloat = 20
 
     private var respectsReducedMotion: Bool {
-        AppTheme.Animation.isReduceMotionEnabled
+        Theme.Animation.isReduceMotionEnabled
     }
 
     var body: some View {
         let mainLayout = isFocused
             ? AnyLayout(ZStackLayout(alignment: .bottomTrailing))
-            : AnyLayout(HStackLayout(alignment: .bottom, spacing: AppTheme.Spacing.sm))
-        let shape = RoundedRectangle(cornerRadius: isFocused ? AppTheme.InputBar.cornerRadiusFocused : AppTheme.InputBar.cornerRadius)
+            : AnyLayout(HStackLayout(alignment: .bottom, spacing: Theme.Spacing.sm))
+        let shape = RoundedRectangle(cornerRadius: isFocused ? Theme.Radius.card : Theme.Radius.button)
 
         ZStack {
             mainLayout {
                 let subLayout = isFocused
-                    ? AnyLayout(VStackLayout(alignment: .trailing, spacing: AppTheme.Spacing.lg))
+                    ? AnyLayout(VStackLayout(alignment: .trailing, spacing: Theme.Spacing.lg))
                     : AnyLayout(ZStackLayout(alignment: .trailing))
 
                 subLayout {
                     // Text Field
                     TextField(hint, text: $text, axis: .vertical)
-                        .font(Typography.UI.body)
-                        .foregroundStyle(Color.primaryText)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                         .lineLimit(isFocused ? 5 : 1)
                         .focused(_isFocused)
                         .mask {
                             Rectangle()
-                                .padding(.trailing, isFocused ? 0 : AppTheme.InputBar.textFieldMaskPadding)
+                                .padding(.trailing, isFocused ? 0 : 48)
                         }
 
                     // Trailing & Leading Action View
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         // Leading Actions
-                        HStack(spacing: AppTheme.Spacing.sm) {
+                        HStack(spacing: Theme.Spacing.sm) {
                             ForEach(subviews: leadingAction()) { subview in
                                 subview
-                                    .frame(width: AppTheme.InputBar.buttonSize, height: AppTheme.InputBar.buttonSize)
+                                    .frame(width: 32, height: 32)
                                     .contentShape(.rect)
                             }
                         }
                         .compositingGroup()
                         .allowsHitTesting(isFocused)
-                        .blur(radius: isFocused ? 0 : AppTheme.Blur.light)
+                        .blur(radius: isFocused ? 0 : 4)
                         .opacity(isFocused ? 1 : 0)
 
                         Spacer(minLength: 0)
 
                         // Trailing Action (single button)
                         trailingAction()
-                            .frame(width: AppTheme.InputBar.buttonSize, height: AppTheme.InputBar.buttonSize)
+                            .frame(width: 32, height: 32)
                             .contentShape(.rect)
                     }
                 }
-                .frame(height: isFocused ? nil : AppTheme.InputBar.height)
-                .padding(.leading, AppTheme.Spacing.md)
-                .padding(.trailing, isFocused ? AppTheme.Spacing.md : AppTheme.Spacing.sm)
-                .padding(.bottom, isFocused ? AppTheme.Spacing.sm : 0)
-                .padding(.top, isFocused ? AppTheme.Spacing.lg : 0)
+                .frame(height: isFocused ? nil : 44)
+                .padding(.leading, Theme.Spacing.md)
+                .padding(.trailing, isFocused ? Theme.Spacing.md : Theme.Spacing.sm)
+                .padding(.bottom, isFocused ? Theme.Spacing.sm : 0)
+                .padding(.top, isFocused ? Theme.Spacing.lg : 0)
                 .background {
                     ZStack {
                         highlightingBackgroundView
@@ -82,38 +83,38 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
                         shape
                             .fill(.bar)
                             .shadow(
-                                color: Color.divineGold.opacity(AppTheme.Opacity.subtle),
-                                radius: AppTheme.Blur.light,
+                                color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                                radius: 4,
                                 x: 0,
-                                y: AppTheme.Blur.light
+                                y: 4
                             )
                             .shadow(
-                                color: .black.opacity(AppTheme.Opacity.subtle),
-                                radius: AppTheme.Blur.intense,
+                                color: .black.opacity(Theme.Opacity.faint),
+                                radius: 16,
                                 x: 0,
-                                y: -AppTheme.Blur.light
+                                y: -4
                             )
                     }
                 }
 
                 // Main Action Button (slides off when focused)
                 mainAction()
-                    .frame(width: AppTheme.InputBar.mainButtonSize, height: AppTheme.InputBar.mainButtonSize)
+                    .frame(width: 44, height: 44)
                     .clipShape(.circle)
                     .background {
                         Circle()
                             .fill(.bar)
                             .shadow(
-                                color: Color.divineGold.opacity(AppTheme.Opacity.subtle),
-                                radius: AppTheme.Blur.light,
+                                color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                                radius: 4,
                                 x: 0,
-                                y: AppTheme.Blur.light
+                                y: 4
                             )
                             .shadow(
-                                color: .black.opacity(AppTheme.Opacity.subtle),
-                                radius: AppTheme.Blur.intense,
+                                color: .black.opacity(Theme.Opacity.faint),
+                                radius: 16,
                                 x: 0,
-                                y: -AppTheme.Blur.light
+                                y: -4
                             )
                     }
                     .visualEffect { [isFocused] content, proxy in
@@ -124,7 +125,7 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
         }
         .geometryGroup()
         .animation(
-            respectsReducedMotion ? .none : AppTheme.Animation.keyboardSync,
+            respectsReducedMotion ? .none : Theme.Animation.fade,
             value: isFocused
         )
     }
@@ -133,13 +134,13 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
 
     @ViewBuilder
     private var highlightingBackgroundView: some View {
-        let highlightShape = RoundedRectangle(cornerRadius: isFocused ? AppTheme.InputBar.cornerRadiusFocused : AppTheme.InputBar.cornerRadius)
+        let highlightShape = RoundedRectangle(cornerRadius: isFocused ? Theme.Radius.card : Theme.Radius.button)
 
         if !isFocused && text.isEmpty && highlightWhenEmpty && !respectsReducedMotion {
             highlightShape
                 .stroke(
                     tint.gradient,
-                    style: .init(lineWidth: AppTheme.Border.thick, lineCap: .round, lineJoin: .round)
+                    style: .init(lineWidth: 3, lineCap: .round, lineJoin: .round)
                 )
                 .mask {
                     let clearColors: [Color] = Array(repeating: .clear, count: 3)
@@ -151,10 +152,10 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
                             angle: .init(degrees: isHighlighting ? 360 : 0)
                         ))
                 }
-                .padding(-AppTheme.Blur.glow)
-                .blur(radius: AppTheme.Blur.glow)
+                .padding(-8)
+                .blur(radius: 8)
                 .onAppear {
-                    withAnimation(AppTheme.Animation.shimmerContinuous) {
+                    withAnimation(Theme.Animation.fade) {
                         isHighlighting = true
                     }
                 }
@@ -174,7 +175,7 @@ extension View {
     func blurFade(_ status: Bool) -> some View {
         self
             .compositingGroup()
-            .blur(radius: status ? 0 : AppTheme.Blur.heavy)
+            .blur(radius: status ? 0 : 16)
             .opacity(status ? 1 : 0)
     }
 }
@@ -191,15 +192,16 @@ struct AskAnimatedInputBar: View {
     let onVersePicker: () -> Void
     let onSearch: () -> Void
     var onClearAnchor: (() -> Void)?
+    @Environment(\.colorScheme) private var colorScheme
 
-    private let fillColor = Color.gray.opacity(AppTheme.Opacity.light)
+    private let fillColor = Color.gray.opacity(Theme.Opacity.light)
 
     private var respectsReducedMotion: Bool {
-        AppTheme.Animation.isReduceMotionEnabled
+        Theme.Animation.isReduceMotionEnabled
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             // Anchor chip (shown when verse is anchored)
             if let anchor = anchorRange {
                 anchorChip(for: anchor)
@@ -207,8 +209,8 @@ struct AskAnimatedInputBar: View {
                         respectsReducedMotion
                             ? .opacity
                             : .asymmetric(
-                                insertion: .opacity.combined(with: .scale(scale: 0.9)).animation(AppTheme.Animation.sacredSpring),
-                                removal: .opacity.combined(with: .scale(scale: 0.9)).animation(AppTheme.Animation.quick)
+                                insertion: .opacity.combined(with: .scale(scale: 0.9)).animation(Theme.Animation.settle),
+                                removal: .opacity.combined(with: .scale(scale: 0.9)).animation(Theme.Animation.fade)
                             )
                     )
             }
@@ -229,25 +231,25 @@ struct AskAnimatedInputBar: View {
                 sendButton
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.bottom, AppTheme.Spacing.sm)
-        .animation(respectsReducedMotion ? .none : AppTheme.Animation.keyboardSync, value: anchorRange != nil)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.bottom, Theme.Spacing.sm)
+        .animation(respectsReducedMotion ? .none : Theme.Animation.fade, value: anchorRange != nil)
     }
 
     // MARK: - Anchor Chip
 
     @ViewBuilder
     private func anchorChip(for anchor: VerseRange) -> some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             // Bookmark icon
             Image(systemName: "bookmark.fill")
-                .font(Typography.UI.caption2)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Command.meta)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
             // Reference text
             Text(anchor.shortReference)
-                .font(Typography.UI.caption1.weight(.medium))
-                .foregroundStyle(Color.primaryText)
+                .font(Typography.Command.caption.weight(.medium))
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
             // Tap to change indicator
             Button {
@@ -255,8 +257,8 @@ struct AskAnimatedInputBar: View {
                 onVersePicker()
             } label: {
                 Image(systemName: "chevron.down")
-                    .font(Typography.UI.iconXxxs)
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Icon.xxxs)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
             .accessibilityLabel("Change passage")
             .accessibilityHint("Opens verse picker to change anchored passage")
@@ -269,33 +271,33 @@ struct AskAnimatedInputBar: View {
                 onClearAnchor?()
             } label: {
                 Image(systemName: "xmark.circle.fill")
-                    .font(Typography.UI.body)
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
             .accessibilityLabel("Clear anchor")
             .accessibilityHint("Removes the verse anchor and returns to general mode")
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
         .background {
             Capsule()
                 .fill(.bar)
                 .shadow(
-                    color: Color.divineGold.opacity(AppTheme.Opacity.subtle),
-                    radius: AppTheme.Blur.light,
+                    color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                    radius: 4,
                     x: 0,
                     y: 2
                 )
                 .shadow(
-                    color: .black.opacity(AppTheme.Opacity.subtle),
-                    radius: AppTheme.Blur.medium,
+                    color: .black.opacity(Theme.Opacity.faint),
+                    radius: 8,
                     x: 0,
                     y: 4
                 )
         }
         .overlay {
             Capsule()
-                .strokeBorder(Color.divineGold.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                .strokeBorder(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
         }
     }
 
@@ -310,7 +312,7 @@ struct AskAnimatedInputBar: View {
         } label: {
             Image(systemName: "book.closed")
                 .fontWeight(.medium)
-                .foregroundStyle(Color.divineGold)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(fillColor, in: .circle)
         }
@@ -323,7 +325,7 @@ struct AskAnimatedInputBar: View {
             onSearch()
         } label: {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(fillColor, in: .circle)
         }
@@ -349,14 +351,14 @@ struct AskAnimatedInputBar: View {
                 // Checkmark (shown when focused)
                 Image(systemName: "checkmark")
                     .fontWeight(.medium)
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.divineGold.gradient, in: .circle)
+                    .background(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).gradient, in: .circle)
                     .blurFade(isFocused.wrappedValue)
 
                 // Mic (shown when not focused)
                 Image(systemName: "mic.fill")
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(fillColor, in: .circle)
                     .blurFade(!isFocused.wrappedValue)
@@ -377,14 +379,14 @@ struct AskAnimatedInputBar: View {
             ZStack {
                 if isLoading {
                     ProgressView()
-                        .tint(Color.divineGold)
+                        .tint(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                 } else {
                     Image(systemName: "sparkles")
-                        .font(Typography.UI.body)
+                        .font(Typography.Command.body)
                         .foregroundStyle(
                             text.isEmpty
-                                ? Color.tertiaryText
-                                : Color.divineGold
+                                ? Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme))
+                                : Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
                         )
                 }
             }
@@ -415,7 +417,7 @@ struct AskAnimatedInputBar: View {
                     onClearAnchor: {}
                 )
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: .dark))
         }
     }
     return PreviewWrapper()
@@ -438,7 +440,7 @@ struct AskAnimatedInputBar: View {
                     onClearAnchor: {}
                 )
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: .dark))
             .onAppear {
                 isFocused = true
             }
@@ -466,7 +468,7 @@ struct AskAnimatedInputBar: View {
                     onClearAnchor: { anchor = nil }
                 )
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: .dark))
         }
     }
     return PreviewWrapper()

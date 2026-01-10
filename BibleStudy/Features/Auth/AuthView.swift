@@ -5,6 +5,8 @@ import AuthenticationServices
 // Main authentication screen with sign in/up and Apple Sign In
 
 struct AuthView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(AppState.self) private var appState
     @State private var viewModel = AuthViewModel()
 
     // MARK: - Focus State
@@ -13,6 +15,26 @@ struct AuthView: View {
     }
     @FocusState private var focusedField: AuthField?
     @FocusState private var resetEmailFocused: Bool
+
+    // Password visibility
+    @State private var showPassword = false
+    @State private var showConfirmPassword = false
+
+    // MARK: - Computed Properties
+
+    private var passwordBorderColor: Color {
+        if !viewModel.password.isEmpty {
+            return viewModel.isPasswordValid ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
+        }
+        return focusedField == .password ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Color.divider
+    }
+
+    private var confirmPasswordBorderColor: Color {
+        if !viewModel.confirmPassword.isEmpty {
+            return viewModel.doPasswordsMatch ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
+        }
+        return focusedField == .confirmPassword ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Color.divider
+    }
 
     var body: some View {
         NavigationStack {
@@ -30,14 +52,6 @@ struct AuthView: View {
                 } else {
                     mainAuthContent
                 }
-            }
-            .alert("Error", isPresented: .init(
-                get: { viewModel.errorMessage != nil },
-                set: { if !$0 { viewModel.errorMessage = nil } }
-            )) {
-                Button("OK") { viewModel.errorMessage = nil }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
             }
             .alert("Success", isPresented: .init(
                 get: { viewModel.successMessage != nil },
@@ -58,13 +72,28 @@ struct AuthView: View {
                 )
                 .presentationDetents([.medium])
             }
+            .onChange(of: viewModel.errorMessage) { _, newValue in
+                if let error = newValue {
+                    // Announce errors to VoiceOver users
+                    UIAccessibility.post(notification: .announcement, argument: "Error: \(error)")
+                }
+            }
+            .onChange(of: viewModel.isAuthenticated) { _, isAuthenticated in
+                if isAuthenticated {
+                    // Update AppState to trigger navigation to MainTabView
+                    appState.isAuthenticated = true
+                    if let userId = AuthService.shared.currentUserId {
+                        appState.userId = userId.uuidString
+                    }
+                }
+            }
         }
     }
 
     // MARK: - Main Auth Content
     private var mainAuthContent: some View {
         ScrollView {
-            VStack(spacing: AppTheme.Spacing.xl) {
+            VStack(spacing: Theme.Spacing.xl) {
                 // Logo/Header
                 headerSection
 
@@ -80,7 +109,7 @@ struct AuthView: View {
                 // Toggle Sign In/Up
                 toggleSection
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(Theme.Spacing.lg)
         }
         .background(Color.primaryBackground)
         .navigationBarTitleDisplayMode(.inline)
@@ -94,30 +123,35 @@ struct AuthView: View {
 
     // MARK: - Header Section
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "book.closed.fill")
-                .font(Typography.UI.largeTitle)
+                .font(Typography.Command.largeTitle)
                 .imageScale(.large)
-                .foregroundStyle(Color.scholarAccent)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Text("Bible Study")
                 .font(Typography.Scripture.title)
                 .foregroundStyle(Color.primaryText)
 
             Text(viewModel.isSignUp ? "Create your account" : "Welcome back")
-                .font(Typography.UI.warmBody)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
         }
-        .padding(.top, AppTheme.Spacing.xl)
+        .padding(.top, Theme.Spacing.xl)
     }
 
     // MARK: - Form Section
     private var formSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
+            // Inline error banner
+            if let error = viewModel.errorMessage {
+                inlineErrorBanner(message: error)
+            }
+
             // Email
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Email")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
 
                 TextField("you@example.com", text: $viewModel.email)
@@ -131,16 +165,26 @@ struct AuthView: View {
                     .focused($focusedField, equals: .email)
                     .submitLabel(.next)
                     .onSubmit { focusedField = .password }
+                    .accessibilityLabel("Email")
+                    .accessibilityHint("Enter your email address")
+                    .accessibilityValue(viewModel.email.isEmpty ? "Empty" : viewModel.email)
             }
 
             // Password
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Password")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
 
-                SecureField("••••••••", text: $viewModel.password)
-                    .textFieldStyle(ScribeFocusStyle(
+                HStack(spacing: 0) {
+                    Group {
+                        if showPassword {
+                            TextField("••••••••", text: $viewModel.password)
+                        } else {
+                            SecureField("••••••••", text: $viewModel.password)
+                        }
+                    }
+                    .textFieldStyle(PasswordFieldStyle(
                         isFocused: focusedField == .password,
                         validationState: viewModel.password.isEmpty ? nil : viewModel.isPasswordValid
                     ))
@@ -154,6 +198,41 @@ struct AuthView: View {
                             Task { await viewModel.signIn() }
                         }
                     }
+                    .accessibilityLabel("Password")
+                    .accessibilityHint(viewModel.isSignUp ? "Must be at least 8 characters" : "Enter your password")
+                    .accessibilityValue("\(viewModel.password.count) characters")
+
+                    // Visibility toggle button
+                    Button {
+                        showPassword.toggle()
+                        HapticService.shared.selectionChanged()
+                    } label: {
+                        Image(systemName: showPassword ? "eye.slash" : "eye")
+                            .font(Typography.Icon.md)
+                            .foregroundStyle(Color.tertiaryText)
+                            .frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel(showPassword ? "Hide password" : "Show password")
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
+                        .fill(Color.secondaryBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
+                        .stroke(
+                            passwordBorderColor,
+                            lineWidth: focusedField == .password ? Theme.Stroke.control : Theme.Stroke.hairline
+                        )
+                )
+                .shadow(
+                    color: focusedField == .password
+                        ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+                        : .clear,
+                    radius: focusedField == .password ? 8 : 0,
+                    y: focusedField == .password ? 2 : 0
+                )
+                .animation(Theme.Animation.settle, value: passwordBorderColor)
 
                 // Password strength indicator (sign up only)
                 if viewModel.isSignUp && !viewModel.password.isEmpty {
@@ -163,13 +242,20 @@ struct AuthView: View {
 
             // Confirm Password (Sign Up only)
             if viewModel.isSignUp {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text("Confirm Password")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
 
-                    SecureField("••••••••", text: $viewModel.confirmPassword)
-                        .textFieldStyle(ScribeFocusStyle(
+                    HStack(spacing: 0) {
+                        Group {
+                            if showConfirmPassword {
+                                TextField("••••••••", text: $viewModel.confirmPassword)
+                            } else {
+                                SecureField("••••••••", text: $viewModel.confirmPassword)
+                            }
+                        }
+                        .textFieldStyle(PasswordFieldStyle(
                             isFocused: focusedField == .confirmPassword,
                             validationState: viewModel.confirmPassword.isEmpty ? nil : viewModel.doPasswordsMatch
                         ))
@@ -179,10 +265,44 @@ struct AuthView: View {
                             focusedField = nil
                             Task { await viewModel.signUp() }
                         }
+                        .accessibilityLabel("Confirm password")
+                        .accessibilityHint("Re-enter your password to confirm")
+                        .accessibilityValue(viewModel.doPasswordsMatch ? "Passwords match" : "Passwords do not match")
+
+                        // Visibility toggle button
+                        Button {
+                            showConfirmPassword.toggle()
+                            HapticService.shared.selectionChanged()
+                        } label: {
+                            Image(systemName: showConfirmPassword ? "eye.slash" : "eye")
+                                .font(Typography.Icon.md)
+                                .foregroundStyle(Color.tertiaryText)
+                                .frame(width: 44, height: 44)
+                        }
+                        .accessibilityLabel(showConfirmPassword ? "Hide password" : "Show password")
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: Theme.Radius.button)
+                            .fill(Color.secondaryBackground)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.Radius.button)
+                            .stroke(
+                                confirmPasswordBorderColor,
+                                lineWidth: focusedField == .confirmPassword ? Theme.Stroke.control : Theme.Stroke.hairline
+                            )
+                    )
+                    .shadow(
+                        color: focusedField == .confirmPassword
+                            ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+                            : .clear,
+                        radius: focusedField == .confirmPassword ? 8 : 0,
+                        y: focusedField == .confirmPassword ? 2 : 0
+                    )
 
                     if !viewModel.confirmPassword.isEmpty && !viewModel.doPasswordsMatch {
                         Text("Passwords don't match")
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                             .foregroundStyle(Color.error)
                     }
                 }
@@ -195,8 +315,8 @@ struct AuthView: View {
                     Button("Forgot password?") {
                         viewModel.showResetPassword = true
                     }
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
 
@@ -219,13 +339,15 @@ struct AuthView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(AppTheme.Spacing.md)
-                .background(viewModel.canSubmit ? Color.scholarAccent : Color.tertiaryText)
+                .padding(Theme.Spacing.md)
+                .background(viewModel.canSubmit ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.tertiaryText)
                 .foregroundStyle(.white)
-                .font(Typography.UI.bodyBold)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                .font(Typography.Command.body.weight(.semibold))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             }
             .disabled(!viewModel.canSubmit || viewModel.isLoading)
+            .accessibilityLabel(viewModel.isSignUp ? "Create account" : "Sign in")
+            .accessibilityHint(viewModel.canSubmit ? "Double tap to submit" : "Complete all fields first")
         }
     }
 
@@ -234,22 +356,22 @@ struct AuthView: View {
         HStack {
             Rectangle()
                 .fill(Color.divider)
-                .frame(height: AppTheme.Divider.thin)
+                .frame(height: Theme.Stroke.hairline)
 
             Text("or")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
-                .padding(.horizontal, AppTheme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.sm)
 
             Rectangle()
                 .fill(Color.divider)
-                .frame(height: AppTheme.Divider.thin)
+                .frame(height: Theme.Stroke.hairline)
         }
     }
 
     // MARK: - Apple Sign In Section
     private var appleSignInSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             SignInWithAppleButton(.signIn) { request in
                 request.requestedScopes = [.email, .fullName]
             } onCompletion: { result in
@@ -259,10 +381,10 @@ struct AuthView: View {
             }
             .signInWithAppleButtonStyle(.white)
             .frame(height: 50)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                    .stroke(Color.divider, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
             )
 
             // Biometric quick sign-in (only shown if enabled and not in sign-up mode)
@@ -280,73 +402,76 @@ struct AuthView: View {
                 await viewModel.signInWithBiometrics()
             }
         } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Sacred seal styling for biometric icon
                 ZStack {
                     Circle()
                         .stroke(
                             LinearGradient(
-                                colors: [.illuminatedGold, .divineGold, .burnishedGold],
+                                colors: [Color.accentBronze, Color.accentBronze, .burnishedGold],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
-                            lineWidth: AppTheme.Border.regular
+                            lineWidth: Theme.Stroke.control
                         )
                         .frame(width: 36, height: 36)
 
                     Image(systemName: viewModel.biometricType.systemImage)
-                        .font(Typography.UI.iconMd.weight(.medium))
-                        .foregroundStyle(Color.divineGold)
+                        .font(Typography.Icon.md.weight(.medium))
+                        .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                 }
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.biometricType.signInLabel)
-                        .font(Typography.UI.bodyBold)
+                        .font(Typography.Command.body.weight(.semibold))
                         .foregroundStyle(Color.primaryText)
                     Text("Quick & secure access")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.secondaryText)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                    .stroke(Color.divider, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Sign in with \(viewModel.biometricType.displayName)")
+        .accessibilityHint("Quick biometric authentication")
     }
 
     // MARK: - Toggle Section
     private var toggleSection: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             Text(viewModel.isSignUp ? "Already have an account?" : "Don't have an account?")
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
 
             Button(viewModel.isSignUp ? "Sign In" : "Sign Up") {
                 viewModel.toggleMode()
             }
-            .font(Typography.UI.bodyBold)
-            .foregroundStyle(Color.scholarAccent)
+            .font(Typography.Command.body.weight(.semibold))
+            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
         }
-        .padding(.bottom, AppTheme.Spacing.lg)
+        .padding(.bottom, Theme.Spacing.lg)
     }
 
     // MARK: - Reset Password Sheet
     private var resetPasswordSheet: some View {
         NavigationStack {
-            VStack(spacing: AppTheme.Spacing.lg) {
+            VStack(spacing: Theme.Spacing.lg) {
                 Text("Enter your email and we'll send you a link to reset your password.")
-                    .font(Typography.UI.warmBody)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
 
@@ -378,17 +503,17 @@ struct AuthView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(AppTheme.Spacing.md)
-                    .background(Color.scholarAccent)
+                    .padding(Theme.Spacing.md)
+                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .foregroundStyle(.white)
-                    .font(Typography.UI.bodyBold)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+                    .font(Typography.Command.body.weight(.semibold))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 }
                 .disabled(viewModel.isLoading)
 
                 Spacer()
             }
-            .padding(AppTheme.Spacing.lg)
+            .padding(Theme.Spacing.lg)
             .navigationTitle("Reset Password")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -407,64 +532,117 @@ struct AuthView: View {
         }
         .presentationDetents([.medium])
     }
+
+    // MARK: - Inline Error Banner
+    @ViewBuilder
+    private func inlineErrorBanner(message: String) -> some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(Typography.Icon.md)
+                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+
+            Text(message)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+                .multilineTextAlignment(.leading)
+
+            Spacer()
+
+            Button {
+                viewModel.errorMessage = nil
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(Typography.Icon.md)
+                    .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+            }
+            .accessibilityLabel("Dismiss error")
+        }
+        .padding(Theme.Spacing.md)
+        .background(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .stroke(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
+        )
+        .transition(.asymmetric(
+            insertion: .move(edge: .top).combined(with: .opacity),
+            removal: .opacity
+        ))
+        .animation(Theme.Animation.settle, value: message)
+    }
 }
 
 // MARK: - Scribe Focus Style
 // "Scribe's Attention" - Focus state feels like a scribe's quill hovering over the exact writing position
 struct ScribeFocusStyle: TextFieldStyle {
+    @Environment(\.colorScheme) private var colorScheme
     let isFocused: Bool
     let validationState: Bool? // nil = no validation, true = valid, false = invalid
 
     private var borderColor: Color {
         if let isValid = validationState {
-            return isValid ? Color.divineGold : Color.vermillion
+            return isValid ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
         }
-        return isFocused ? Color.divineGold : Color.divider
+        return isFocused ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Color.divider
     }
 
     private var borderWidth: CGFloat {
-        isFocused ? AppTheme.Border.regular : AppTheme.Border.thin
+        isFocused ? Theme.Stroke.control : Theme.Stroke.hairline
     }
 
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .foregroundStyle(Color.primaryText)
             .background(
                 ZStack {
                     // Base surface
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
                         .fill(Color.secondaryBackground)
 
                     // Focused glow layer - warm gold ambient
                     if isFocused {
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
+                        RoundedRectangle(cornerRadius: Theme.Radius.button)
                             .fill(Color.Glow.indigoAmbient)
-                            .blur(radius: AppTheme.Blur.medium)
+                            .blur(radius: 8)
                             .offset(y: 2)
                     }
                 }
             )
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .stroke(borderColor, lineWidth: borderWidth)
             )
             // Subtle lift on focus with gold glow
             .shadow(
                 color: isFocused
-                    ? Color.divineGold.opacity(AppTheme.Opacity.light)
+                    ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
                     : .clear,
-                radius: isFocused ? AppTheme.Blur.medium : 0,
+                radius: isFocused ? 8 : 0,
                 y: isFocused ? 2 : 0
             )
             .animation(
                 isFocused
-                    ? AppTheme.Animation.luminous  // Fast-in for appearing focus
-                    : AppTheme.Animation.reverent, // Slow, dignified fade out
+                    ? Theme.Animation.slowFade  // Fast-in for appearing focus
+                    : Theme.Animation.slowFade, // Slow, dignified fade out
                 value: isFocused
             )
-            .animation(AppTheme.Animation.sacredSpring, value: validationState)
+            .animation(Theme.Animation.settle, value: validationState)
+    }
+}
+
+// MARK: - Password Field Style
+// Simplified style for password fields with visibility toggle (no border/background - parent handles it)
+struct PasswordFieldStyle: TextFieldStyle {
+    let isFocused: Bool
+    let validationState: Bool?
+
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding(.leading, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
+            .foregroundStyle(Color.primaryText)
     }
 }
 
@@ -472,13 +650,13 @@ struct ScribeFocusStyle: TextFieldStyle {
 struct AuthTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.secondaryBackground)
             .foregroundStyle(Color.primaryText)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md)
-                    .stroke(Color.divider, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
             )
     }
 }
@@ -487,17 +665,20 @@ struct AuthTextFieldStyle: TextFieldStyle {
 // Password strength indicator inspired by manuscript illumination stages
 struct IlluminationMeter: View {
     let strength: PasswordIllumination
+    @State private var previousStrength: PasswordIllumination = .blank
+
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             // Bar with 4 segments
-            HStack(spacing: AppTheme.Spacing.xxs - 1) {
+            HStack(spacing: 2 - 1) {
                 ForEach(1...4, id: \.self) { segment in
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+                    RoundedRectangle(cornerRadius: Theme.Radius.xs)
                         .fill(segment <= strength.rawValue
-                            ? strength.color
+                            ? strength.color(for: colorScheme)
                             : Color.divider)
-                        .frame(height: AppTheme.Divider.thick)
+                        .frame(height: 3)
                         .overlay(
                             // Gold shimmer on filled high-strength segments
                             segment <= strength.rawValue && strength.rawValue >= 3
@@ -508,35 +689,47 @@ struct IlluminationMeter: View {
 
             // Label with optional icon
             if !strength.label.isEmpty {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     if let icon = strength.icon {
                         Image(systemName: icon)
-                            .font(Typography.UI.iconXxs.weight(.medium))
+                            .font(Typography.Icon.xxs.weight(.medium))
                     }
                     Text(strength.label)
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                 }
-                .foregroundStyle(strength.color)
+                .foregroundStyle(strength.color(for: colorScheme))
             }
         }
-        .animation(AppTheme.Animation.sacredSpring, value: strength)
+        .animation(Theme.Animation.settle, value: strength)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Password strength")
+        .accessibilityValue(strength.label.isEmpty ? "Not evaluated" : strength.label)
+        .onChange(of: strength) { oldValue, newValue in
+            // Announce strength changes to VoiceOver users
+            if oldValue != .blank && newValue != .blank && oldValue != newValue {
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: "Password strength: \(newValue.label)"
+                )
+            }
+        }
     }
 
     @ViewBuilder
     private var shimmerOverlay: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+        RoundedRectangle(cornerRadius: Theme.Radius.xs)
             .fill(
                 LinearGradient(
                     colors: [
                         .clear,
-                        Color.illuminatedGold.opacity(AppTheme.Opacity.medium),
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
                         .clear
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
             )
-            .opacity(AppTheme.Opacity.heavy)
+            .opacity(Theme.Opacity.heavy)
     }
 }
 

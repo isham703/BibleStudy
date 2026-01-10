@@ -15,7 +15,7 @@ import SwiftUI
 
 /// An insight-first floating context menu for selected verses.
 /// The AI-generated insight is the hero element, not an afterthought.
-struct IlluminatedContextMenu: View {
+struct FloatingContextMenu: View {
 
     // MARK: - Properties
 
@@ -93,11 +93,11 @@ struct IlluminatedContextMenu: View {
             // Pause audio if playing (will remember state for resume)
             audioService.pauseForInterruption()
 
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 isAppearing = true
             }
             // Staggered insight reveal
-            withAnimation(AppTheme.Animation.luminous.delay(0.15)) {
+            withAnimation(Theme.Animation.slowFade.delay(0.15)) {
                 insightRevealed = true
             }
         }
@@ -128,13 +128,13 @@ struct IlluminatedContextMenu: View {
             compactActionBar
         }
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
         .overlay(cardBorder)
         .shadow(
-            color: .black.opacity(colorScheme == .dark ? AppTheme.Opacity.heavy : AppTheme.Opacity.light),
-            radius: AppTheme.Shadow.menu.radius,
-            x: AppTheme.Shadow.menu.x,
-            y: AppTheme.Shadow.menu.y
+            color: .black.opacity(colorScheme == .dark ? Theme.Opacity.heavy : Theme.Opacity.light),
+            radius: Theme.Shadow.menu.radius,
+            x: Theme.Shadow.menu.x,
+            y: Theme.Shadow.menu.y
         )
         .frame(width: menuWidth)
         .opacity(isAppearing ? 1 : 0)
@@ -155,17 +155,17 @@ struct IlluminatedContextMenu: View {
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous)
+        RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
             .stroke(
                 LinearGradient(
                     colors: [
-                        Color.divineGold.opacity(AppTheme.Opacity.heavy),
-                        Color.divineGold.opacity(AppTheme.Opacity.quarter)
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy),
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.quarter)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 ),
-                lineWidth: AppTheme.Border.thin
+                lineWidth: Theme.Stroke.hairline
             )
     }
 
@@ -173,9 +173,9 @@ struct IlluminatedContextMenu: View {
 
     private var thinDivider: some View {
         Rectangle()
-            .fill(Color.divineGold.opacity(AppTheme.Opacity.lightMedium))
-            .frame(height: AppTheme.Border.hairline)
-            .padding(.horizontal, AppTheme.CornerRadius.menu)
+            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+            .frame(height: Theme.Stroke.hairline)
+            .padding(.horizontal, 12)
     }
 
     // MARK: - HERO: Insight Section
@@ -186,7 +186,7 @@ struct IlluminatedContextMenu: View {
             // Use inline insight callback if available (new UX), otherwise fall back to legacy sheet
             if let openInline = onOpenInlineInsight {
                 // Dismiss context menu first, then open inline card
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     isAppearing = false
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -197,7 +197,7 @@ struct IlluminatedContextMenu: View {
                 onStudy()
             }
         } label: {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 if isLimitReached {
                     // Limit reached - show upgrade prompt
                     limitReachedView
@@ -212,8 +212,8 @@ struct IlluminatedContextMenu: View {
                     noInsightView
                 }
             }
-            .padding(.horizontal, AppTheme.CornerRadius.menu)
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.horizontal, 12)
+            .padding(.vertical, Theme.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .buttonStyle(PlainButtonStyle())
@@ -222,17 +222,17 @@ struct IlluminatedContextMenu: View {
     // MARK: - Loading Insight View
 
     private var loadingInsightView: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             ProgressView()
-                .scaleEffect(AppTheme.Scale.small)
-                .tint(Color.divineGold)
+                .scaleEffect(0.98)
+                .tint(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
             Text("Illuminating this passage...")
-                .font(Typography.Codex.italic)
+                .font(Typography.Scripture.quote)
                 .foregroundStyle(Color.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 
     // MARK: - Full Insight View (Hero)
@@ -240,28 +240,28 @@ struct IlluminatedContextMenu: View {
     @ViewBuilder
     private func fullInsightView(_ insight: QuickInsightOutput) -> some View {
         // Main insight summary - THE HERO
-        HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkle")
-                .font(Typography.UI.iconSm.weight(.semibold))
-                .foregroundStyle(Color.divineGold)
-                .padding(.top, AppTheme.Spacing.xxs + 1)
+                .font(Typography.Icon.sm.weight(.semibold))
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .padding(.top, 2 + 1)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs + 2) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs + 2) {
                 Text(insight.summary)
-                    .font(Typography.Codex.body)
+                    .font(Typography.Scripture.body)
                     .foregroundStyle(Color.primaryText)
-                    .lineSpacing(Typography.Codex.bodyLineSpacing)
+                    .lineSpacing(Typography.Scripture.bodyLineSpacing)
                     .lineLimit(5)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(insightRevealed ? 1 : 0)
-                    .blur(radius: insightRevealed ? 0 : AppTheme.Spacing.xs)
+                    .blur(radius: insightRevealed ? 0 : Theme.Spacing.xs)
 
                 // Key term (if present)
                 if let term = insight.keyTerm, let meaning = insight.keyTermMeaning {
                     keyTermView(term: term, meaning: meaning)
                         .opacity(insightRevealed ? 1 : 0)
-                        .offset(y: insightRevealed ? 0 : AppTheme.Spacing.xs)
+                        .offset(y: insightRevealed ? 0 : Theme.Spacing.xs)
                 }
             }
 
@@ -269,48 +269,48 @@ struct IlluminatedContextMenu: View {
 
             // Chevron for "tap for more"
             Image(systemName: "chevron.right")
-                .font(Typography.UI.iconXs)
+                .font(Typography.Icon.xs)
                 .foregroundStyle(Color.tertiaryText)
-                .padding(.top, AppTheme.Spacing.xs)
+                .padding(.top, Theme.Spacing.xs)
         }
     }
 
     // MARK: - Key Term View
 
     private func keyTermView(term: String, meaning: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.xs + 2) {
+        HStack(spacing: Theme.Spacing.xs + 2) {
             Text(term)
-                .font(Typography.Codex.gloss)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
             Text("—")
-                .font(Typography.Codex.captionSmall)
+                .font(Typography.Scripture.footnote)
                 .foregroundStyle(Color.tertiaryText)
 
             Text(meaning)
-                .font(Typography.Codex.caption)
+                .font(Typography.Scripture.footnote)
                 .foregroundStyle(Color.secondaryText)
                 .lineLimit(1)
         }
-        .padding(.top, AppTheme.Spacing.xxs)
+        .padding(.top, 2)
     }
 
     // MARK: - No Insight View
 
     private var noInsightView: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkle")
-                .font(Typography.UI.iconSm)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.sm)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
             Text("Tap to explore this passage")
-                .font(Typography.Codex.italic)
+                .font(Typography.Scripture.quote)
                 .foregroundStyle(Color.secondaryText)
 
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(Typography.UI.iconXxs)
+                .font(Typography.Icon.xxs)
                 .foregroundStyle(Color.tertiaryText)
         }
     }
@@ -318,26 +318,26 @@ struct IlluminatedContextMenu: View {
     // MARK: - Limit Reached View
 
     private var limitReachedView: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "lock.fill")
-                .font(Typography.UI.iconSm)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.sm)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Daily limit reached")
-                    .font(Typography.Codex.emphasis)
+                    .font(Typography.Scripture.quote)
                     .foregroundStyle(Color.primaryText)
 
                 Text("Upgrade for unlimited insights")
-                    .font(Typography.Codex.caption)
+                    .font(Typography.Scripture.footnote)
                     .foregroundStyle(Color.secondaryText)
             }
 
             Spacer()
 
             Image(systemName: "arrow.right.circle.fill")
-                .font(Typography.UI.iconLg)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.lg)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
         }
         .opacity(insightRevealed ? 1 : 0)
     }
@@ -345,9 +345,9 @@ struct IlluminatedContextMenu: View {
     // MARK: - Compact Action Bar
 
     private var compactActionBar: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             // Quick action icons
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 MiniActionIcon(icon: "doc.on.doc", label: "Copy") {
                     HapticService.shared.success()
                     onCopy()
@@ -366,11 +366,11 @@ struct IlluminatedContextMenu: View {
 
             // Subtle vertical separator
             Rectangle()
-                .fill(Color.divineGold.opacity(AppTheme.Opacity.lightMedium))
-                .frame(width: AppTheme.Border.thin, height: AppTheme.Spacing.xl)
+                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                .frame(width: Theme.Stroke.hairline, height: Theme.Spacing.xl)
 
             // Color palette
-            HStack(spacing: AppTheme.Spacing.xs + 2) {
+            HStack(spacing: Theme.Spacing.xs + 2) {
                 ForEach(HighlightColor.allCases, id: \.self) { color in
                     CompactColorDot(
                         color: color,
@@ -388,7 +388,7 @@ struct IlluminatedContextMenu: View {
                         onRemoveHighlight()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(Typography.UI.iconLg)
+                            .font(Typography.Icon.lg)
                             .foregroundStyle(Color.tertiaryText)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -397,8 +397,8 @@ struct IlluminatedContextMenu: View {
 
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, AppTheme.CornerRadius.menu)
-        .padding(.vertical, AppTheme.Spacing.sm + 2)
+        .padding(.horizontal, 12)
+        .padding(.vertical, Theme.Spacing.sm + 2)
     }
 
     // MARK: - Measurement
@@ -422,21 +422,21 @@ private struct MiniActionIcon: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 2) {
                 Image(systemName: icon)
-                    .font(Typography.UI.iconMd)
+                    .font(Typography.Icon.md)
                     .foregroundStyle(Color.secondaryText)
 
                 Text(label)
-                    .font(Typography.UI.iconXxxs.weight(.medium))
+                    .font(Typography.Icon.xxxs.weight(.medium))
                     .foregroundStyle(Color.tertiaryText)
             }
-            .frame(width: AppTheme.TouchTarget.minimum, height: 40)
+            .frame(width: 44, height: 40)
         }
         .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1)
+        .scaleEffect(isPressed ? 0.98 : 1)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { p in
-            withAnimation(AppTheme.Animation.quick) { isPressed = p }
+            withAnimation(Theme.Animation.fade) { isPressed = p }
         }, perform: {})
     }
 }
@@ -448,25 +448,26 @@ private struct CompactActionButton: View {
     let label: String
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 2) {
                 Image(systemName: icon)
-                    .font(Typography.UI.iconMd)
-                    .foregroundStyle(Color.divineGold)
+                    .font(Typography.Icon.md)
+                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
                 Text(label)
-                    .font(Typography.UI.iconXxs)
+                    .font(Typography.Icon.xxs)
                     .foregroundStyle(Color.secondaryText)
             }
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(PlainButtonStyle())
-        .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1)
+        .scaleEffect(isPressed ? 0.98 : 1)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { p in
-            withAnimation(AppTheme.Animation.quick) { isPressed = p }
+            withAnimation(Theme.Animation.fade) { isPressed = p }
         }, perform: {})
     }
 }
@@ -478,22 +479,24 @@ private struct CompactColorDot: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button {
             onTap()
         } label: {
             Circle()
                 .fill(color.color)
-                .frame(width: AppTheme.ComponentSize.badge, height: AppTheme.ComponentSize.badge)
+                .frame(width: 20, height: 20)
                 .overlay(
                     Circle()
-                        .stroke(isSelected ? Color.divineGold : Color.clear, lineWidth: AppTheme.Border.regular)
-                        .padding(-AppTheme.Spacing.xxs)
+                        .stroke(isSelected ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Color.clear, lineWidth: Theme.Stroke.control)
+                        .padding(-2)
                 )
                 .overlay(
                     isSelected ?
                     Image(systemName: "checkmark")
-                        .font(Typography.UI.iconXxxs.weight(.bold))
+                        .font(Typography.Icon.xxxs.weight(.bold))
                         .foregroundStyle(.white)
                     : nil
                 )
@@ -514,7 +517,7 @@ private struct SecondaryTextButton: View {
             onTap()
         } label: {
             Text(label)
-                .font(Typography.UI.iconSm.weight(.medium))
+                .font(Typography.Icon.sm.weight(.medium))
                 .foregroundStyle(Color.tertiaryText)
         }
         .buttonStyle(PlainButtonStyle())
@@ -525,20 +528,20 @@ private struct SecondaryTextButton: View {
 
 #Preview("Compact Menu - Light") {
     ZStack {
-        Color.freshVellum.ignoresSafeArea()
+        Color.surfaceParchment.ignoresSafeArea()
 
         VStack {
             Text("10  For we are his workmanship, created in Christ Jesus unto good works, which God hath before ordained that we should walk in them.")
-                .font(Typography.Scripture.body())
+                .font(Typography.Scripture.body)
                 .padding()
-                .background(Color.yellow.opacity(AppTheme.Opacity.lightMedium))
-                .padding(.top, AppTheme.Spacing.xxxl * 2 + 4)
+                .background(Color.yellow.opacity(Theme.Opacity.lightMedium))
+                .padding(.top, Theme.Spacing.xxl * 2 + 4)
 
             Spacer()
         }
         .padding(.horizontal)
 
-        IlluminatedContextMenu(
+        FloatingContextMenu(
             verseRange: VerseRange(bookId: 49, chapter: 2, verseStart: 10, verseEnd: 10),
             selectionBounds: CGRect(x: 20, y: 100, width: 350, height: 80),
             containerBounds: CGRect(x: 0, y: 0, width: 393, height: 852),
@@ -568,7 +571,7 @@ private struct SecondaryTextButton: View {
     ZStack {
         Color.black.ignoresSafeArea()
 
-        IlluminatedContextMenu(
+        FloatingContextMenu(
             verseRange: VerseRange(bookId: 1, chapter: 1, verseStart: 1, verseEnd: 1),
             selectionBounds: CGRect(x: 50, y: 300, width: 300, height: 40),
             containerBounds: CGRect(x: 0, y: 0, width: 393, height: 852),
@@ -594,7 +597,7 @@ private struct SecondaryTextButton: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        IlluminatedContextMenu(
+        FloatingContextMenu(
             verseRange: VerseRange(bookId: 1, chapter: 1, verseStart: 3, verseEnd: 3),
             selectionBounds: CGRect(x: 50, y: 200, width: 300, height: 40),
             containerBounds: CGRect(x: 0, y: 0, width: 393, height: 852),
@@ -619,7 +622,7 @@ private struct SecondaryTextButton: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        IlluminatedContextMenu(
+        FloatingContextMenu(
             verseRange: VerseRange(bookId: 1, chapter: 1, verseStart: 3, verseEnd: 3),
             selectionBounds: CGRect(x: 50, y: 200, width: 300, height: 40),
             containerBounds: CGRect(x: 0, y: 0, width: 393, height: 852),

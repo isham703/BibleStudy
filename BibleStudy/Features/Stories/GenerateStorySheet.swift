@@ -9,6 +9,7 @@ struct GenerateStorySheet: View {
     let onStoryGenerated: (Story) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var viewModel: GenerateStoryViewModel
 
     init(
@@ -28,7 +29,7 @@ struct GenerateStorySheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: AppTheme.Spacing.xl) {
+                VStack(spacing: Theme.Spacing.xl) {
                     // Passage preview
                     passagePreview
 
@@ -67,37 +68,37 @@ struct GenerateStorySheet: View {
     // MARK: - Passage Preview
 
     private var passagePreview: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(verseRange.reference)
-                .font(Typography.UI.headline)
-                .foregroundStyle(Color.scholarAccent)
+                .font(Typography.Command.headline)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Text(verseText)
-                .font(Typography.Scripture.body())
+                .font(Typography.Scripture.body)
                 .foregroundStyle(Color.primaryText)
                 .lineLimit(4)
 
             if verseText.count > 200 {
                 Text("...")
-                    .font(Typography.Scripture.body())
+                    .font(Typography.Scripture.body)
                     .foregroundStyle(Color.tertiaryText)
             }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 
     // MARK: - Story Type Section
 
     private var storyTypeSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text("Story Type")
-                .font(Typography.UI.headline)
+                .font(Typography.Command.headline)
                 .foregroundStyle(Color.primaryText)
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AppTheme.Spacing.sm) {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Theme.Spacing.sm) {
                 ForEach(StoryType.allCases, id: \.self) { type in
                     StoryTypeOption(
                         type: type,
@@ -112,10 +113,10 @@ struct GenerateStorySheet: View {
     // MARK: - Reading Level Section
 
     private var readingLevelSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             HStack {
                 Text("Reading Level")
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
                     .foregroundStyle(Color.primaryText)
 
                 Spacer()
@@ -146,16 +147,16 @@ struct GenerateStorySheet: View {
                 }
             }
         } label: {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "sparkles")
                 Text("Generate Story")
             }
-            .font(Typography.UI.headline)
+            .font(Typography.Command.headline)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.scholarAccent)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
         .disabled(viewModel.isGenerating)
     }
@@ -163,43 +164,43 @@ struct GenerateStorySheet: View {
     // MARK: - Error View
 
     private func errorView(_ error: Error) -> some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(Color.error)
 
             Text(error.localizedDescription)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.error)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.error.opacity(AppTheme.Opacity.subtle))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
+        .background(Color.error.opacity(Theme.Opacity.subtle))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
     }
 
     // MARK: - Generating Overlay
 
     private var generatingOverlay: some View {
         ZStack {
-            Color.black.opacity(AppTheme.Opacity.heavy)
+            Color.black.opacity(Theme.Opacity.heavy)
                 .ignoresSafeArea()
 
-            VStack(spacing: AppTheme.Spacing.lg) {
+            VStack(spacing: Theme.Spacing.lg) {
                 ProgressView()
-                    .scaleEffect(AppTheme.Scale.pulse)
+                    .scaleEffect(1.05)
                     .tint(.white)
 
                 Text("Generating your story...")
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
                     .foregroundStyle(.white)
 
                 Text("This may take a moment")
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(.white.opacity(AppTheme.Opacity.pressed))
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(.white.opacity(Theme.Opacity.pressed))
             }
-            .padding(AppTheme.Spacing.xl)
+            .padding(Theme.Spacing.xl)
             .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         }
     }
 }
@@ -213,31 +214,31 @@ struct StoryTypeOption: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: type.icon)
-                    .font(Typography.UI.title2)
+                    .font(Typography.Command.title2)
 
                 Text(type.displayName)
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
 
                 Text(type.storyTypeDescription)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.secondaryText)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .frame(maxWidth: .infinity, minHeight: 120)
-            .background(isSelected ? Color(type.color).opacity(AppTheme.Opacity.light) : Color.surfaceBackground)
+            .background(isSelected ? Color(type.color).opacity(Theme.Opacity.light) : Color.surfaceBackground)
             .foregroundStyle(isSelected ? Color(type.color) : Color.primaryText)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .stroke(isSelected ? Color(type.color) : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
-        .animation(AppTheme.Animation.quick, value: isSelected)
+        .animation(Theme.Animation.fade, value: isSelected)
     }
 }
 

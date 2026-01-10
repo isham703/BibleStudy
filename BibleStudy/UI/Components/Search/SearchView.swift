@@ -13,6 +13,7 @@ struct SearchView: View {
 
     @Environment(BibleService.self) private var bibleService
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     var onNavigate: ((VerseRange) -> Void)?
 
@@ -61,14 +62,14 @@ struct SearchView: View {
     // MARK: - Scope Bar
 
     private var scopeBar: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             // Translation badge
             Text(bibleService.currentTranslation?.abbreviation ?? "KJV")
-                .font(Typography.UI.caption1Bold)
-                .foregroundStyle(Color.scholarAccent)
-                .padding(.horizontal, AppTheme.Spacing.sm)
-                .padding(.vertical, AppTheme.Spacing.xxs)
-                .background(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                .font(Typography.Command.caption.weight(.semibold))
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .padding(.horizontal, Theme.Spacing.sm)
+                .padding(.vertical, 2)
+                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                 .clipShape(Capsule())
 
             Text("•")
@@ -78,13 +79,13 @@ struct SearchView: View {
             Button {
                 showBookPicker = true
             } label: {
-                HStack(spacing: AppTheme.Spacing.xxs) {
+                HStack(spacing: 2) {
                     Text(selectedBook?.name ?? "All Books")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(selectedBook != nil ? Color.primaryText : Color.secondaryText)
 
                     Image(systemName: "chevron.down")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -94,24 +95,24 @@ struct SearchView: View {
             // Result count
             if !results.isEmpty {
                 Text("\(results.count) results")
-                    .font(Typography.UI.caption2.monospacedDigit())
+                    .font(Typography.Command.meta.monospacedDigit())
                     .foregroundStyle(Color.tertiaryText)
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
         .background(Color.elevatedBackground)
     }
 
     // MARK: - Search Bar
 
     private var searchBar: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(Color.tertiaryText)
 
             TextField("Search or go to reference...", text: $query)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .textFieldStyle(.plain)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -133,19 +134,19 @@ struct SearchView: View {
                 }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 
     // MARK: - Book Filter Chips
 
     private var bookFilterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 // All books chip
                 BookFilterChip(
                     title: "All",
@@ -183,9 +184,9 @@ struct SearchView: View {
                     }
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
         }
-        .padding(.bottom, AppTheme.Spacing.sm)
+        .padding(.bottom, Theme.Spacing.sm)
     }
 
     // MARK: - Content
@@ -206,7 +207,7 @@ struct SearchView: View {
     /// Shows reference card (if detected) followed by search results
     private var resultsWithReferenceCard: some View {
         ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.md) {
+            LazyVStack(spacing: Theme.Spacing.md) {
                 // Reference card (appears at top when query looks like a reference)
                 if let ref = detectedReference {
                     ReferenceGoToCard(reference: ref) {
@@ -229,102 +230,103 @@ struct SearchView: View {
                     }
                 }
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
         }
     }
 
     private var loadingState: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             ProgressView()
             Text("Searching...")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var emptyStateInitial: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             Image(systemName: "text.magnifyingglass")
-                .font(Typography.UI.largeTitle)
+                .font(Typography.Command.largeTitle)
                 .foregroundStyle(Color.tertiaryText)
 
             Text("Search the Bible")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
             // Go to reference examples
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text("Go to a reference:")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.secondaryText)
 
                 syntaxHint("John 3:16", "jump to verse")
                 syntaxHint("Gen 1", "jump to chapter")
                 syntaxHint("Rom 8:28-30", "verse range")
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
 
             // Word search examples
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text("Or search for words:")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.secondaryText)
 
                 syntaxHint("love", "matches love, loves, loving")
                 syntaxHint("\"love one another\"", "exact phrase")
                 syntaxHint("grace AND mercy", "both words")
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
-        .padding(AppTheme.Spacing.xl)
+        .padding(Theme.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var emptyStateNoResults: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             Image(systemName: "magnifyingglass")
-                .font(Typography.UI.largeTitle)
+                .font(Typography.Command.largeTitle)
                 .foregroundStyle(Color.tertiaryText)
 
             Text("No results for \"\(query)\"")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
             Text("Try different keywords or check your spelling")
-                .font(Typography.UI.warmSubheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
                 .multilineTextAlignment(.center)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text("Search tips:")
-                    .font(Typography.UI.caption1Bold)
+                    .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color.secondaryText)
 
                 syntaxHint("love", "matches love, loves, loving")
                 syntaxHint("\"exact phrase\"", "use quotes for phrases")
                 syntaxHint("grace AND mercy", "both words required")
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
-        .padding(AppTheme.Spacing.xl)
+        .padding(Theme.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func syntaxHint(_ example: String, _ description: String) -> some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Text(example)
-                .font(Typography.Code.inline)
+                // swiftlint:disable:next hardcoded_font_system
+                .font(.system(size: 14, weight: .medium, design: .monospaced))
                 .foregroundStyle(Color.primaryText)
 
             Text("— \(description)")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
     }
@@ -368,24 +370,26 @@ struct SearchResultCard: View {
     let result: SearchService.SearchResult
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 // Book color indicator
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
                     .fill(bookColor)
                     .frame(width: 4)
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     // Reference
                     Text(result.verse.reference)
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(Color.primaryText)
 
                     // Highlighted snippet
                     Text(result.highlightedSnippet)
-                        .font(Typography.Scripture.body(size: 15))
+                        .font(Typography.Scripture.body)
                         .foregroundStyle(Color.secondaryText)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
@@ -394,27 +398,23 @@ struct SearchResultCard: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background(Color.elevatedBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                    .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
     }
 
     private var bookColor: Color {
-        // Color based on testament
-        if result.verse.bookId <= 39 {
-            return Color.accentBlue.opacity(AppTheme.Opacity.pressed) // OT
-        } else {
-            return Color.scholarAccent.opacity(AppTheme.Opacity.pressed) // NT
-        }
+        // Color based on testament - using accentAction for both for consistency
+        return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
     }
 }
 
@@ -424,36 +424,38 @@ struct ReferenceGoToCard: View {
     let reference: ParsedReference
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Icon
                 Image(systemName: "arrow.right.circle.fill")
-                    .font(Typography.UI.title2)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.title2)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Go to")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
 
                     Text(reference.displayText)
-                        .font(Typography.UI.headline)
+                        .font(Typography.Command.headline)
                         .foregroundStyle(Color.primaryText)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(AppTheme.Spacing.md)
-            .background(Color.scholarAccent.opacity(AppTheme.Opacity.subtle))
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+            .padding(Theme.Spacing.md)
+            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                    .stroke(Color.scholarAccent.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -468,27 +470,29 @@ struct BookFilterChip: View {
     var showChevron: Bool = false
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 2) {
                 Text(title)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
 
                 if showChevron {
                     Image(systemName: "chevron.down")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                 }
             }
             .foregroundStyle(isSelected ? Color.primaryText : Color.secondaryText)
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium) : Color.surfaceBackground)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.scholarAccent : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -499,6 +503,7 @@ struct BookFilterChip: View {
 
 struct BookFilterSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedBook: Book?
     var onSelect: () -> Void
 
@@ -517,7 +522,7 @@ struct BookFilterSheet: View {
                         Spacer()
                         if selectedBook == nil {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(Color.scholarAccent)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         }
                     }
                 }
@@ -561,7 +566,7 @@ struct BookFilterSheet: View {
                 Spacer()
                 if selectedBook?.id == book.id {
                     Image(systemName: "checkmark")
-                        .foregroundStyle(Color.scholarAccent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
         }

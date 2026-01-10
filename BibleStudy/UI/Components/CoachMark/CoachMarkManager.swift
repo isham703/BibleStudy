@@ -87,7 +87,7 @@ final class CoachMarkManager {
         HapticService.shared.lightTap()
 
         // Animate out
-        withAnimation(AppTheme.Animation.quick) {
+        withAnimation(Theme.Animation.fade) {
             currentCoachMark = nil
         }
     }
@@ -111,7 +111,7 @@ final class CoachMarkManager {
         HapticService.shared.lightTap()
 
         // Animate out (but don't mark as seen)
-        withAnimation(AppTheme.Animation.quick) {
+        withAnimation(Theme.Animation.fade) {
             currentCoachMark = nil
         }
     }

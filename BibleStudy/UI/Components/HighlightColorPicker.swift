@@ -21,9 +21,9 @@ struct HighlightColorPicker: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Color Selection Row
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 ForEach(HighlightColor.allCases, id: \.self) { color in
                     Button {
                         selectedColor = color
@@ -35,7 +35,7 @@ struct HighlightColorPicker: View {
                             .overlay {
                                 if selectedColor == color {
                                     Circle()
-                                        .stroke(Color.primaryText, lineWidth: AppTheme.Border.regular)
+                                        .stroke(Color.primaryText, lineWidth: Theme.Stroke.control)
                                         .frame(width: 38, height: 38)
                                 }
                             }
@@ -47,28 +47,28 @@ struct HighlightColorPicker: View {
             Button {
                 showCategoryPicker = true
             } label: {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     categoryIcon(for: selectedCategory)
-                        .font(Typography.UI.subheadline)
+                        .font(Typography.Command.subheadline)
 
                     Text(selectedCategory.displayName)
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
 
                     Spacer()
 
                     Image(systemName: "chevron.right")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                 }
                 .foregroundStyle(selectedCategory == .none ? Color.secondaryText : Color.primaryText)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.sm)
                 .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+                    RoundedRectangle(cornerRadius: Theme.Radius.input)
                         .fill(Color.elevatedBackground)
                 )
             }
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
         .sheet(isPresented: $showCategoryPicker) {
             CategoryPickerSheet(
                 selectedCategory: $selectedCategory,
@@ -96,6 +96,7 @@ struct HighlightColorPicker: View {
 
 // MARK: - Category Picker Sheet
 struct CategoryPickerSheet: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedCategory: HighlightCategory
     @Binding var selectedColor: HighlightColor
@@ -114,19 +115,19 @@ struct CategoryPickerSheet: View {
                         onSelect?(category)
                         dismiss()
                     } label: {
-                        HStack(spacing: AppTheme.Spacing.md) {
+                        HStack(spacing: Theme.Spacing.md) {
                             // Category icon with suggested color
                             categoryIcon(for: category)
                                 .foregroundStyle(category.suggestedColor.color)
-                                .frame(width: AppTheme.IconContainer.medium)
+                                .frame(width: 32)
 
-                            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(category.displayName)
-                                    .font(Typography.UI.body)
+                                    .font(Typography.Command.body)
                                     .foregroundStyle(Color.primaryText)
 
                                 Text(category.description)
-                                    .font(Typography.UI.caption1)
+                                    .font(Typography.Command.caption)
                                     .foregroundStyle(Color.secondaryText)
                             }
 
@@ -134,10 +135,10 @@ struct CategoryPickerSheet: View {
 
                             if selectedCategory == category {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.scholarAccent)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                             }
                         }
-                        .padding(.vertical, AppTheme.Spacing.xs)
+                        .padding(.vertical, Theme.Spacing.xs)
                     }
                 }
             }
@@ -164,7 +165,7 @@ struct CategoryPickerSheet: View {
                 .frame(width: 20, height: 20)
         } else {
             Image(systemName: category.icon)
-                .font(Typography.UI.title3)
+                .font(Typography.Command.title3)
         }
     }
 }
@@ -177,7 +178,7 @@ struct SimpleHighlightColorPicker: View {
     var onSelect: ((HighlightColor) -> Void)?
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             ForEach(HighlightColor.allCases, id: \.self) { color in
                 Button {
                     selectedColor = color
@@ -189,14 +190,14 @@ struct SimpleHighlightColorPicker: View {
                         .overlay {
                             if selectedColor == color {
                                 Circle()
-                                    .stroke(Color.primaryText, lineWidth: AppTheme.Border.regular)
+                                    .stroke(Color.primaryText, lineWidth: Theme.Stroke.control)
                                     .frame(width: 38, height: 38)
                             }
                         }
                 }
             }
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
     }
 }
 
@@ -226,7 +227,7 @@ struct HighlightColorButton: View {
 
 // MARK: - Preview
 #Preview {
-    VStack(spacing: AppTheme.Spacing.xl) {
+    VStack(spacing: Theme.Spacing.xl) {
         HighlightColorPicker(
             selectedColor: .constant(.amber),
             selectedCategory: .constant(.promise)

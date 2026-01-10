@@ -36,6 +36,8 @@ struct BibleInsightSheet: View {
     /// Optional: Navigate to a cross-reference (e.g., "Genesis 1:1")
     var onNavigateToReference: ((String) -> Void)?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     /// Computed: The actual dismiss-all action
     private var dismissAll: () -> Void {
         onDismissAll ?? onDismiss
@@ -142,18 +144,19 @@ struct BibleInsightSheet: View {
         VStack(spacing: 0) {
             // Compact header with verse nav
             compactHeader
-                .padding(.top, 8)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 10)
+                .padding(.top, Theme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.md)
 
             // Segmented tabs (always show both, disable if empty)
             segmentedTabs
-                .padding(.horizontal, 16)
-                .padding(.bottom, 10)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.md)
 
             // Thin divider
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Content area with verse change animation
@@ -166,9 +169,9 @@ struct BibleInsightSheet: View {
                     }
                 }
                 .id(contentId)
-                .padding(.horizontal, 16)
-                .padding(.top, 14)
-                .padding(.bottom, 20)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.top, Theme.Spacing.md + 2)
+                .padding(.bottom, Theme.Spacing.xl)
             }
 
             // Footer actions (parallel style)
@@ -195,7 +198,7 @@ struct BibleInsightSheet: View {
         .onChange(of: verse.verse) { _, _ in
             // Animate content change on verse navigation
             if !reduceMotion {
-                withAnimation(.easeOut(duration: 0.15)) {
+                withAnimation(Theme.Animation.settle) {
                     contentId = UUID()
                 }
             } else {
@@ -253,30 +256,31 @@ struct BibleInsightSheet: View {
     // MARK: - Empty Lens State
 
     private var emptyLensState: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Image(systemName: selectedLens?.icon ?? "questionmark.circle")
-                .font(.system(size: 24))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.2))
+                .font(Typography.Icon.xl)
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.lightMedium))
 
             Text("No \(selectedLens?.label.lowercased() ?? "content") for this verse")
-                .font(.custom("CormorantGaramond-Regular", size: 13))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 13, weight: .regular, design: .serif))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
+        .padding(.vertical, Theme.Spacing.xl)
     }
 
     // MARK: - Compact Header
 
     private var compactHeader: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: Theme.Spacing.xs) {
             // Drag indicator
-            RoundedRectangle(cornerRadius: 2)
-                .fill(Color.bibleInsightText.opacity(0.12))
+            RoundedRectangle(cornerRadius: Theme.Radius.input / 2)
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.light))
                 .frame(width: 36, height: 4)
 
             // Title row with navigation
-            HStack(spacing: 12) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Previous verse nav (if available)
                 if let prev = previousVerse {
                     Button {
@@ -284,19 +288,20 @@ struct BibleInsightSheet: View {
                         onNavigateToVerse?(prev)
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                            .font(Typography.Icon.xs.weight(.semibold))
+                            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                     }
                 } else {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.15))
+                        .font(Typography.Icon.xs.weight(.semibold))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.light))
                 }
 
                 // Verse reference
                 Text(verseReference)
-                    .font(.custom("CormorantGaramond-SemiBold", size: 16))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.8))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 16, weight: .semibold, design: .serif))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed))
 
                 // Next verse nav (if available)
                 if let next = nextVerse {
@@ -305,13 +310,13 @@ struct BibleInsightSheet: View {
                         onNavigateToVerse?(next)
                     } label: {
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                            .font(Typography.Icon.xs.weight(.semibold))
+                            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                     }
                 } else {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.15))
+                        .font(Typography.Icon.xs.weight(.semibold))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.light))
                 }
 
                 Spacer()
@@ -319,10 +324,10 @@ struct BibleInsightSheet: View {
                 // Close button
                 Button(action: onDismiss) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.3))
-                        .padding(6)
-                        .background(Circle().fill(Color.bibleInsightText.opacity(0.05)))
+                        .font(Typography.Icon.xxs.weight(.medium))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.medium))
+                        .padding(Theme.Spacing.xs)
+                        .background(Circle().fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2)))
                 }
             }
         }
@@ -338,15 +343,16 @@ struct BibleInsightSheet: View {
                 // Divider between tabs (only if not last)
                 if index < allLenses.count - 1 {
                     Rectangle()
-                        .fill(Color.bibleInsightText.opacity(0.08))
-                        .frame(width: 0.5, height: 16)
+                        .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                        // swiftlint:disable:next hardcoded_frame
+                        .frame(width: 0.5, height: Theme.Spacing.lg)
                 }
             }
         }
-        .padding(3)
+        .padding(2)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.bibleInsightText.opacity(0.05))
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
         )
     }
 
@@ -360,32 +366,32 @@ struct BibleInsightSheet: View {
             if reduceMotion {
                 selectedLens = lens
             } else {
-                withAnimation(.easeOut(duration: 0.12)) {
+                withAnimation(Theme.Animation.settle) {
                     selectedLens = lens
                 }
             }
         } label: {
-            HStack(spacing: 5) {
+            HStack(spacing: 2) {
                 Image(systemName: lens.icon)
-                    .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
+                    .font(Typography.Icon.xxs.weight(isSelected ? .semibold : .medium))
 
                 Text(lens.label)
-                    .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
+                    .font(Typography.Icon.xs.weight(isSelected ? .semibold : .regular))
             }
             // Strong contrast: selected = solid, unselected = muted, disabled = very faint
             .foregroundStyle(
                 isSelected
                     ? Color.bibleInsightCardBackground
-                    : (isEnabled ? Color.bibleInsightText.opacity(0.45) : Color.bibleInsightText.opacity(0.2))
+                    : (isEnabled ? Color.bibleInsightText.opacity(Theme.Opacity.heavy - 0.05) : Color.bibleInsightText.opacity(Theme.Opacity.lightMedium))
             )
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 7)
-            .padding(.horizontal, 12)
+            .padding(.vertical, Theme.Spacing.xs + 1)
+            .padding(.horizontal, Theme.Spacing.md)
             .background(
                 Group {
                     if isSelected {
-                        RoundedRectangle(cornerRadius: 7)
-                            .fill(Color.bibleInsightText.opacity(0.85))
+                        RoundedRectangle(cornerRadius: Theme.Radius.input + 1)
+                            .fill(Color.bibleInsightText.opacity(Theme.Opacity.pressed + 0.05))
                     }
                 }
             )
@@ -397,7 +403,7 @@ struct BibleInsightSheet: View {
     // MARK: - Flat Content (No Inner Card)
 
     private var flatContent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             ForEach(selectedInsights) { insight in
                 FlatInsightView(insight: insight, onDismissAll: dismissAll)
             }
@@ -409,7 +415,8 @@ struct BibleInsightSheet: View {
     private var footerActions: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Action rows (consistent parallel style)
@@ -419,14 +426,15 @@ struct BibleInsightSheet: View {
                     icon: "text.quote",
                     label: "Sources",
                     count: totalSourceCount,
-                    color: .scholarAccent,
+                    color: Color.accentIndigo,
                     isEnabled: totalSourceCount > 0
                 ) {
                     showSourcesSheet = true
                 }
 
                 Rectangle()
-                    .fill(Color.bibleInsightText.opacity(0.04))
+                    .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
+                    // swiftlint:disable:next hardcoded_frame
                     .frame(height: 0.5)
 
                 // Connections row
@@ -458,30 +466,30 @@ struct BibleInsightSheet: View {
             HapticService.shared.lightTap()
             action()
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: icon)
-                    .font(.system(size: 11))
-                    .foregroundStyle(isEnabled ? color : color.opacity(0.3))
-                    .frame(width: 16)
+                    .font(Typography.Icon.xxs)
+                    .foregroundStyle(isEnabled ? color : color.opacity(Theme.Opacity.medium))
+                    .frame(width: Theme.Spacing.lg)
 
                 Text(label)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(isEnabled ? Color.bibleInsightText.opacity(0.8) : Color.bibleInsightText.opacity(0.3))
+                    .font(Typography.Icon.xs.weight(.medium))
+                    .foregroundStyle(isEnabled ? Color.bibleInsightText.opacity(Theme.Opacity.pressed) : Color.bibleInsightText.opacity(Theme.Opacity.medium))
 
                 if let count = count {
                     Text("(\(count))")
-                        .font(.system(size: 11))
-                        .foregroundStyle(isEnabled ? color.opacity(0.6) : color.opacity(0.2))
+                        .font(Typography.Icon.xxs)
+                        .foregroundStyle(isEnabled ? color.opacity(Theme.Opacity.heavy) : color.opacity(Theme.Opacity.lightMedium))
                 }
 
                 Spacer()
 
                 Image(systemName: showChevron ? "arrow.up.right" : "chevron.right")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(isEnabled ? Color.bibleInsightText.opacity(0.3) : Color.bibleInsightText.opacity(0.15))
+                    .font(Typography.Icon.xxs.weight(.medium))
+                    .foregroundStyle(isEnabled ? Color.bibleInsightText.opacity(Theme.Opacity.medium) : Color.bibleInsightText.opacity(Theme.Opacity.light))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 11)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.md - 1)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -511,17 +519,20 @@ struct FlatInsightView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Title (compact)
             Text(insight.title)
-                .font(.custom("Cinzel-Regular", size: 13))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 13, weight: .medium, design: .serif))
                 .foregroundStyle(Color.bibleInsightText)
 
             // Content (dense, fast to scan)
             Text(insight.content)
-                .font(.custom("CormorantGaramond-Regular", size: 14))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 14, weight: .regular, design: .serif))
+                // swiftlint:disable:next hardcoded_line_spacing
                 .lineSpacing(3)
-                .foregroundStyle(Color.bibleInsightText.opacity(0.8))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed))
 
             // Interpretive badge (tappable) - Sources are accessed via footer row
             if insight.isInterpretive {
@@ -532,7 +543,7 @@ struct FlatInsightView: View {
             // Reflection CTA (only for question-type insights)
             if isReflection {
                 reflectionCTA
-                    .padding(.top, 6)
+                    .padding(.top, Theme.Spacing.xs)
             }
         }
         .sheet(isPresented: $showInterpretiveExplanation) {
@@ -543,6 +554,7 @@ struct FlatInsightView: View {
                     onDismissAll?()
                 }
             )
+            // swiftlint:disable:next hardcoded_presentation_detent
             .presentationDetents([.height(320)])  // Slightly taller for new header
             .presentationDragIndicator(.visible)
         }
@@ -551,24 +563,24 @@ struct FlatInsightView: View {
     // MARK: - Reflection CTA
 
     private var reflectionCTA: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Theme.Spacing.md) {
             // Write a note button
             Button {
                 HapticService.shared.mediumTap()
                 onWriteNote?(insight)
             } label: {
-                HStack(spacing: 5) {
+                HStack(spacing: 2) {
                     Image(systemName: "square.and.pencil")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(Typography.Icon.xxs.weight(.medium))
                     Text("Write a note")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(Typography.Icon.xxs.weight(.medium))
                 }
-                .foregroundStyle(Color.personalRose)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
+                .foregroundStyle(Color.bibleReflection)
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.xs + 1)
                 .background(
                     Capsule()
-                        .fill(Color.personalRose.opacity(0.1))
+                        .fill(Color.bibleReflection.opacity(Theme.Opacity.subtle))
                 )
             }
             .buttonStyle(.plain)
@@ -576,23 +588,23 @@ struct FlatInsightView: View {
             // Save to journal button
             Button {
                 HapticService.shared.lightTap()
-                withAnimation(.easeOut(duration: 0.2)) {
+                withAnimation(Theme.Animation.settle) {
                     isSavedToJournal.toggle()
                 }
                 // TODO: Actually save to journal
             } label: {
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     Image(systemName: isSavedToJournal ? "bookmark.fill" : "bookmark")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(Typography.Icon.xxs.weight(.medium))
                     Text(isSavedToJournal ? "Saved" : "Save question")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(Typography.Icon.xxs.weight(.medium))
                 }
-                .foregroundStyle(isSavedToJournal ? Color.personalRose : Color.bibleInsightText.opacity(0.5))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
+                .foregroundStyle(isSavedToJournal ? Color.bibleReflection : Color.bibleInsightText.opacity(Theme.Opacity.heavy))
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.xs + 1)
                 .background(
                     Capsule()
-                        .fill(isSavedToJournal ? Color.personalRose.opacity(0.1) : Color.bibleInsightText.opacity(0.05))
+                        .fill(isSavedToJournal ? Color.bibleReflection.opacity(Theme.Opacity.subtle) : Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
                 )
             }
             .buttonStyle(.plain)
@@ -606,18 +618,19 @@ struct FlatInsightView: View {
             HapticService.shared.lightTap()
             showInterpretiveExplanation = true
         } label: {
-            HStack(spacing: 3) {
+            HStack(spacing: 2) {
                 Image(systemName: "info.circle")
-                    .font(.system(size: 9))
+                    // swiftlint:disable:next hardcoded_font_system
+                    .font(Typography.Icon.xxxs)
                 Text("Interpretive")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(Typography.Icon.xxs.weight(.medium))
             }
             .foregroundStyle(Color.info)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 3)
+            .padding(.horizontal, Theme.Spacing.xs)
+            .padding(.vertical, 2)
             .background(
                 Capsule()
-                    .fill(Color.info.opacity(0.1))
+                    .fill(Color.info.opacity(Theme.Opacity.subtle))
             )
         }
         .buttonStyle(.plain)
@@ -726,17 +739,19 @@ struct ConnectionsSheet: View {
             header
 
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Filter tabs (if more than a few connections)
             if connections.count > 3 {
                 filterTabs
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.vertical, Theme.Spacing.md)
 
                 Rectangle()
-                    .fill(Color.bibleInsightText.opacity(0.04))
+                    .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
+                    // swiftlint:disable:next hardcoded_frame
                     .frame(height: 0.5)
             }
 
@@ -745,7 +760,7 @@ struct ConnectionsSheet: View {
                 emptyState
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: Theme.Spacing.md) {
                         ForEach(displayedConnections) { connection in
                             connectionRow(connection)
                         }
@@ -755,12 +770,12 @@ struct ConnectionsSheet: View {
                             showMoreButton
                         }
                     }
-                    .padding(16)
+                    .padding(Theme.Spacing.lg)
 
                     // Chapter Map CTA at bottom
                     chapterMapCTA
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 20)
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .padding(.bottom, Theme.Spacing.xl)
                 }
             }
         }
@@ -785,33 +800,35 @@ struct ConnectionsSheet: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Spacing.md) {
             // Back button
             Button {
                 HapticService.shared.lightTap()
                 onDismiss()
             } label: {
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(Typography.Icon.xs.weight(.semibold))
                     Text("Back")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(Typography.Command.caption.weight(.medium))
                 }
-                .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
             }
             .buttonStyle(.plain)
 
             Spacer()
 
             // Title
-            VStack(spacing: 1) {
+            // swiftlint:disable:next hardcoded_stack_spacing
+            VStack(spacing: 1) {  // Tight title/subtitle spacing
                 Text("Connections")
-                    .font(.custom("Cinzel-Regular", size: 14))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 14, weight: .medium, design: .serif))
                     .foregroundStyle(Color.bibleInsightText)
 
                 Text("\(connections.count) passage\(connections.count == 1 ? "" : "s")")
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                    .font(Typography.Icon.xxs)
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
             }
 
             Spacer()
@@ -826,21 +843,21 @@ struct ConnectionsSheet: View {
                 }
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.4))
-                    .padding(6)
-                    .background(Circle().fill(Color.bibleInsightText.opacity(0.05)))
+                    .font(Typography.Icon.xxs.weight(.medium))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
+                    .padding(Theme.Spacing.xs)
+                    .background(Circle().fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2)))
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
     }
 
     // MARK: - Filter Tabs
 
     private var filterTabs: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Theme.Spacing.sm) {
             ForEach(ConnectionFilter.allCases, id: \.self) { filter in
                 filterTab(filter)
             }
@@ -853,27 +870,28 @@ struct ConnectionsSheet: View {
 
         return Button {
             HapticService.shared.lightTap()
-            withAnimation(.easeOut(duration: 0.15)) {
+            withAnimation(Theme.Animation.settle) {
                 selectedFilter = filter
                 showAllConnections = false  // Reset cap when changing filter
             }
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: 2) {
                 Text(filter.rawValue)
-                    .font(.system(size: 11, weight: isSelected ? .semibold : .medium))
+                    .font(Typography.Icon.xxs.weight(isSelected ? .semibold : .medium))
 
                 if count > 0 && filter != .all {
                     Text("\(count)")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(isSelected ? Color.bibleInsightCardBackground.opacity(0.7) : Color.bibleInsightText.opacity(0.4))
+                        // swiftlint:disable:next hardcoded_font_system
+                        .font(Typography.Icon.xxxs)
+                        .foregroundStyle(isSelected ? Color.bibleInsightCardBackground.opacity(Theme.Opacity.overlay) : Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                 }
             }
-            .foregroundStyle(isSelected ? Color.bibleInsightCardBackground : Color.bibleInsightText.opacity(0.6))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .foregroundStyle(isSelected ? Color.bibleInsightCardBackground : Color.bibleInsightText.opacity(Theme.Opacity.heavy))
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.connectionAmber : Color.bibleInsightText.opacity(0.05))
+                    .fill(isSelected ? Color.feedbackWarning : Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
             )
         }
         .buttonStyle(.plain)
@@ -893,22 +911,22 @@ struct ConnectionsSheet: View {
     private var showMoreButton: some View {
         Button {
             HapticService.shared.lightTap()
-            withAnimation(.easeOut(duration: 0.2)) {
+            withAnimation(Theme.Animation.settle) {
                 showAllConnections = true
             }
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Text("Show \(hiddenCount) more")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Typography.Icon.xs.weight(.medium))
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(Typography.Icon.xxs.weight(.semibold))
             }
-            .foregroundStyle(Color.connectionAmber)
-            .padding(.vertical, 10)
+            .foregroundStyle(Color.feedbackWarning)
+            .padding(.vertical, Theme.Spacing.md)
             .frame(maxWidth: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.connectionAmber.opacity(0.08))
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .fill(Color.feedbackWarning.opacity(Theme.Opacity.faint))
             )
         }
         .buttonStyle(.plain)
@@ -934,29 +952,30 @@ struct ConnectionsSheet: View {
             HapticService.shared.mediumTap()
             showChapterMap = true
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "map")
-                    .font(.system(size: 14))
+                    .font(Typography.Icon.sm)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Open Chapter Map")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(Typography.Command.caption.weight(.medium))
                     Text("See all connections visually")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                        .font(Typography.Icon.xxs)
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                 }
                 Spacer()
                 Image(systemName: "arrow.up.right")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(Typography.Icon.xxs.weight(.semibold))
             }
-            .foregroundStyle(Color.connectionAmber)
-            .padding(12)
+            .foregroundStyle(Color.feedbackWarning)
+            .padding(Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.connectionAmber.opacity(0.08))
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(Color.feedbackWarning.opacity(Theme.Opacity.faint))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.connectionAmber.opacity(0.2), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    // swiftlint:disable:next hardcoded_line_width
+                    .stroke(Color.feedbackWarning.opacity(Theme.Opacity.lightMedium), lineWidth: 0.5)
             )
         }
         .buttonStyle(.plain)
@@ -967,20 +986,21 @@ struct ConnectionsSheet: View {
             HapticService.shared.mediumTap()
             showChapterMap = true
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "map")
-                    .font(.system(size: 11))
+                    .font(Typography.Icon.xxs)
                 Text("Chapter Map")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Typography.Icon.xxs.weight(.medium))
                 Image(systemName: "arrow.up.right")
-                    .font(.system(size: 9, weight: .semibold))
+                    // swiftlint:disable:next hardcoded_font_system
+                    .font(Typography.Icon.xxxs.weight(.semibold))
             }
-            .foregroundStyle(Color.connectionAmber)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .foregroundStyle(Color.feedbackWarning)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(Color.connectionAmber.opacity(0.08))
+                    .fill(Color.feedbackWarning.opacity(Theme.Opacity.faint))
             )
         }
         .buttonStyle(.plain)
@@ -989,17 +1009,18 @@ struct ConnectionsSheet: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "arrow.triangle.branch")
-                .font(.system(size: 28))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.2))
+                .font(Typography.Icon.xxl)
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.lightMedium))
 
             Text(selectedFilter == .all ? "No connections yet" : "No \(selectedFilter.rawValue) connections")
-                .font(.custom("CormorantGaramond-Regular", size: 14))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 14, weight: .regular, design: .serif))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 40)
+        .padding(.vertical, Theme.Spacing.xxl + 8)
     }
 
     // MARK: - Connection Row
@@ -1017,37 +1038,39 @@ struct ConnectionsSheet: View {
                 onNavigateToReference?(reference)
             }
         } label: {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 // Header: Target passage + connection type badge
-                HStack(alignment: .top, spacing: 8) {
+                HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                     // Connection icon
                     Image(systemName: "link")
-                        .font(.system(size: 10, weight: .medium))
+                        .font(Typography.Icon.xxs.weight(.medium))
                         .foregroundStyle(.white)
-                        .frame(width: 20, height: 20)
+                        .frame(width: Theme.Spacing.xl, height: Theme.Spacing.xl)
                         .background(
-                            RoundedRectangle(cornerRadius: 5)
-                                .fill(Color.connectionAmber)
+                            RoundedRectangle(cornerRadius: Theme.Radius.input - 1)
+                                .fill(Color.feedbackWarning)
                         )
 
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: 2) {
                         // Connection title
                         Text(connection.title)
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(Typography.Command.caption.weight(.semibold))
                             .foregroundStyle(Color.bibleInsightText)
 
                         // Target passage (if available)
                         if let passage = targetPassage {
                             Text(passage)
-                                .font(.system(size: 11))
-                                .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                                .font(Typography.Icon.xxs)
+                                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                         }
 
                         // Connection type badge
                         Text(connectionType(for: connection))
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundStyle(Color.connectionAmber)
+                            // swiftlint:disable:next hardcoded_font_system
+                            .font(Typography.Icon.xxxs)
+                            .foregroundStyle(Color.feedbackWarning)
                             .textCase(.uppercase)
+                            // swiftlint:disable:next hardcoded_tracking
                             .tracking(0.5)
                     }
 
@@ -1055,27 +1078,30 @@ struct ConnectionsSheet: View {
 
                     // Navigation chevron (consistent with Sources)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.3))
+                        .font(Typography.Icon.xs.weight(.semibold))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.medium))
                 }
 
                 // 1-line rationale
                 Text(connection.content)
-                    .font(.custom("CormorantGaramond-Regular", size: 13))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 13, weight: .regular, design: .serif))
+                    // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(2)
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.75))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.overlay + 0.05))
                     .lineLimit(2)
-                    .padding(.leading, 28)  // Align with title
+                    .padding(.leading, Theme.Spacing.xxl + 4)  // Align with title
             }
-            .padding(12)
+            .padding(Theme.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.bibleInsightText.opacity(0.03))
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.connectionAmber.opacity(0.08), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    // swiftlint:disable:next hardcoded_line_width
+                    .stroke(Color.feedbackWarning.opacity(Theme.Opacity.faint), lineWidth: 0.5)
             )
             .contentShape(Rectangle())
         }
@@ -1127,33 +1153,35 @@ struct SourcesSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header with Back/Close navigation
-            HStack(spacing: 12) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Back button (returns to InsightSheet)
                 Button {
                     HapticService.shared.lightTap()
                     onDismiss()
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 2) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(Typography.Icon.xs.weight(.semibold))
                         Text("Back")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(Typography.Command.caption.weight(.medium))
                     }
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                 }
                 .buttonStyle(.plain)
 
                 Spacer()
 
                 // Title
-                VStack(spacing: 1) {
+                // swiftlint:disable:next hardcoded_stack_spacing
+                VStack(spacing: 1) {  // Tight title/subtitle spacing
                     Text("Sources")
-                        .font(.custom("Cinzel-Regular", size: 14))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 14, weight: .medium, design: .serif))
                         .foregroundStyle(Color.bibleInsightText)
 
                     Text("\(sources.count) citation\(sources.count == 1 ? "" : "s")")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                        .font(Typography.Icon.xxs)
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                 }
 
                 Spacer()
@@ -1168,18 +1196,19 @@ struct SourcesSheet: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.4))
-                        .padding(6)
-                        .background(Circle().fill(Color.bibleInsightText.opacity(0.05)))
+                        .font(Typography.Icon.xxs.weight(.medium))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
+                        .padding(Theme.Spacing.xs)
+                        .background(Circle().fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2)))
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.md)
 
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Sources list
@@ -1187,12 +1216,12 @@ struct SourcesSheet: View {
                 emptyState
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: Theme.Spacing.md) {
                         ForEach(sources, id: \.reference) { source in
                             sourceRow(source)
                         }
                     }
-                    .padding(16)
+                    .padding(Theme.Spacing.lg)
                 }
             }
         }
@@ -1217,17 +1246,18 @@ struct SourcesSheet: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "text.quote")
-                .font(.system(size: 28))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.2))
+                .font(Typography.Icon.xxl)
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.lightMedium))
 
             Text("No sources available")
-                .font(.custom("CormorantGaramond-Regular", size: 14))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 14, weight: .regular, design: .serif))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 40)
+        .padding(.vertical, Theme.Spacing.xxl + 8)
     }
 
     private func sourceRow(_ source: InsightSource) -> some View {
@@ -1235,30 +1265,32 @@ struct SourcesSheet: View {
             HapticService.shared.lightTap()
             selectedSource = source
         } label: {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 // Header row: icon + formatted title + chevron
-                HStack(alignment: .top, spacing: 10) {
+                HStack(alignment: .top, spacing: Theme.Spacing.md) {
                     // Type icon with colored background
                     sourceIcon(for: source.type)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(Typography.Icon.xs.weight(.medium))
                         .foregroundStyle(.white)
                         .frame(width: 24, height: 24)
                         .background(
-                            RoundedRectangle(cornerRadius: 6)
+                            RoundedRectangle(cornerRadius: Theme.Radius.input)
                                 .fill(sourceColor(for: source.type))
                         )
 
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: 2) {
                         // Formatted title based on type
                         Text(formattedTitle(for: source))
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(Typography.Command.caption.weight(.semibold))
                             .foregroundStyle(Color.bibleInsightText)
 
                         // Type badge inline
                         Text(source.type.label)
-                            .font(.system(size: 9, weight: .medium))
+                            // swiftlint:disable:next hardcoded_font_system
+                            .font(Typography.Icon.xxxs)
                             .foregroundStyle(sourceColor(for: source.type))
                             .textCase(.uppercase)
+                            // swiftlint:disable:next hardcoded_tracking
                             .tracking(0.5)
                     }
 
@@ -1266,36 +1298,41 @@ struct SourcesSheet: View {
 
                     // Navigation chevron (consistent with Connections)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.3))
+                        .font(Typography.Icon.xs.weight(.semibold))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.medium))
                 }
 
                 // "Cited for" rationale
                 if let description = source.description {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Cited for")
-                            .font(.system(size: 9, weight: .semibold))
-                            .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                            // swiftlint:disable:next hardcoded_font_system
+                            .font(Typography.Icon.xxxs.weight(.semibold))
+                            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                             .textCase(.uppercase)
+                            // swiftlint:disable:next hardcoded_tracking
                             .tracking(0.5)
 
                         Text(description)
-                            .font(.custom("CormorantGaramond-Regular", size: 13))
-                            .foregroundStyle(Color.bibleInsightText.opacity(0.8))
+                            // swiftlint:disable:next hardcoded_font_custom
+                            .font(.system(size: 13, weight: .regular, design: .serif))
+                            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed))
+                            // swiftlint:disable:next hardcoded_line_spacing
                             .lineSpacing(2)
                     }
-                    .padding(.leading, 34)  // Align with title
+                    .padding(.leading, Theme.Spacing.xxl + Theme.Spacing.md)  // Align with title
                 }
             }
-            .padding(12)
+            .padding(Theme.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.bibleInsightText.opacity(0.03))
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(sourceColor(for: source.type).opacity(0.1), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    // swiftlint:disable:next hardcoded_line_width
+                    .stroke(sourceColor(for: source.type).opacity(Theme.Opacity.subtle), lineWidth: 0.5)
             )
             .contentShape(Rectangle())
         }
@@ -1354,34 +1391,35 @@ struct InterpretiveBadgeSheet: View {
     var onDismissAll: (() -> Void)?   // Dismiss entire sheet stack
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             // Header with Back/Close navigation
-            HStack(spacing: 12) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Back button
                 Button {
                     HapticService.shared.lightTap()
                     onDismiss()
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 2) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(Typography.Icon.xs.weight(.semibold))
                         Text("Back")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(Typography.Command.caption.weight(.medium))
                     }
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                 }
                 .buttonStyle(.plain)
 
                 Spacer()
 
                 // Title with icon
-                HStack(spacing: 6) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "info.circle.fill")
-                        .font(.system(size: 14))
+                        .font(Typography.Icon.sm)
                         .foregroundStyle(Color.info)
 
                     Text("About Interpretive")
-                        .font(.custom("Cinzel-Regular", size: 13))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 13, weight: .medium, design: .serif))
                         .foregroundStyle(Color.bibleInsightText)
                 }
 
@@ -1397,23 +1435,25 @@ struct InterpretiveBadgeSheet: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.4))
-                        .padding(6)
-                        .background(Circle().fill(Color.bibleInsightText.opacity(0.05)))
+                        .font(Typography.Icon.xxs.weight(.medium))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
+                        .padding(Theme.Spacing.xs)
+                        .background(Circle().fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2)))
                 }
                 .buttonStyle(.plain)
             }
 
             // Explanation
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 Text("Insights marked as \"Interpretive\" represent theological synthesis or application rather than direct textual facts.")
-                    .font(.custom("CormorantGaramond-Regular", size: 14))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.85))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 14, weight: .regular, design: .serif))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed + 0.05))
+                    // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(3)
 
                 // Types grid
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     typeRow(
                         icon: "quote.bubble",
                         title: "Textual",
@@ -1435,28 +1475,29 @@ struct InterpretiveBadgeSheet: View {
                 }
             }
         }
-        .padding(16)
+        .padding(Theme.Spacing.lg)
         .background(Color.bibleInsightCardBackground)
     }
 
     private func typeRow(icon: String, title: String, description: String, color: Color) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .font(Typography.Icon.xs)
                 .foregroundStyle(color)
-                .frame(width: 20)
+                .frame(width: Theme.Spacing.xl)
 
-            VStack(alignment: .leading, spacing: 1) {
+            // swiftlint:disable:next hardcoded_stack_spacing
+            VStack(alignment: .leading, spacing: 1) {  // Tight title/description spacing
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Typography.Icon.xs.weight(.medium))
                     .foregroundStyle(Color.bibleInsightText)
 
                 Text(description)
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                    .font(Typography.Icon.xxs)
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
     }
 }
 
@@ -1480,15 +1521,16 @@ struct SourceDetailSheet: View {
             header
 
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Content based on source type
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     sourceContent
                 }
-                .padding(16)
+                .padding(Theme.Spacing.lg)
             }
 
             // Action button for cross-references
@@ -1505,37 +1547,38 @@ struct SourceDetailSheet: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Spacing.md) {
             // Back button
             Button {
                 HapticService.shared.lightTap()
                 onDismiss()
             } label: {
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(Typography.Icon.xs.weight(.semibold))
                     Text("Back")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(Typography.Command.caption.weight(.medium))
                 }
-                .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
             }
             .buttonStyle(.plain)
 
             Spacer()
 
             // Title with icon
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.Spacing.sm) {
                 sourceIcon
-                    .font(.system(size: 14, weight: .medium))
+                    .font(Typography.Icon.sm.weight(.medium))
                     .foregroundStyle(.white)
                     .frame(width: 24, height: 24)
                     .background(
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: Theme.Radius.input)
                             .fill(sourceColor)
                     )
 
                 Text(source.type.label)
-                    .font(.custom("Cinzel-Regular", size: 13))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 13, weight: .medium, design: .serif))
                     .foregroundStyle(Color.bibleInsightText)
             }
 
@@ -1551,15 +1594,15 @@ struct SourceDetailSheet: View {
                 }
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.4))
-                    .padding(6)
-                    .background(Circle().fill(Color.bibleInsightText.opacity(0.05)))
+                    .font(Typography.Icon.xxs.weight(.medium))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
+                    .padding(Theme.Spacing.xs)
+                    .background(Circle().fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2)))
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
     }
 
     // MARK: - Source Content
@@ -1579,134 +1622,160 @@ struct SourceDetailSheet: View {
     }
 
     private var crossReferenceContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Reference title
             Text(source.reference)
-                .font(.custom("Cinzel-Regular", size: 18))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 18, weight: .medium, design: .serif))
                 .foregroundStyle(Color.bibleInsightText)
 
             // Description (why cited)
             if let description = source.description {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text("Connection")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                        // swiftlint:disable:next hardcoded_font_system
+                        .font(Typography.Icon.xxs.weight(.semibold))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                         .textCase(.uppercase)
+                        // swiftlint:disable:next hardcoded_tracking
                         .tracking(0.5)
 
                     Text(description)
-                        .font(.custom("CormorantGaramond-Regular", size: 15))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.8))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 15, weight: .regular, design: .serif))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed))
+                        // swiftlint:disable:next hardcoded_line_spacing
                         .lineSpacing(3)
                 }
             }
 
             // Verse text (loaded async)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Text")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                    // swiftlint:disable:next hardcoded_font_system
+                    .font(Typography.Icon.xxs.weight(.semibold))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                     .textCase(.uppercase)
+                    // swiftlint:disable:next hardcoded_tracking
                     .tracking(0.5)
 
                 if isLoading {
-                    HStack(spacing: 8) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         ProgressView()
                             .scaleEffect(0.8)
                         Text("Loading verse...")
-                            .font(.custom("CormorantGaramond-Regular", size: 14))
-                            .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                            // swiftlint:disable:next hardcoded_font_custom
+                            .font(.system(size: 14, weight: .regular, design: .serif))
+                            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                     }
                 } else if let text = verseText {
                     Text(text)
-                        .font(.custom("CormorantGaramond-Regular", size: 17))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 17, weight: .regular, design: .serif))
                         .foregroundStyle(Color.bibleInsightText)
+                        // swiftlint:disable:next hardcoded_line_spacing
                         .lineSpacing(4)
                         .italic()
                 } else {
                     Text("Verse text not available")
-                        .font(.custom("CormorantGaramond-Regular", size: 14))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 14, weight: .regular, design: .serif))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                 }
             }
-            .padding(.top, 8)
+            .padding(.top, Theme.Spacing.sm)
         }
     }
 
     private var strongsContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Strong's number title
             Text(formattedStrongsTitle)
-                .font(.custom("Cinzel-Regular", size: 18))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 18, weight: .medium, design: .serif))
                 .foregroundStyle(Color.bibleInsightText)
 
             // Gloss/Description
             if let description = source.description {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text("Gloss")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                        // swiftlint:disable:next hardcoded_font_system
+                        .font(Typography.Icon.xxs.weight(.semibold))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                         .textCase(.uppercase)
+                        // swiftlint:disable:next hardcoded_tracking
                         .tracking(0.5)
 
                     Text(description)
-                        .font(.custom("CormorantGaramond-SemiBold", size: 17))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 17, weight: .semibold, design: .serif))
                         .foregroundStyle(Color.bibleInsightText)
                 }
             }
 
             // Placeholder for additional lexicon data
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Definition")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                    // swiftlint:disable:next hardcoded_font_system
+                    .font(Typography.Icon.xxs.weight(.semibold))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                     .textCase(.uppercase)
+                    // swiftlint:disable:next hardcoded_tracking
                     .tracking(0.5)
 
                 if isLoading {
-                    HStack(spacing: 8) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         ProgressView()
                             .scaleEffect(0.8)
                         Text("Loading lexicon entry...")
-                            .font(.custom("CormorantGaramond-Regular", size: 14))
-                            .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                            // swiftlint:disable:next hardcoded_font_custom
+                            .font(.system(size: 14, weight: .regular, design: .serif))
+                            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                     }
                 } else {
                     Text("The lexicon entry shows the original word's meaning, etymology, and usage across Scripture.")
-                        .font(.custom("CormorantGaramond-Regular", size: 15))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.8))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 15, weight: .regular, design: .serif))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed))
+                        // swiftlint:disable:next hardcoded_line_spacing
                         .lineSpacing(3)
                 }
             }
-            .padding(.top, 8)
+            .padding(.top, Theme.Spacing.sm)
         }
     }
 
     private var commentaryContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text(source.reference)
-                .font(.custom("Cinzel-Regular", size: 18))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 18, weight: .medium, design: .serif))
                 .foregroundStyle(Color.bibleInsightText)
 
             if let description = source.description {
                 Text(description)
-                    .font(.custom("CormorantGaramond-Regular", size: 15))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.8))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed))
+                    // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(3)
             }
         }
     }
 
     private var lexiconContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text(source.reference)
-                .font(.custom("Cinzel-Regular", size: 18))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 18, weight: .medium, design: .serif))
                 .foregroundStyle(Color.bibleInsightText)
 
             if let description = source.description {
                 Text(description)
-                    .font(.custom("CormorantGaramond-Regular", size: 15))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.8))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.pressed))
+                    // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(3)
             }
         }
@@ -1717,22 +1786,23 @@ struct SourceDetailSheet: View {
     private var actionButton: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             Button {
                 HapticService.shared.mediumTap()
                 onNavigateToReference?(source.reference)
             } label: {
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "arrow.right.circle.fill")
-                        .font(.system(size: 14))
+                        .font(Typography.Icon.sm)
                     Text("Go to \(source.reference)")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(Typography.Command.caption.weight(.medium))
                 }
-                .foregroundStyle(Color.connectionAmber)
+                .foregroundStyle(Color.feedbackWarning)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
+                .padding(.vertical, Theme.Spacing.md + 2)
             }
             .buttonStyle(.plain)
         }
@@ -1907,16 +1977,18 @@ struct ChapterMapView: View {
             header
 
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // View mode toggle
             viewModeToggle
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.md - 2)
 
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.04))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Content
@@ -1969,33 +2041,34 @@ struct ChapterMapView: View {
                     }
                 } label: {
                     Text("Done")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.connectionAmber)
+                        .font(Typography.Command.body.weight(.medium))
+                        .foregroundStyle(Color.feedbackWarning)
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.top, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.sm)
 
             // Title area
-            VStack(spacing: 4) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Text("Chapter Map")
-                    .font(.custom("Cinzel-Regular", size: 22))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 22, weight: .medium, design: .serif))
                     .foregroundStyle(Color.bibleInsightText)
 
                 subtitleText
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
             }
-            .padding(.bottom, 12)
+            .padding(.bottom, Theme.Spacing.md)
         }
     }
 
     // MARK: - View Mode Toggle
 
     private var viewModeToggle: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: Theme.Spacing.sm) {
             ForEach(ViewMode.allCases, id: \.self) { mode in
                 modeButton(mode)
             }
@@ -2009,28 +2082,30 @@ struct ChapterMapView: View {
 
         return Button {
             HapticService.shared.lightTap()
-            withAnimation(.easeOut(duration: 0.15)) {
+            withAnimation(Theme.Animation.settle) {
                 viewMode = mode
             }
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: mode.icon)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(Typography.Icon.xxs.weight(.medium))
                 Text(mode.rawValue)
+                    // swiftlint:disable:next hardcoded_font_system
                     .font(.system(size: 11, weight: isSelected ? .semibold : .medium))
                 // Show count on both options for consistency
                 if count > 0 {
                     Text("(\(count))")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(isSelected ? Color.bibleInsightCardBackground.opacity(0.7) : Color.bibleInsightText.opacity(0.4))
+                        // swiftlint:disable:next hardcoded_font_system
+                        .font(Typography.Icon.xxxs)
+                        .foregroundStyle(isSelected ? Color.bibleInsightCardBackground.opacity(Theme.Opacity.overlay) : Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                 }
             }
-            .foregroundStyle(isSelected ? Color.bibleInsightCardBackground : Color.bibleInsightText.opacity(0.6))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .foregroundStyle(isSelected ? Color.bibleInsightCardBackground : Color.bibleInsightText.opacity(Theme.Opacity.strong))
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.xs + 2)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.connectionAmber : Color.bibleInsightText.opacity(0.05))
+                    .fill(isSelected ? Color.feedbackWarning : Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
             )
         }
         .buttonStyle(.plain)
@@ -2051,18 +2126,18 @@ struct ChapterMapView: View {
     // MARK: - List View
 
     private var listView: some View {
-        LazyVStack(spacing: 12) {
+        LazyVStack(spacing: Theme.Spacing.md) {
             ForEach(connections) { connection in
                 connectionCard(connection)
             }
         }
-        .padding(16)
+        .padding(Theme.Spacing.lg)
     }
 
     // MARK: - Groups View
 
     private var groupsView: some View {
-        LazyVStack(spacing: 20) {
+        LazyVStack(spacing: Theme.Spacing.xl) {
             // OT Section
             if !otConnections.isEmpty {
                 groupSection(title: "Old Testament", connections: otConnections, color: .theologyGreen)
@@ -2073,26 +2148,28 @@ struct ChapterMapView: View {
                 groupSection(title: "New Testament", connections: ntConnections, color: .greekBlue)
             }
         }
-        .padding(16)
+        .padding(Theme.Spacing.lg)
     }
 
     private func groupSection(title: String, connections: [BibleInsight], color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Section header
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Circle()
                     .fill(color)
-                    .frame(width: 8, height: 8)
+                    .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
 
                 Text(title)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                    .font(Typography.Icon.xs.weight(.semibold))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.strong))
                     .textCase(.uppercase)
+                    // swiftlint:disable:next hardcoded_tracking
                     .tracking(0.5)
 
                 Text("(\(connections.count))")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                    // swiftlint:disable:next hardcoded_font_system
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
 
                 Spacer()
             }
@@ -2116,52 +2193,55 @@ struct ChapterMapView: View {
             // Show connection detail instead of navigating directly
             selectedConnection = connection
         } label: {
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 // Connection icon
                 Image(systemName: "link")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(Typography.Icon.xxs.weight(.medium))
                     .foregroundStyle(.white)
-                    .frame(width: 20, height: 20)
+                    .frame(width: Theme.Spacing.xl, height: Theme.Spacing.xl)
                     .background(
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(Color.connectionAmber)
+                        RoundedRectangle(cornerRadius: Theme.Radius.input - 1)
+                            .fill(Color.feedbackWarning)
                     )
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     // Title
                     Text(connection.title)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(Typography.Command.caption.weight(.semibold))
                         .foregroundStyle(Color.bibleInsightText)
                         .lineLimit(1)
 
                     // Target passage
                     if let passage = targetPassage {
                         Text(passage)
-                            .font(.system(size: 11))
-                            .foregroundStyle(Color.connectionAmber)
+                            // swiftlint:disable:next hardcoded_font_system
+                            .font(Typography.Command.meta)
+                            .foregroundStyle(Color.feedbackWarning)
                     }
 
                     // Description
                     Text(connection.content)
-                        .font(.custom("CormorantGaramond-Regular", size: 12))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.7))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 12, weight: .regular, design: .serif))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.overlay))
                         .lineLimit(2)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.3))
+                    .font(Typography.Icon.xxs.weight(.semibold))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.medium))
             }
-            .padding(12)
+            .padding(Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.bibleInsightText.opacity(0.03))
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.connectionAmber.opacity(0.1), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    // swiftlint:disable:next hardcoded_line_width
+                    .stroke(Color.feedbackWarning.opacity(Theme.Opacity.subtle), lineWidth: 0.5)
             )
             .contentShape(Rectangle())
         }
@@ -2171,17 +2251,18 @@ struct ChapterMapView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "map")
-                .font(.system(size: 32))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.2))
+                .font(Typography.Icon.xxl)
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.lightMedium))
 
             Text("No connections mapped yet")
-                .font(.custom("CormorantGaramond-Regular", size: 15))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 15, weight: .regular, design: .serif))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.vertical, 60)
+        .padding(.vertical, Theme.Spacing.xxl + Theme.Spacing.xxl)
     }
 
     // MARK: - Helpers
@@ -2211,6 +2292,8 @@ struct ConnectionDetailView: View {
     let onDismiss: () -> Void
     var onDismissAll: (() -> Void)?
     var onNavigateToReference: ((String) -> Void)?
+
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - State
     @State private var targetVerseText: String?
@@ -2254,12 +2337,13 @@ struct ConnectionDetailView: View {
             header
 
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Content
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     // Source verse (current reading location)
                     verseCard(
                         reference: sourceReference,
@@ -2285,7 +2369,7 @@ struct ConnectionDetailView: View {
                     // Rationale
                     rationaleSection
                 }
-                .padding(16)
+                .padding(Theme.Spacing.lg)
             }
 
             // Action button
@@ -2310,13 +2394,13 @@ struct ConnectionDetailView: View {
                     HapticService.shared.lightTap()
                     onDismiss()
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(Typography.Icon.xs.weight(.semibold))
                         Text("Map")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(Typography.Command.caption.weight(.medium))
                     }
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.strong))
                 }
                 .buttonStyle(.plain)
 
@@ -2332,40 +2416,42 @@ struct ConnectionDetailView: View {
                     }
                 } label: {
                     Text("Done")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.connectionAmber)
+                        .font(Typography.Command.body.weight(.medium))
+                        .foregroundStyle(Color.feedbackWarning)
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.top, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.sm)
 
             // Title area: "John 1:1 ↔ Genesis 1:1"
-            VStack(spacing: 4) {
+            VStack(spacing: Theme.Spacing.xs) {
                 // References with bidirectional arrow
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Text(sourceReference)
-                        .font(.custom("Cinzel-Regular", size: 16))
-                        .foregroundStyle(Color.theologyGreen)
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 16, weight: .medium, design: .serif))
+                        .foregroundStyle(Color.bibleOlive)
 
                     Image(systemName: "arrow.left.arrow.right")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.connectionAmber)
+                        .font(Typography.Icon.xs.weight(.medium))
+                        .foregroundStyle(Color.feedbackWarning)
 
                     if let ref = targetReference {
                         Text(ref)
-                            .font(.custom("Cinzel-Regular", size: 16))
-                            .foregroundStyle(Color.connectionAmber)
+                            // swiftlint:disable:next hardcoded_font_custom
+                            .font(.system(size: 16, weight: .medium, design: .serif))
+                            .foregroundStyle(Color.feedbackWarning)
                     }
                 }
 
                 // Connection type as subtitle
                 Text(connectionType)
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                    .font(Typography.Icon.xs)
+                    .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
             }
-            .padding(.bottom, 12)
+            .padding(.bottom, Theme.Spacing.md)
         }
     }
 
@@ -2378,57 +2464,64 @@ struct ConnectionDetailView: View {
         color: Color,
         isLoading: Bool = false
     ) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Label
             Text(label)
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                // swiftlint:disable:next hardcoded_font_system
+                .font(Typography.Icon.xxs.weight(.semibold))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                 .textCase(.uppercase)
+                // swiftlint:disable:next hardcoded_tracking
                 .tracking(0.5)
 
             // Card
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md - 2) {
                 // Reference
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Circle()
                         .fill(color)
-                        .frame(width: 8, height: 8)
+                        .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
 
                     Text(reference)
-                        .font(.custom("Cinzel-Regular", size: 14))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 14, weight: .medium, design: .serif))
                         .foregroundStyle(Color.bibleInsightText)
                 }
 
                 // Text
                 if isLoading {
-                    HStack(spacing: 8) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         ProgressView()
                             .scaleEffect(0.8)
                         Text("Loading verse...")
-                            .font(.custom("CormorantGaramond-Regular", size: 14))
-                            .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                            // swiftlint:disable:next hardcoded_font_custom
+                            .font(.system(size: 14, weight: .regular, design: .serif))
+                            .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                     }
                 } else if let verseText = text {
                     Text(verseText)
-                        .font(.custom("CormorantGaramond-Regular", size: 16))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.9))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 16, weight: .regular, design: .serif))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.high))
+                        // swiftlint:disable:next hardcoded_line_spacing
                         .lineSpacing(4)
                         .italic()
                 } else {
                     Text("Verse text not available")
-                        .font(.custom("CormorantGaramond-Regular", size: 14))
-                        .foregroundStyle(Color.bibleInsightText.opacity(0.5))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 14, weight: .regular, design: .serif))
+                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
                 }
             }
-            .padding(14)
+            .padding(Theme.Spacing.md + 2)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.bibleInsightText.opacity(0.03))
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint / 2))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(color.opacity(0.15), lineWidth: 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .stroke(color.opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -2436,20 +2529,20 @@ struct ConnectionDetailView: View {
     // MARK: - Connection Indicator (Simplified Divider)
 
     private var connectionIndicator: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Spacing.md) {
             Rectangle()
-                .fill(Color.connectionAmber.opacity(0.2))
-                .frame(height: 1)
+                .fill(Color.feedbackWarning.opacity(Theme.Opacity.lightMedium))
+                .frame(height: Theme.Stroke.hairline)
 
             Image(systemName: "link")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.connectionAmber.opacity(0.4))
+                .font(Typography.Icon.xxs.weight(.medium))
+                .foregroundStyle(Color.feedbackWarning.opacity(Theme.Opacity.disabled))
 
             Rectangle()
-                .fill(Color.connectionAmber.opacity(0.2))
-                .frame(height: 1)
+                .fill(Color.feedbackWarning.opacity(Theme.Opacity.lightMedium))
+                .frame(height: Theme.Stroke.hairline)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Theme.Spacing.xs)
     }
 
     // MARK: - Rationale Section
@@ -2466,29 +2559,34 @@ struct ConnectionDetailView: View {
     }
 
     private var rationaleSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Label
             Text("Why Connected")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.4))
+                // swiftlint:disable:next hardcoded_font_system
+                .font(Typography.Icon.xxs.weight(.semibold))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.disabled))
                 .textCase(.uppercase)
+                // swiftlint:disable:next hardcoded_tracking
                 .tracking(0.5)
 
             // Key idea (thesis line) - scannable summary
-            HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                 Text("Key idea:")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color.connectionAmber)
+                    .font(Typography.Icon.xs.weight(.semibold))
+                    .foregroundStyle(Color.feedbackWarning)
 
                 Text(keyIdea)
-                    .font(.custom("CormorantGaramond-SemiBold", size: 15))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 15, weight: .semibold, design: .serif))
                     .foregroundStyle(Color.bibleInsightText)
             }
 
             // Full rationale (optional depth)
             Text(connection.content)
-                .font(.custom("CormorantGaramond-Regular", size: 14))
-                .foregroundStyle(Color.bibleInsightText.opacity(0.75))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 14, weight: .regular, design: .serif))
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.overlay + 0.05))
+                // swiftlint:disable:next hardcoded_line_spacing
                 .lineSpacing(3)
 
             // Sources row (future-proof slot)
@@ -2496,7 +2594,7 @@ struct ConnectionDetailView: View {
                 sourcesRow
             }
         }
-        .padding(.top, 8)
+        .padding(.top, Theme.Spacing.sm)
     }
 
     // MARK: - Sources Row
@@ -2504,52 +2602,56 @@ struct ConnectionDetailView: View {
     @State private var showSources = false
 
     private var sourcesRow: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs + 2) {
             Button {
                 HapticService.shared.lightTap()
-                withAnimation(.easeOut(duration: 0.15)) {
+                withAnimation(Theme.Animation.settle) {
                     showSources.toggle()
                 }
             } label: {
-                HStack(spacing: 6) {
+                HStack(spacing: Theme.Spacing.xs + 2) {
                     Text("Sources (\(sourceCount))")
-                        .font(.system(size: 11, weight: .medium))
+                        // swiftlint:disable:next hardcoded_font_system
+                        .font(Typography.Icon.xxs.weight(.medium))
 
                     Image(systemName: showSources ? "chevron.down" : "chevron.right")
-                        .font(.system(size: 8, weight: .semibold))
+                        .font(Typography.Icon.xxs.weight(.semibold))
                 }
-                .foregroundStyle(Color.scholarAccent)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
             .buttonStyle(.plain)
 
             if showSources {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     ForEach(connection.sources, id: \.reference) { source in
-                        HStack(alignment: .top, spacing: 6) {
+                        HStack(alignment: .top, spacing: Theme.Spacing.xs + 2) {
                             sourceIcon(for: source.type)
-                                .font(.system(size: 9))
+                                // swiftlint:disable:next hardcoded_font_system
+                                .font(Typography.Icon.xxxs)
                                 .foregroundStyle(sourceColor(for: source.type))
-                                .frame(width: 12)
+                                .frame(width: Theme.Spacing.md)
 
-                            VStack(alignment: .leading, spacing: 1) {
+                            // swiftlint:disable:next hardcoded_stack_spacing
+                            VStack(alignment: .leading, spacing: 1) {  // Tight ref/verse spacing
                                 Text(source.reference)
-                                    .font(.system(size: 11, weight: .medium))
+                                    // swiftlint:disable:next hardcoded_font_system
+                                    .font(Typography.Icon.xxs.weight(.medium))
                                     .foregroundStyle(Color.bibleInsightText)
 
                                 if let description = source.description {
                                     Text(description)
-                                        .font(.system(size: 10))
-                                        .foregroundStyle(Color.bibleInsightText.opacity(0.6))
+                                        .font(Typography.Icon.xxs)
+                                        .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.strong))
                                 }
                             }
                         }
                     }
                 }
-                .padding(.leading, 12)
+                .padding(.leading, Theme.Spacing.md)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .padding(.top, 4)
+        .padding(.top, Theme.Spacing.xs)
     }
 
     private func sourceIcon(for type: InsightSource.SourceType) -> Image {
@@ -2575,7 +2677,8 @@ struct ConnectionDetailView: View {
     private var actionButton: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(Color.bibleInsightText.opacity(0.06))
+                .fill(Color.bibleInsightText.opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_frame
                 .frame(height: 0.5)
 
             // Primary CTA: Open connected passage
@@ -2585,17 +2688,17 @@ struct ConnectionDetailView: View {
                     onNavigateToReference?(reference)
                 }
             } label: {
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "arrow.right.circle.fill")
-                        .font(.system(size: 14))
+                        .font(Typography.Icon.sm)
                     if let ref = targetReference {
                         Text("Open \(ref)")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(Typography.Icon.sm.weight(.medium))
                     }
                 }
-                .foregroundStyle(Color.connectionAmber)
+                .foregroundStyle(Color.feedbackWarning)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .padding(.vertical, Theme.Spacing.md)
             }
             .buttonStyle(.plain)
 
@@ -2604,14 +2707,15 @@ struct ConnectionDetailView: View {
                 HapticService.shared.lightTap()
                 onNavigateToReference?(sourceReference)
             } label: {
-                HStack(spacing: 6) {
+                HStack(spacing: Theme.Spacing.xs + 2) {
                     Image(systemName: "book.pages")
-                        .font(.system(size: 11))
+                        // swiftlint:disable:next hardcoded_font_system
+                        .font(Typography.Command.meta)
                     Text("Open \(sourceReference)")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(Typography.Icon.xs.weight(.medium))
                 }
-                .foregroundStyle(Color.bibleInsightText.opacity(0.5))
-                .padding(.vertical, 8)
+                .foregroundStyle(Color.bibleInsightText.opacity(Theme.Opacity.heavy))
+                .padding(.vertical, Theme.Spacing.sm)
             }
             .buttonStyle(.plain)
         }

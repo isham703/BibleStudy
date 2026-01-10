@@ -11,11 +11,11 @@ struct ReportIssueButton: View {
         Button {
             showReportSheet = true
         } label: {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "flag")
                 Text("Report issue")
             }
-            .font(Typography.UI.caption1)
+            .font(Typography.Command.caption)
             .foregroundStyle(Color.tertiaryText)
         }
         .sheet(isPresented: $showReportSheet) {
@@ -40,6 +40,7 @@ struct ReportIssueButton: View {
 // MARK: - Report Issue Sheet
 struct ReportIssueSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     let onSubmit: (ReportReason, String) -> Void
 
@@ -62,7 +63,7 @@ struct ReportIssueSheet: View {
 
                                 if selectedReason == reason {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.scholarAccent)
+                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 }
                             }
                         }
@@ -76,7 +77,7 @@ struct ReportIssueSheet: View {
 
                 Section {
                     Text("Your feedback helps us improve AI responses. Reports are anonymous.")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.secondaryText)
                 }
             }

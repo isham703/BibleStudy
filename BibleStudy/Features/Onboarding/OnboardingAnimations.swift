@@ -7,6 +7,7 @@ import SwiftUI
 // App logo with golden connection lines radiating outward
 
 struct WelcomeAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showLogo = false
     @State private var showConnections = false
     @State private var connectionProgress: CGFloat = 0
@@ -15,12 +16,13 @@ struct WelcomeAnimation: View {
         UIAccessibility.isReduceMotionEnabled
     }
 
+    private let rayIndices: [Int] = [0, 1, 2, 3, 4, 5, 6, 7]
     private let rayCount = 8
 
     var body: some View {
         ZStack {
             // Radiating connection lines
-            ForEach(0..<rayCount, id: \.self) { index in
+            ForEach(rayIndices, id: \.self) { index in
                 let angle = (2 * .pi / CGFloat(rayCount)) * CGFloat(index) - .pi / 2
                 let endX: CGFloat = 125 + cos(angle) * 90
                 let endY: CGFloat = 125 + sin(angle) * 90
@@ -29,8 +31,8 @@ struct WelcomeAnimation: View {
                     CurvedConnectionLine(
                         start: CGPoint(x: 125, y: 125),
                         end: CGPoint(x: endX, y: endY),
-                        color: .divineGold.opacity(AppTheme.Opacity.strong),
-                        lineWidth: AppTheme.Border.regular,
+                        color: Color.accentBronze.opacity(Theme.Opacity.strong),
+                        lineWidth: Theme.Stroke.control,
                         isActive: true,
                         curvature: 0.05
                     )
@@ -46,15 +48,15 @@ struct WelcomeAnimation: View {
                 ZStack {
                     // Glow
                     Circle()
-                        .fill(Color.divineGold.opacity(AppTheme.Opacity.lightMedium))
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
                         .frame(width: 100, height: 100)
-                        .blur(radius: AppTheme.Blur.heavy)
+                        .blur(radius: 16)
 
                     // Main circle
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [.divineGold, .burnishedGold],
+                                colors: [Color.accentBronze, .burnishedGold],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -63,7 +65,7 @@ struct WelcomeAnimation: View {
 
                     // Book icon
                     Image(systemName: "book.fill")
-                        .font(Typography.UI.title1)
+                        .font(Typography.Command.title1)
                         .foregroundStyle(.white)
                 }
                 .position(x: 125, y: 125)
@@ -85,16 +87,16 @@ struct WelcomeAnimation: View {
         }
 
         // Logo appears first
-        withAnimation(AppTheme.Animation.spring) {
+        withAnimation(Theme.Animation.settle) {
             showLogo = true
         }
 
         // Connections radiate outward
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.slow) {
+            withAnimation(Theme.Animation.slowFade) {
                 showConnections = true
             }
-            withAnimation(AppTheme.Animation.slow) {
+            withAnimation(Theme.Animation.slowFade) {
                 connectionProgress = 1
             }
         }
@@ -105,6 +107,7 @@ struct WelcomeAnimation: View {
 // Verse nodes connecting to study nodes
 
 struct ReadStudyAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showVerseNode = false
     @State private var showStudyNodes = false
     @State private var activeConnections: Set<String> = []
@@ -148,18 +151,18 @@ struct ReadStudyAnimation: View {
 
             // Verse node (source)
             if showVerseNode {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     ZStack {
                         Circle()
-                            .fill(Color.divineGold)
+                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                             .frame(width: 40, height: 40)
 
                         Image(systemName: "text.book.closed")
-                            .font(Typography.UI.headline)
+                            .font(Typography.Command.headline)
                             .foregroundStyle(.white)
                     }
                     Text("Verse")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.secondaryText)
                 }
                 .position(x: 80, y: 125)
@@ -168,28 +171,28 @@ struct ReadStudyAnimation: View {
             // Study nodes (destinations)
             if showStudyNodes {
                 // Highlight node
-                VStack(spacing: AppTheme.Spacing.xxs) {
+                VStack(spacing: 2) {
                     StatefulConnectionNode(size: 16, state: activeConnections.contains("highlight") ? .active : .idle)
                     Text("Highlight")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .position(x: 180, y: 60)
 
                 // Note node
-                VStack(spacing: AppTheme.Spacing.xxs) {
+                VStack(spacing: 2) {
                     StatefulConnectionNode(size: 16, state: activeConnections.contains("note") ? .active : .idle)
                     Text("Note")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .position(x: 200, y: 125)
 
                 // Cross-ref node
-                VStack(spacing: AppTheme.Spacing.xxs) {
+                VStack(spacing: 2) {
                     StatefulConnectionNode(size: 16, state: activeConnections.contains("crossref") ? .active : .idle)
                     Text("Cross-Ref")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .position(x: 180, y: 190)
@@ -209,12 +212,12 @@ struct ReadStudyAnimation: View {
             return
         }
 
-        withAnimation(AppTheme.Animation.spring) {
+        withAnimation(Theme.Animation.settle) {
             showVerseNode = true
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 showStudyNodes = true
             }
         }
@@ -223,7 +226,7 @@ struct ReadStudyAnimation: View {
         let connections = ["highlight", "note", "crossref"]
         for (index, conn) in connections.enumerated() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6 + Double(index) * 0.3) {
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     _ = activeConnections.insert(conn)
                 }
             }
@@ -235,6 +238,7 @@ struct ReadStudyAnimation: View {
 // Neural pathway - nodes strengthening connections over time
 
 struct MemorizeAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var nodeStrengths: [CGFloat] = [0.3, 0.3, 0.3, 0.3, 0.3]
     @State private var showPathways = false
 
@@ -242,24 +246,26 @@ struct MemorizeAnimation: View {
         UIAccessibility.isReduceMotionEnabled
     }
 
+    private let connectionIndices: [Int] = [0, 1, 2, 3]
+
     var body: some View {
         ZStack {
             // Memory pathways
             if showPathways {
                 // Horizontal connections
-                ForEach(0..<4, id: \.self) { i in
+                ForEach(connectionIndices, id: \.self) { i in
                     ConnectionLine(
                         start: CGPoint(x: 30 + CGFloat(i) * 50, y: 125),
                         end: CGPoint(x: 80 + CGFloat(i) * 50, y: 125),
-                        color: .divineGold,
-                        lineWidth: AppTheme.Border.regular + nodeStrengths[i] * AppTheme.Border.regular,
+                        color: Color.accentBronze,
+                        lineWidth: Theme.Stroke.control + nodeStrengths[i] * Theme.Stroke.control,
                         isActive: nodeStrengths[i] > 0.5
                     )
                 }
             }
 
             // Memory nodes
-            ForEach(0..<5, id: \.self) { i in
+            ForEach(nodeStrengths.indices, id: \.self) { i in
                 let x: CGFloat = 30 + CGFloat(i) * 50
                 let strength = nodeStrengths[i]
 
@@ -267,13 +273,13 @@ struct MemorizeAnimation: View {
                     // Glow based on strength
                     if strength > 0.5 {
                         Circle()
-                            .fill(Color.divineGold.opacity(AppTheme.Opacity.medium * strength))
+                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium * strength))
                             .frame(width: 30 * strength, height: 30 * strength)
-                            .blur(radius: AppTheme.Blur.light)
+                            .blur(radius: 4)
                     }
 
                     Circle()
-                        .fill(Color.divineGold.opacity(AppTheme.Opacity.disabled + strength * AppTheme.Opacity.strong))
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled + strength * Theme.Opacity.strong))
                         .frame(width: 12 + strength * 8, height: 12 + strength * 8)
                 }
                 .position(x: x, y: 125)
@@ -282,13 +288,13 @@ struct MemorizeAnimation: View {
             // Labels
             HStack {
                 Text("New")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                 Spacer()
                 Text("Mastered")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
             }
             .foregroundStyle(Color.tertiaryText)
-            .padding(.horizontal, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xl)
             .offset(y: 50)
         }
         .frame(width: 250, height: 250)
@@ -304,14 +310,14 @@ struct MemorizeAnimation: View {
             return
         }
 
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             showPathways = true
         }
 
         // Animate nodes strengthening from left to right
         for i in 0..<5 {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.4) {
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     nodeStrengths[i] = 0.3 + CGFloat(i) * 0.175
                 }
             }
@@ -323,6 +329,7 @@ struct MemorizeAnimation: View {
 // Question node connecting to answer network
 
 struct AskAIAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showQuestion = false
     @State private var flowingLines: Set<Int> = []
     @State private var showAnswer = false
@@ -331,12 +338,12 @@ struct AskAIAnimation: View {
         UIAccessibility.isReduceMotionEnabled
     }
 
-    private let processingNodeCount = 3
+    private let processingIndices: [Int] = [0, 1, 2]
 
     var body: some View {
         ZStack {
             // Question to processing connections
-            ForEach(0..<processingNodeCount, id: \.self) { i in
+            ForEach(processingIndices, id: \.self) { i in
                 let yOffset: CGFloat = CGFloat(i - 1) * 40
                 let midY: CGFloat = 125 + yOffset
 
@@ -344,7 +351,7 @@ struct AskAIAnimation: View {
                     FlowingConnectionLine(
                         start: CGPoint(x: 50, y: 125),
                         end: CGPoint(x: 140, y: midY),
-                        color: .divineGold,
+                        color: Color.accentBronze,
                         flowSpeed: 1.5
                     )
                 }
@@ -358,12 +365,12 @@ struct AskAIAnimation: View {
 
             // Processing to answer connections
             if showAnswer {
-                ForEach(0..<processingNodeCount, id: \.self) { i in
+                ForEach(processingIndices, id: \.self) { i in
                     let yOffset: CGFloat = CGFloat(i - 1) * 40
                     CurvedConnectionLine(
                         start: CGPoint(x: 140, y: 125 + yOffset),
                         end: CGPoint(x: 210, y: 125),
-                        color: .divineGold,
+                        color: Color.accentBronze,
                         isActive: true,
                         curvature: CGFloat(i - 1) * 0.1
                     )
@@ -372,19 +379,19 @@ struct AskAIAnimation: View {
 
             // Question node
             if showQuestion {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     ZStack {
                         Circle()
                             .fill(Color.accentBlue)
                             .frame(width: 36, height: 36)
 
                         Text("?")
-                            .font(Typography.UI.headline)
+                            .font(Typography.Command.headline)
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
                     }
                     Text("Question")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .position(x: 50, y: 125)
@@ -392,24 +399,24 @@ struct AskAIAnimation: View {
 
             // Answer node
             if showAnswer {
-                VStack(spacing: AppTheme.Spacing.xs) {
+                VStack(spacing: Theme.Spacing.xs) {
                     ZStack {
                         // Glow
                         Circle()
-                            .fill(Color.divineGold.opacity(AppTheme.Opacity.medium))
+                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
                             .frame(width: 50, height: 50)
-                            .blur(radius: AppTheme.Blur.medium)
+                            .blur(radius: 8)
 
                         Circle()
-                            .fill(Color.divineGold)
+                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                             .frame(width: 36, height: 36)
 
                         Image(systemName: "sparkles")
-                            .font(Typography.UI.subheadline)
+                            .font(Typography.Command.subheadline)
                             .foregroundStyle(.white)
                     }
                     Text("Answer")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .position(x: 210, y: 125)
@@ -425,20 +432,20 @@ struct AskAIAnimation: View {
     private func animate() {
         if respectsReducedMotion {
             showQuestion = true
-            flowingLines = Set(0..<processingNodeCount)
+            flowingLines = Set(processingIndices)
             showAnswer = true
             return
         }
 
         // Question appears
-        withAnimation(AppTheme.Animation.spring) {
+        withAnimation(Theme.Animation.settle) {
             showQuestion = true
         }
 
         // Lines start flowing
-        for i in 0..<processingNodeCount {
+        for i in processingIndices {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3 + Double(i) * 0.15) {
-                withAnimation(AppTheme.Animation.standard) {
+                withAnimation(Theme.Animation.settle) {
                     _ = flowingLines.insert(i)
                 }
             }
@@ -446,7 +453,7 @@ struct AskAIAnimation: View {
 
         // Answer appears
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 showAnswer = true
             }
         }
@@ -454,30 +461,36 @@ struct AskAIAnimation: View {
 }
 
 // MARK: - Preview
-#Preview("Onboarding Animations") {
-    ScrollView {
-        VStack(spacing: AppTheme.Spacing.xxxl) {
-            Text("Welcome").font(Typography.UI.headline)
-            WelcomeAnimation()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
 
-            Text("Read & Study").font(Typography.UI.headline)
-            ReadStudyAnimation()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+#if DEBUG
+struct OnboardingAnimations_Previews: PreviewProvider {
+    static var previews: some View {
+        ScrollView {
+            VStack(spacing: Theme.Spacing.xxl) {
+                Text("Welcome").font(Typography.Command.headline)
+                WelcomeAnimation()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
 
-            Text("Memorize").font(Typography.UI.headline)
-            MemorizeAnimation()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+                Text("Read & Study").font(Typography.Command.headline)
+                ReadStudyAnimation()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
 
-            Text("Ask AI").font(Typography.UI.headline)
-            AskAIAnimation()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+                Text("Memorize").font(Typography.Command.headline)
+                MemorizeAnimation()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
+
+                Text("Ask AI").font(Typography.Command.headline)
+                AskAIAnimation()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
+            }
+            .padding()
         }
-        .padding()
+        .background(Color.appBackground)
+        .previewDisplayName("Onboarding Animations")
     }
-    .background(Color.appBackground)
 }
+#endif

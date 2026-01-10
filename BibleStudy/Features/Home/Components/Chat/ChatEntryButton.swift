@@ -4,32 +4,38 @@ import SwiftUI
 // Floating AI chat entry point with glass styling
 
 struct ChatEntryButton: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var floatOffset: CGFloat = 0
     @State private var isPressed = false
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "bubble.left.fill")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Icon.md.weight(.medium))
+                .foregroundStyle(Colors.Semantic.accentSeal(for: themeMode))
 
             Text("Ask AI anything...")
-                .font(.system(size: 15, weight: .medium))
-                .foregroundStyle(Color.fadedMoonlight)
+                .font(Typography.Command.subheadline.weight(.medium))
+                .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
 
             Spacer()
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
         .background(
             Capsule()
-                .fill(.ultraThinMaterial.opacity(0.5))
+                .fill(.ultraThinMaterial.opacity(Theme.Opacity.secondary))
         )
         .background(
             Capsule()
                 .fill(
+                    // swiftlint:disable:next hardcoded_opacity
                     LinearGradient(
-                        colors: [Color.white.opacity(0.08), Color.white.opacity(0.02)],
+                        colors: [
+                            Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.overlay),
+                            Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.faint)
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -37,18 +43,23 @@ struct ChatEntryButton: View {
         )
         .overlay(
             Capsule()
-                .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                .stroke(
+                    Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.faint),
+                    lineWidth: Theme.Stroke.hairline
+                )
         )
-        .shadow(color: .black.opacity(0.2), radius: 16, y: 8)
+        .shadow(color: .black.opacity(Theme.Opacity.lightMedium), radius: 16, y: 8)
         .offset(y: floatOffset)
+        // swiftlint:disable:next hardcoded_scale_effect
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .onAppear {
-            withAnimation(AppTheme.Animation.float) {
+            withAnimation(Theme.Animation.fade) {
                 floatOffset = 3
             }
         }
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.3)) {
+            // swiftlint:disable:next hardcoded_animation_spring
+            withAnimation(Theme.Animation.settle) {
                 isPressed = pressing
             }
             if pressing {
@@ -62,6 +73,7 @@ struct ChatEntryButton: View {
 // Glass metric pill for dashboard header
 
 struct MockMetricPill: View {
+    @Environment(\.colorScheme) private var colorScheme
     let icon: String
     let value: String
     let label: String
@@ -75,41 +87,45 @@ struct MockMetricPill: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
-            HStack(spacing: 4) {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        VStack(spacing: Theme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(Typography.Command.caption.weight(.medium))
                     .foregroundStyle(color)
 
                 if let _ = numericValue, hasAnimated {
                     Text("\(displayedValue)")
                         .font(SanctuaryTypography.Dashboard.metricNumber)
-                        .foregroundStyle(Color.moonlitParchment)
+                        .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
                         .contentTransition(.numericText())
                 } else {
                     Text(value)
                         .font(SanctuaryTypography.Dashboard.metricNumber)
-                        .foregroundStyle(Color.moonlitParchment)
+                        .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
                 }
             }
 
             Text(label)
                 .font(SanctuaryTypography.Dashboard.metricLabel)
-                .foregroundStyle(Color.fadedMoonlight)
+                .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .fill(.ultraThinMaterial.opacity(0.3))
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(.ultraThinMaterial.opacity(Theme.Opacity.secondary))
         )
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .fill(Color.glassOverlay)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Surface.surface(for: themeMode).opacity(Theme.Opacity.faint))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(
+                    Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.faint),
+                    lineWidth: Theme.Stroke.hairline
+                )
         )
         .onAppear {
             guard let target = numericValue else { return }
@@ -117,7 +133,7 @@ struct MockMetricPill: View {
             // Animate count up
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 hasAnimated = true
-                withAnimation(.easeOut(duration: 1.0)) {
+                withAnimation(Theme.Animation.slowFade) {
                     displayedValue = target
                 }
             }
@@ -128,14 +144,18 @@ struct MockMetricPill: View {
 // MARK: - Preview
 
 #Preview {
-    ZStack {
-        Color.candlelitStone.ignoresSafeArea()
+    @Previewable @Environment(\.colorScheme) var colorScheme
+    let themeMode = ThemeMode.current(from: colorScheme)
 
+    ZStack {
+        Colors.Surface.background(for: themeMode).ignoresSafeArea()
+
+        // swiftlint:disable:next hardcoded_stack_spacing
         VStack(spacing: 30) {
             ChatEntryButton()
                 .padding(.horizontal)
 
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 MockMetricPill(
                     icon: "flame.fill",
                     value: "14",
@@ -147,14 +167,14 @@ struct MockMetricPill: View {
                     icon: "book.fill",
                     value: "Day 8",
                     label: "of John",
-                    color: .divineGold
+                    color: Colors.Semantic.accentSeal(for: themeMode)
                 )
 
                 MockMetricPill(
                     icon: "sparkles",
                     value: "5",
                     label: "due",
-                    color: .lapisLazuli
+                    color: Colors.Semantic.accentAction(for: themeMode)
                 )
             }
             .padding(.horizontal)

@@ -39,7 +39,7 @@ struct AIEmptyStateAnimation: View {
 
             // Question mark in center
             Text("?")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.white)
                 .offset(y: -10)
@@ -51,6 +51,7 @@ struct AIEmptyStateAnimation: View {
 // Question node sends signal through network
 
 struct AIThinkingAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var flowPhase: Int = 0
     @State private var dotOpacities: [Double] = [1.0, 0.5, 0.3]
 
@@ -61,7 +62,7 @@ struct AIThinkingAnimation: View {
     private let timer = Timer.publish(every: 0.4, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.lg) {
             // Neural network visualization
             ZStack {
                 // Flowing connections
@@ -84,11 +85,11 @@ struct AIThinkingAnimation: View {
             .frame(width: 100, height: 60)
 
             // Animated dots
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(Color.divineGold)
-                        .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .frame(width: 4, height: 4)
                         .opacity(dotOpacities[index])
                 }
             }
@@ -107,7 +108,7 @@ struct AIThinkingAnimation: View {
     }
 
     private func animateDots() {
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             let rotated = [dotOpacities[2], dotOpacities[0], dotOpacities[1]]
             dotOpacities = rotated
         }
@@ -122,6 +123,7 @@ struct AIThinkingAnimation: View {
 // Connection lines complete to answer node
 
 struct AIResponseReceivedAnimation: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var connectionComplete = false
     @State private var showGlow = false
 
@@ -135,8 +137,8 @@ struct AIResponseReceivedAnimation: View {
             ConnectionLine(
                 start: CGPoint(x: 30, y: 25),
                 end: CGPoint(x: 170, y: 25),
-                color: .divineGold,
-                lineWidth: AppTheme.Border.regular,
+                color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                lineWidth: Theme.Stroke.control,
                 isActive: connectionComplete
             )
 
@@ -148,9 +150,9 @@ struct AIResponseReceivedAnimation: View {
             ZStack {
                 if showGlow {
                     Circle()
-                        .fill(Color.divineGold.opacity(AppTheme.Opacity.medium))
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
                         .frame(width: 40, height: 40)
-                        .blur(radius: AppTheme.Blur.medium)
+                        .blur(radius: 8)
                 }
 
                 StatefulConnectionNode(size: 16, state: connectionComplete ? .success : .idle)
@@ -170,12 +172,12 @@ struct AIResponseReceivedAnimation: View {
             return
         }
 
-        withAnimation(AppTheme.Animation.slow) {
+        withAnimation(Theme.Animation.slowFade) {
             connectionComplete = true
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 showGlow = true
             }
         }
@@ -186,6 +188,7 @@ struct AIResponseReceivedAnimation: View {
 // Compact thinking indicator for inline use
 
 struct AIInlineThinking: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var currentDot = 0
 
     private var respectsReducedMotion: Bool {
@@ -195,37 +198,37 @@ struct AIInlineThinking: View {
     private let timer = Timer.publish(every: 0.3, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             // Mini network
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 2) {
                 Circle()
-                    .fill(Color.scholarIndigo.opacity(currentDot == 0 ? 1.0 : 0.3))
-                    .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(currentDot == 0 ? 1.0 : 0.3))
+                    .frame(width: 6, height: 6)
 
                 Rectangle()
-                    .fill(Color.scholarIndigo.opacity(AppTheme.Opacity.heavy))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
                     .frame(width: 8, height: 1)
 
                 Circle()
-                    .fill(Color.scholarIndigo.opacity(currentDot == 1 ? 1.0 : 0.3))
-                    .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(currentDot == 1 ? 1.0 : 0.3))
+                    .frame(width: 6, height: 6)
 
                 Rectangle()
-                    .fill(Color.scholarIndigo.opacity(AppTheme.Opacity.heavy))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
                     .frame(width: 8, height: 1)
 
                 Circle()
-                    .fill(Color.scholarIndigo.opacity(currentDot == 2 ? 1.0 : 0.3))
-                    .frame(width: AppTheme.ComponentSize.dot, height: AppTheme.ComponentSize.dot)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(currentDot == 2 ? 1.0 : 0.3))
+                    .frame(width: 6, height: 6)
             }
 
             Text("Thinking")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
         }
         .onReceive(timer) { _ in
             guard !respectsReducedMotion else { return }
-            withAnimation(AppTheme.Animation.quick) {
+            withAnimation(Theme.Animation.fade) {
                 currentDot = (currentDot + 1) % 3
             }
         }
@@ -236,6 +239,7 @@ struct AIInlineThinking: View {
 // Decorative sparkle for AI-related content
 
 struct AISparkle: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var sparkleOpacity: Double = 0.5
     @State private var sparkleScale: CGFloat = 0.8
 
@@ -245,8 +249,8 @@ struct AISparkle: View {
 
     var body: some View {
         Image(systemName: "sparkle")
-            .font(Typography.UI.caption1)
-            .foregroundStyle(Color.divineGold)
+            .font(Typography.Command.caption)
+            .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
             .opacity(sparkleOpacity)
             .scaleEffect(sparkleScale)
             .onAppear {
@@ -257,7 +261,7 @@ struct AISparkle: View {
                 }
 
                 withAnimation(
-                    AppTheme.Animation.slow
+                    Theme.Animation.slowFade
                     .repeatForever(autoreverses: true)
                 ) {
                     sparkleOpacity = 1.0
@@ -268,44 +272,50 @@ struct AISparkle: View {
 }
 
 // MARK: - Preview
-#Preview("AI Animations") {
-    ScrollView {
-        VStack(spacing: AppTheme.Spacing.xxxl) {
-            Text("Empty State").font(Typography.UI.headline)
-            AIEmptyStateAnimation()
-                .frame(width: 200, height: 180)
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
 
-            Text("Thinking").font(Typography.UI.headline)
-            AIThinkingAnimation()
+#if DEBUG
+struct AIAnimations_Previews: PreviewProvider {
+    static var previews: some View {
+        ScrollView {
+            VStack(spacing: Theme.Spacing.xxl) {
+                Text("Empty State").font(Typography.Command.headline)
+                AIEmptyStateAnimation()
+                    .frame(width: 200, height: 180)
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+
+                Text("Thinking").font(Typography.Command.headline)
+                AIThinkingAnimation()
+                    .padding()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+
+                Text("Response Received").font(Typography.Command.headline)
+                AIResponseReceivedAnimation()
+                    .padding()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+
+                Text("Inline Thinking").font(Typography.Command.headline)
+                AIInlineThinking()
+                    .padding()
+                    .background(Color.surfaceBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+
+                Text("Sparkle").font(Typography.Command.headline)
+                HStack {
+                    AISparkle()
+                    Text("AI-powered")
+                    AISparkle()
+                }
                 .padding()
                 .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
-
-            Text("Response Received").font(Typography.UI.headline)
-            AIResponseReceivedAnimation()
-                .padding()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
-
-            Text("Inline Thinking").font(Typography.UI.headline)
-            AIInlineThinking()
-                .padding()
-                .background(Color.surfaceBackground)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
-
-            Text("Sparkle").font(Typography.UI.headline)
-            HStack {
-                AISparkle()
-                Text("AI-powered")
-                AISparkle()
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             }
             .padding()
-            .background(Color.surfaceBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
         }
-        .padding()
+        .background(Color.appBackground)
+        .previewDisplayName("AI Animations")
     }
-    .background(Color.appBackground)
 }
+#endif

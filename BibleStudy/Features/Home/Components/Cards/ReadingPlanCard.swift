@@ -1,74 +1,45 @@
 import SwiftUI
 
-// MARK: - Mock Reading Plan Card
-// Displays current reading plan progress with shimmer effect
+// MARK: - Reading Plan Card
+// Displays current reading plan progress with flat styling
+// Stoic-Existential Renaissance design
 
 struct ReadingPlanCard: View {
     let plan: MockReadingPlan
-    var showPreviewQuote: Bool = false
-
-    @State private var shimmerOffset: CGFloat = -200
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Header row
             HStack {
                 Text(plan.title)
-                    .font(SanctuaryTypography.Dashboard.cardTitle)
-                    .foregroundStyle(Color.moonlitParchment)
+                    .font(Typography.Scripture.heading)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                 Spacer()
 
                 Text("Day \(plan.currentDay)")
-                    .font(SanctuaryTypography.Dashboard.progressText)
-                    .foregroundStyle(Color.fadedMoonlight)
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
             }
 
             // Reference
             Text(plan.todayReference)
-                .font(SanctuaryTypography.Dashboard.cardBody)
-                .foregroundStyle(Color.fadedMoonlight)
+                .font(Typography.Command.body)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
 
-            // Preview quote (for narrative style)
-            if showPreviewQuote {
-                Text("\"\(plan.previewQuote)\"")
-                    .font(.system(size: 14, weight: .regular, design: .serif).italic())
-                    .foregroundStyle(Color.fadedMoonlight.opacity(0.8))
-                    .padding(.top, AppTheme.Spacing.xs)
-            }
-
-            // Progress bar with shimmer
+            // Progress bar (flat, no shimmer)
             ZStack(alignment: .leading) {
                 // Track
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.chapelShadow)
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
+                    .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
                     .frame(height: 8)
 
                 // Fill
                 GeometryReader { geo in
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.divineGold)
+                    RoundedRectangle(cornerRadius: Theme.Radius.xs)
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                         .frame(width: geo.size.width * plan.progress)
-
-                    // Shimmer overlay
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.clear,
-                                    Color.white.opacity(0.3),
-                                    Color.clear
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: 60)
-                        .offset(x: shimmerOffset)
-                        .mask(
-                            RoundedRectangle(cornerRadius: 4)
-                                .frame(width: geo.size.width * plan.progress)
-                        )
                 }
                 .frame(height: 8)
             }
@@ -76,50 +47,47 @@ struct ReadingPlanCard: View {
             // Progress text row
             HStack {
                 Text("\(plan.progressPercentage)%")
-                    .font(SanctuaryTypography.Dashboard.progressText)
-                    .foregroundStyle(Color.divineGold)
+                    .font(Typography.Command.meta)
+                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
                 Spacer()
 
-                HStack(spacing: 4) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Text("Continue")
-                        .font(SanctuaryTypography.Dashboard.button)
-                        .foregroundStyle(Color.divineGold)
+                        .font(Typography.Command.cta)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.divineGold)
+                        .font(Typography.Icon.xs)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
         }
-        .padding(AppTheme.Spacing.lg)
-        .glassCard()
-        .onAppear {
-            withAnimation(
-                .easeInOut(duration: 1.5)
-                .repeatForever(autoreverses: false)
-                .delay(0.5)
-            ) {
-                shimmerOffset = 400
-            }
-        }
+        .padding(Theme.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(
+                    Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                    lineWidth: Theme.Stroke.hairline
+                )
+        )
     }
 }
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Reading Plan Card") {
+    @Previewable @Environment(\.colorScheme) var colorScheme
+    let themeMode = ThemeMode.current(from: colorScheme)
+
     ZStack {
-        Color.candlelitStone.ignoresSafeArea()
+        Colors.Surface.background(for: themeMode).ignoresSafeArea()
 
-        VStack(spacing: 20) {
-            ReadingPlanCard(plan: HomeShowcaseMockData.activePlan)
-
-            ReadingPlanCard(
-                plan: HomeShowcaseMockData.activePlan,
-                showPreviewQuote: true
-            )
-        }
-        .padding()
+        ReadingPlanCard(plan: SanctuaryMockData.activePlan)
+            .padding()
     }
 }

@@ -2,15 +2,16 @@ import SwiftUI
 import UIKit
 
 // MARK: - Prayers From the Deep
-// AI crafts prayers in sacred traditions - Balanced variation
-// Full-screen immersive phases with breathing animations
+// Contemplative Manuscript design - illuminated manuscript aesthetic
+// AI-crafted prayers using intention-based categories
 
 struct PrayersFromDeepView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.scenePhase) private var scenePhase
     @State private var flowState = PrayerFlowState()
-    @State private var isVisible = false
-    @State private var breathePhase: CGFloat = 0
+    @State private var illuminationPhase: CGFloat = 0
     @State private var isSaving = false
+    @FocusState private var isTextFieldFocused: Bool
 
     private let prayerService = PrayerService.shared
 
@@ -18,50 +19,48 @@ struct PrayersFromDeepView: View {
 
     var body: some View {
         ZStack {
-            // Animated background
-            AnimatedDeepPrayerBackground(breathingDuration: 4.0)
-                .ignoresSafeArea()
+            // Parchment Background
+            backgroundLayer
 
-            // Content based on phase
-            Group {
-                switch flowState.phase {
-                case .input:
-                    inputPhase
-                case .generating:
-                    generatingPhase
-                case .displaying:
-                    displayPhase
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    switch flowState.phase {
+                    case .input:
+                        PrayerInputPhase(
+                            flowState: flowState,
+                            isTextFieldFocused: $isTextFieldFocused,
+                            illuminationPhase: illuminationPhase,
+                            onCreatePrayer: createPrayer
+                        )
+                    case .generating:
+                        PrayerGeneratingPhase(
+                            selectedCategory: flowState.selectedCategory,
+                            illuminationPhase: illuminationPhase,
+                            reduceMotion: reduceMotion
+                        )
+                    case .displaying:
+                        if let prayer = flowState.generatedPrayer {
+                            PrayerDisplayPhase(
+                                prayer: prayer,
+                                selectedCategory: flowState.selectedCategory,
+                                onCopy: { copyPrayer(prayer) },
+                                onShare: { sharePrayer(prayer) },
+                                onSave: { savePrayer(prayer) },
+                                onNewPrayer: resetPrayer
+                            )
+                        }
+                    }
                 }
             }
-            .transition(.asymmetric(
-                insertion: .opacity.combined(with: .scale(scale: 0.98)).animation(.easeOut(duration: 0.6)),
-                removal: .opacity.animation(.easeIn(duration: 0.3))
-            ))
+            .scrollClipDisabled()
+            .scrollDismissesKeyboard(.interactively)
 
             // Toast overlay
             if flowState.showToast {
-                VStack {
-                    Spacer()
-
-                    Text(flowState.toastMessage)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(DeepPrayerColors.primaryText)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(
-                            Capsule()
-                                .fill(DeepPrayerColors.surfaceElevated)
-                                .overlay(
-                                    Capsule()
-                                        .stroke(DeepPrayerColors.roseBorder, lineWidth: 1)
-                                )
-                        )
-                        .padding(.bottom, 100)
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                toastOverlay
             }
 
-            // Error overlay (non-crisis errors)
+            // Error overlay
             if flowState.hasError, let error = flowState.error {
                 errorOverlay(for: error)
                     .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -69,84 +68,181 @@ struct PrayersFromDeepView: View {
         }
         .navigationTitle("Prayers from the Deep")
         .navigationBarTitleDisplayMode(.inline)
-        // Crisis modal sheet (self-harm detected)
         .sheet(isPresented: $flowState.showCrisisModal) {
-            CrisisHelpModal(
-                onDismiss: { flowState.dismissCrisisModal() }
-            )
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
+            CrisisHelpModal(onDismiss: { flowState.dismissCrisisModal() })
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
         }
         .onAppear {
             appState.hideTabBar = true
-            withAnimation(.easeOut(duration: 0.6)) {
-                isVisible = true
-            }
-            startBreathingAnimation()
+            startIlluminationAnimation()
         }
         .onDisappear {
             appState.hideTabBar = false
             flowState.reset()
         }
-    }
-
-    // MARK: - Input Phase
-
-    private var inputPhase: some View {
-        BalancedInputPhase(
-            text: $flowState.inputText,
-            selectedTradition: $flowState.selectedTradition,
-            canGenerate: flowState.canGenerate,
-            onGenerate: {
-                withAnimation(.easeInOut(duration: 0.6)) {
-                    flowState.startGeneration(duration: 3.0)
-                }
+        .onChange(of: scenePhase) { _, newPhase in
+            // Cancel ongoing generation when app backgrounds (saves battery/data)
+            if newPhase == .background && flowState.phase == .generating {
+                flowState.cancelAllTasks()
             }
-        )
+        }
+        .withPaywall()  // Show paywall when prayer quota limit is reached
     }
 
-    // MARK: - Generating Phase
+    // MARK: - Background Layer
 
-    private var generatingPhase: some View {
-        BalancedGeneratingPhase(
-            tradition: flowState.selectedTradition,
-            breathePhase: breathePhase
-        )
+    private var backgroundLayer: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.surfaceParchment
+
+                // Vignette effect
+                RadialGradient(
+                    colors: [Color.clear, Color.black.opacity(Theme.Opacity.disabled)],
+                    center: .center,
+                    startRadius: geometry.size.width * 0.3,
+                    endRadius: geometry.size.width * 0.8
+                )
+
+                // Subtle texture overlay
+                Canvas { context, size in
+                    for _ in 0..<50 {
+                        let x = CGFloat.random(in: 0...size.width)
+                        let y = CGFloat.random(in: 0...size.height)
+                        let path = Circle().path(in: CGRect(x: x, y: y, width: 1, height: 1))
+                        context.fill(path, with: .color(Color.accentBronze.opacity(0.08)))
+                    }
+                }
+
+                // Animated gold shimmer at edges
+                LinearGradient(
+                    colors: [
+                        Color.accentBronze.opacity(0.20 + illuminationPhase * 0.35),
+                        Color.clear,
+                        Color.clear,
+                        Color.accentBronze.opacity(0.20 + illuminationPhase * 0.35)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            }
+        }
+        .ignoresSafeArea()
     }
 
-    // MARK: - Display Phase
+    // MARK: - Toast Overlay
 
-    @ViewBuilder
-    private var displayPhase: some View {
-        if let prayer = flowState.generatedPrayer {
-            BalancedDisplayPhase(
-                prayer: prayer,
-                tradition: flowState.selectedTradition,
-                onSave: { savePrayer(prayer) },
-                onShare: { sharePrayer(prayer) },
-                onNew: {
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        flowState.reset()
+    private var toastOverlay: some View {
+        VStack {
+            Spacer()
+
+            Text(flowState.toastMessage)
+                .font(Typography.Command.caption.weight(.medium))
+                .foregroundColor(Color.textPrimary)
+                .padding(.horizontal, Theme.Spacing.xl)
+                .padding(.vertical, Theme.Spacing.md)
+                .background(
+                    Capsule()
+                        .fill(Color.surfaceRaised)
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                        )
+                )
+                // swiftlint:disable:next hardcoded_padding_edge
+                .padding(.bottom, 100)  // Safe area offset for toast
+        }
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .accessibilityLabel(flowState.toastMessage)
+    }
+
+    // MARK: - Error Overlay
+
+    private func errorOverlay(for error: PrayerGenerationError) -> some View {
+        ZStack {
+            Color.black.opacity(Theme.Opacity.strong)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    HapticService.shared.warning()
+                    withAnimation(Theme.Animation.settle) {
+                        flowState.clearError()
                     }
                 }
-            )
-        } else {
-            // Fallback - should not happen in normal flow
-            BalancedDisplayPhase(
-                prayer: MockPrayer.psalmicLament,
-                tradition: flowState.selectedTradition,
-                onSave: { },
-                onShare: { },
-                onNew: {
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        flowState.reset()
+
+            VStack(spacing: Theme.Spacing.xl) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(Typography.Icon.xxl.weight(.regular))
+                    .foregroundStyle(Color.accentBronze)
+
+                Text(error.localizedDescription)
+                    .font(Typography.Command.body)
+                    .foregroundColor(Color.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Theme.Spacing.lg)
+
+                Button(action: {
+                    HapticService.shared.warning()
+                    withAnimation(Theme.Animation.settle) {
+                        flowState.clearError()
                     }
+                }) {
+                    Text("Try Again")
+                        .font(Typography.Command.subheadline.weight(.semibold))
+                        .foregroundColor(Color.surfaceParchment)
+                        .padding(.horizontal, Theme.Spacing.xxl)
+                        .padding(.vertical, Theme.Spacing.md)
+                        .background(
+                            Capsule()
+                                .fill(Color.accentBronze)
+                        )
                 }
+                .accessibilityLabel("Try Again")
+                .accessibilityHint("Double tap to dismiss error and try again")
+            }
+            .padding(Theme.Spacing.xxl)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color.surfaceRaised)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.Radius.card)
+                            .stroke(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
+                    )
             )
+            .padding(.horizontal, Theme.Spacing.xxl)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Error: \(error.localizedDescription)")
         }
     }
 
-    // MARK: - Save Prayer
+    // MARK: - Actions
+
+    private func startIlluminationAnimation() {
+        guard !reduceMotion else { return }
+        withAnimation(Theme.Animation.slowFade) {
+            illuminationPhase = 1
+        }
+    }
+
+    private func createPrayer() {
+        withAnimation(Theme.Animation.slowFade) {
+            flowState.startCategoryGeneration(duration: 3.0)
+        }
+        HapticService.shared.success()
+    }
+
+    private func resetPrayer() {
+        withAnimation(Theme.Animation.slowFade) {
+            flowState.reset()
+        }
+    }
+
+    private func copyPrayer(_ prayer: Prayer) {
+        let text = "\(prayer.content)\n\n\(prayer.amen)"
+        UIPasteboard.general.string = text
+        HapticService.shared.softTap()
+        flowState.showActionToast("Prayer copied")
+    }
 
     private func savePrayer(_ prayer: Prayer) {
         guard !isSaving else { return }
@@ -155,23 +251,24 @@ struct PrayersFromDeepView: View {
         Task {
             do {
                 try await prayerService.savePrayer(prayer)
+                HapticService.shared.success()
                 flowState.showActionToast("Prayer saved")
             } catch {
+                HapticService.shared.warning()
                 flowState.showActionToast("Could not save prayer")
             }
             isSaving = false
         }
     }
 
-    // MARK: - Share Prayer
-
     private func sharePrayer(_ prayer: Prayer) {
+        let categoryName = flowState.selectedCategory.rawValue.lowercased()
         let shareText = """
         \(prayer.content)
 
         \(prayer.amen)
 
-        — A prayer in the \(prayer.tradition.displayName) tradition
+        — A prayer for \(categoryName)
         """
 
         let activityVC = UIActivityViewController(
@@ -184,73 +281,8 @@ struct PrayersFromDeepView: View {
             rootVC.present(activityVC, animated: true)
         }
 
+        HapticService.shared.softTap()
         flowState.showActionToast("Sharing prayer")
-    }
-
-    // MARK: - Error Overlay
-
-    private func errorOverlay(for error: PrayerGenerationError) -> some View {
-        ZStack {
-            // Dimmed background
-            Color.black.opacity(0.6)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        flowState.clearError()
-                    }
-                }
-
-            // Error card
-            VStack(spacing: 20) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(DeepPrayerColors.roseAccent)
-
-                Text(error.localizedDescription)
-                    .font(.system(size: 16))
-                    .foregroundStyle(DeepPrayerColors.primaryText)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 16)
-
-                Button(action: {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        flowState.clearError()
-                    }
-                }) {
-                    Text("Try Again")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 12)
-                        .background(
-                            Capsule()
-                                .fill(DeepPrayerColors.roseAccent)
-                        )
-                }
-            }
-            .padding(32)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(DeepPrayerColors.surfaceElevated)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(DeepPrayerColors.roseBorder, lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal, 32)
-        }
-    }
-
-    // MARK: - Breathing Animation
-
-    private func startBreathingAnimation() {
-        guard !reduceMotion else { return }
-        withAnimation(
-            .easeInOut(duration: 4)
-            .repeatForever(autoreverses: true)
-        ) {
-            breathePhase = 1
-        }
     }
 }
 
@@ -258,4 +290,5 @@ struct PrayersFromDeepView: View {
 
 #Preview("Prayers From the Deep") {
     PrayersFromDeepView()
+        .environment(AppState())
 }

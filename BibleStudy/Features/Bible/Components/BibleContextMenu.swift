@@ -27,6 +27,7 @@ struct BibleContextMenu: View {
 
     // MARK: - Animation State
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isAppearing = false
     @State private var measuredHeight: CGFloat?
     @State private var keyboardObserver = KeyboardHeightObserver()
@@ -67,7 +68,7 @@ struct BibleContextMenu: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .onAppear {
-            withAnimation(AppTheme.Animation.menuAppear) {
+            withAnimation(Theme.Animation.fade) {
                 isAppearing = true
             }
         }
@@ -89,9 +90,10 @@ struct BibleContextMenu: View {
             highlightRow
         }
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous))
         .overlay(cardBorder)
-        .shadow(color: AppTheme.Shadow.menuColor, radius: 16, x: 0, y: 6)
+        // swiftlint:disable:next hardcoded_shadow_params
+        .shadow(color: Color.black.opacity(0.12), radius: 16, x: 0, y: 6)
         .frame(width: menuWidth)
         .opacity(isAppearing ? 1 : 0)
         .scaleEffect(isAppearing ? 1 : 0.92)
@@ -101,21 +103,21 @@ struct BibleContextMenu: View {
     // MARK: - Card Background & Border
 
     private var cardBackground: some View {
-        AppTheme.Menu.background
+        Theme.Menu.background
     }
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.menu, style: .continuous)
+        RoundedRectangle(cornerRadius: Theme.Radius.md, style: .continuous)
             .stroke(
                 LinearGradient(
                     colors: [
-                        Color.scholarIndigo.opacity(0.25),
-                        Color.scholarIndigo.opacity(0.1)
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium + 0.05),
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 ),
-                lineWidth: 1
+                lineWidth: Theme.Stroke.hairline
             )
     }
 
@@ -123,15 +125,15 @@ struct BibleContextMenu: View {
 
     private var scholarDivider: some View {
         Rectangle()
-            .fill(AppTheme.Menu.divider)
-            .frame(height: 1)
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .fill(Color.gray.opacity(Theme.Opacity.light))
+            .frame(height: Theme.Stroke.hairline)
+            .padding(.horizontal, Theme.Spacing.md)
     }
 
     // MARK: - Action Row
 
     private var actionRow: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             BibleActionButton(
                 icon: "doc.on.doc",
                 label: "Copy"
@@ -158,7 +160,7 @@ struct BibleContextMenu: View {
 
             // Vertical separator
             Rectangle()
-                .fill(AppTheme.Menu.divider)
+                .fill(Color.gray.opacity(Theme.Opacity.light))
                 .frame(width: 1, height: 32)
 
             // Study button with indigo accent
@@ -167,14 +169,14 @@ struct BibleContextMenu: View {
                 onStudy()
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 
     // MARK: - Highlight Row
 
     private var highlightRow: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             ForEach(HighlightColor.allCases, id: \.self) { color in
                 BibleColorDot(
                     color: color,
@@ -194,15 +196,15 @@ struct BibleContextMenu: View {
                     onRemoveHighlight()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 18, weight: .medium))
+                        .font(Typography.Icon.lg)
                         .foregroundStyle(Color.tertiaryText)
                 }
                 .buttonStyle(PlainButtonStyle())
                 .transition(.opacity.combined(with: .scale))
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.sm + 2)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.sm + 2)
     }
 
     // MARK: - Measurement
@@ -226,13 +228,13 @@ private struct BibleActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xs - 2) {
+            VStack(spacing: Theme.Spacing.xs - 2) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(Color.primaryText.opacity(0.7))
+                    .font(Typography.Icon.md.weight(.medium))
+                    .foregroundStyle(Color.primaryText.opacity(Theme.Opacity.overlay))
 
                 Text(label)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(Typography.Icon.xxs.weight(.medium))
                     .foregroundStyle(Color.tertiaryText)
             }
             .frame(width: 48, height: 44)
@@ -240,7 +242,7 @@ private struct BibleActionButton: View {
         .buttonStyle(PlainButtonStyle())
         .scaleEffect(isPressed ? 0.94 : 1)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+            withAnimation(Theme.Animation.settle) {
                 isPressed = pressing
             }
         }, perform: {})
@@ -252,29 +254,30 @@ private struct BibleActionButton: View {
 private struct BibleStudyButton: View {
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "sparkle")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(Typography.Icon.sm.weight(.semibold))
 
                 Text("Study")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(Typography.Command.caption.weight(.semibold))
             }
-            .foregroundStyle(Color.scholarIndigo)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(Color.scholarIndigo.opacity(0.1))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
             )
         }
         .buttonStyle(PlainButtonStyle())
         .scaleEffect(isPressed ? 0.94 : 1)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+            withAnimation(Theme.Animation.settle) {
                 isPressed = pressing
             }
         }, perform: {})
@@ -288,6 +291,8 @@ private struct BibleColorDot: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
             Circle()
@@ -296,15 +301,15 @@ private struct BibleColorDot: View {
                 .overlay(
                     Circle()
                         .stroke(
-                            isSelected ? Color.scholarIndigo : Color.clear,
-                            lineWidth: 2
+                            isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.clear,
+                            lineWidth: Theme.Stroke.control
                         )
                         .padding(-3)
                 )
                 .overlay(
                     isSelected ?
                     Image(systemName: "checkmark")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(Typography.Icon.xxs.weight(.bold))
                         .foregroundStyle(.white)
                     : nil
                 )
@@ -318,6 +323,7 @@ private struct BibleColorDot: View {
 // MARK: - Preview
 
 #Preview("Bible Context Menu") {
+    @Previewable @Environment(\.colorScheme) var colorScheme
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
@@ -325,7 +331,8 @@ private struct BibleColorDot: View {
             Text("10  For we are his workmanship, created in Christ Jesus unto good works.")
                 .readingVerse(size: .medium, font: .newYork)
                 .padding()
-                .background(Color.scholarIndigo.opacity(0.08))
+                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                // swiftlint:disable:next hardcoded_padding_edge
                 .padding(.top, 180)
 
             Spacer()
@@ -349,6 +356,7 @@ private struct BibleColorDot: View {
 }
 
 #Preview("Bible Context Menu - With Highlight") {
+    @Previewable @Environment(\.colorScheme) var colorScheme
     ZStack {
         Color.appBackground.ignoresSafeArea()
 

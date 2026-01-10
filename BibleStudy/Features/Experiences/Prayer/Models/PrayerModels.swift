@@ -10,8 +10,68 @@ protocol PrayerDisplayable {
     var words: [String] { get }
 }
 
+// MARK: - Prayer Category (Intention-based)
+// The six prayer categories representing user intentions
+
+enum PrayerCategory: String, CaseIterable, Identifiable {
+    case gratitude = "Gratitude"
+    case guidance = "Guidance"
+    case healing = "Healing"
+    case peace = "Peace"
+    case strength = "Strength"
+    case wisdom = "Wisdom"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .gratitude: return "heart.fill"
+        case .guidance: return "star.fill"
+        case .healing: return "leaf.fill"
+        case .peace: return "wind"
+        case .strength: return "flame.fill"
+        case .wisdom: return "lightbulb.fill"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .gratitude:
+            return "Express thankfulness for blessings and grace"
+        case .guidance:
+            return "Seek direction for decisions and life's path"
+        case .healing:
+            return "Ask for restoration of body, mind, or spirit"
+        case .peace:
+            return "Find calm in the midst of anxiety or turmoil"
+        case .strength:
+            return "Draw courage and endurance for challenges"
+        case .wisdom:
+            return "Gain understanding and discernment"
+        }
+    }
+
+    /// Prompt hint for AI generation
+    var promptHint: String {
+        switch self {
+        case .gratitude:
+            return "thanksgiving, praise, blessings, appreciation"
+        case .guidance:
+            return "direction, discernment, decisions, God's will"
+        case .healing:
+            return "restoration, comfort, wholeness, recovery"
+        case .peace:
+            return "calm, serenity, stillness, trust amidst storms"
+        case .strength:
+            return "courage, endurance, perseverance, empowerment"
+        case .wisdom:
+            return "understanding, insight, knowledge, discernment"
+        }
+    }
+}
+
 // MARK: - Prayer Tradition
-// The four prayer traditions available for AI-crafted prayers
+// The four prayer traditions available for AI-crafted prayers (kept for backward compatibility)
 
 enum PrayerTradition: String, CaseIterable, Identifiable {
     case psalmicLament = "Psalmic Lament"
@@ -60,11 +120,13 @@ enum PrayerTradition: String, CaseIterable, Identifiable {
 struct Prayer: Identifiable, PrayerDisplayable {
     let id: UUID
     let tradition: PrayerTradition
+    let category: PrayerCategory?  // New: intention-based category
     let content: String
     let amen: String
     let userContext: String   // What the user shared
     let createdAt: Date
 
+    /// Initialize with tradition (legacy)
     init(
         id: UUID = UUID(),
         tradition: PrayerTradition,
@@ -75,6 +137,25 @@ struct Prayer: Identifiable, PrayerDisplayable {
     ) {
         self.id = id
         self.tradition = tradition
+        self.category = nil
+        self.content = content
+        self.amen = amen
+        self.userContext = userContext
+        self.createdAt = createdAt
+    }
+
+    /// Initialize with category (new intention-based)
+    init(
+        id: UUID = UUID(),
+        category: PrayerCategory,
+        content: String,
+        amen: String,
+        userContext: String,
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.tradition = .psalmicLament  // Default tradition for compatibility
+        self.category = category
         self.content = content
         self.amen = amen
         self.userContext = userContext

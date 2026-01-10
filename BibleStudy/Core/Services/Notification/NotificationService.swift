@@ -363,36 +363,36 @@ struct NotificationPermissionView: View {
     let onComplete: () -> Void
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             Spacer()
 
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.lightMedium))
+                    .fill(Color.accentIndigo.opacity(Theme.Opacity.lightMedium))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "bell.badge.fill")
                     // swiftlint:disable:next hardcoded_font_system
-                    .font(.system(size: AppTheme.IconSize.xxl))
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Icon.hero)
+                    .foregroundStyle(Color.accentIndigo)
             }
 
             // Title
             Text("Stay on Track")
-                .font(Typography.UI.title2)
+                .font(Typography.Command.title2)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.primaryText)
 
             // Description
             Text("Get gentle reminders to help you build a consistent Bible reading habit.")
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, AppTheme.Spacing.xl)
+                .padding(.horizontal, Theme.Spacing.xl)
 
             // Features
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 NotificationFeatureRow(
                     icon: "sun.max.fill",
                     text: "Daily reading reminders"
@@ -406,30 +406,30 @@ struct NotificationPermissionView: View {
                     text: "Achievement celebrations"
                 )
             }
-            .padding(.horizontal, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xl)
 
             Spacer()
 
             // Buttons
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 Button(action: enableNotifications) {
                     Text("Enable Notifications")
-                        .font(Typography.UI.buttonLabel)
+                        .font(Typography.Command.cta)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppTheme.Spacing.md)
-                        .background(Color.scholarAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+                        .padding(.vertical, Theme.Spacing.md)
+                        .background(Color.accentIndigo)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 }
 
                 Button("Maybe Later") {
                     onComplete()
                 }
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.bottom, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.bottom, Theme.Spacing.xl)
         }
         .background(Color.appBackground)
     }
@@ -447,14 +447,14 @@ private struct NotificationFeatureRow: View {
     let text: String
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
-                .font(Typography.UI.body)
-                .foregroundStyle(Color.scholarAccent)
-                .frame(width: AppTheme.IconContainer.small)
+                .font(Typography.Command.body)
+                .foregroundStyle(Color.accentIndigo)
+                .frame(width: 24)
 
             Text(text)
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.primaryText)
         }
     }
@@ -495,7 +495,7 @@ struct NotificationSettingsView: View {
                             Label("Enable Notifications", systemImage: "bell.badge")
                             Spacer()
                             Image(systemName: "arrow.up.forward")
-                                .font(Typography.UI.caption1)
+                                .font(Typography.Command.caption)
                                 .foregroundStyle(Color.tertiaryText)
                         }
                     }

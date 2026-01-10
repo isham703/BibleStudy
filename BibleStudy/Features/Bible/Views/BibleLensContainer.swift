@@ -19,6 +19,7 @@ struct LensContainer: View {
 
     // MARK: - Environment
 
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - State
@@ -51,7 +52,7 @@ struct LensContainer: View {
             // Animated gold line at top
             goldLine
 
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 // Lens pills row
                 LensPillRow(
                     availableLenses: availableLenses,
@@ -63,15 +64,15 @@ struct LensContainer: View {
                 // Content area (if lens selected)
                 if selectedLens != nil && !selectedInsights.isEmpty {
                     Divider()
-                        .background(Color.bibleInsightText.opacity(0.1))
+                        .background(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
 
                     insightContent
                         .opacity(contentOpacity)
                 }
             }
-            .padding(16)
+            .padding(Theme.Spacing.lg)
             .background(containerBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(containerBorder)
         }
         .opacity(containerOpacity)
@@ -91,18 +92,18 @@ struct LensContainer: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.divineGold.opacity(0.3),
-                            Color.divineGold,
-                            Color.divineGold.opacity(0.3)
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .frame(width: geo.size.width * goldLineProgress, height: 1)
+                .frame(width: geo.size.width * goldLineProgress, height: Theme.Stroke.hairline)
         }
-        .frame(height: 1)
-        .padding(.horizontal, 16)
+        .frame(height: Theme.Stroke.hairline)
+        .padding(.horizontal, Theme.Spacing.lg)
     }
 
     // MARK: - Container Background
@@ -110,12 +111,13 @@ struct LensContainer: View {
     private var containerBackground: some View {
         ZStack {
             // Base parchment color
-            Color.bibleInsightCardBackground
+            Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
 
             // Subtle inner glow from top-left (like light on manuscript)
+            // swiftlint:disable:next hardcoded_opacity
             RadialGradient(
                 colors: [
-                    Color.divineGold.opacity(0.03),
+                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
                     Color.clear
                 ],
                 center: .topLeading,
@@ -123,12 +125,13 @@ struct LensContainer: View {
                 endRadius: 200
             )
 
-            // Paper grain texture simulation
+            // Paper grain texture simulation - very subtle decorative values
+            // swiftlint:disable:next hardcoded_opacity
             LinearGradient(
                 colors: [
-                    Color.bibleInsightText.opacity(0.008),
+                    Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
                     Color.clear,
-                    Color.bibleInsightText.opacity(0.01)
+                    Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -139,14 +142,14 @@ struct LensContainer: View {
     // MARK: - Container Border
 
     private var containerBorder: some View {
-        RoundedRectangle(cornerRadius: 12)
-            .stroke(Color.bibleInsightText.opacity(0.08), lineWidth: 0.5)
+        RoundedRectangle(cornerRadius: Theme.Radius.button)
+            .stroke(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint), lineWidth: Theme.Stroke.hairline)
     }
 
     // MARK: - Insight Content
 
     private var insightContent: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             ForEach(selectedInsights) { insight in
                 InsightContentCard(insight: insight)
             }
@@ -164,16 +167,16 @@ struct LensContainer: View {
         }
 
         // Staggered entrance
-        withAnimation(.timingCurve(0.4, 0.0, 0.2, 1.0, duration: 0.3).delay(0.1)) {
+        withAnimation(Theme.Animation.settle.delay(0.1)) {
             goldLineProgress = 1
         }
 
-        withAnimation(AppTheme.Animation.cardUnfurl.delay(0.15)) {
+        withAnimation(Theme.Animation.settle.delay(0.15)) {
             containerOpacity = 1
         }
 
         if selectedLens != nil {
-            withAnimation(AppTheme.Animation.unfurl.delay(0.3)) {
+            withAnimation(Theme.Animation.settle.delay(0.3)) {
                 contentOpacity = 1
             }
         }
@@ -185,7 +188,7 @@ struct LensContainer: View {
             return
         }
 
-        withAnimation(AppTheme.Animation.unfurl) {
+        withAnimation(Theme.Animation.settle) {
             contentOpacity = selectedLens != nil ? 1 : 0
         }
     }
@@ -210,10 +213,10 @@ struct LensPillRow: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.sm) {
-                ForEach(Array(availableLenses.indices), id: \.self) { index in
+            HStack(spacing: Theme.Spacing.sm) {
+                ForEach(availableLenses.indices, id: \.self) { (index: Int) in
                     let lens = availableLenses[index]
-                    let count = insights.filter { $0.insightType == lens }.count
+                    let count = insights.filter { (insight: BibleInsight) in insight.insightType == lens }.count
                     let hasAppeared = pillsAppeared.contains(lens)
 
                     LensPill(
@@ -226,13 +229,14 @@ struct LensPillRow: View {
                         }
                     )
                     .opacity(hasAppeared ? 1 : 0)
+                    // swiftlint:disable:next hardcoded_offset
                     .offset(x: hasAppeared ? 0 : -8)
                     .onAppear {
                         if reduceMotion {
                             pillsAppeared.insert(lens)
                         } else {
-                            let animation = AppTheme.Animation.stagger(index: index, delay: 0.05).delay(0.2)
-                            withAnimation(animation) {
+                            let animation = Theme.Animation.stagger(index: index, step: 0.05).delay(0.2)
+                            _ = withAnimation(animation) {
                                 pillsAppeared.insert(lens)
                             }
                         }
@@ -257,24 +261,27 @@ struct LensPill: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: isSelected ? 4 : 0) {
+            // swiftlint:disable:next hardcoded_stack_spacing
+            HStack(spacing: isSelected ? 4 : 0) {  // Conditional spacing for lens button
                 // Lens icon (always visible)
                 Image(systemName: lens.icon)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Typography.Icon.xs.weight(.medium))
 
                 // Lens name (only when selected - reduces visual weight)
                 if isSelected {
                     Text(lens.label)
-                        .font(.custom("CormorantGaramond-SemiBold", size: 12))
+                        // swiftlint:disable:next hardcoded_font_custom
+                        .font(.system(size: 12, weight: .semibold, design: .serif))
                         .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 }
             }
-            .foregroundStyle(isSelected ? .white : lens.color.opacity(0.8))
-            .padding(.horizontal, isSelected ? 10 : 8)
-            .padding(.vertical, 6)
+            .foregroundStyle(isSelected ? .white : lens.color.opacity(Theme.Opacity.pressed))
+            .padding(.horizontal, isSelected ? Theme.Spacing.sm + 2 : Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs + 2)
             .background(pillBackground)
             .clipShape(Capsule())
             .overlay(pillBorder)
+            // swiftlint:disable:next hardcoded_scale_effect
             .scaleEffect(isPressed ? 0.97 : 1.0)
         }
         .buttonStyle(.plain)
@@ -282,7 +289,7 @@ struct LensPill: View {
             if reduceMotion {
                 isPressed = pressing
             } else {
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     isPressed = pressing
                 }
             }
@@ -297,7 +304,7 @@ struct LensPill: View {
             if isSelected {
                 lens.color
             } else {
-                lens.color.opacity(0.08)
+                lens.color.opacity(Theme.Opacity.faint)
             }
         }
     }
@@ -305,8 +312,8 @@ struct LensPill: View {
     private var pillBorder: some View {
         Capsule()
             .stroke(
-                isSelected ? Color.clear : lens.color.opacity(0.25),
-                lineWidth: 0.5
+                isSelected ? Color.clear : lens.color.opacity(Theme.Opacity.lightMedium + 0.05),
+                lineWidth: Theme.Stroke.hairline
             )
     }
 }
@@ -317,6 +324,7 @@ struct LensPill: View {
 struct InsightContentCard: View {
     let insight: BibleInsight
 
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showSources = false
     @State private var isExpanded = false
@@ -330,19 +338,23 @@ struct InsightContentCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Title
             Text(insight.title)
-                .font(.custom("Cinzel-Regular", size: 14))
-                .foregroundStyle(Color.bibleInsightText)
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 14, weight: .medium, design: .serif))
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                // swiftlint:disable:next hardcoded_tracking
                 .tracking(0.3)
 
             // Content (height-capped in Reading Mode)
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text(insight.content)
-                    .font(.custom("CormorantGaramond-Regular", size: 15))
+                    // swiftlint:disable:next hardcoded_font_custom
+                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(6)
-                    .foregroundStyle(Color.bibleInsightText.opacity(0.85))
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.high))
                     .lineLimit(isExpanded ? nil : collapsedLineLimit)
 
                 // "Read more" if truncated
@@ -351,14 +363,14 @@ struct InsightContentCard: View {
                         if reduceMotion {
                             isExpanded = true
                         } else {
-                            withAnimation(AppTheme.Animation.chipExpand) {
+                            withAnimation(Theme.Animation.settle) {
                                 isExpanded = true
                             }
                         }
                     } label: {
                         Text("Read more")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Color.scholarAccent)
+                            .font(Typography.Command.caption.weight(.medium))
+                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
                     .buttonStyle(.plain)
                 }
@@ -377,75 +389,75 @@ struct InsightContentCard: View {
     }
 
     private var interpretiveBadge: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: "info.circle")
-                .font(.system(size: 10))
+                .font(Typography.Icon.xxs)
 
             Text("Interpretive")
-                .font(.system(size: 9, weight: .medium))
+                .font(Typography.Command.meta.weight(.medium))
         }
         .foregroundStyle(Color.info)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Color.info.opacity(0.12))
+                .fill(Color.info.opacity(Theme.Opacity.subtle + 0.02))
         )
     }
 
     private var sourcesSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Button {
                 if reduceMotion {
                     showSources.toggle()
                 } else {
-                    withAnimation(AppTheme.Animation.chipExpand) {
+                    withAnimation(Theme.Animation.settle) {
                         showSources.toggle()
                     }
                 }
             } label: {
-                HStack(spacing: 6) {
+                HStack(spacing: Theme.Spacing.xs + 2) {
                     Image(systemName: showSources ? "chevron.down" : "chevron.right")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(Typography.Icon.xxs.weight(.semibold))
 
                     Text("Sources (\(insight.sources.count))")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(Typography.Icon.xs.weight(.medium))
 
                     Spacer()
                 }
-                .foregroundStyle(Color.scholarAccent)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
             if showSources {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs + 2) {
                     ForEach(insight.sources, id: \.reference) { source in
                         sourceRow(source)
                     }
                 }
-                .padding(.leading, 16)
+                .padding(.leading, Theme.Spacing.lg)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .padding(.top, 4)
+        .padding(.top, 2)
     }
 
     private func sourceRow(_ source: InsightSource) -> some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             sourceIcon(for: source.type)
-                .font(.system(size: 10))
+                .font(Typography.Icon.xxs)
                 .foregroundStyle(sourceColor(for: source.type))
                 .frame(width: 14)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(source.reference)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Typography.Icon.xs.weight(.medium))
                     .foregroundStyle(Color.primaryText)
 
                 if let description = source.description {
                     Text(description)
-                        .font(.system(size: 10))
+                        .font(Typography.Icon.xxs)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -528,15 +540,16 @@ struct InsightContentCard: View {
         }
 
         var body: some View {
-            VStack(spacing: 20) {
+            VStack(spacing: Theme.Spacing.xl) {
                 Text("Lens Container Preview")
+                    // swiftlint:disable:next hardcoded_swiftui_text_style
                     .font(.headline)
 
                 LensContainer(
                     insights: sampleInsights,
                     selectedLens: selectedLens,
                     onSelectLens: { lens in
-                        withAnimation(AppTheme.Animation.chipExpand) {
+                        withAnimation(Theme.Animation.settle) {
                             if selectedLens == lens {
                                 selectedLens = nil
                             } else {
@@ -546,8 +559,9 @@ struct InsightContentCard: View {
                     }
                 )
             }
-            .padding(28)
-            .background(Color.bibleInsightParchment)
+            // swiftlint:disable:next hardcoded_padding
+            .padding(Theme.Spacing.xxl + 4)
+            .background(Colors.Surface.background(for: .dark))
         }
     }
 
@@ -555,21 +569,21 @@ struct InsightContentCard: View {
 }
 
 #Preview("Lens Pills") {
-    VStack(spacing: 20) {
+    VStack(spacing: Theme.Spacing.xl) {
         // All lenses unselected
-        HStack(spacing: 8) {
+        HStack(spacing: Theme.Spacing.sm) {
             LensPill(lens: .theology, isSelected: false, insightCount: 2, onTap: {})
             LensPill(lens: .question, isSelected: false, insightCount: 1, onTap: {})
             LensPill(lens: .greek, isSelected: false, insightCount: 1, onTap: {})
         }
 
         // One selected
-        HStack(spacing: 8) {
+        HStack(spacing: Theme.Spacing.sm) {
             LensPill(lens: .theology, isSelected: true, insightCount: 2, onTap: {})
             LensPill(lens: .question, isSelected: false, insightCount: 1, onTap: {})
             LensPill(lens: .greek, isSelected: false, insightCount: 1, onTap: {})
         }
     }
     .padding()
-    .background(Color.bibleInsightParchment)
+    .background(Colors.Surface.background(for: .dark))
 }

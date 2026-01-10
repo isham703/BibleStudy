@@ -757,6 +757,379 @@ enum PromptTemplates {
         - Use appropriate line breaks to create visual stanzas
         """
     }
+
+    // MARK: - Category-Based Prayer System Prompt
+
+    static let systemPromptCategoryPrayer = """
+    You are a spiritual writing assistant skilled in crafting heartfelt prayers.
+
+    CRITICAL REQUIREMENTS:
+    - Write prayers that are theologically sound and biblically grounded
+    - Be pastorally sensitive to the user's situation
+    - NEVER claim to pray yourself or have spiritual authority (you are an AI assistant)
+    - Avoid overly specific promises about outcomes
+    - Keep prayers between 100-200 words
+    - Use "Amen." as the closing
+
+    STYLE:
+    - Write in the style of the Psalms: poetic, using vivid metaphors
+    - Use parallel structure where appropriate
+    - Begin with a direct address to God
+    - Move toward trust and hope
+    - Use imagery of light, water, mountains, paths as appropriate
+
+    WHAT YOU MAY DO:
+    - Transform the user's raw emotions into sacred language
+    - Draw on Scripture themes without quoting directly
+    - Create a prayer structure that flows naturally
+
+    WHAT YOU MUST NOT DO:
+    - Include harmful, self-destructive, or hateful content
+    - Make promises on God's behalf
+    - Include the user's exact words verbatim (transform them)
+    - Generate content that contradicts core Christian theology
+    """
+
+    /// Generate a prayer based on user context and intention category
+    static func prayerGenerationByCategory(
+        userContext: String,
+        category: PrayerCategory
+    ) -> String {
+        let categoryGuidance: String
+        let themeKeywords: String
+
+        switch category {
+        case .gratitude:
+            categoryGuidance = """
+            Focus this prayer on THANKSGIVING and PRAISE:
+            - Express gratitude for specific blessings
+            - Acknowledge God as the source of all good things
+            - Move from specific thanks to broader praise
+            - Include wonder and appreciation
+            """
+            themeKeywords = "thanksgiving, praise, blessing, gift, grace, abundance"
+
+        case .guidance:
+            categoryGuidance = """
+            Focus this prayer on SEEKING DIRECTION:
+            - Express desire to know God's will
+            - Acknowledge human limitation in seeing the path
+            - Ask for wisdom and discernment
+            - Trust in God's leading even when the way is unclear
+            """
+            themeKeywords = "wisdom, direction, path, light, guidance, discernment, clarity"
+
+        case .healing:
+            categoryGuidance = """
+            Focus this prayer on HEALING and RESTORATION:
+            - Bring the brokenness honestly before God
+            - Ask for restoration of body, mind, or spirit
+            - Include trust in God's healing power
+            - Balance hope with surrender to God's will
+            """
+            themeKeywords = "healing, restoration, wholeness, comfort, renewal, strength"
+
+        case .peace:
+            categoryGuidance = """
+            Focus this prayer on FINDING PEACE:
+            - Acknowledge the turmoil or anxiety
+            - Ask for calm in the midst of storms
+            - Draw on imagery of stillness and rest
+            - Trust in God's presence as the source of peace
+            """
+            themeKeywords = "peace, calm, stillness, rest, quiet, trust, sanctuary"
+
+        case .strength:
+            categoryGuidance = """
+            Focus this prayer on DRAWING STRENGTH:
+            - Acknowledge the challenge or burden
+            - Ask for courage and endurance
+            - Remember God's faithfulness in the past
+            - Move toward confidence in God's empowerment
+            """
+            themeKeywords = "strength, courage, endurance, power, fortitude, perseverance"
+
+        case .wisdom:
+            categoryGuidance = """
+            Focus this prayer on GAINING UNDERSTANDING:
+            - Express desire for deeper insight
+            - Ask for discernment and knowledge
+            - Seek clarity in confusion
+            - Trust God as the source of all wisdom
+            """
+            themeKeywords = "wisdom, understanding, insight, knowledge, discernment, truth"
+        }
+
+        return """
+        Craft a prayer based on this person's situation:
+
+        What they shared: "\(userContext)"
+        Prayer Intention: \(category.rawValue)
+        Theme Keywords: \(themeKeywords)
+
+        \(categoryGuidance)
+
+        Respond with valid JSON in this exact format:
+        {
+          "content": "The full prayer text here. Use line breaks (\\n) between stanzas/sections. 100-200 words.",
+          "amen": "Amen."
+        }
+
+        IMPORTANT:
+        - Transform their raw emotions into sacred, poetic language
+        - Do NOT include their exact words verbatim
+        - Keep the prayer between 100-200 words
+        - Use appropriate line breaks to create visual stanzas
+        - Begin with "O Lord" or "Lord" or "Father"
+        """
+    }
+
+    // MARK: - Sermon Study Guide Prompts
+
+    static let systemPromptSermonStudyGuide = """
+    You are an expert Bible study guide creator specializing in sermon analysis. Your role is to \
+    help users engage deeply with sermon content through structured study materials.
+
+    CRITICAL GROUNDING REQUIREMENTS:
+    - ONLY cite Bible references that are explicitly mentioned in the transcript OR directly relevant to stated themes
+    - Distinguish between "mentioned" references (speaker said them) and "suggested" references (you recommend)
+    - For suggested references, ALWAYS provide a rationale explaining the connection
+    - NEVER fabricate or guess at verse references - only include references you're confident about
+    - When uncertain about a reference format, use canonical format (e.g., "John 3:16")
+
+    STUDY GUIDE PRINCIPLES:
+    - Discussion questions should be open-ended and promote deeper thinking
+    - Reflection prompts should be personal and actionable
+    - Application points should be practical and specific
+    - The outline should help listeners navigate the sermon structure
+    - Notable quotes should be meaningful and memorable statements
+
+    ANTI-HALLUCINATION RULES:
+    - If a verse reference format is unclear, mark it in confidence_notes
+    - If the speaker's point is ambiguous, acknowledge it rather than assume
+    - For suggested cross-references, prefer well-known passages over obscure ones
+    - Never invent dialogue, quotes, or content not in the transcript
+    """
+
+    /// Generate a sermon study guide from transcript
+    static func sermonStudyGuide(
+        transcript: String,
+        title: String?,
+        speakerName: String?,
+        durationMinutes: Int?,
+        explicitReferences: [String],
+        enrichmentContext: String? = nil,
+        hasEnrichmentData: Bool = false
+    ) -> String {
+        var contextSection = ""
+
+        if let title = title {
+            contextSection += "Title: \(title)\n"
+        }
+        if let speaker = speakerName {
+            contextSection += "Speaker: \(speaker)\n"
+        }
+        if let duration = durationMinutes {
+            contextSection += "Duration: ~\(duration) minutes\n"
+        }
+        if !explicitReferences.isEmpty {
+            contextSection += "Detected References: \(explicitReferences.joined(separator: ", "))\n"
+        }
+
+        // Build enrichment section if available
+        let enrichmentSection: String
+        if let enrichment = enrichmentContext, hasEnrichmentData {
+            enrichmentSection = """
+
+            \(enrichment)
+
+            """
+        } else {
+            enrichmentSection = ""
+        }
+
+        // Build verification instructions based on whether enrichment data is available
+        let verificationInstructions: String
+        if hasEnrichmentData {
+            verificationInstructions = """
+            CROSS-REFERENCE VERIFICATION:
+            - When suggesting Bible references, PREFER references from the VERIFIED CROSS-REFERENCES list above
+            - For references from the verified list, set verification_hint to "crossref_db" and include verified_by
+            - For references NOT in the list but still relevant, set verification_hint to "ai_only"
+            - Only suggest references you are confident are relevant to the sermon content
+            """
+        } else {
+            verificationInstructions = """
+            CROSS-REFERENCE NOTES:
+            - Verification database is not available for this generation
+            - All suggested references should have verification_hint set to "ai_only"
+            - Focus on high-confidence, well-known passages that clearly relate to the sermon
+            - Be conservative with suggestions - quality over quantity
+            """
+        }
+
+        return """
+        Generate a comprehensive study guide for this sermon transcript in JSON format.
+
+        \(contextSection.isEmpty ? "" : "SERMON CONTEXT:\n\(contextSection)\n")\(enrichmentSection)
+        TRANSCRIPT:
+        \"\"\"
+        \(transcript)
+        \"\"\"
+
+        Respond with JSON:
+        {
+          "title": "A compelling title for the study guide (can differ from sermon title)",
+          "summary": "2-4 sentence summary of the sermon's main message and purpose",
+          "key_themes": ["Theme 1", "Theme 2", "Theme 3"],
+          "outline": [
+            {
+              "title": "Section title (e.g., 'Introduction: The Problem of Suffering')",
+              "start_seconds": null,
+              "end_seconds": null,
+              "summary": "Brief summary of this section"
+            }
+          ],
+          "notable_quotes": [
+            {
+              "text": "Exact quote from the sermon",
+              "timestamp_seconds": null,
+              "context": "Brief context for why this quote is significant"
+            }
+          ],
+          "bible_references_mentioned": [
+            {
+              "reference": "John 3:16",
+              "book_id": 43,
+              "chapter": 3,
+              "verse_start": 16,
+              "verse_end": 16,
+              "is_mentioned": true,
+              "rationale": null,
+              "timestamp_seconds": null,
+              "verification_hint": null,
+              "verified_by": null
+            }
+          ],
+          "bible_references_suggested": [
+            {
+              "reference": "Romans 8:28",
+              "book_id": 45,
+              "chapter": 8,
+              "verse_start": 28,
+              "verse_end": 28,
+              "is_mentioned": false,
+              "rationale": "This verse directly relates to the sermon's theme of God's providence",
+              "timestamp_seconds": null,
+              "verification_hint": "crossref_db" or "ai_only",
+              "verified_by": ["43.3.16"]
+            }
+          ],
+          "discussion_questions": [
+            {
+              "id": "1",
+              "question": "Open-ended question that promotes discussion",
+              "type": "comprehension" or "interpretation" or "application" or "discussion",
+              "related_verses": ["John 3:16"],
+              "discussion_hint": "Optional hint to guide the discussion"
+            }
+          ],
+          "reflection_prompts": [
+            "Personal reflection prompt 1",
+            "Personal reflection prompt 2"
+          ],
+          "application_points": [
+            "Specific, actionable way to apply this teaching",
+            "Another practical application"
+          ],
+          "confidence_notes": [
+            "Any uncertainties about references or interpretations"
+          ],
+          "prompt_version": "2"
+        }
+
+        REQUIREMENTS:
+        1. Create 3-6 outline sections based on sermon structure
+        2. Include 2-5 notable quotes that capture key moments
+        3. For bible_references_mentioned: ONLY include references the speaker explicitly stated
+        4. For bible_references_suggested: Include 2-5 relevant passages with rationale
+        5. Generate 4-6 discussion questions of varying types
+        6. Create 3-4 reflection prompts for personal meditation
+        7. Provide 3-5 practical application points
+        8. If you're uncertain about any reference formatting, note it in confidence_notes
+
+        \(verificationInstructions)
+
+        QUESTION TYPES:
+        - comprehension: "What did the speaker say about..."
+        - interpretation: "What does this mean for..."
+        - application: "How can we apply..."
+        - discussion: "What do you think about..."
+
+        BOOK ID REFERENCE (common books):
+        Genesis=1, Exodus=2, Psalms=19, Proverbs=20, Isaiah=23,
+        Matthew=40, Mark=41, Luke=42, John=43, Acts=44,
+        Romans=45, 1 Corinthians=46, 2 Corinthians=47,
+        Galatians=48, Ephesians=49, Philippians=50,
+        Colossians=51, Hebrews=58, James=59, 1 Peter=60,
+        1 John=62, Revelation=66
+        """
+    }
+
+    /// Generate a chunk summary for map-reduce processing
+    static func sermonChunkSummary(chunk: String, chunkIndex: Int, totalChunks: Int) -> String {
+        """
+        Extract key information from this sermon transcript segment.
+
+        Chunk \(chunkIndex + 1) of \(totalChunks):
+        \"\"\"
+        \(chunk)
+        \"\"\"
+
+        Respond with JSON:
+        {
+          "mini_summary": "1-2 sentence summary of this segment",
+          "key_points": ["Point 1", "Point 2"],
+          "explicit_references": ["John 3:16", "Romans 8:28"],
+          "themes_touched": ["grace", "forgiveness"],
+          "notable_quotes": ["Quote if any memorable statement"]
+        }
+
+        IMPORTANT:
+        - Only include references explicitly mentioned by the speaker
+        - Keep the mini_summary focused on the main point of this segment
+        - Themes should be single words or short phrases
+        """
+    }
+
+    /// Combine chunk summaries into final study guide (reduce step)
+    static func sermonCombineSummaries(
+        chunkSummaries: String,
+        title: String?,
+        speakerName: String?
+    ) -> String {
+        var contextSection = ""
+        if let title = title {
+            contextSection += "Title: \(title)\n"
+        }
+        if let speaker = speakerName {
+            contextSection += "Speaker: \(speaker)\n"
+        }
+
+        return """
+        Combine these chunk summaries into a comprehensive sermon study guide.
+
+        \(contextSection.isEmpty ? "" : "SERMON CONTEXT:\n\(contextSection)\n")
+        CHUNK SUMMARIES:
+        \(chunkSummaries)
+
+        Generate a unified study guide in the same JSON format as the standard sermon study guide.
+        Deduplicate themes, combine key points, and create cohesive discussion questions
+        that span the entire sermon.
+
+        Respond with the full study guide JSON structure.
+        """
+    }
 }
 
 // MARK: - Reading Level

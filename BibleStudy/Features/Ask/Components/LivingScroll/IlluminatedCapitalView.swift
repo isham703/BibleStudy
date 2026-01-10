@@ -8,15 +8,16 @@ struct IlluminatedCapitalView: View {
     let letter: String
     let isVisible: Bool
 
-    @State private var glowIntensity: Double = AppTheme.Opacity.medium
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var glowIntensity: Double = Theme.Opacity.secondary
 
     private var respectsReducedMotion: Bool {
         UIAccessibility.isReduceMotionEnabled
     }
 
-    // Typography for illuminated capitals using the new Illuminated design system
+    // Typography for illuminated capitals - large serif for manuscript effect
     private var illuminatedFont: Font {
-        Typography.Illuminated.dropCap(size: Typography.Scale.display)
+        Typography.Decorative.dropCap
     }
 
     var body: some View {
@@ -24,16 +25,16 @@ struct IlluminatedCapitalView: View {
             // Outer glow layer
             Text(letter.uppercased())
                 .font(illuminatedFont)
-                .foregroundStyle(Color.divineGold)
-                .blur(radius: AppTheme.Blur.medium)
-                .opacity(glowIntensity * AppTheme.Opacity.strong)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .blur(radius: 8)
+                .opacity(glowIntensity * Theme.Opacity.primary)
 
             // Inner glow layer
             Text(letter.uppercased())
                 .font(illuminatedFont)
-                .foregroundStyle(Color.divineGold)
-                .blur(radius: AppTheme.Blur.subtle)
-                .opacity(glowIntensity * AppTheme.Opacity.pressed)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .blur(radius: 4)
+                .opacity(glowIntensity * Theme.Opacity.pressed)
 
             // Main letter
             Text(letter.uppercased())
@@ -41,24 +42,24 @@ struct IlluminatedCapitalView: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Color.divineGold,
-                            Color.divineGold.opacity(AppTheme.Opacity.nearOpaque),
-                            Color.illuminatedGold
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
                 .shadow(
-                    color: Color.divineGold.opacity(AppTheme.Opacity.disabled),
-                    radius: AppTheme.Blur.subtle,
+                    color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled),
+                    radius: 4,
                     x: 0,
                     y: 2
                 )
         }
         .frame(width: 56, height: 56)
         .opacity(isVisible ? 1 : 0)
-        .scaleEffect(isVisible ? 1 : AppTheme.Scale.reduced)
+        .scaleEffect(isVisible ? 1 : 0.95)
         .onAppear {
             startBreathingAnimation()
         }
@@ -68,18 +69,18 @@ struct IlluminatedCapitalView: View {
 
     private func startBreathingAnimation() {
         guard !respectsReducedMotion else {
-            glowIntensity = AppTheme.Opacity.heavy
+            glowIntensity = Theme.Opacity.secondary
             return
         }
 
         // Very subtle breathing: 0.3 → 0.5 opacity over 4 seconds
         // Using slow animation repeated for ambient effect
         withAnimation(
-            AppTheme.Animation.slow
+            Theme.Animation.slowFade
                 .repeatForever(autoreverses: true)
                 .speed(0.1) // Slow down to ~4 seconds
         ) {
-            glowIntensity = AppTheme.Opacity.heavy
+            glowIntensity = Theme.Opacity.secondary
         }
     }
 }
@@ -90,7 +91,8 @@ struct IlluminatedCapitalView: View {
 struct CompactIlluminatedCapital: View {
     let letter: String
 
-    @State private var glowIntensity: Double = AppTheme.Opacity.disabled
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var glowIntensity: Double = Theme.Opacity.disabled
 
     private var respectsReducedMotion: Bool {
         UIAccessibility.isReduceMotionEnabled
@@ -98,7 +100,7 @@ struct CompactIlluminatedCapital: View {
 
     // Compact illuminated capital font (slightly smaller than full)
     private var compactFont: Font {
-        Typography.Illuminated.dropCapSmall()
+        Typography.Decorative.dropCapCompact
     }
 
     var body: some View {
@@ -106,25 +108,25 @@ struct CompactIlluminatedCapital: View {
             // Glow layer
             Text(letter.uppercased())
                 .font(compactFont)
-                .foregroundStyle(Color.divineGold)
-                .blur(radius: AppTheme.Blur.subtle)
-                .opacity(glowIntensity * AppTheme.Opacity.heavy)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .blur(radius: 4)
+                .opacity(glowIntensity * Theme.Opacity.secondary)
 
             // Main letter
             Text(letter.uppercased())
                 .font(compactFont)
-                .foregroundStyle(Color.divineGold)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
         }
         .frame(width: 40, height: 40)
         .onAppear {
             guard !respectsReducedMotion else { return }
 
             withAnimation(
-                AppTheme.Animation.slow
+                Theme.Animation.slowFade
                     .repeatForever(autoreverses: true)
                     .speed(0.1)
             ) {
-                glowIntensity = AppTheme.Opacity.strong
+                glowIntensity = Theme.Opacity.primary
             }
         }
     }
@@ -134,6 +136,7 @@ struct CompactIlluminatedCapital: View {
 // Optional ornamental frame for illuminated capitals
 
 struct IlluminatedBorder: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var shimmerOffset: CGFloat = -1
 
     private var respectsReducedMotion: Bool {
@@ -141,18 +144,18 @@ struct IlluminatedBorder: View {
     }
 
     var body: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+        RoundedRectangle(cornerRadius: Theme.Radius.input)
             .strokeBorder(
                 LinearGradient(
                     colors: [
-                        Color.divineGold.opacity(AppTheme.Opacity.medium),
-                        Color.divineGold.opacity(AppTheme.Opacity.strong),
-                        Color.divineGold.opacity(AppTheme.Opacity.medium)
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary)
                     ],
                     startPoint: UnitPoint(x: shimmerOffset, y: 0),
                     endPoint: UnitPoint(x: shimmerOffset + 0.5, y: 1)
                 ),
-                lineWidth: AppTheme.Border.regular
+                lineWidth: Theme.Stroke.control
             )
             .onAppear {
                 guard !respectsReducedMotion else {
@@ -162,7 +165,7 @@ struct IlluminatedBorder: View {
 
                 // Slow shimmer animation using standard animation with speed modifier
                 withAnimation(
-                    AppTheme.Animation.slow
+                    Theme.Animation.slowFade
                         .repeatForever(autoreverses: false)
                         .speed(0.13) // ~3 seconds
                 ) {
@@ -175,27 +178,27 @@ struct IlluminatedBorder: View {
 // MARK: - Preview
 
 #Preview("Illuminated Capital") {
-    VStack(spacing: AppTheme.Spacing.xxxl) {
+    VStack(spacing: Theme.Spacing.xxl) {
         Text("Illuminated Capitals")
-            .font(Typography.UI.headline)
+            .font(Typography.Command.headline)
 
-        HStack(spacing: AppTheme.Spacing.xl) {
+        HStack(spacing: Theme.Spacing.xl) {
             IlluminatedCapitalView(letter: "W", isVisible: true)
             IlluminatedCapitalView(letter: "B", isVisible: true)
             IlluminatedCapitalView(letter: "T", isVisible: true)
         }
 
         Text("Compact Variant")
-            .font(Typography.UI.headline)
+            .font(Typography.Command.headline)
 
-        HStack(spacing: AppTheme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.lg) {
             CompactIlluminatedCapital(letter: "A")
             CompactIlluminatedCapital(letter: "M")
             CompactIlluminatedCapital(letter: "S")
         }
 
         Text("With Border")
-            .font(Typography.UI.headline)
+            .font(Typography.Command.headline)
 
         ZStack {
             IlluminatedBorder()

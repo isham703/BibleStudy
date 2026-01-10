@@ -6,6 +6,7 @@ import SwiftUI
 
 struct AskModalView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Bindable var viewModel: AskViewModel
 
     // MARK: - Animation State
@@ -33,7 +34,7 @@ struct AskModalView: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.divineGold.opacity(goldenLightOpacity),
+                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(goldenLightOpacity),
                                 Color.clear
                             ],
                             startPoint: .top,
@@ -44,7 +45,7 @@ struct AskModalView: View {
                     .ignoresSafeArea()
             }
         }
-        .background(Color.appBackground)
+        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
         .interactiveDismissDisabled(viewModel.isLoading)
         .onAppear {
             startEntranceAnimation()
@@ -64,17 +65,17 @@ struct AskModalView: View {
         }
 
         // Phase 1: Golden light appears
-        withAnimation(AppTheme.Animation.luminous) {
+        withAnimation(Theme.Animation.slowFade) {
             goldenLightOpacity = 0.3
         }
 
         // Phase 2: Content rises in
-        withAnimation(AppTheme.Animation.sacredSpring) {
+        withAnimation(Theme.Animation.settle) {
             appeared = true
         }
 
         // Phase 3: Golden light fades
-        withAnimation(AppTheme.Animation.luminous.delay(0.2)) {
+        withAnimation(Theme.Animation.slowFade.delay(0.2)) {
             goldenLightOpacity = 0
         }
     }

@@ -11,13 +11,14 @@ enum PasswordIllumination: Int, Sendable {
     case gilded = 3      // Strong - gold leaf applied
     case illuminated = 4 // Very strong - fully illuminated
 
-    var color: Color {
+    func color(for colorScheme: ColorScheme) -> Color {
+        let mode = ThemeMode.current(from: colorScheme)
         switch self {
         case .blank: return Color.divider
-        case .rawPigment: return Color.vermillion.opacity(AppTheme.Opacity.overlay)
-        case .groundPigment: return Color.burnishedGold
-        case .gilded: return Color.divineGold
-        case .illuminated: return Color.illuminatedGold
+        case .rawPigment: return Colors.Semantic.error(for: mode).opacity(Theme.Opacity.overlay)
+        case .groundPigment: return Colors.Semantic.warning(for: mode)
+        case .gilded: return Colors.Semantic.accentSeal(for: mode)
+        case .illuminated: return Colors.Semantic.accentSeal(for: mode)
         }
     }
 
@@ -46,13 +47,17 @@ enum PasswordIllumination: Int, Sendable {
 @MainActor
 @Observable
 final class AuthViewModel {
-    // MARK: - Properties
-    private let authService = AuthService.shared
-    private let biometricService = BiometricService.shared
+    // MARK: - Dependencies (Protocol-based for testability)
+    private let authService: AuthServiceProtocol
+    private let biometricService: BiometricServiceProtocol
 
+    // MARK: - Properties
     var email: String = ""
     var password: String = ""
     var confirmPassword: String = ""
+
+    /// Stores the refresh token temporarily after sign-in for biometric enrollment
+    private var storedRefreshToken: String = ""
 
     var isSignUp: Bool = false
     var isLoading: Bool = false
@@ -75,6 +80,20 @@ final class AuthViewModel {
 
     var isAuthenticated: Bool {
         authService.isAuthenticated
+    }
+
+    // MARK: - Initialization
+
+    /// Creates an AuthViewModel with dependency injection
+    /// - Parameters:
+    ///   - authService: Authentication service (defaults to shared singleton)
+    ///   - biometricService: Biometric service (defaults to shared singleton)
+    init(
+        authService: AuthServiceProtocol = AuthService.shared,
+        biometricService: BiometricServiceProtocol = BiometricService.shared
+    ) {
+        self.authService = authService
+        self.biometricService = biometricService
     }
 
     // MARK: - Validation
@@ -136,13 +155,14 @@ final class AuthViewModel {
         errorMessage = nil
 
         do {
-            try await authService.signIn(email: email, password: password)
+            let refreshToken = try await authService.signIn(email: email, password: password)
             let signedInEmail = email  // Capture before clearing
             clearForm()
             isLoading = false
 
-            // Store email for biometric opt-in and show prompt
+            // Store email and token for biometric opt-in and show prompt
             submittedEmail = signedInEmail
+            storedRefreshToken = refreshToken
             handleSuccessfulSignIn()
         } catch {
             errorMessage = error.localizedDescription
@@ -202,7 +222,9 @@ final class AuthViewModel {
         switch result {
         case .success(let authorization):
             do {
-                try await authService.signInWithApple(authorization: authorization)
+                let refreshToken = try await authService.signInWithApple(authorization: authorization)
+                storedRefreshToken = refreshToken
+                handleSuccessfulSignIn()
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -251,33 +273,50 @@ final class AuthViewModel {
 
     // MARK: - Biometric Authentication
 
-    /// Attempt to sign in with stored biometric credentials
+    /// Attempt to sign in with stored biometric credentials using token-based authentication
     func signInWithBiometrics() async {
         guard biometricEnabled, hasBiometricCredentials else { return }
 
         isLoading = true
         errorMessage = nil
 
-        if let storedEmail = await biometricService.authenticate() {
-            // Biometric succeeded - but we can't get password from keychain
-            // The user will need to sign in normally, but we pre-fill email
-            email = storedEmail
+        // Authenticate with biometrics and retrieve stored credentials
+        guard let credentials = await biometricService.authenticateAndGetToken() else {
             isLoading = false
-            // Show a message that they need to enter password
-            // (In a full implementation, you'd store a refresh token instead)
-        } else {
+            return
+        }
+
+        do {
+            // Restore the session using the stored refresh token
+            let newRefreshToken = try await authService.restoreSession(refreshToken: credentials.refreshToken)
+
+            // Update stored credentials with the new refresh token
+            try biometricService.storeCredentials(
+                email: credentials.email,
+                refreshToken: newRefreshToken
+            )
+            isLoading = false
+        } catch {
+            // Token expired or invalid - clear credentials and prompt for password
+            biometricService.clearCredentials()
+            email = credentials.email
+            errorMessage = "Session expired. Please sign in with your password."
             isLoading = false
         }
     }
 
     /// Enable biometric authentication for future sign-ins
     func enableBiometrics() {
-        guard biometricAvailable else { return }
+        guard biometricAvailable, !storedRefreshToken.isEmpty else { return }
 
         do {
-            try biometricService.storeCredentials(email: email.isEmpty ? submittedEmail : email)
+            try biometricService.storeCredentials(
+                email: email.isEmpty ? submittedEmail : email,
+                refreshToken: storedRefreshToken
+            )
             biometricService.isEnabled = true
             showBiometricOptIn = false
+            storedRefreshToken = ""  // Clear after storing
         } catch {
             errorMessage = "Failed to enable \(biometricType.displayName)"
         }

@@ -1,16 +1,21 @@
 import SwiftUI
 
 // MARK: - Sanctuary Home View
-// Main home view that displays the selected Sanctuary variant
-// Wraps HomeShowcase views and integrates with AppState
+// Main home view displaying the Roman/Stoic sanctuary experience
+// Uses SanctuaryViewModel for centralized state management
+//
+// MIGRATION NOTE: Replaced RomanSanctuaryView with ForumHomeView
+// Forum design: centered wisdom quote, 3 primary pillars, secondary feature row
 
 struct SanctuaryHomeView: View {
-    @Environment(AppState.self) private var appState
+    @State private var viewModel = SanctuaryViewModel()
     @State private var showSettings = false
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         NavigationStack {
-            homeContent
+            ForumHomeView()
                 .onSettingsTapped {
                     showSettings = true
                 }
@@ -18,23 +23,17 @@ struct SanctuaryHomeView: View {
                     FloatingSanctuarySettings()
                 }
         }
+        .environment(viewModel)
         .task {
             // Load real user data when view appears
-            await SanctuaryDataAdapter.shared.loadData()
+            await viewModel.loadUserData()
+            // NOTE: Time updates no longer needed - Roman design is not time-aware
         }
-    }
-
-    @ViewBuilder
-    private var homeContent: some View {
-        switch appState.homeVariant {
-        case .liturgicalHours:
-            TimeAwareSanctuaryPage()
-        case .candlelitSanctuary:
-            CandlelitSanctuaryPage()
-        case .scholarsAtrium:
-            ScholarsAtriumPage()
-        case .sacredThreshold:
-            SacredThresholdPage()
+        .onChange(of: scenePhase) { _, newPhase in
+            viewModel.updateScenePhase(newPhase)
+        }
+        .onChange(of: reduceMotion) { _, reduce in
+            viewModel.updateReduceMotion(reduce)
         }
     }
 }

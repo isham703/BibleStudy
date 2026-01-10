@@ -5,6 +5,7 @@ import SwiftUI
 
 struct BibleSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var settings = BibleSettings.shared
     @State private var showAboutSheet = false
     @State private var showResetConfirmation = false
@@ -12,7 +13,7 @@ struct BibleSettingsSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: AppTheme.Spacing.xl) {
+                VStack(spacing: Theme.Spacing.xl) {
                     // Insight Types Section
                     insightTypesSection
 
@@ -28,8 +29,8 @@ struct BibleSettingsSheet: View {
                     // Reset Section
                     resetSection
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.vertical, AppTheme.Spacing.xl)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.xl)
             }
             .background(Color.appBackground)
             .navigationTitle("Scholar Settings")
@@ -39,8 +40,8 @@ struct BibleSettingsSheet: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .font(Typography.UI.body.weight(.medium))
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Command.body.weight(.medium))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
         }
@@ -65,12 +66,12 @@ struct BibleSettingsSheet: View {
 
     private var insightTypesSection: some View {
         IlluminatedSettingsCard(title: "Insight Types", icon: "sparkles") {
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 Text("Choose which insights appear when you long-press a verse.")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, AppTheme.Spacing.xs)
+                    .padding(.bottom, Theme.Spacing.xs)
 
                 // Theology
                 insightTypeRow(
@@ -115,28 +116,28 @@ struct BibleSettingsSheet: View {
                 )
 
                 // Quick actions
-                HStack(spacing: AppTheme.Spacing.md) {
+                HStack(spacing: Theme.Spacing.md) {
                     Button {
                         settings.enableAll()
                     } label: {
                         Text("Enable All")
-                            .font(Typography.UI.caption1.weight(.medium))
+                            .font(Typography.Command.caption.weight(.medium))
                     }
                     .buttonStyle(.bordered)
-                    .tint(Color.scholarIndigo)
+                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                     Button {
                         settings.disableAll()
                     } label: {
                         Text("Disable All")
-                            .font(Typography.UI.caption1.weight(.medium))
+                            .font(Typography.Command.caption.weight(.medium))
                     }
                     .buttonStyle(.bordered)
                     .tint(Color.secondaryText)
 
                     Spacer()
                 }
-                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.top, Theme.Spacing.sm)
             }
         }
     }
@@ -165,12 +166,12 @@ struct BibleSettingsSheet: View {
 
     private var greekSection: some View {
         IlluminatedSettingsCard(title: "Greek Annotations", icon: "character.book.closed") {
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 Text("Control the depth of Greek language annotations.")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, AppTheme.Spacing.xs)
+                    .padding(.bottom, Theme.Spacing.xs)
 
                 IlluminatedSettingsRow(
                     icon: "textformat.abc",
@@ -184,21 +185,21 @@ struct BibleSettingsSheet: View {
                         }
                     }
                     .pickerStyle(.menu)
-                    .tint(Color.greekBlue)
+                    .tint(Color.navyDeep)
                 }
 
                 if settings.greekLevel == .off && settings.showGreek {
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         Image(systemName: "info.circle")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.info)
 
                         Text("Greek insights are enabled but annotations are off. You'll see Greek insights in the sheet but no inline annotations.")
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                             .foregroundStyle(Color.secondaryText)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, AppTheme.Spacing.xs)
+                    .padding(.top, Theme.Spacing.xs)
                 }
             }
         }
@@ -208,26 +209,26 @@ struct BibleSettingsSheet: View {
 
     private var behaviorSection: some View {
         IlluminatedSettingsCard(title: "Behavior", icon: "slider.horizontal.3") {
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 IlluminatedSettingsRow(
                     icon: "eye",
-                    iconColor: .scholarIndigo,
+                    iconColor: Color.accentIndigo,
                     title: "Auto-Reveal",
                     subtitle: "Show insight indicators as you scroll"
                 ) {
                     Toggle("", isOn: $settings.autoReveal)
                         .labelsHidden()
-                        .tint(Color.scholarIndigo)
+                        .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 if !settings.autoReveal {
-                    HStack(spacing: AppTheme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.sm) {
                         Image(systemName: "info.circle")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.info)
 
                         Text("Long-press any verse to access insights")
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                             .foregroundStyle(Color.secondaryText)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -240,18 +241,18 @@ struct BibleSettingsSheet: View {
 
     private var aboutSection: some View {
         IlluminatedSettingsCard(title: "About", icon: "info.circle") {
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 Button {
                     showAboutSheet = true
                 } label: {
                     IlluminatedSettingsRow(
                         icon: "wand.and.stars",
-                        iconColor: .divineGold,
+                        iconColor: Color.accentBronze,
                         title: "How It Works",
                         subtitle: "Learn about AI-generated insights"
                     ) {
                         Image(systemName: "chevron.right")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.tertiaryText)
                     }
                 }
@@ -260,13 +261,13 @@ struct BibleSettingsSheet: View {
                 SettingsDivider()
 
                 // Attribution note
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "checkmark.seal.fill")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.success)
 
                     Text("Insights are pre-generated and reviewed. No data is sent during use.")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.secondaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -288,7 +289,7 @@ struct BibleSettingsSheet: View {
                     subtitle: "Return to John Chapter 1"
                 ) {
                     Image(systemName: "chevron.right")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(Color.tertiaryText)
                 }
             }
@@ -301,23 +302,24 @@ struct BibleSettingsSheet: View {
 
 struct BibleAboutSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     // Header
-                    VStack(spacing: AppTheme.Spacing.md) {
+                    VStack(spacing: Theme.Spacing.md) {
                         Image(systemName: "sparkles")
-                            .font(.system(size: 48))
-                            .foregroundStyle(Color.divineGold)
+                            .font(Typography.Icon.hero)
+                            .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
                         Text("AI-Powered Insights")
-                            .font(CustomFonts.cormorantSemiBold(size: 28))
-                            .foregroundStyle(Color.primaryText)
+                            .font(Typography.Scripture.title)
+                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.top, AppTheme.Spacing.xl)
+                    .padding(.top, Theme.Spacing.xl)
 
                     // Content sections
                     aboutSection(
@@ -346,20 +348,20 @@ struct BibleAboutSheet: View {
                     )
 
                     // Attribution
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                         Text("ATTRIBUTION")
-                            .font(Typography.UI.caption2.weight(.semibold))
+                            .font(Typography.Command.meta.weight(.semibold))
                             .tracking(1.5)
                             .foregroundStyle(Color.tertiaryText)
 
                         Text("Bible text: King James Version (Public Domain)\nGreek data: STEP Bible (CC BY 4.0)\nCross-references: Open Bible (CC BY 4.0)")
-                            .font(Typography.UI.caption1)
+                            .font(Typography.Command.caption)
                             .foregroundStyle(Color.secondaryText)
                     }
-                    .padding(.top, AppTheme.Spacing.md)
+                    .padding(.top, Theme.Spacing.md)
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.bottom, AppTheme.Spacing.xxl)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.xxl)
             }
             .background(Color.appBackground)
             .navigationTitle("About Scholar")
@@ -369,22 +371,22 @@ struct BibleAboutSheet: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .font(Typography.UI.body.weight(.medium))
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Command.body.weight(.medium))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
         }
     }
 
     private func aboutSection(title: String, content: String) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(title.uppercased())
-                .font(Typography.UI.caption2.weight(.semibold))
+                .font(Typography.Command.meta.weight(.semibold))
                 .tracking(1.5)
-                .foregroundStyle(Color.scholarIndigo)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Text(LocalizedStringKey(content))
-                .font(Typography.UI.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.primaryText)
                 .lineSpacing(4)
         }

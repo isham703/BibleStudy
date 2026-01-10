@@ -15,7 +15,7 @@ struct AudioPlayerSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AppTheme.Spacing.xl) {
+            VStack(spacing: Theme.Spacing.xl) {
                 // Error banner (if applicable)
                 if audioService.error != nil {
                     errorBanner
@@ -40,15 +40,15 @@ struct AudioPlayerSheet: View {
 
                 Spacer()
             }
-            .padding(.horizontal, AppTheme.Spacing.xl)
-            .padding(.top, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xl)
+            .padding(.top, Theme.Spacing.xl)
             .background(Color.appBackground)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "chevron.down")
-                            .font(Typography.UI.callout.weight(.semibold))
+                            .font(Typography.Command.callout.weight(.semibold))
                             .foregroundStyle(Color.secondaryText)
                             .frame(width: 44, height: 44)
                     }
@@ -58,7 +58,7 @@ struct AudioPlayerSheet: View {
 
                 ToolbarItem(placement: .principal) {
                     Text("Now Playing")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .fontWeight(.medium)
                         .foregroundStyle(Color.secondaryText)
                 }
@@ -78,23 +78,23 @@ struct AudioPlayerSheet: View {
     // MARK: - Chapter Info Section
 
     private var chapterInfoSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Book icon/artwork
             ZStack {
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.sheet)
+                RoundedRectangle(cornerRadius: Theme.Radius.xl)
                     .fill(Color.elevatedBackground)
                     .frame(width: 200, height: 200)
 
-                VStack(spacing: AppTheme.Spacing.sm) {
+                VStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "book.fill")
-                        .font(Typography.UI.largeTitle)
+                        .font(Typography.Command.largeTitle)
                         .imageScale(.large)
                         .foregroundStyle(Color.Semantic.accent)
                         .accessibilityHidden(true)
 
                     if let chapter = audioService.currentChapter {
                         Text(chapter.bookName.uppercased())
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                             .fontWeight(.bold)
                             .foregroundStyle(Color.secondaryText)
                             .tracking(2)
@@ -111,11 +111,11 @@ struct AudioPlayerSheet: View {
             // Translation badge
             if let chapter = audioService.currentChapter {
                 Text(chapter.translation)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.tertiaryText)
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.xs)
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.vertical, Theme.Spacing.xs)
                     .background {
                         Capsule()
                             .fill(Color.surfaceBackground)
@@ -135,7 +135,7 @@ struct AudioPlayerSheet: View {
     // MARK: - Progress Section
 
     private var progressSection: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             // Progress slider
             Slider(
                 value: $sliderProgress,
@@ -155,7 +155,7 @@ struct AudioPlayerSheet: View {
             // Time labels
             HStack {
                 Text(isDraggingSlider ? formatTime(sliderProgress * audioService.duration) : audioService.formattedCurrentTime)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
                     .monospacedDigit()
                     .accessibilityAddTraits(.updatesFrequently)
@@ -166,7 +166,7 @@ struct AudioPlayerSheet: View {
                 // Current verse
                 if let verse = audioService.currentVerse {
                     Text("Verse \(verse)")
-                        .font(Typography.UI.caption2.monospacedDigit())
+                        .font(Typography.Command.meta.monospacedDigit())
                         .fontWeight(.medium)
                         .foregroundStyle(Color.Semantic.accent)
                         .accessibilityAddTraits(.updatesFrequently)
@@ -176,7 +176,7 @@ struct AudioPlayerSheet: View {
                 Spacer()
 
                 Text(audioService.formattedDuration)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
                     .monospacedDigit()
                     .accessibilityLabel("Total duration: \(audioService.formattedDuration)")
@@ -187,14 +187,14 @@ struct AudioPlayerSheet: View {
     // MARK: - Controls Section
 
     private var controlsSection: some View {
-        HStack(spacing: AppTheme.Spacing.xxl) {
+        HStack(spacing: Theme.Spacing.xxl) {
             // Previous verse
             Button(action: {
                 HapticService.shared.lightTap()
                 audioService.previousVerse()
             }) {
                 Image(systemName: "backward.end.fill")
-                    .font(Typography.UI.title2)
+                    .font(Typography.Command.title2)
                     .foregroundStyle(Color.primaryText)
                     .frame(width: 48, height: 48)
             }
@@ -207,7 +207,7 @@ struct AudioPlayerSheet: View {
                 audioService.skipBackward()
             }) {
                 Image(systemName: "gobackward.15")
-                    .font(Typography.UI.title1)
+                    .font(Typography.Command.title1)
                     .foregroundStyle(Color.primaryText)
                     .frame(width: 48, height: 48)
             }
@@ -228,7 +228,7 @@ struct AudioPlayerSheet: View {
                             .tint(.white)
                     } else {
                         Image(systemName: audioService.isPlaying ? "pause.fill" : "play.fill")
-                            .font(Typography.UI.title1.weight(.bold))
+                            .font(Typography.Command.title1.weight(.bold))
                             .foregroundStyle(.white)
                             .offset(x: audioService.isPlaying ? 0 : 2)
                     }
@@ -244,7 +244,7 @@ struct AudioPlayerSheet: View {
                 audioService.skipForward()
             }) {
                 Image(systemName: "goforward.15")
-                    .font(Typography.UI.title1)
+                    .font(Typography.Command.title1)
                     .foregroundStyle(Color.primaryText)
                     .frame(width: 48, height: 48)
             }
@@ -256,7 +256,7 @@ struct AudioPlayerSheet: View {
                 audioService.nextVerse()
             }) {
                 Image(systemName: "forward.end.fill")
-                    .font(Typography.UI.title2)
+                    .font(Typography.Command.title2)
                     .foregroundStyle(Color.primaryText)
                     .frame(width: 48, height: 48)
             }
@@ -278,11 +278,11 @@ struct AudioPlayerSheet: View {
                     audioService.playbackRate = Float(speed)
                 }) {
                     Text(speed == 1.0 ? "1x" : String(format: "%.2gx", speed))
-                        .font(Typography.UI.caption2.monospacedDigit())
+                        .font(Typography.Command.meta.monospacedDigit())
                         .fontWeight(isSelected ? .bold : .medium)
                         .foregroundStyle(isSelected ? Color.Semantic.accent : Color.secondaryText)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppTheme.Spacing.sm)
+                        .padding(.vertical, Theme.Spacing.sm)
                 }
                 .accessibilityLabel("\(speed == 1.0 ? "Normal" : String(format: "%.2g times", speed)) speed")
                 .accessibilityAddTraits(isSelected ? .isSelected : [])
@@ -290,7 +290,7 @@ struct AudioPlayerSheet: View {
             }
         }
         .background {
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
                 .fill(Color.surfaceBackground)
         }
         .accessibilityElement(children: .contain)
@@ -300,7 +300,7 @@ struct AudioPlayerSheet: View {
     // MARK: - Options Section
 
     private var optionsSection: some View {
-        HStack(spacing: AppTheme.Spacing.xl) {
+        HStack(spacing: Theme.Spacing.xl) {
             // Verse list
             AudioOptionButton(
                 icon: "list.bullet",
@@ -362,20 +362,20 @@ struct AudioPlayerSheet: View {
     // MARK: - Error Banner
 
     private var errorBanner: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            HStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(Typography.UI.title3)
+                    .font(Typography.Command.title3)
                     .foregroundStyle(Color.error)
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Audio Error")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(Color.primaryText)
 
                     Text(audioService.error?.localizedDescription ?? "An error occurred")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .foregroundStyle(Color.secondaryText)
                         .lineLimit(2)
                 }
@@ -387,11 +387,11 @@ struct AudioPlayerSheet: View {
                     retryAudioLoad()
                 }) {
                     Text("Retry")
-                        .font(Typography.UI.caption1)
+                        .font(Typography.Command.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(.white)
-                        .padding(.horizontal, AppTheme.Spacing.lg)
-                        .padding(.vertical, AppTheme.Spacing.sm)
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .padding(.vertical, Theme.Spacing.sm)
                         .background {
                             Capsule()
                                 .fill(Color.Semantic.accent)
@@ -400,13 +400,13 @@ struct AudioPlayerSheet: View {
                 .accessibilityLabel("Retry loading audio")
                 .accessibilityHint("Try loading the audio again")
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
             .background {
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                    .fill(Color.error.opacity(AppTheme.Opacity.subtle))
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color.error.opacity(Theme.Opacity.subtle))
                     .overlay {
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
-                            .stroke(Color.error.opacity(AppTheme.Opacity.medium), lineWidth: AppTheme.Border.thin)
+                        RoundedRectangle(cornerRadius: Theme.Radius.card)
+                            .stroke(Color.error.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
                     }
             }
         }
@@ -449,13 +449,13 @@ private struct AudioOptionButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(Typography.UI.title3)
+                    .font(Typography.Command.title3)
                     .foregroundStyle(Color.secondaryText)
 
                 Text(label)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.tertiaryText)
             }
             .frame(width: 72, height: 56)
@@ -471,24 +471,24 @@ private struct GenerationProgressButton: View {
     let progress: Double
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: Theme.Spacing.xs) {
             ZStack {
                 // Background circle
                 Circle()
-                    .stroke(Color.surfaceBackground, lineWidth: AppTheme.Border.thick)
+                    .stroke(Color.surfaceBackground, lineWidth: Theme.Stroke.control)
                     .frame(width: 24, height: 24)
 
                 // Progress circle
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(Color.Semantic.accent, style: StrokeStyle(lineWidth: AppTheme.Border.thick, lineCap: .round))
+                    .stroke(Color.Semantic.accent, style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round))
                     .frame(width: 24, height: 24)
                     .rotationEffect(.degrees(-90))
-                    .animation(AppTheme.Animation.quick, value: progress)
+                    .animation(Theme.Animation.fade, value: progress)
             }
 
             Text("\(Int(progress * 100))%")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(Color.Semantic.accent)
                 .monospacedDigit()
         }

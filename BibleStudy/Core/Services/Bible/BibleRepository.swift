@@ -68,7 +68,9 @@ final class BibleRepository: @unchecked Sendable {
         }
     }
 
-    /// Search verses by text
+    /// Search verses by text (legacy LIKE search)
+    /// - Note: Use `SearchService.shared.search()` for FTS5 full-text search with BM25 ranking
+    @available(*, deprecated, message: "Use SearchService.shared.search() for FTS5 full-text search")
     func searchVerses(query: String, translationId: String = defaultTranslationId, limit: Int = 50) throws -> [Verse] {
         try database.read { db in
             try Verse

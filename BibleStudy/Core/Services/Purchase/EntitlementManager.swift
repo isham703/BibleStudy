@@ -17,6 +17,7 @@ final class EntitlementManager {
     private(set) var aiInsightsUsedToday: Int = 0
     private(set) var highlightsUsedToday: Int = 0
     private(set) var notesUsedToday: Int = 0
+    private(set) var prayersGeneratedToday: Int = 0
     private(set) var lastResetDate: Date?
 
     // MARK: - Paywall State
@@ -24,12 +25,14 @@ final class EntitlementManager {
     var paywallTrigger: PaywallTrigger = .manual
     /// Prevents repeated paywall appearances after user dismisses once per session
     private var paywallDismissedForAIInsights: Bool = false
+    private var paywallDismissedForPrayers: Bool = false
 
     // MARK: - UserDefaults Keys
     private enum Keys {
         static let aiInsightsUsedToday = "aiInsightsUsedToday"
         static let highlightsUsedToday = "highlightsUsedToday"
         static let notesUsedToday = "notesUsedToday"
+        static let prayersGeneratedToday = "prayersGeneratedToday"
         static let lastResetDate = "lastResetDate"
     }
 
@@ -46,6 +49,7 @@ final class EntitlementManager {
         aiInsightsUsedToday = UserDefaults.standard.integer(forKey: Keys.aiInsightsUsedToday)
         highlightsUsedToday = UserDefaults.standard.integer(forKey: Keys.highlightsUsedToday)
         notesUsedToday = UserDefaults.standard.integer(forKey: Keys.notesUsedToday)
+        prayersGeneratedToday = UserDefaults.standard.integer(forKey: Keys.prayersGeneratedToday)
         lastResetDate = UserDefaults.standard.object(forKey: Keys.lastResetDate) as? Date
     }
 
@@ -53,6 +57,7 @@ final class EntitlementManager {
         UserDefaults.standard.set(aiInsightsUsedToday, forKey: Keys.aiInsightsUsedToday)
         UserDefaults.standard.set(highlightsUsedToday, forKey: Keys.highlightsUsedToday)
         UserDefaults.standard.set(notesUsedToday, forKey: Keys.notesUsedToday)
+        UserDefaults.standard.set(prayersGeneratedToday, forKey: Keys.prayersGeneratedToday)
         UserDefaults.standard.set(lastResetDate, forKey: Keys.lastResetDate)
     }
 
@@ -77,6 +82,7 @@ final class EntitlementManager {
         aiInsightsUsedToday = 0
         highlightsUsedToday = 0
         notesUsedToday = 0
+        prayersGeneratedToday = 0
         lastResetDate = Calendar.current.startOfDay(for: Date())
         saveUsage()
     }
@@ -130,6 +136,12 @@ final class EntitlementManager {
         case .visualCards:
             hasAccess = storeManager.isScholar
             trigger = .manual
+
+        case .prayerGeneration:
+            let limit = storeManager.isPremiumOrHigher ? FreeTierLimits.dailyPrayersPremium : FreeTierLimits.dailyPrayers
+            hasAccess = prayersGeneratedToday < limit
+            trigger = .prayerLimit
+            alreadyDismissed = paywallDismissedForPrayers
         }
 
         // Trigger paywall if needed (but respect dismissed flag)
@@ -177,6 +189,42 @@ final class EntitlementManager {
     /// Called when paywall is dismissed to prevent repeated appearances
     func dismissPaywallForAIInsights() {
         paywallDismissedForAIInsights = true
+        shouldShowPaywall = false
+    }
+
+    // MARK: - Prayer Generation Tracking
+
+    /// Record prayer generation usage, returns true if allowed
+    /// Uses tiered limits: Free=10/day, Premium=100/day
+    @discardableResult
+    func recordPrayerGeneration() -> Bool {
+        resetIfNewDay()
+
+        let limit = storeManager.isPremiumOrHigher ? FreeTierLimits.dailyPrayersPremium : FreeTierLimits.dailyPrayers
+
+        if prayersGeneratedToday < limit {
+            prayersGeneratedToday += 1
+            saveUsage()
+            return true
+        }
+
+        // User over limit - only show paywall if not already dismissed this session
+        if !paywallDismissedForPrayers {
+            paywallTrigger = .prayerLimit
+            shouldShowPaywall = true
+        }
+        return false
+    }
+
+    /// Check if user can generate prayers without side effects
+    var canGeneratePrayer: Bool {
+        let limit = storeManager.isPremiumOrHigher ? FreeTierLimits.dailyPrayersPremium : FreeTierLimits.dailyPrayers
+        return prayersGeneratedToday < limit
+    }
+
+    /// Called when paywall is dismissed for prayer limit
+    func dismissPaywallForPrayers() {
+        paywallDismissedForPrayers = true
         shouldShowPaywall = false
     }
 
@@ -230,6 +278,11 @@ final class EntitlementManager {
         return max(0, FreeTierLimits.maxNotesPerDay - notesUsedToday)
     }
 
+    var remainingPrayers: Int {
+        let limit = storeManager.isPremiumOrHigher ? FreeTierLimits.dailyPrayersPremium : FreeTierLimits.dailyPrayers
+        return max(0, limit - prayersGeneratedToday)
+    }
+
     // MARK: - Translation Check
 
     func isTranslationAvailable(_ translationCode: String) -> Bool {
@@ -262,6 +315,7 @@ enum PremiumFeature {
     case hebrewGreek
     case audioBible
     case visualCards
+    case prayerGeneration
 }
 
 // MARK: - Entitlement Error
@@ -283,6 +337,8 @@ enum EntitlementError: LocalizedError {
                 return "You've reached your memorization verse limit. Upgrade to Premium for unlimited memorization."
             case .allTranslations:
                 return "This translation requires Premium. Upgrade to access all Bible translations."
+            case .prayerGeneration:
+                return "You've reached your daily prayer limit. Upgrade to Premium for more prayers."
             default:
                 return "This feature requires Premium. Upgrade to unlock all features."
             }
@@ -299,8 +355,13 @@ struct PaywallModifier: ViewModifier {
         content
             .sheet(isPresented: $entitlementManager.shouldShowPaywall, onDismiss: {
                 // Mark as dismissed to prevent repeated appearances this session
-                if entitlementManager.paywallTrigger == .aiInsightsLimit {
+                switch entitlementManager.paywallTrigger {
+                case .aiInsightsLimit:
                     entitlementManager.dismissPaywallForAIInsights()
+                case .prayerLimit:
+                    entitlementManager.dismissPaywallForPrayers()
+                default:
+                    break
                 }
             }) {
                 PaywallView(trigger: entitlementManager.paywallTrigger)
@@ -321,29 +382,29 @@ struct PremiumFeatureLock: View {
     let icon: String
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "lock.fill")
-                .font(Typography.UI.title2)
+                .font(Typography.Command.title2)
                 .foregroundStyle(Color.tertiaryText)
 
             Text("\(feature) requires Premium")
-                .font(Typography.UI.subheadline)
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(Color.secondaryText)
 
             Button("Upgrade") {
                 EntitlementManager.shared.showPaywall()
             }
-            .font(Typography.UI.buttonLabel)
+            .font(Typography.Command.cta)
             .foregroundStyle(.white)
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.vertical, AppTheme.Spacing.sm)
-            .background(Color.scholarAccent)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.sm)
+            .background(Color.accentIndigo)
             .clipShape(Capsule())
         }
         .frame(maxWidth: .infinity)
-        .padding(AppTheme.Spacing.xl)
+        .padding(Theme.Spacing.xl)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 }
 
@@ -354,20 +415,20 @@ struct UsageBadge: View {
     let total: Int
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             Image(systemName: "sparkle")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
 
             Text("\(remaining)/\(total)")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .fontWeight(.medium)
         }
-        .foregroundStyle(remaining > 0 ? Color.scholarAccent : Color.error)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .foregroundStyle(remaining > 0 ? Color.accentIndigo : Color.error)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(remaining > 0 ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle) : Color.error.opacity(AppTheme.Opacity.subtle))
+                .fill(remaining > 0 ? Color.accentIndigo.opacity(Theme.Opacity.subtle) : Color.error.opacity(Theme.Opacity.subtle))
         )
     }
 }

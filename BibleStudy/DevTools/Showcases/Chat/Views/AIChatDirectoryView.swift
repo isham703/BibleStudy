@@ -16,7 +16,7 @@ struct AIChatDirectoryView: View {
             LinearGradient(
                 colors: [
                     Color.clear,
-                    ChatPalette.Directory.accent.opacity(0.03)
+                    ChatPalette.Directory.accent.opacity(Theme.Opacity.faint)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -59,20 +59,20 @@ struct AIChatDirectoryView: View {
             // Decorative icon
             ZStack {
                 Circle()
-                    .fill(ChatPalette.Directory.accent.opacity(0.15))
+                    .fill(ChatPalette.Directory.accent.opacity(Theme.Opacity.divider))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: "bubble.left.and.bubble.right.fill")
-                    .font(.system(size: 28, weight: .medium))
+                    .font(Typography.Icon.xl)
                     .foregroundStyle(ChatPalette.Directory.accent)
             }
             .opacity(isVisible ? 1 : 0)
             .scaleEffect(isVisible ? 1 : 0.8)
-            .animation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.1), value: isVisible)
+            .animation(Theme.Animation.settle.delay(0.1), value: isVisible)
 
             // Title
             Text("AI Chat Options")
-                .font(.system(size: 32, weight: .bold))
+                .font(Typography.Icon.xxl.weight(.bold))
                 .foregroundStyle(ChatPalette.Directory.primaryText)
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 10)
@@ -80,7 +80,7 @@ struct AIChatDirectoryView: View {
 
             // Subtitle
             Text("Compare design variations for Bible study conversations")
-                .font(.system(size: 15, weight: .regular))
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(ChatPalette.Directory.secondaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
@@ -98,7 +98,7 @@ struct AIChatDirectoryView: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            ChatPalette.Directory.accent.opacity(0.4)
+                            ChatPalette.Directory.accent.opacity(Theme.Opacity.lightMedium)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -108,14 +108,14 @@ struct AIChatDirectoryView: View {
 
             // Center ornament
             Image(systemName: "sparkle")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(ChatPalette.Directory.accent.opacity(0.6))
+                .font(Typography.Icon.xxs)
+                .foregroundStyle(ChatPalette.Directory.accent.opacity(Theme.Opacity.tertiary))
 
             Rectangle()
                 .fill(
                     LinearGradient(
                         colors: [
-                            ChatPalette.Directory.accent.opacity(0.4),
+                            ChatPalette.Directory.accent.opacity(Theme.Opacity.lightMedium),
                             Color.clear
                         ],
                         startPoint: .leading,
@@ -140,7 +140,7 @@ struct AIChatDirectoryView: View {
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 30)
                 .animation(
-                    .spring(response: 0.5, dampingFraction: 0.8).delay(0.5 + Double(index) * 0.1),
+                    Theme.Animation.settle.delay(0.5 + Double(index) * 0.1),
                     value: isVisible
                 )
             }

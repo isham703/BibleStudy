@@ -7,6 +7,7 @@ import SwiftUI
 struct CustomTabBar: View {
     @Binding var selectedTab: Tab
     @Binding var showAskModal: Bool
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - Animation State
     @State private var tabBarAppeared = false
@@ -17,7 +18,7 @@ struct CustomTabBar: View {
     }
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.lg) {
             // Tab pill (left side)
             tabPill
 
@@ -26,9 +27,9 @@ struct CustomTabBar: View {
                 showAskModal = true
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
-        .background(Color.appBackground)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
+        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
         .offset(y: tabBarAppeared ? 0 : 80)
         .opacity(tabBarAppeared ? 1 : 0)
         .onAppear {
@@ -45,7 +46,7 @@ struct CustomTabBar: View {
                 isSelected: selectedTab == .home
             ) {
                 HapticService.shared.tabSwitch()
-                withAnimation(AppTheme.Animation.reverent) {
+                withAnimation(Theme.Animation.slowFade) {
                     selectedTab = .home
                 }
             }
@@ -55,12 +56,12 @@ struct CustomTabBar: View {
                 isSelected: selectedTab == .bible
             ) {
                 HapticService.shared.tabSwitch()
-                withAnimation(AppTheme.Animation.reverent) {
+                withAnimation(Theme.Animation.slowFade) {
                     selectedTab = .bible
                 }
             }
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
         .background(pillBackground)
         .clipShape(Capsule())
     }
@@ -68,29 +69,7 @@ struct CustomTabBar: View {
     // MARK: - Pill Background
 
     private var pillBackground: some View {
-        ZStack {
-            // Base background
-            Color.surfaceBackground.opacity(AppTheme.Opacity.nearOpaque)
-
-            // Subtle shimmer overlay (ambient)
-            if !respectsReducedMotion {
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.clear,
-                                Color.divineGold.opacity(AppTheme.Opacity.faint),
-                                Color.clear
-                            ],
-                            startPoint: UnitPoint(x: shimmerOffset, y: 0),
-                            endPoint: UnitPoint(x: shimmerOffset + 0.3, y: 1)
-                        )
-                    )
-                    .onAppear {
-                        startShimmerAnimation()
-                    }
-            }
-        }
+        Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
     }
 
     // MARK: - Animations
@@ -105,7 +84,7 @@ struct CustomTabBar: View {
 
         // Delay entrance after content
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(AppTheme.Animation.sacredSpring) {
+            withAnimation(Theme.Animation.settle) {
                 tabBarAppeared = true
             }
         }
@@ -114,7 +93,7 @@ struct CustomTabBar: View {
     private func startShimmerAnimation() {
         guard !respectsReducedMotion else { return }
 
-        withAnimation(AppTheme.Animation.shimmerContinuous) {
+        withAnimation(Theme.Animation.fade) {
             shimmerOffset = 2
         }
     }
@@ -126,29 +105,30 @@ private struct TabBarButton: View {
     let tab: Tab
     let isSelected: Bool
     let action: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 2) {
                 Image(tab.icon)
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 24, height: 24)
-                    .foregroundStyle(isSelected ? Color.scholarAccent : Color.secondaryText)
+                    .foregroundStyle(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                     .scaleEffect(isSelected ? 1.1 : 1.0)
 
                 // Selection indicator bar
                 Capsule()
-                    .fill(Color.scholarAccent)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: isSelected ? 20 : 0, height: 3)
                     .opacity(isSelected ? 1 : 0)
             }
-            .frame(width: AppTheme.TouchTarget.minimum, height: AppTheme.TouchTarget.minimum)
+            .frame(width: 44, height: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .animation(AppTheme.Animation.sacredSpring, value: isSelected)
+        .animation(Theme.Animation.settle, value: isSelected)
         .accessibilityLabel(tab.title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint("Double tap to switch to \(tab.title) tab")
@@ -167,7 +147,7 @@ private struct TabBarButton: View {
                 Spacer()
                 CustomTabBar(selectedTab: $selectedTab, showAskModal: $showAskModal)
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: .dark))
         }
     }
 

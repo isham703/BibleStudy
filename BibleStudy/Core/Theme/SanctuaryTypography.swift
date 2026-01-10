@@ -1,12 +1,15 @@
 import SwiftUI
 
+// Typography token definitions - intentionally uses hardcoded font creation
+// swiftlint:disable hardcoded_font_creation
+
 // MARK: - Home Showcase Typography
 // Font definitions for the Home Page Showcase app
 //
 // **Purpose**: Variant-specific typography for home page showcases
 //
 // **Strategy**:
-// - References global Typography tokens where patterns align (e.g., Scholar.sectionHeader → Typography.Editorial.sectionHeader)
+// - References global Typography tokens where patterns align (e.g., Scholar.sectionHeader → Typography.Label.uppercase)
 // - Uses CustomFonts helpers for centralized font loading
 // - Keeps only variant-specific customizations (unique sizes, decorative elements)
 //
@@ -48,12 +51,12 @@ enum SanctuaryTypography {
 
         /// Verse text - elegant serif (variant-specific 28pt italic)
         static var verse: Font {
-            CustomFonts.cormorantItalic(size: 28)
+            Typography.Scripture.title
         }
 
         /// Reference - tracked Cinzel (variant-specific 12pt)
         static var reference: Font {
-            CustomFonts.cinzelRegular(size: 12)
+            Typography.Command.caption
         }
 
         /// Action text - medium weight
@@ -61,7 +64,7 @@ enum SanctuaryTypography {
 
         /// Section header - uppercase tracked
         static var sectionHeader: Font {
-            CustomFonts.cinzelRegular(size: 11)
+            Typography.Command.caption
         }
     }
 
@@ -101,12 +104,12 @@ enum SanctuaryTypography {
     enum Narrative {
         /// Hero title - tracked Cinzel (variant-specific 13pt)
         static var heroTitle: Font {
-            CustomFonts.cinzelRegular(size: 13)
+            Typography.Command.caption
         }
 
         /// Hero greeting - large Cormorant (variant-specific 32pt)
         static var heroGreeting: Font {
-            CustomFonts.cormorantSemiBold(size: 32)
+            Typography.Scripture.display
         }
 
         /// Hero stats
@@ -114,17 +117,17 @@ enum SanctuaryTypography {
 
         /// Section header - tracked Cinzel
         static var sectionHeader: Font {
-            CustomFonts.cinzelRegular(size: 11)
+            Typography.Command.caption
         }
 
         /// Verse text - italic Cormorant (variant-specific 24pt)
         static var verse: Font {
-            CustomFonts.cormorantItalic(size: 24)
+            Typography.Scripture.quote
         }
 
         /// Decorative quote mark (variant-specific 72pt)
         static var decorativeQuote: Font {
-            CustomFonts.cinzelRegular(size: 72)
+            Typography.Scripture.display
         }
 
         /// Card title - bold
@@ -168,27 +171,27 @@ enum SanctuaryTypography {
     enum Candlelit {
         /// Greeting - whisper light (variant-specific 15pt Cormorant)
         static var greeting: Font {
-            CustomFonts.cormorantRegular(size: 15)
+            Typography.Scripture.body
         }
 
         /// Verse text - elegant italic (variant-specific 26pt)
         static var verse: Font {
-            CustomFonts.cormorantItalic(size: 26)
+            Typography.Scripture.title
         }
 
         /// Reference - tracked Cinzel uppercase
         static var reference: Font {
-            CustomFonts.cinzelRegular(size: 11)
+            Typography.Command.caption
         }
 
         /// Feature label - small tracked Cinzel (variant-specific 10pt)
         static var featureLabel: Font {
-            CustomFonts.cinzelRegular(size: 10)
+            Typography.Command.caption
         }
 
         /// Feature title - Cormorant semibold (variant-specific 18pt)
         static var featureTitle: Font {
-            CustomFonts.cormorantSemiBold(size: 18)
+            Typography.Scripture.body
         }
 
         /// Feature subtitle - system light
@@ -196,7 +199,7 @@ enum SanctuaryTypography {
 
         /// Duration text - small Cinzel (variant-specific 9pt)
         static var duration: Font {
-            CustomFonts.cinzelRegular(size: 9)
+            Typography.Command.caption
         }
     }
 
@@ -211,17 +214,17 @@ enum SanctuaryTypography {
         static let date = Font.system(size: 14, weight: .regular)
 
         /// Section header - bold tracked uppercase
-        /// References global Typography.Editorial.sectionHeader
-        static let sectionHeader = Typography.Editorial.sectionHeader
+        /// Uses global Typography.Label.uppercase token
+        static let sectionHeader = Typography.Label.uppercase
 
         /// Scripture reference - semibold
-        /// References global Typography.Editorial.referenceHero
-        static let scriptureRef = Typography.Editorial.referenceHero
+        /// Uses global Typography.Command.meta token
+        static let scriptureRef = Typography.Command.meta
 
         /// Scripture text - regular serif (variant-specific 19pt size)
         /// Uses CustomFonts helper for centralized font loading
         static var scriptureText: Font {
-            CustomFonts.cormorantRegular(size: 19)
+            Typography.Scripture.body
         }
 
         /// Marginalia label - small bold tracked
@@ -230,7 +233,7 @@ enum SanctuaryTypography {
         /// Marginalia body - regular serif
         /// Uses CustomFonts helper for centralized font loading
         static var marginBody: Font {
-            CustomFonts.cormorantRegular(size: 15)
+            Typography.Scripture.body
         }
 
         /// Chip text - medium
@@ -273,7 +276,7 @@ extension Text {
             .font(SanctuaryTypography.Minimalist.sectionHeader)
             .tracking(3)
             .textCase(.uppercase)
-            .foregroundStyle(Color.divineGold)
+            .foregroundStyle(Color.accentBronze)
     }
 
     /// Dashboard section header style
@@ -282,7 +285,7 @@ extension Text {
             .font(SanctuaryTypography.Dashboard.sectionHeader)
             .tracking(1.5)
             .textCase(.uppercase)
-            .foregroundStyle(Color.divineGold)
+            .foregroundStyle(Color.accentBronze)
     }
 
     /// Narrative section header style
@@ -291,7 +294,7 @@ extension Text {
             .font(SanctuaryTypography.Narrative.sectionHeader)
             .tracking(4)
             .textCase(.uppercase)
-            .foregroundStyle(Color.divineGold)
+            .foregroundStyle(Color.accentBronze)
     }
 
     /// Gold reference style
@@ -299,6 +302,6 @@ extension Text {
         self
             .font(SanctuaryTypography.Minimalist.reference)
             .tracking(3)
-            .foregroundStyle(Color.divineGold)
+            .foregroundStyle(Color.accentBronze)
     }
 }

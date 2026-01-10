@@ -19,6 +19,11 @@ final class DatabaseManager: @unchecked Sendable {
     // MARK: - Properties
     private(set) var dbQueue: DatabaseQueue?
 
+    /// Provides nonisolated access to dbQueue for background operations.
+    /// DatabaseQueue is internally thread-safe, so this is safe to access from any context.
+    /// Note: This is a stored property set during setup(), not a computed property accessing shared.
+    nonisolated(unsafe) private(set) static var backgroundDBQueue: DatabaseQueue?
+
     /// Whether the app has bundled Bible data (set to true once pre-built DB is added)
     var hasBundledData: Bool {
         Bundle.main.url(forResource: BundledDatabase.name, withExtension: BundledDatabase.fileExtension) != nil
@@ -48,6 +53,7 @@ final class DatabaseManager: @unchecked Sendable {
         #endif
 
         dbQueue = try DatabaseQueue(path: databaseURL.path, configuration: config)
+        DatabaseManager.backgroundDBQueue = dbQueue
 
         // Run migrations (for user data tables and any new migrations)
         try migrate()
@@ -780,6 +786,275 @@ final class DatabaseManager: @unchecked Sendable {
             try db.create(index: "idx_saved_prayers_created", on: "saved_prayers",
                          columns: ["user_id", "created_at"],
                          ifNotExists: true)
+        }
+
+        // Migration 21: Create sermon tables (Sermon Recording feature)
+        migrator.registerMigration("v21_sermons") { db in
+            // Sermons table (metadata + job tracking)
+            try db.create(table: "sermons", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("user_id", .text).notNull()
+                t.column("title", .text).notNull()
+                t.column("speaker_name", .text)
+                t.column("recorded_at", .datetime).notNull()
+                t.column("duration_seconds", .integer).notNull().defaults(to: 0)
+
+                // Audio metadata
+                t.column("local_audio_path", .text)
+                t.column("remote_audio_path", .text)
+                t.column("audio_file_size", .integer)
+                t.column("audio_mime_type", .text)
+                t.column("audio_codec", .text)
+                t.column("audio_bitrate_kbps", .integer)
+                t.column("audio_content_hash", .text)
+
+                // Processing status (job tracking)
+                t.column("transcription_status", .text).notNull().defaults(to: "pending")
+                t.column("transcription_error", .text)
+                t.column("study_guide_status", .text).notNull().defaults(to: "pending")
+                t.column("study_guide_error", .text)
+                t.column("processing_version", .text).notNull().defaults(to: "1")
+
+                t.column("scripture_references", .text).defaults(to: "[]")
+
+                // Sync tracking
+                t.column("created_at", .datetime).notNull()
+                t.column("updated_at", .datetime).notNull()
+                t.column("deleted_at", .datetime)
+                t.column("needs_sync", .boolean).notNull().defaults(to: false)
+                t.column("audio_needs_upload", .boolean).notNull().defaults(to: false)
+            }
+
+            try db.create(index: "idx_sermons_user", on: "sermons",
+                         columns: ["user_id"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermons_recorded", on: "sermons",
+                         columns: ["user_id", "recorded_at"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermons_transcription", on: "sermons",
+                         columns: ["transcription_status"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermons_study_guide", on: "sermons",
+                         columns: ["study_guide_status"],
+                         ifNotExists: true)
+
+            // Audio chunks table (for chunked recording/playback)
+            try db.create(table: "sermon_audio_chunks", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("sermon_id", .text).notNull()
+                    .references("sermons", onDelete: .cascade)
+                t.column("chunk_index", .integer).notNull()
+                t.column("start_offset_seconds", .double).notNull()
+                t.column("duration_seconds", .double).notNull()
+
+                // Local/remote paths
+                t.column("local_path", .text)
+                t.column("remote_path", .text)
+
+                // File metadata
+                t.column("file_size", .integer)
+                t.column("content_hash", .text)
+
+                // Upload tracking
+                t.column("upload_status", .text).notNull().defaults(to: "pending")
+                t.column("upload_error", .text)
+                t.column("upload_progress", .double).defaults(to: 0)
+
+                // Transcription tracking (per-chunk)
+                t.column("transcription_status", .text).notNull().defaults(to: "pending")
+                t.column("transcription_error", .text)
+                t.column("transcript_segment", .text)
+
+                // Waveform data (downsampled for UI)
+                t.column("waveform_samples", .text)
+
+                t.column("created_at", .datetime).notNull()
+                t.column("updated_at", .datetime).notNull()
+                t.column("needs_sync", .boolean).notNull().defaults(to: false)
+
+                t.uniqueKey(["sermon_id", "chunk_index"])
+            }
+
+            try db.create(index: "idx_sermon_chunks_sermon", on: "sermon_audio_chunks",
+                         columns: ["sermon_id"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermon_chunks_upload", on: "sermon_audio_chunks",
+                         columns: ["upload_status"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermon_chunks_transcription", on: "sermon_audio_chunks",
+                         columns: ["transcription_status"],
+                         ifNotExists: true)
+
+            // Transcripts table
+            try db.create(table: "sermon_transcripts", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("sermon_id", .text).notNull()
+                    .references("sermons", onDelete: .cascade)
+                t.column("content", .text).notNull()
+                t.column("language", .text).notNull().defaults(to: "en")
+                t.column("word_timestamps", .text).defaults(to: "[]")
+                t.column("model_used", .text)
+                t.column("confidence_score", .double)
+                t.column("created_at", .datetime).notNull()
+                t.column("updated_at", .datetime).notNull()
+                t.column("needs_sync", .boolean).notNull().defaults(to: false)
+            }
+
+            try db.create(index: "idx_sermon_transcripts_sermon", on: "sermon_transcripts",
+                         columns: ["sermon_id"],
+                         ifNotExists: true)
+
+            // FTS5 for transcript full-text search
+            try db.execute(sql: """
+                CREATE VIRTUAL TABLE IF NOT EXISTS sermon_transcripts_fts USING fts5(
+                    sermon_id UNINDEXED,
+                    content,
+                    tokenize='porter unicode61'
+                )
+            """)
+
+            // FTS triggers for sermon_transcripts
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS sermon_transcripts_ai AFTER INSERT ON sermon_transcripts BEGIN
+                    INSERT INTO sermon_transcripts_fts(rowid, sermon_id, content)
+                    VALUES (new.rowid, new.sermon_id, new.content);
+                END
+            """)
+
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS sermon_transcripts_ad AFTER DELETE ON sermon_transcripts BEGIN
+                    INSERT INTO sermon_transcripts_fts(sermon_transcripts_fts, rowid, sermon_id, content)
+                    VALUES ('delete', old.rowid, old.sermon_id, old.content);
+                END
+            """)
+
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS sermon_transcripts_au AFTER UPDATE ON sermon_transcripts BEGIN
+                    INSERT INTO sermon_transcripts_fts(sermon_transcripts_fts, rowid, sermon_id, content)
+                    VALUES ('delete', old.rowid, old.sermon_id, old.content);
+                    INSERT INTO sermon_transcripts_fts(rowid, sermon_id, content)
+                    VALUES (new.rowid, new.sermon_id, new.content);
+                END
+            """)
+
+            // Study guides table
+            try db.create(table: "sermon_study_guides", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("sermon_id", .text).notNull()
+                    .references("sermons", onDelete: .cascade)
+                t.column("content", .text).notNull()
+                t.column("model_used", .text)
+                t.column("prompt_version", .text).notNull().defaults(to: "1")
+                t.column("transcript_hash", .text)
+                t.column("created_at", .datetime).notNull()
+                t.column("updated_at", .datetime).notNull()
+                t.column("needs_sync", .boolean).notNull().defaults(to: false)
+            }
+
+            try db.create(index: "idx_sermon_study_guides_sermon", on: "sermon_study_guides",
+                         columns: ["sermon_id"],
+                         ifNotExists: true)
+
+            // Bookmarks table (user annotations at timestamps)
+            try db.create(table: "sermon_bookmarks", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("user_id", .text).notNull()
+                t.column("sermon_id", .text).notNull()
+                    .references("sermons", onDelete: .cascade)
+                t.column("timestamp_seconds", .double).notNull()
+                t.column("note", .text)
+                t.column("label", .text)
+                t.column("verse_reference", .text)
+                t.column("created_at", .datetime).notNull()
+                t.column("updated_at", .datetime).notNull()
+                t.column("deleted_at", .datetime)
+                t.column("needs_sync", .boolean).notNull().defaults(to: false)
+            }
+
+            try db.create(index: "idx_sermon_bookmarks_sermon", on: "sermon_bookmarks",
+                         columns: ["sermon_id"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermon_bookmarks_user", on: "sermon_bookmarks",
+                         columns: ["user_id"],
+                         ifNotExists: true)
+        }
+
+        // MARK: - v22: Sermon Pagination Index
+        // Composite index for optimized cursor-based pagination queries:
+        // WHERE user_id = ? AND deleted_at IS NULL ORDER BY recorded_at DESC, id DESC
+        migrator.registerMigration("v22_sermon_pagination_index") { db in
+            try db.create(
+                index: "idx_sermons_pagination",
+                on: "sermons",
+                columns: ["user_id", "deleted_at", "recorded_at", "id"],
+                ifNotExists: true
+            )
+        }
+
+        // MARK: - v23: Prayer Sync Tracking
+        // Add sync tracking and pagination support to saved_prayers
+        migrator.registerMigration("v23_prayer_sync_tracking") { db in
+            // Add sync tracking columns
+            try db.alter(table: "saved_prayers") { t in
+                t.add(column: "last_synced_at", .datetime)
+                t.add(column: "sync_retry_count", .integer).defaults(to: 0)
+                t.add(column: "sync_error", .text)
+            }
+
+            // Composite index for efficient sync queue queries
+            try db.create(index: "idx_saved_prayers_sync_queue", on: "saved_prayers",
+                         columns: ["user_id", "needs_sync"],
+                         ifNotExists: true)
+
+            // Index for pagination by created_at (keyset pagination)
+            try db.create(index: "idx_saved_prayers_pagination", on: "saved_prayers",
+                         columns: ["user_id", "created_at", "id"],
+                         ifNotExists: true)
+        }
+
+        // MARK: - v24: Prayer FTS5 Full-Text Search
+        // Enable fast full-text search on prayer content and user context
+        migrator.registerMigration("v24_prayer_fts5") { db in
+            // Create FTS5 virtual table for prayer search
+            // Indexes content and user_context for comprehensive search
+            try db.execute(sql: """
+                CREATE VIRTUAL TABLE IF NOT EXISTS saved_prayers_fts USING fts5(
+                    content,
+                    user_context,
+                    content='saved_prayers',
+                    content_rowid='rowid',
+                    tokenize='porter unicode61'
+                )
+                """)
+
+            // Trigger: sync FTS on INSERT
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS saved_prayers_fts_ai AFTER INSERT ON saved_prayers BEGIN
+                    INSERT INTO saved_prayers_fts(rowid, content, user_context)
+                    VALUES (new.rowid, new.content, new.user_context);
+                END
+                """)
+
+            // Trigger: sync FTS on DELETE
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS saved_prayers_fts_ad AFTER DELETE ON saved_prayers BEGIN
+                    INSERT INTO saved_prayers_fts(saved_prayers_fts, rowid, content, user_context)
+                    VALUES('delete', old.rowid, old.content, old.user_context);
+                END
+                """)
+
+            // Trigger: sync FTS on UPDATE
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS saved_prayers_fts_au AFTER UPDATE ON saved_prayers BEGIN
+                    INSERT INTO saved_prayers_fts(saved_prayers_fts, rowid, content, user_context)
+                    VALUES('delete', old.rowid, old.content, old.user_context);
+                    INSERT INTO saved_prayers_fts(rowid, content, user_context)
+                    VALUES (new.rowid, new.content, new.user_context);
+                END
+                """)
+
+            // Rebuild index from existing prayer data
+            try db.execute(sql: "INSERT INTO saved_prayers_fts(saved_prayers_fts) VALUES('rebuild')")
         }
 
         try migrator.migrate(dbQueue)

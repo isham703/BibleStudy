@@ -5,6 +5,7 @@ import SwiftUI
 // Creates a "manuscript coming to life" effect rather than generic shimmer
 
 struct SessionRestorationView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var phase: CGFloat = 0
 
     var body: some View {
@@ -13,14 +14,14 @@ struct SessionRestorationView: View {
             Color.primaryBackground
                 .ignoresSafeArea()
 
-            VStack(spacing: AppTheme.Spacing.xxl) {
+            VStack(spacing: Theme.Spacing.xxl) {
                 Spacer()
 
                 // App icon area - gold circle pulse
                 pulsingIconArea
 
                 // "Text lines" skeleton - ink spreading effect
-                VStack(spacing: AppTheme.Spacing.sm) {
+                VStack(spacing: Theme.Spacing.sm) {
                     InkSpreadLine(width: 200, delay: 0)
                     InkSpreadLine(width: 160, delay: 0.1)
                     InkSpreadLine(width: 180, delay: 0.2)
@@ -28,7 +29,7 @@ struct SessionRestorationView: View {
 
                 // Subtle message
                 Text("Preparing your space...")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
                     .opacity(phase)
 
@@ -37,7 +38,7 @@ struct SessionRestorationView: View {
             }
         }
         .onAppear {
-            withAnimation(AppTheme.Animation.contemplative) {
+            withAnimation(Theme.Animation.slowFade) {
                 phase = 1
             }
         }
@@ -45,13 +46,13 @@ struct SessionRestorationView: View {
 
     private var pulsingIconArea: some View {
         ZStack {
-            // Outer glow ring
+            // Outer glow ring - simplified to single accent color
             Circle()
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color.illuminatedGold.opacity(AppTheme.Opacity.medium),
-                            Color.divineGold.opacity(AppTheme.Opacity.subtle),
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle),
                             .clear
                         ],
                         center: .center,
@@ -61,22 +62,13 @@ struct SessionRestorationView: View {
                 )
                 .frame(width: 120, height: 120)
                 .scaleEffect(1 + phase * 0.1)
-                .opacity(AppTheme.Opacity.strong + phase * 0.4)
+                .opacity(Theme.Opacity.strong + phase * 0.4)
 
-            // Icon
+            // Icon - simplified to single accent color
             Image(systemName: "book.closed.fill")
-                .font(.system(size: Typography.Scale.xxxl - 2, weight: .medium))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            Color.illuminatedGold,
-                            Color.divineGold
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .opacity(AppTheme.Opacity.overlay + phase * 0.3)
+                .font(Typography.Icon.hero)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .opacity(Theme.Opacity.overlay + phase * 0.3)
         }
     }
 }
@@ -89,12 +81,12 @@ struct InkSpreadLine: View {
     @State private var spread: CGFloat = 0
 
     var body: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+        RoundedRectangle(cornerRadius: Theme.Radius.xs)
             .fill(
                 LinearGradient(
                     stops: [
-                        .init(color: Color.agedInk.opacity(AppTheme.Opacity.medium), location: 0),
-                        .init(color: Color.agedInk.opacity(AppTheme.Opacity.subtle), location: spread),
+                        .init(color: Color.surfaceRaised.opacity(Theme.Opacity.medium), location: 0),
+                        .init(color: Color.surfaceRaised.opacity(Theme.Opacity.subtle), location: spread),
                         .init(color: .clear, location: min(1, spread + 0.1))
                     ],
                     startPoint: .leading,
@@ -104,7 +96,7 @@ struct InkSpreadLine: View {
             .frame(width: width, height: 8)
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    withAnimation(AppTheme.Animation.unfurl) {
+                    withAnimation(Theme.Animation.settle) {
                         spread = 1
                     }
                 }

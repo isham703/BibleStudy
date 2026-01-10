@@ -9,7 +9,7 @@ struct StoryReadingLevelSelector: View {
     @Binding var showAll: Bool
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             if showAllOption {
                 StoryReadingLevelButton(
                     label: "All",
@@ -39,7 +39,7 @@ struct StoryReadingLevelPicker: View {
     @Binding var selectedLevel: StoryReadingLevel
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             ForEach(StoryReadingLevel.allCases, id: \.self) { level in
                 StoryReadingLevelButton(
                     label: level.displayName,
@@ -59,64 +59,67 @@ struct StoryReadingLevelButton: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                 Text(label)
-                    .font(Typography.UI.chipLabel)
+                    .font(Typography.Command.meta)
             }
             .foregroundStyle(isSelected ? .white : Color.primaryText)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.scholarAccent : Color.surfaceBackground)
+                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
-        .animation(AppTheme.Animation.quick, value: isSelected)
+        .animation(Theme.Animation.fade, value: isSelected)
     }
 }
 
 // MARK: - Story Reading Level Info Sheet
 struct StoryReadingLevelInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     Text("Reading levels help tailor stories to different audiences. All stories maintain biblical accuracy while adjusting language complexity and thematic depth.")
-                        .font(Typography.UI.warmBody)
+                        .font(Typography.Command.body)
                         .foregroundStyle(Color.secondaryText)
 
                     ForEach(StoryReadingLevel.allCases, id: \.self) { level in
-                        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-                            HStack(spacing: AppTheme.Spacing.sm) {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                            HStack(spacing: Theme.Spacing.sm) {
                                 Image(systemName: level.icon)
-                                    .font(Typography.UI.title3)
-                                    .foregroundStyle(Color.scholarAccent)
-                                    .frame(width: AppTheme.IconContainer.medium)
+                                    .font(Typography.Command.title3)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .frame(width: 32)
 
                                 Text(level.displayName)
-                                    .font(Typography.Display.headline)
+                                    .font(Typography.Scripture.heading)
                                     .foregroundStyle(Color.primaryText)
                             }
 
                             Text(level.levelDescription)
-                                .font(Typography.UI.warmBody)
+                                .font(Typography.Command.body)
                                 .foregroundStyle(Color.secondaryText)
                         }
-                        .padding(AppTheme.Spacing.md)
+                        .padding(Theme.Spacing.md)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.surfaceBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                     }
                 }
                 .padding()
@@ -140,9 +143,9 @@ struct StoryReadingLevelInfoSheet: View {
         @State private var showAll = true
 
         var body: some View {
-            VStack(spacing: AppTheme.Spacing.xl) {
+            VStack(spacing: Theme.Spacing.xl) {
                 Text("With All Option")
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
 
                 StoryReadingLevelSelector(
                     selectedLevel: $level,
@@ -151,12 +154,12 @@ struct StoryReadingLevelInfoSheet: View {
                 )
 
                 Text("Without All Option")
-                    .font(Typography.UI.headline)
+                    .font(Typography.Command.headline)
 
                 StoryReadingLevelPicker(selectedLevel: $level)
 
                 Text("Selected: \(level.displayName)")
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
             }
             .padding()
             .background(Color.appBackground)

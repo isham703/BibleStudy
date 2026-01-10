@@ -5,6 +5,7 @@ import SwiftUI
 // Styled as a divine beacon with breathing glow animation
 
 struct AskFAB: View {
+    @Environment(\.colorScheme) private var colorScheme
     let action: () -> Void
 
     // MARK: - Animation State
@@ -29,28 +30,16 @@ struct AskFAB: View {
                 // Ambient glow ring (breathing animation)
                 if !respectsReducedMotion {
                     Circle()
-                        .fill(Color.divineGold.opacity(AppTheme.Opacity.medium))
+                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
                         .frame(width: glowSize, height: glowSize)
-                        .blur(radius: AppTheme.Blur.medium)
+                        .blur(radius: 8)
                         .scaleEffect(glowScale)
                 }
 
                 // Main FAB circle with gradient
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.illuminatedGold,
-                                Color.divineGold,
-                                Color.burnishedGold
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: fabSize, height: fabSize)
-                    .shadow(AppTheme.Shadow.indigoGlow)
-                    .shadow(AppTheme.Shadow.medium)
 
                 // Ask icon (Streamline asset)
                 Image(AppIcons.TabBar.ask)
@@ -62,8 +51,8 @@ struct AskFAB: View {
             }
         }
         .buttonStyle(FABButtonStyle())
-        .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1.0)
-        .animation(AppTheme.Animation.quick, value: isPressed)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .animation(Theme.Animation.fade, value: isPressed)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in isPressed = true }
@@ -86,7 +75,7 @@ struct AskFAB: View {
         glowScale = 1.0
 
         // Animate to expanded state
-        withAnimation(AppTheme.Animation.breathingPulse) {
+        withAnimation(Theme.Animation.fade) {
             glowScale = 1.08
         }
     }
@@ -98,7 +87,7 @@ private struct FABButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .brightness(configuration.isPressed ? 0.1 : 0)
-            .animation(AppTheme.Animation.quick, value: configuration.isPressed)
+            .animation(Theme.Animation.fade, value: configuration.isPressed)
     }
 }
 
@@ -116,7 +105,7 @@ private struct FABButtonStyle: ButtonStyle {
                 AskFAB {
                     print("FAB tapped")
                 }
-                .padding(AppTheme.Spacing.lg)
+                .padding(Theme.Spacing.lg)
             }
         }
     }

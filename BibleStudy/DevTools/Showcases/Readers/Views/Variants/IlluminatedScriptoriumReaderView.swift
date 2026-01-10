@@ -14,29 +14,29 @@ struct IlluminatedScriptoriumReaderView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Background - reuse MeridianBackground
-                MeridianBackground()
+                // Background - use RomanBackground (MeridianBackground deprecated)
+                RomanBackground()
 
                 // Main content
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         // Chapter header
                         chapterHeader
-                            .padding(.top, AppTheme.Spacing.xxxl)
+                            .padding(.top, Theme.Spacing.xxl)
 
                         // Ornamental divider
                         ScriptoriumDivider()
-                            .padding(.vertical, AppTheme.Spacing.xl)
+                            .padding(.vertical, Theme.Spacing.xl)
                             .opacity(isVisible ? 1 : 0)
                             .animation(.easeOut(duration: 0.6).delay(0.3), value: isVisible)
 
                         // Verses
                         versesSection
-                            .padding(.horizontal, AppTheme.Spacing.xl)
+                            .padding(.horizontal, Theme.Spacing.xl)
 
                         // Bottom spacing
                         Spacer()
-                            .frame(height: AppTheme.Spacing.xxxl * 2)
+                            .frame(height: Theme.Spacing.xxl * 2)
                     }
                     .frame(minHeight: geometry.size.height)
                 }
@@ -49,7 +49,7 @@ struct IlluminatedScriptoriumReaderView: View {
                 Text(passage.reference)
                     .font(.custom("Cinzel-Regular", size: 12))
                     .tracking(2)
-                    .foregroundStyle(Color.meridianSepia.opacity(0.7))
+                    .foregroundStyle(Color.surfaceSlate.opacity(Theme.Opacity.heavy))
             }
         }
         .onAppear {
@@ -62,36 +62,36 @@ struct IlluminatedScriptoriumReaderView: View {
     // MARK: - Chapter Header
 
     private var chapterHeader: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             // Book name
             Text(passage.bookName.uppercased())
                 .font(.custom("Cinzel-Regular", size: 11))
                 .tracking(4)
-                .foregroundStyle(Color.meridianIllumination)
+                .foregroundStyle(Color.accentBronzeLight)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.easeOut(duration: 0.5).delay(0.1), value: isVisible)
 
             // Chapter number
             Text("\(passage.chapter)")
                 .font(.custom("Cinzel-Regular", size: 72))
-                .foregroundStyle(Color.meridianGilded)
+                .foregroundStyle(Color.accentBronze)
                 .opacity(isVisible ? 1 : 0)
                 .scaleEffect(isVisible ? 1 : 0.9)
-                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.2), value: isVisible)
+                .animation(Theme.Animation.settle.delay(0.2), value: isVisible)
         }
     }
 
     // MARK: - Verses Section
 
     private var versesSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             ForEach(Array(passage.verses.enumerated()), id: \.element.id) { index, verse in
                 ScriptoriumVerseText(
                     verse: verse,
                     isFirstVerse: index == 0,
                     isSelected: selectedVerse == verse.id,
                     onTap: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        withAnimation(Theme.Animation.settle) {
                             selectedVerse = selectedVerse == verse.id ? nil : verse.id
                         }
                     }
@@ -99,7 +99,7 @@ struct IlluminatedScriptoriumReaderView: View {
                 .opacity(isVisible ? 1 : 0)
                 .offset(y: isVisible ? 0 : 20)
                 .animation(
-                    .spring(response: 0.5, dampingFraction: 0.8).delay(0.4 + Double(index) * 0.05),
+                    Theme.Animation.settle.delay(0.4 + Double(index) * 0.05),
                     value: isVisible
                 )
             }
@@ -127,17 +127,17 @@ private struct ScriptoriumVerseText: View {
             // Verse content
             verseContent
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
-                .fill(isSelected ? Color.meridianIllumination.opacity(0.1) : Color.clear)
+            RoundedRectangle(cornerRadius: Theme.Radius.input)
+                .fill(isSelected ? Color.accentBronzeLight.opacity(Theme.Opacity.overlay) : Color.clear)
         )
         .overlay(
             // Gold shimmer on selection
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small)
+            RoundedRectangle(cornerRadius: Theme.Radius.input)
                 .stroke(
-                    isSelected ? Color.meridianGilded.opacity(0.4) : Color.clear,
+                    isSelected ? Color.accentBronze.opacity(Theme.Opacity.lightMedium) : Color.clear,
                     lineWidth: 1
                 )
         )
@@ -157,14 +157,14 @@ private struct ScriptoriumVerseText: View {
             .font(.custom("Cinzel-Regular", size: 72))
             .foregroundStyle(
                 LinearGradient(
-                    colors: [Color.meridianGilded, Color.meridianIllumination],
+                    colors: [Color.accentBronze, Color.accentBronzeLight],
                     startPoint: .top,
                     endPoint: .bottom
                 )
             )
             .frame(width: 60, alignment: .center)
-            .padding(.trailing, AppTheme.Spacing.sm)
-            .shadow(color: Color.meridianIllumination.opacity(0.3), radius: 8)
+            .padding(.trailing, Theme.Spacing.sm)
+            .shadow(color: Color.accentBronzeLight.opacity(Theme.Opacity.subtle), radius: 8)
     }
 
     // MARK: - Verse Content
@@ -172,19 +172,19 @@ private struct ScriptoriumVerseText: View {
     private var verseContent: some View {
         let text = isFirstVerse ? String(verse.text.dropFirst()) : verse.text
 
-        return HStack(alignment: .firstTextBaseline, spacing: AppTheme.Spacing.sm) {
+        return HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.sm) {
             // Verse number (ornamental style)
             if !isFirstVerse {
                 Text("\(verse.id)")
                     .font(.custom("Cinzel-Regular", size: 14))
-                    .foregroundStyle(Color.meridianGilded)
+                    .foregroundStyle(Color.accentBronze)
                     .baselineOffset(4)
             }
 
             // Verse text
             Text(text)
                 .font(.custom("CormorantGaramond-Regular", size: 20))
-                .foregroundStyle(Color.meridianSepia)
+                .foregroundStyle(Color.surfaceSlate)
                 .lineSpacing(8)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -202,8 +202,8 @@ private struct ScriptoriumDivider: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            Color.meridianGilded.opacity(0.3),
-                            Color.meridianIllumination.opacity(0.5)
+                            Color.accentBronze.opacity(Theme.Opacity.subtle),
+                            Color.accentBronzeLight.opacity(Theme.Opacity.medium)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -213,10 +213,10 @@ private struct ScriptoriumDivider: View {
 
             // Center ornament - sun/book motif
             Image(systemName: "book.fill")
-                .font(.system(size: 12, weight: .light))
+                .font(Typography.Icon.xs.weight(.light))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [Color.meridianIllumination, Color.meridianGilded],
+                        colors: [Color.accentBronzeLight, Color.accentBronze],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -227,8 +227,8 @@ private struct ScriptoriumDivider: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.meridianIllumination.opacity(0.5),
-                            Color.meridianGilded.opacity(0.3),
+                            Color.accentBronzeLight.opacity(Theme.Opacity.medium),
+                            Color.accentBronze.opacity(Theme.Opacity.subtle),
                             Color.clear
                         ],
                         startPoint: .leading,

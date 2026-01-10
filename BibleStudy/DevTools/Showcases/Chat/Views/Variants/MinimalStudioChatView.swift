@@ -77,17 +77,17 @@ struct MinimalStudioChatView: View {
         VStack(spacing: 12) {
             // Icon
             Image(systemName: "bubble.left.and.bubble.right")
-                .font(.system(size: 32, weight: .light))
+                .font(Typography.Icon.xxl.weight(.light))
                 .foregroundStyle(ChatPalette.Minimal.tertiaryText)
 
             // Title
             Text("Ask anything")
-                .font(.system(size: 24, weight: .semibold))
+                .font(Typography.Icon.lg.weight(.semibold))
                 .foregroundStyle(ChatPalette.Minimal.primaryText)
 
             // Subtitle
             Text("I'm here to help with your Bible study")
-                .font(.system(size: 15, weight: .regular))
+                .font(Typography.Command.subheadline)
                 .foregroundStyle(ChatPalette.Minimal.secondaryText)
         }
         .padding(.horizontal, 40)

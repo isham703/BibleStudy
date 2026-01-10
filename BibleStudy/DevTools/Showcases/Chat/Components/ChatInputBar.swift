@@ -47,7 +47,7 @@ struct ShowcaseChatInputBar: View {
                     .frame(width: 44, height: 44)
 
                 Image(systemName: isRecording ? "waveform" : "mic.fill")
-                    .font(.system(size: 18, weight: .medium))
+                    .font(Typography.Icon.base)
                     .foregroundStyle(isRecording ? palette.voiceActiveIcon : palette.voiceIcon)
                     .scaleEffect(isRecording ? 1.1 : 1.0)
             }
@@ -56,7 +56,7 @@ struct ShowcaseChatInputBar: View {
         .overlay {
             if isRecording {
                 Circle()
-                    .stroke(palette.voiceActiveBackground.opacity(0.5), lineWidth: 2)
+                    .stroke(palette.voiceActiveBackground.opacity(Theme.Opacity.medium), lineWidth: 2)
                     .frame(width: 52, height: 52)
                     .scaleEffect(isRecording ? 1.2 : 1.0)
                     .opacity(isRecording ? 0 : 1)
@@ -70,7 +70,7 @@ struct ShowcaseChatInputBar: View {
     private var inputField: some View {
         HStack(spacing: 8) {
             TextField("Ask about scripture...", text: $text, axis: .vertical)
-                .font(.system(size: 16, weight: .regular))
+                .font(Typography.Command.callout)
                 .foregroundStyle(palette.textColor)
                 .lineLimit(1...4)
                 .focused($isFocused)
@@ -79,9 +79,9 @@ struct ShowcaseChatInputBar: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(palette.inputBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
         .overlay(
-            RoundedRectangle(cornerRadius: 22)
+            RoundedRectangle(cornerRadius: Theme.Radius.xl)
                 .stroke(isFocused ? palette.inputBorderFocused : palette.inputBorder, lineWidth: 1)
         )
     }
@@ -99,7 +99,7 @@ struct ShowcaseChatInputBar: View {
                 .frame(width: 40, height: 40)
                 .overlay(
                     Image(systemName: "arrow.up")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(Typography.Command.callout.weight(.semibold))
                         .foregroundStyle(canSend ? palette.sendIcon : palette.sendDisabledIcon)
                 )
         }
@@ -174,9 +174,9 @@ private struct InputPalette {
 
     var inputBorderFocused: Color {
         switch variant {
-        case .minimalStudio: return ChatPalette.Minimal.accent.opacity(0.3)
-        case .scholarlyCompanion: return ChatPalette.Scholarly.accent.opacity(0.5)
-        case .warmSanctuary: return ChatPalette.Sanctuary.accent.opacity(0.5)
+        case .minimalStudio: return ChatPalette.Minimal.accent.opacity(Theme.Opacity.subtle)
+        case .scholarlyCompanion: return ChatPalette.Scholarly.accent.opacity(Theme.Opacity.medium)
+        case .warmSanctuary: return ChatPalette.Sanctuary.accent.opacity(Theme.Opacity.medium)
         }
     }
 

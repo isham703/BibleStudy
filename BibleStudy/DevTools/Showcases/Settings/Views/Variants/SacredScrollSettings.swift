@@ -50,8 +50,8 @@ struct SacredScrollSettings: View {
                     backButton
                     Spacer()
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.top, AppTheme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.top, Theme.Spacing.sm)
 
                 Spacer()
             }
@@ -78,7 +78,7 @@ struct SacredScrollSettings: View {
 
             // Vellum texture overlay
             VellumTextureView()
-                .opacity(0.03)
+                .opacity(Theme.Opacity.faint)
                 .ignoresSafeArea()
 
             // Parallax gold accent strip
@@ -87,9 +87,9 @@ struct SacredScrollSettings: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.divineGold.opacity(0.0),
-                                Color.divineGold.opacity(0.05),
-                                Color.divineGold.opacity(0.0)
+                                Color.accentBronze.opacity(0),
+                                Color.accentBronze.opacity(Theme.Opacity.faint),
+                                Color.accentBronze.opacity(0)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -107,15 +107,15 @@ struct SacredScrollSettings: View {
         Button {
             dismiss()
         } label: {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(Typography.Command.caption.weight(.semibold))
                 Text("Back")
                     .font(Typography.body)
             }
-            .foregroundStyle(Color.divineGold)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .foregroundStyle(Color.accentBronze)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background {
                 Capsule()
                     .fill(.ultraThinMaterial)
@@ -126,16 +126,16 @@ struct SacredScrollSettings: View {
     // MARK: - Hero Section
 
     private var heroSection: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             Spacer()
                 .frame(height: 80)
 
             // Illuminated title
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 // Decorative cross
                 Image(systemName: "cross.fill")
-                    .font(.system(size: 24))
-                    .foregroundStyle(Color.divineGold.opacity(0.6))
+                    .font(Typography.Icon.lg)
+                    .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.tertiary))
                     .rotationEffect(.degrees(-scrollOffset * 0.1))
 
                 Text("SETTINGS")
@@ -144,9 +144,9 @@ struct SacredScrollSettings: View {
                         LinearGradient(
                             colors: [
                                 Color(hex: "C9943D"),
-                                Color.divineGold,
-                                Color(hex: "F5E6B8"),
-                                Color.divineGold,
+                                Color.accentBronze,
+                                Color.decorativeCream,
+                                Color.accentBronze,
                                 Color(hex: "C9943D")
                             ],
                             startPoint: .leading,
@@ -156,7 +156,7 @@ struct SacredScrollSettings: View {
                     .kerning(8)
 
                 // Subtitle with flourishes
-                HStack(spacing: AppTheme.Spacing.md) {
+                HStack(spacing: Theme.Spacing.md) {
                     flourishLine
 
                     Text("Customize Your Journey")
@@ -166,7 +166,7 @@ struct SacredScrollSettings: View {
                     flourishLine
                 }
             }
-            .padding(.bottom, AppTheme.Spacing.xxxl)
+            .padding(.bottom, Theme.Spacing.xxl)
         }
         .frame(height: 320)
     }
@@ -175,7 +175,7 @@ struct SacredScrollSettings: View {
         Rectangle()
             .fill(
                 LinearGradient(
-                    colors: [Color.clear, Color.divineGold.opacity(0.4), Color.clear],
+                    colors: [Color.clear, Color.accentBronze.opacity(Theme.Opacity.lightMedium), Color.clear],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
@@ -192,7 +192,7 @@ struct SacredScrollSettings: View {
                 title: "Divine Intelligence",
                 subtitle: "AI-Powered Spiritual Insights"
             ) {
-                VStack(spacing: AppTheme.Spacing.lg) {
+                VStack(spacing: Theme.Spacing.lg) {
                     ImmersiveToggle(
                         title: "Scholar Insights",
                         description: "Receive AI-powered analysis of scripture with historical context, cross-references, and theological depth.",
@@ -221,7 +221,7 @@ struct SacredScrollSettings: View {
                 title: "The Written Word",
                 subtitle: "Typography & Reading"
             ) {
-                VStack(spacing: AppTheme.Spacing.xxl) {
+                VStack(spacing: Theme.Spacing.xxl) {
                     // Font Size
                     ImmersiveSlider(
                         title: "Scripture Size",
@@ -233,7 +233,7 @@ struct SacredScrollSettings: View {
                             .font(.system(size: fontSize))
                             .foregroundStyle(Color.secondaryText)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, AppTheme.Spacing.lg)
+                            .padding(.horizontal, Theme.Spacing.lg)
                     }
 
                     // Line Spacing
@@ -248,7 +248,7 @@ struct SacredScrollSettings: View {
                             Text("and void; and darkness was")
                             Text("upon the face of the deep.")
                         }
-                        .font(.system(size: 16))
+                        .font(Typography.Command.callout)
                         .foregroundStyle(Color.tertiaryText)
                         .multilineTextAlignment(.center)
                     }
@@ -263,7 +263,7 @@ struct SacredScrollSettings: View {
                 title: "Cloud of Witnesses",
                 subtitle: "Sync & Account"
             ) {
-                VStack(spacing: AppTheme.Spacing.lg) {
+                VStack(spacing: Theme.Spacing.lg) {
                     ImmersiveToggle(
                         title: "Heavenly Sync",
                         description: "Keep your highlights, notes, and reading progress synchronized across all your devices.",
@@ -281,7 +281,7 @@ struct SacredScrollSettings: View {
                 title: "Daily Bread",
                 subtitle: "Reminders & Notifications"
             ) {
-                VStack(spacing: AppTheme.Spacing.lg) {
+                VStack(spacing: Theme.Spacing.lg) {
                     ImmersiveToggle(
                         title: "Morning Verse",
                         description: "Start each day with an inspiring verse delivered to your lock screen.",
@@ -306,12 +306,12 @@ struct SacredScrollSettings: View {
     // MARK: - Footer
 
     private var footerSection: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             // Ornamental footer
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "book.closed.fill")
-                    .font(.system(size: 28))
-                    .foregroundStyle(Color.divineGold.opacity(0.4))
+                    .font(Typography.Icon.xl)
+                    .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.lightMedium))
 
                 Text("BIBLE STUDY")
                     .font(.custom("Cinzel-Regular", size: 14))
@@ -320,14 +320,14 @@ struct SacredScrollSettings: View {
 
                 Text("Sacred Scroll Design")
                     .font(Typography.caption)
-                    .foregroundStyle(Color.tertiaryText.opacity(0.6))
+                    .foregroundStyle(Color.tertiaryText.opacity(Theme.Opacity.tertiary))
             }
         }
-        .padding(.vertical, AppTheme.Spacing.xxxl)
+        .padding(.vertical, Theme.Spacing.xxl)
         .frame(maxWidth: .infinity)
         .background(
             LinearGradient(
-                colors: [Color.clear, Color(hex: "0A0908")],
+                colors: [Color.clear, Color.surfaceDeep],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -343,43 +343,43 @@ struct ScrollSection<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xl) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             // Section header
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(subtitle.uppercased())
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.divineGold.opacity(0.7))
+                    .font(Typography.Icon.xxs.weight(.medium))
+                    .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.heavy))
                     .kerning(2)
 
                 Text(title)
                     .font(.custom("Cinzel-Regular", size: 28))
                     .foregroundStyle(Color.primaryText)
             }
-            .padding(.horizontal, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xl)
 
             // Decorative line
             HStack(spacing: 0) {
                 Rectangle()
-                    .fill(Color.divineGold)
+                    .fill(Color.accentBronze)
                     .frame(width: 40, height: 2)
 
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.divineGold.opacity(0.5), Color.clear],
+                            colors: [Color.accentBronze.opacity(Theme.Opacity.medium), Color.clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .frame(height: 1)
             }
-            .padding(.horizontal, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xl)
 
             // Content
             content
-                .padding(.horizontal, AppTheme.Spacing.xl)
+                .padding(.horizontal, Theme.Spacing.xl)
         }
-        .padding(.vertical, AppTheme.Spacing.xxxl)
+        .padding(.vertical, Theme.Spacing.xxl)
     }
 }
 
@@ -392,24 +392,24 @@ struct ImmersiveToggle: View {
     @Binding var isOn: Bool
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            HStack(alignment: .top, spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.md) {
+            HStack(alignment: .top, spacing: Theme.Spacing.lg) {
                 // Icon
                 ZStack {
                     Circle()
                         .fill(
                             isOn
-                                ? Color.divineGold.opacity(0.15)
-                                : Color.white.opacity(0.05)
+                                ? Color.accentBronze.opacity(Theme.Opacity.divider)
+                                : Color.white.opacity(Theme.Opacity.faint)
                         )
                         .frame(width: 48, height: 48)
 
                     Image(systemName: icon)
-                        .font(.system(size: 20))
-                        .foregroundStyle(isOn ? Color.divineGold : Color.secondaryText)
+                        .font(Typography.Command.title3)
+                        .foregroundStyle(isOn ? Color.accentBronze : Color.secondaryText)
                 }
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(title)
                         .font(.custom("Cinzel-Regular", size: 18))
                         .foregroundStyle(Color.primaryText)
@@ -425,18 +425,18 @@ struct ImmersiveToggle: View {
 
             // Full-width toggle track
             Button {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                withAnimation(Theme.Animation.settle) {
                     isOn.toggle()
                 }
             } label: {
                 ZStack(alignment: isOn ? .trailing : .leading) {
                     Capsule()
-                        .fill(isOn ? Color.divineGold.opacity(0.2) : Color.white.opacity(0.05))
+                        .fill(isOn ? Color.accentBronze.opacity(Theme.Opacity.light) : Color.white.opacity(Theme.Opacity.faint))
                         .frame(height: 40)
                         .overlay {
                             Capsule()
                                 .strokeBorder(
-                                    isOn ? Color.divineGold.opacity(0.4) : Color.white.opacity(0.1),
+                                    isOn ? Color.accentBronze.opacity(Theme.Opacity.lightMedium) : Color.white.opacity(Theme.Opacity.overlay),
                                     lineWidth: 1
                                 )
                         }
@@ -447,25 +447,25 @@ struct ImmersiveToggle: View {
                             Spacer()
                         }
 
-                        HStack(spacing: AppTheme.Spacing.sm) {
+                        HStack(spacing: Theme.Spacing.sm) {
                             if isOn {
                                 Text("ENABLED")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundStyle(Color.divineGold)
+                                    .font(Typography.Icon.xxs.weight(.bold))
+                                    .foregroundStyle(Color.accentBronze)
                             }
 
                             Circle()
-                                .fill(isOn ? Color.divineGold : Color.white.opacity(0.3))
+                                .fill(isOn ? Color.accentBronze : Color.white.opacity(Theme.Opacity.subtle))
                                 .frame(width: 32, height: 32)
-                                .shadow(color: isOn ? Color.divineGold.opacity(0.5) : .clear, radius: 8)
+                                .shadow(color: isOn ? Color.accentBronze.opacity(Theme.Opacity.medium) : .clear, radius: 8)
 
                             if !isOn {
                                 Text("DISABLED")
-                                    .font(.system(size: 11, weight: .medium))
+                                    .font(Typography.Icon.xxs.weight(.medium))
                                     .foregroundStyle(Color.tertiaryText)
                             }
                         }
-                        .padding(.horizontal, AppTheme.Spacing.sm)
+                        .padding(.horizontal, Theme.Spacing.sm)
 
                         if !isOn {
                             Spacer()
@@ -475,10 +475,10 @@ struct ImmersiveToggle: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                .fill(Color.white.opacity(0.02))
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .fill(Color.white.opacity(Theme.Opacity.faint))
         )
     }
 }
@@ -493,11 +493,11 @@ struct ImmersiveSlider<Preview: View>: View {
     @ViewBuilder let preview: Preview
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             HStack {
                 Image(systemName: icon)
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color.divineGold)
+                    .font(Typography.Icon.base)
+                    .foregroundStyle(Color.accentBronze)
 
                 Text(title)
                     .font(.custom("Cinzel-Regular", size: 16))
@@ -507,27 +507,27 @@ struct ImmersiveSlider<Preview: View>: View {
 
                 Text(String(format: "%.1f", value))
                     .font(Typography.monospacedBody)
-                    .foregroundStyle(Color.divineGold)
+                    .foregroundStyle(Color.accentBronze)
             }
 
             // Preview
             preview
                 .frame(minHeight: 60)
-                .padding(.vertical, AppTheme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.md)
 
             // Slider
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     // Track
                     Capsule()
-                        .fill(Color.white.opacity(0.1))
+                        .fill(Color.white.opacity(Theme.Opacity.overlay))
                         .frame(height: 8)
 
                     // Filled portion
                     Capsule()
                         .fill(
                             LinearGradient(
-                                colors: [Color.divineGold.opacity(0.6), Color.divineGold],
+                                colors: [Color.accentBronze.opacity(Theme.Opacity.tertiary), Color.accentBronze],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -537,9 +537,9 @@ struct ImmersiveSlider<Preview: View>: View {
                     // Thumb
                     ZStack {
                         Circle()
-                            .fill(Color.divineGold)
+                            .fill(Color.accentBronze)
                             .frame(width: 28, height: 28)
-                            .shadow(color: Color.divineGold.opacity(0.5), radius: 10)
+                            .shadow(color: Color.accentBronze.opacity(Theme.Opacity.medium), radius: 10)
 
                         Circle()
                             .fill(Color.white)
@@ -558,10 +558,10 @@ struct ImmersiveSlider<Preview: View>: View {
             }
             .frame(height: 28)
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                .fill(Color.white.opacity(0.02))
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .fill(Color.white.opacity(Theme.Opacity.faint))
         )
     }
 
@@ -579,11 +579,11 @@ struct TranslationSelector: View {
     private let translations = ["ESV", "NIV", "KJV", "NASB", "NLT"]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             HStack {
                 Image(systemName: "book.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color.divineGold)
+                    .font(Typography.Icon.base)
+                    .foregroundStyle(Color.accentBronze)
 
                 Text("Translation")
                     .font(.custom("Cinzel-Regular", size: 16))
@@ -592,10 +592,10 @@ struct TranslationSelector: View {
 
             // Horizontal scroll of translations
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     ForEach(translations, id: \.self) { translation in
                         Button {
-                            withAnimation(.spring(response: 0.3)) {
+                            withAnimation(Theme.Animation.settle) {
                                 selected = translation
                             }
                         } label: {
@@ -603,22 +603,22 @@ struct TranslationSelector: View {
                                 .font(.custom("Cinzel-Regular", size: 14))
                                 .foregroundStyle(
                                     selected == translation
-                                        ? Color.divineGold
+                                        ? Color.accentBronze
                                         : Color.secondaryText
                                 )
-                                .padding(.horizontal, AppTheme.Spacing.lg)
-                                .padding(.vertical, AppTheme.Spacing.md)
+                                .padding(.horizontal, Theme.Spacing.lg)
+                                .padding(.vertical, Theme.Spacing.md)
                                 .background {
                                     if selected == translation {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.divineGold.opacity(0.15))
+                                        RoundedRectangle(cornerRadius: Theme.Radius.input)
+                                            .fill(Color.accentBronze.opacity(Theme.Opacity.divider))
                                             .overlay {
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .strokeBorder(Color.divineGold.opacity(0.4), lineWidth: 1)
+                                                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                                                    .strokeBorder(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: 1)
                                             }
                                     } else {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.white.opacity(0.03))
+                                        RoundedRectangle(cornerRadius: Theme.Radius.input)
+                                            .fill(Color.white.opacity(Theme.Opacity.faint))
                                     }
                                 }
                         }
@@ -627,10 +627,10 @@ struct TranslationSelector: View {
                 }
             }
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                .fill(Color.white.opacity(0.02))
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .fill(Color.white.opacity(Theme.Opacity.faint))
         )
     }
 }
@@ -639,14 +639,14 @@ struct TranslationSelector: View {
 
 struct AccountCard: View {
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
-            HStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
+            HStack(spacing: Theme.Spacing.lg) {
                 // Avatar
                 ZStack {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [Color.divineGold.opacity(0.3), Color.divineGold.opacity(0.1)],
+                                colors: [Color.accentBronze.opacity(Theme.Opacity.subtle), Color.accentBronze.opacity(Theme.Opacity.overlay)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -655,10 +655,10 @@ struct AccountCard: View {
 
                     Text("JS")
                         .font(.custom("Cinzel-Regular", size: 22))
-                        .foregroundStyle(Color.divineGold)
+                        .foregroundStyle(Color.accentBronze)
                 }
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("John Smith")
                         .font(.custom("Cinzel-Regular", size: 18))
                         .foregroundStyle(Color.primaryText)
@@ -667,33 +667,33 @@ struct AccountCard: View {
                         .font(Typography.footnote)
                         .foregroundStyle(Color.tertiaryText)
 
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: "crown.fill")
-                            .font(.system(size: 10))
+                            .font(Typography.Icon.xxs)
                         Text("Premium Member")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(Typography.Icon.xxs.weight(.medium))
                     }
-                    .foregroundStyle(Color.divineGold)
-                    .padding(.top, AppTheme.Spacing.xxs)
+                    .foregroundStyle(Color.accentBronze)
+                    .padding(.top, 2)
                 }
 
                 Spacer()
             }
 
             // Account actions
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 AccountAction(title: "Manage", icon: "gearshape.fill")
                 AccountAction(title: "Subscription", icon: "crown.fill")
                 AccountAction(title: "Sign Out", icon: "rectangle.portrait.and.arrow.right", isDestructive: true)
             }
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                .fill(Color.white.opacity(0.02))
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .fill(Color.white.opacity(Theme.Opacity.faint))
                 .overlay {
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                        .strokeBorder(Color.divineGold.opacity(0.1), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                        .strokeBorder(Color.accentBronze.opacity(Theme.Opacity.overlay), lineWidth: 1)
                 }
         )
     }
@@ -708,18 +708,18 @@ struct AccountAction: View {
         Button {
             // Action
         } label: {
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(.system(size: 16))
+                    .font(Typography.Command.callout)
                 Text(title)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Typography.Icon.xxs.weight(.medium))
             }
             .foregroundStyle(isDestructive ? Color(hex: "C94A4A") : Color.secondaryText)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white.opacity(0.03))
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .fill(Color.white.opacity(Theme.Opacity.faint))
             )
         }
         .buttonStyle(.plain)

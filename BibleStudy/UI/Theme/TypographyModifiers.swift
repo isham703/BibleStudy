@@ -70,8 +70,8 @@ extension View {
     /// ```
     func editorialReference() -> some View {
         self
-            .font(Typography.Editorial.reference)
-            .tracking(Typography.Editorial.referenceTracking)
+            .font(Typography.Command.meta)
+            .tracking(1.5)  // Reference tracking for citations
     }
 
     /// Hero reference - large serif for prominent displays
@@ -88,18 +88,18 @@ extension View {
     /// ```
     func editorialReferenceHero() -> some View {
         self
-            .font(Typography.Editorial.referenceHero)
+            .font(Typography.Command.meta)
     }
 
     // MARK: - Reading Modifiers
 
-    /// Verse text - respects user font preference with proper spacing
+    /// Verse text - New York serif with proper spacing
     ///
     /// Example: Main scripture display in readers
     ///
     /// **Includes:**
-    /// - Font: User-selected (NewYork, Georgia, EB Garamond)
-    /// - Line spacing: 8pt (contemplative reading)
+    /// - Font: New York serif (system built-in)
+    /// - Line spacing: 6pt (contemplative reading per design system)
     ///
     /// ```swift
     /// Text(verse.text)
@@ -108,8 +108,8 @@ extension View {
     /// ```
     func readingVerse(size: ScriptureFontSize, font: ScriptureFont, lineSpacing: CGFloat? = nil) -> some View {
         self
-            .font(Typography.Reading.verse(size: size, font: font))
-            .lineSpacing(lineSpacing ?? Typography.Reading.verseLineSpacing)
+            .font(Typography.Scripture.body)
+            .lineSpacing(lineSpacing ?? Typography.Scripture.bodyLineSpacing)
     }
 
     /// Poetic verse - italic variant with generous spacing
@@ -117,8 +117,8 @@ extension View {
     /// Example: Psalms, quoted passages
     ///
     /// **Includes:**
-    /// - Font: User-selected italic
-    /// - Line spacing: 10pt (poetic breathing room)
+    /// - Font: New York serif italic
+    /// - Line spacing: 6pt (same as body for consistency)
     ///
     /// ```swift
     /// Text(psalm.text)
@@ -127,13 +127,15 @@ extension View {
     /// ```
     func readingVersePoetic(size: ScriptureFontSize, font: ScriptureFont) -> some View {
         self
-            .font(Typography.Reading.verseItalic(size: size, font: font))
-            .lineSpacing(Typography.Reading.poeticLineSpacing)
+            .font(Typography.Scripture.quote)
+            .lineSpacing(Typography.Scripture.quoteLineSpacing)
     }
 
-    /// Verse number - standard bold style
+    /// Verse number - SF Pro sans (functional, not sacred)
     ///
     /// Example: Default verse number display
+    ///
+    /// **HARD RULE**: Verse numbers are ALWAYS sans (functional, not sacred)
     ///
     /// ```swift
     /// Text("\(verse.verse)")
@@ -142,10 +144,10 @@ extension View {
     /// ```
     func readingVerseNumber() -> some View {
         self
-            .font(Typography.Reading.verseNumber)
+            .font(Typography.Command.meta)
     }
 
-    /// Chapter number - large bold serif
+    /// Chapter number - Scripture heading style
     ///
     /// Example: "Chapter 1" in reader headers
     ///
@@ -156,7 +158,7 @@ extension View {
     /// ```
     func readingChapterNumber() -> some View {
         self
-            .font(Typography.Reading.chapterNumber)
+            .font(Typography.Scripture.heading)
     }
 
     // MARK: - Insight Modifiers
@@ -166,18 +168,18 @@ extension View {
     /// Example: Main insight summary, chat responses
     ///
     /// **Includes:**
-    /// - Font: Cormorant Garamond Regular 17pt
-    /// - Line spacing: 6pt
+    /// - Font: New York serif (Scripture heading)
+    /// - Line spacing: 4pt
     ///
     /// ```swift
     /// Text(structured.summary)
     ///     .insightHeroSummary()
-    ///     .foregroundStyle(AppTheme.InsightCard.heroText)
+    ///     .foregroundStyle(Color.white)
     /// ```
     func insightHeroSummary() -> some View {
         self
-            .font(Typography.Insight.heroSummary)
-            .lineSpacing(Typography.Insight.heroLineSpacing)
+            .font(Typography.Scripture.heading)
+            .lineSpacing(Typography.Scripture.headingLineSpacing)
     }
 
     /// Insight body - standard AI content with spacing
@@ -185,8 +187,8 @@ extension View {
     /// Example: Expanded content, detailed explanations
     ///
     /// **Includes:**
-    /// - Font: Cormorant Garamond Regular 15pt
-    /// - Line spacing: 5pt
+    /// - Font: New York serif (Scripture body)
+    /// - Line spacing: 6pt
     ///
     /// ```swift
     /// Text(explanation)
@@ -195,16 +197,16 @@ extension View {
     /// ```
     func insightBody() -> some View {
         self
-            .font(Typography.Insight.body)
-            .lineSpacing(Typography.Insight.bodyLineSpacing)
+            .font(Typography.Scripture.body)
+            .lineSpacing(Typography.Scripture.bodyLineSpacing)
     }
 
-    /// Insight header - Cinzel small caps for manuscript feel
+    /// Insight header - uppercase label for tags
     ///
     /// Example: "SCHOLARLY INSIGHT", "ILLUMINATED INSIGHT"
     ///
     /// **Includes:**
-    /// - Font: Cinzel Regular 11pt
+    /// - Font: SF Pro Medium 12pt uppercase with tracking
     ///
     /// ```swift
     /// Text("SCHOLARLY INSIGHT")
@@ -213,7 +215,7 @@ extension View {
     /// ```
     func insightHeader() -> some View {
         self
-            .font(Typography.Insight.header)
+            .uppercaseLabel()
     }
 
     /// Insight emphasis - semibold for key points
@@ -227,7 +229,7 @@ extension View {
     /// ```
     func insightEmphasis() -> some View {
         self
-            .font(Typography.Insight.emphasis)
+            .font(Typography.Command.label)
     }
 
     /// Insight italic - for quotes, marginalia
@@ -241,7 +243,7 @@ extension View {
     /// ```
     func insightItalic() -> some View {
         self
-            .font(Typography.Insight.italic)
+            .font(Typography.Scripture.quote)
     }
 
     /// Insight reference - semibold for cross-references
@@ -255,7 +257,7 @@ extension View {
     /// ```
     func insightReference() -> some View {
         self
-            .font(Typography.Insight.reference)
+            .font(Typography.Command.label)
     }
 }
 

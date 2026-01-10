@@ -15,7 +15,7 @@ struct ShowcaseChatCard<Destination: View>: View {
         }
         .buttonStyle(.plain)
         .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .animation(Theme.Animation.settle, value: isPressed)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -39,12 +39,12 @@ struct ShowcaseChatCard<Destination: View>: View {
             contentSection
         }
         .background(ChatPalette.Directory.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg))
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
                 .stroke(ChatPalette.Directory.divider, lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.2), radius: 12, y: 6)
+        .shadow(color: Color.black.opacity(Theme.Opacity.light), radius: 12, y: 6)
     }
 
     // MARK: - Preview Section
@@ -62,11 +62,11 @@ struct ShowcaseChatCard<Destination: View>: View {
             HStack(alignment: .bottom, spacing: 12) {
                 // AI message preview
                 VStack(alignment: .leading, spacing: 4) {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: Theme.Radius.md)
                         .fill(previewBubbleColor)
                         .frame(width: 140, height: 32)
 
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: Theme.Radius.md)
                         .fill(previewBubbleColor)
                         .frame(width: 100, height: 24)
                 }
@@ -74,8 +74,8 @@ struct ShowcaseChatCard<Destination: View>: View {
                 Spacer()
 
                 // User message preview
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(variant.accentColor.opacity(0.8))
+                RoundedRectangle(cornerRadius: Theme.Radius.md)
+                    .fill(variant.accentColor.opacity(Theme.Opacity.pressed))
                     .frame(width: 80, height: 28)
             }
             .padding(20)
@@ -86,11 +86,11 @@ struct ShowcaseChatCard<Destination: View>: View {
     private var previewBubbleColor: Color {
         switch variant {
         case .minimalStudio:
-            return Color.white.opacity(0.9)
+            return Color.white.opacity(Theme.Opacity.high)
         case .scholarlyCompanion:
-            return Color.white.opacity(0.9)
+            return Color.white.opacity(Theme.Opacity.high)
         case .warmSanctuary:
-            return Color.white.opacity(0.15)
+            return Color.white.opacity(Theme.Opacity.divider)
         }
     }
 
@@ -101,26 +101,26 @@ struct ShowcaseChatCard<Destination: View>: View {
             // Header with icon
             HStack(spacing: 10) {
                 Image(systemName: variant.icon)
-                    .font(.system(size: 18, weight: .medium))
+                    .font(Typography.Icon.base)
                     .foregroundStyle(variant.accentColor)
                     .frame(width: 36, height: 36)
-                    .background(variant.accentColor.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .background(variant.accentColor.opacity(Theme.Opacity.divider))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(variant.title)
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(Typography.Command.headline)
                         .foregroundStyle(ChatPalette.Directory.primaryText)
 
                     Text(variant.subtitle)
-                        .font(.system(size: 13, weight: .regular))
+                        .font(Typography.Command.meta)
                         .foregroundStyle(ChatPalette.Directory.secondaryText)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(Typography.Icon.sm)
                     .foregroundStyle(ChatPalette.Directory.tertiaryText)
             }
 
@@ -128,7 +128,7 @@ struct ShowcaseChatCard<Destination: View>: View {
             HStack(spacing: 8) {
                 ForEach(variant.tags, id: \.self) { tag in
                     Text(tag)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(Typography.Icon.xxs.weight(.medium))
                         .foregroundStyle(ChatPalette.Directory.secondaryText)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)

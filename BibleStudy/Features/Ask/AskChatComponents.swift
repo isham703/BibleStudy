@@ -10,18 +10,19 @@ import SwiftUI
 struct ChatBubble: View {
     let message: ChatMessage
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.xs) {
+        HStack(alignment: .top, spacing: Theme.Spacing.xs) {
             if message.isUser { Spacer(minLength: 0) }
 
             // AI sparkle indicator for assistant messages
             if !message.isUser {
                 AISparkle()
-                    .padding(.top, AppTheme.Spacing.sm)
+                    .padding(.top, Theme.Spacing.sm)
             }
 
-            VStack(alignment: message.isUser ? .trailing : .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: message.isUser ? .trailing : .leading, spacing: Theme.Spacing.xs) {
                 bubbleContent
                 citationsView
             }
@@ -41,11 +42,11 @@ struct ChatBubble: View {
 
     private var bubbleContent: some View {
         Text(message.content)
-            .font(Typography.UI.body)
-            .foregroundStyle(message.isUser ? Color.white : Color.primaryText)
-            .padding(AppTheme.Spacing.md)
+            .font(Typography.Command.body)
+            .foregroundStyle(message.isUser ? Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+            .padding(Theme.Spacing.md)
             .background(bubbleBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
             .contextMenu {
                 // Report button for assistant messages only
                 if !message.isUser {
@@ -77,7 +78,7 @@ struct ChatBubble: View {
     }
 
     private var bubbleBackground: Color {
-        message.isUser ? Color.scholarIndigo : Color.surfaceBackground
+        message.isUser ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
     }
 
     // MARK: - Citations
@@ -85,7 +86,7 @@ struct ChatBubble: View {
     @ViewBuilder
     private var citationsView: some View {
         if let citations = message.citations, !citations.isEmpty {
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 ForEach(citations) { citation in
                     CitationButton(citation: citation, appState: appState)
                 }
@@ -101,18 +102,20 @@ struct CitationButton: View {
     let citation: VerseRange
     let appState: AppState
 
-    var body: some View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View{
         Button(action: navigateToVerse) {
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 2) {
                 Image(systemName: "book.closed")
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
                 Text(citation.shortReference)
-                    .font(Typography.UI.caption2)
+                    .font(Typography.Command.meta)
             }
-            .foregroundStyle(Color.scholarIndigo)
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xs)
-            .background(Color.scholarIndigo.opacity(0.1))
+            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
+            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -140,26 +143,27 @@ struct CitationButton: View {
 /// Animated dots showing AI is processing
 struct TypingIndicator: View {
     @State private var dotScales: [CGFloat] = [0.5, 0.7, 0.5]
+    @Environment(\.colorScheme) private var colorScheme
 
     private var respectsReducedMotion: Bool {
         UIAccessibility.isReduceMotionEnabled
     }
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             ForEach(0..<3, id: \.self) { index in
                 Circle()
-                    .fill(Color.tertiaryText)
+                    .fill(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                     .frame(
-                        width: AppTheme.ComponentSize.indicator,
-                        height: AppTheme.ComponentSize.indicator
+                        width: 8,
+                        height: 8
                     )
                     .scaleEffect(dotScales[index])
             }
         }
-        .padding(AppTheme.Spacing.md)
-        .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md, style: .continuous))
+        .padding(Theme.Spacing.md)
+        .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         .onAppear(perform: startAnimation)
     }
 
@@ -171,7 +175,7 @@ struct TypingIndicator: View {
 
         for index in 0..<3 {
             withAnimation(
-                AppTheme.Animation.slow
+                Theme.Animation.slowFade
                     .repeatForever(autoreverses: true)
                     .delay(Double(index) * 0.2)
             ) {
@@ -189,6 +193,7 @@ struct ChatInputBar: View {
     var isLoading: Bool = false
     var isFocused: FocusState<Bool>.Binding
     let onSend: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var glowIntensity: CGFloat = 0.3
     @State private var sendButtonScale: CGFloat = 1.0
@@ -207,14 +212,14 @@ struct ChatInputBar: View {
                     .offset(x: 60, y: 0) // Position near send button
             }
 
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 textField
                 sendButton
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.md)
             .background(inputBarBackground)
-            .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl))
+            .glassEffect(in: RoundedRectangle(cornerRadius: Theme.Radius.card))
             .scrollEdgeEffectStyle(.soft, for: .bottom)
             .scaleEffect(inputBarScale)
         }
@@ -228,14 +233,14 @@ struct ChatInputBar: View {
     private var inputBarBackground: some View {
         ZStack {
             // Base fill
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl)
-                .fill(Color.primaryBackground.opacity(AppTheme.Opacity.nearOpaque))
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
 
             // Ambient gold glow when focused
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .strokeBorder(
-                    Color.divineGold.opacity(glowIntensity),
-                    lineWidth: AppTheme.Border.medium
+                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity),
+                    lineWidth: Theme.Stroke.control
                 )
         }
     }
@@ -244,11 +249,11 @@ struct ChatInputBar: View {
 
     private var textField: some View {
         TextField("Ask a question...", text: $text, axis: .vertical)
-            .font(Typography.UI.body)
+            .font(Typography.Command.body)
             .textFieldStyle(.plain)
             .focused(isFocused)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(textFieldBackground)
             .lineLimit(1...5)
             .submitLabel(.send)
@@ -256,13 +261,13 @@ struct ChatInputBar: View {
     }
 
     private var textFieldBackground: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large, style: .continuous)
-            .fill(Color.surfaceBackground)
+        RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+            .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                     .strokeBorder(
-                        Color.divineGold.opacity(isFocused.wrappedValue ? AppTheme.Opacity.medium : AppTheme.Opacity.subtle),
-                        lineWidth: AppTheme.Border.thin
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(isFocused.wrappedValue ? Theme.Opacity.secondary : Theme.Opacity.faint),
+                        lineWidth: Theme.Stroke.hairline
                     )
             )
     }
@@ -275,8 +280,8 @@ struct ChatInputBar: View {
                 if isLoading {
                     // Sacred geometry loading indicator
                     ProgressView()
-                        .tint(Color.divineGold)
-                        .scaleEffect(AppTheme.Scale.reduced)
+                        .tint(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .scaleEffect(0.95)
                 } else {
                     // Quill send icon
                     quillIcon
@@ -288,17 +293,17 @@ struct ChatInputBar: View {
             .scaleEffect(sendButtonScale)
         }
         .disabled(text.isEmpty || isLoading)
-        .animation(AppTheme.Animation.sacredSpring, value: text.isEmpty)
-        .animation(AppTheme.Animation.quick, value: sendButtonScale)
+        .animation(Theme.Animation.settle, value: text.isEmpty)
+        .animation(Theme.Animation.fade, value: sendButtonScale)
     }
 
     private var quillIcon: some View {
         Image(systemName: "pencil.and.outline")
-            .font(Typography.UI.headline)
+            .font(Typography.Command.headline)
             .foregroundStyle(
                 text.isEmpty
-                    ? Color.tertiaryText
-                    : Color.divineGold
+                    ? Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme))
+                    : Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
             )
             .rotationEffect(.degrees(-45))
     }
@@ -307,15 +312,15 @@ struct ChatInputBar: View {
         Group {
             if text.isEmpty {
                 Circle()
-                    .fill(Color.surfaceBackground)
+                    .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
             } else {
                 Circle()
-                    .fill(Color.divineGold.opacity(AppTheme.Opacity.light))
+                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
                     .overlay(
                         Circle()
                             .strokeBorder(
-                                Color.divineGold.opacity(AppTheme.Opacity.medium),
-                                lineWidth: AppTheme.Border.thin
+                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                                lineWidth: Theme.Stroke.hairline
                             )
                     )
             }
@@ -337,20 +342,20 @@ struct ChatInputBar: View {
 
         if !respectsReducedMotion {
             // Phase 1: Input bar "lifts" with scale (Release)
-            withAnimation(AppTheme.Animation.quick) {
+            withAnimation(Theme.Animation.fade) {
                 inputBarScale = 1.02
             }
 
             // Button press animation
-            withAnimation(AppTheme.Animation.quick) {
-                sendButtonScale = AppTheme.Scale.pressed
+            withAnimation(Theme.Animation.fade) {
+                sendButtonScale = 0.98
             }
 
             // Trigger ink splash particles
             showInkSplash = true
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(AppTheme.Animation.sacredSpring) {
+                withAnimation(Theme.Animation.settle) {
                     sendButtonScale = 1.0
                     inputBarScale = 1.0
                 }
@@ -373,7 +378,7 @@ struct ChatInputBar: View {
             return
         }
 
-        withAnimation(AppTheme.Animation.luminous) {
+        withAnimation(Theme.Animation.slowFade) {
             glowIntensity = isFocused ? 0.6 : 0.3
         }
     }
@@ -393,7 +398,7 @@ struct MessagesListView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: AppTheme.Spacing.md) {
+                LazyVStack(spacing: Theme.Spacing.md) {
                     ForEach(messages) { message in
                         ChatBubble(message: message)
                             .id(message.id)
@@ -426,8 +431,8 @@ struct MessagesListView: View {
                             .transition(.opacity.combined(with: .move(edge: .leading)))
                     }
                 }
-                .padding(AppTheme.Spacing.md)
-                .animation(AppTheme.Animation.standard, value: messages.count)
+                .padding(Theme.Spacing.md)
+                .animation(Theme.Animation.settle, value: messages.count)
             }
             .scrollDismissesKeyboard(.interactively)
             .onTapGesture(perform: onDismissKeyboard)
@@ -439,7 +444,7 @@ struct MessagesListView: View {
 
     private func scrollToBottom(proxy: ScrollViewProxy) {
         guard let lastMessage = messages.last else { return }
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             proxy.scrollTo(lastMessage.id, anchor: .bottom)
         }
     }
@@ -450,25 +455,26 @@ struct MessagesListView: View {
 /// Shows when AI response has interpretive uncertainty
 struct UncertaintyBanner: View {
     let level: UncertaintyLevel
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "exclamationmark.triangle")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.warning)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.warning(for: ThemeMode.current(from: colorScheme)))
 
             Text(level.displayText)
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
 
             Spacer()
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small, style: .continuous)
-                .fill(Color.warning.opacity(AppTheme.Opacity.subtle))
+            RoundedRectangle(cornerRadius: Theme.Radius.input, style: .continuous)
+                .fill(Colors.Semantic.warning(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
         )
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
     }
 }
 
@@ -478,26 +484,27 @@ struct UncertaintyBanner: View {
 struct SuggestedFollowUpsView: View {
     let suggestions: [String]
     let onSelect: (String) -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Follow-up questions")
-                .font(Typography.UI.caption2)
-                .foregroundStyle(Color.tertiaryText)
-                .padding(.leading, AppTheme.Spacing.sm)
+                .font(Typography.Command.meta)
+                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                .padding(.leading, Theme.Spacing.sm)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     ForEach(suggestions, id: \.self) { question in
                         FollowUpButton(question: question) {
                             onSelect(question)
                         }
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.sm)
+                .padding(.horizontal, Theme.Spacing.sm)
             }
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 }
 
@@ -508,16 +515,18 @@ struct FollowUpButton: View {
     let question: String
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: action) {
             Text(question)
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.scholarIndigo)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.sm)
                 .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium, style: .continuous)
-                        .stroke(Color.scholarIndigo.opacity(AppTheme.Opacity.heavy), lineWidth: AppTheme.Border.thin)
+                    RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+                        .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
                 )
         }
         .buttonStyle(.plain)
@@ -531,29 +540,31 @@ struct AnchorHeader: View {
     let anchor: VerseRange
     let onTap: () -> Void
 
-    var body: some View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View{
         Button(action: onTap) {
             HStack {
                 Image(systemName: "book.closed.fill")
-                    .foregroundStyle(Color.scholarIndigo)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Anchored to:")
-                        .font(Typography.UI.caption2)
-                        .foregroundStyle(Color.tertiaryText)
+                        .font(Typography.Command.meta)
+                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                     Text(anchor.reference)
-                        .font(Typography.UI.bodyBold)
-                        .foregroundStyle(Color.primaryText)
+                        .font(Typography.Command.body.weight(.semibold))
+                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(AppTheme.Spacing.md)
-            .background(Color.surfaceBackground)
+            .padding(Theme.Spacing.md)
+            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
         }
         .buttonStyle(.plain)
     }
@@ -564,26 +575,27 @@ struct AnchorHeader: View {
 /// Shows when AI consent has not been granted
 struct ConsentRequiredBar: View {
     let onTap: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "exclamationmark.shield")
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
 
                 Text("Tap to enable AI assistant")
-                    .font(Typography.UI.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.vertical, AppTheme.Spacing.md)
-            .background(Color.surfaceBackground)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.md)
+            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
         }
         .buttonStyle(.plain)
     }
@@ -597,6 +609,7 @@ struct CompactAskHeader: View {
     @Binding var mode: ChatMode
     let anchorRange: VerseRange?
     let onAnchorTap: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     @Namespace private var modeSelection
 
@@ -605,7 +618,7 @@ struct CompactAskHeader: View {
     }
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             // Mode pills - compact horizontal selector
             modePills
 
@@ -616,8 +629,8 @@ struct CompactAskHeader: View {
                 anchorBadge
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.xs)
         .background(headerBackground)
     }
 
@@ -631,17 +644,17 @@ struct CompactAskHeader: View {
                     isSelected: mode == chatMode,
                     namespace: modeSelection
                 ) {
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         mode = chatMode
                     }
                     HapticService.shared.selectionChanged()
                 }
             }
         }
-        .padding(AppTheme.Spacing.xxs)
+        .padding(2)
         .background(
             Capsule()
-                .fill(Color.surfaceBackground.opacity(AppTheme.Opacity.strong))
+                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
         )
     }
 
@@ -650,35 +663,35 @@ struct CompactAskHeader: View {
     @ViewBuilder
     private var anchorBadge: some View {
         Button(action: onAnchorTap) {
-            HStack(spacing: AppTheme.Spacing.xxs) {
+            HStack(spacing: 2) {
                 if let anchor = anchorRange {
                     // Show selected anchor
                     Image(systemName: "bookmark.fill")
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color.divineGold)
+                        .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
                     Text(anchor.shortReference)
-                        .font(Typography.UI.caption2)
+                        .font(Typography.Command.meta)
                         .fontWeight(.medium)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                 } else {
                     // Prompt to select
                     Image(systemName: "bookmark")
-                        .font(Typography.UI.caption2)
-                        .foregroundStyle(Color.tertiaryText)
+                        .font(Typography.Command.meta)
+                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
 
                     Text("Select verse")
-                        .font(Typography.UI.caption2)
-                        .foregroundStyle(Color.tertiaryText)
+                        .font(Typography.Command.meta)
+                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.iconXxxs)
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Icon.xxxs)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xxs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, 2)
             .background(anchorBadgeBackground)
         }
         .buttonStyle(.plain)
@@ -689,16 +702,16 @@ struct CompactAskHeader: View {
         Capsule()
             .fill(
                 anchorRange != nil
-                    ? Color.divineGold.opacity(AppTheme.Opacity.subtle)
-                    : Color.surfaceBackground.opacity(AppTheme.Opacity.pressed)
+                    ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
+                    : Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
             )
             .overlay(
                 Capsule()
                     .strokeBorder(
                         anchorRange != nil
-                            ? Color.divineGold.opacity(AppTheme.Opacity.light)
-                            : Color.divider,
-                        lineWidth: AppTheme.Divider.hairline
+                            ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+                            : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                        lineWidth: Theme.Stroke.hairline
                     )
             )
     }
@@ -707,7 +720,7 @@ struct CompactAskHeader: View {
 
     private var headerBackground: some View {
         Rectangle()
-            .fill(Color.appBackground.opacity(AppTheme.Opacity.nearOpaque))
+            .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
             .overlay(alignment: .bottom) {
                 // Subtle golden divider
                 Rectangle()
@@ -715,14 +728,14 @@ struct CompactAskHeader: View {
                         LinearGradient(
                             colors: [
                                 Color.clear,
-                                Color.divineGold.opacity(AppTheme.Opacity.light),
+                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
                                 Color.clear
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
-                    .frame(height: AppTheme.Divider.hairline)
+                    .frame(height: Theme.Stroke.hairline)
             }
     }
 }
@@ -734,17 +747,18 @@ private struct CompactModePill: View {
     let isSelected: Bool
     let namespace: Namespace.ID
     let onSelect: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var isPressed = false
 
     var body: some View {
         Button(action: onSelect) {
             Text(mode.displayName)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .foregroundStyle(isSelected ? Color.divineGold : Color.secondaryText)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.xs)
+                .foregroundStyle(isSelected ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.xs)
                 .background(selectionBackground)
                 .scaleEffect(isPressed ? 0.97 : 1)
         }
@@ -762,12 +776,12 @@ private struct CompactModePill: View {
     private var selectionBackground: some View {
         if isSelected {
             Capsule()
-                .fill(Color.divineGold.opacity(AppTheme.Opacity.subtle))
+                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
                 .overlay(
                     Capsule()
                         .strokeBorder(
-                            Color.divineGold.opacity(AppTheme.Opacity.light),
-                            lineWidth: AppTheme.Divider.hairline
+                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                            lineWidth: Theme.Stroke.hairline
                         )
                 )
                 .matchedGeometryEffect(id: "compactSelection", in: namespace)
@@ -791,7 +805,7 @@ private struct CompactModePill: View {
 
                 Spacer()
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: .dark))
         }
     }
     return PreviewWrapper()
@@ -811,7 +825,7 @@ private struct CompactModePill: View {
 
                 Spacer()
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: .dark))
         }
     }
     return PreviewWrapper()
@@ -823,13 +837,14 @@ private struct CompactModePill: View {
 
 struct AskModeTitleMenu: View {
     @Binding var mode: ChatMode
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
         Menu {
             ForEach(ChatMode.allCases, id: \.self) { chatMode in
                 Button {
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         mode = chatMode
                     }
                     HapticService.shared.selectionChanged()
@@ -845,9 +860,9 @@ struct AskModeTitleMenu: View {
 
                         if mode == chatMode {
                             Image(systemName: "checkmark")
-                                .font(Typography.UI.footnote)
+                                .font(Typography.Command.caption)
                                 .fontWeight(.semibold)
-                                .foregroundStyle(Color.divineGold)
+                                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                         }
                     }
                 }
@@ -859,12 +874,12 @@ struct AskModeTitleMenu: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         isPressed = true
                     }
                 }
                 .onEnded { _ in
-                    withAnimation(AppTheme.Animation.quick) {
+                    withAnimation(Theme.Animation.fade) {
                         isPressed = false
                     }
                 }
@@ -874,19 +889,19 @@ struct AskModeTitleMenu: View {
     // MARK: - Title Label
 
     private var titleLabel: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             // Mode title with premium serif typography
             Text(mode.displayName)
-                .font(Typography.Display.headline)
-                .foregroundStyle(Color.primaryText)
+                .font(Typography.Scripture.heading)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
             // Subtle chevron indicator
             Image(systemName: "chevron.down")
-                .font(Typography.UI.iconXxs)
-                .foregroundStyle(Color.divineGold.opacity(AppTheme.Opacity.strong))
+                .font(Typography.Icon.xxs)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
         }
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, 2)
         .background(titleBackground)
         .scaleEffect(isPressed ? 0.97 : 1)
     }
@@ -895,7 +910,7 @@ struct AskModeTitleMenu: View {
 
     private var titleBackground: some View {
         Capsule()
-            .fill(isPressed ? Color.surfaceBackground.opacity(AppTheme.Opacity.pressed) : Color.clear)
+            .fill(isPressed ? Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed) : Color.clear)
     }
 }
 
@@ -907,6 +922,7 @@ struct AnchorBadgeHeader: View {
     let anchorRange: VerseRange?
     let onAnchorTap: () -> Void
     var onClearAnchor: (() -> Void)?
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var isPressed = false
     @State private var pulseGold = false
@@ -925,35 +941,35 @@ struct AnchorBadgeHeader: View {
                     HapticService.shared.lightTap()
                     onAnchorTap()
                 } label: {
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         if let anchor = anchorRange {
                             // Show selected anchor
                             Image(systemName: "bookmark.fill")
-                                .font(Typography.UI.caption2)
+                                .font(Typography.Command.meta)
                                 .fontWeight(.semibold)
-                                .foregroundStyle(Color.divineGold)
+                                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
                             Text(anchor.shortReference)
-                                .font(Typography.UI.caption1)
+                                .font(Typography.Command.caption)
                                 .fontWeight(.medium)
-                                .foregroundStyle(Color.primaryText)
+                                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                             Image(systemName: "chevron.right")
-                                .font(Typography.UI.iconXxxs)
-                                .foregroundStyle(Color.tertiaryText)
+                                .font(Typography.Icon.xxxs)
+                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                         } else {
                             // Prompt to select
                             Image(systemName: "bookmark")
-                                .font(Typography.UI.caption2)
-                                .foregroundStyle(Color.tertiaryText)
+                                .font(Typography.Command.meta)
+                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
 
                             Text("Select a passage")
-                                .font(Typography.UI.caption1)
-                                .foregroundStyle(Color.tertiaryText)
+                                .font(Typography.Command.caption)
+                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
 
                             Image(systemName: "chevron.right")
-                                .font(Typography.UI.iconXxxs)
-                                .foregroundStyle(Color.tertiaryText)
+                                .font(Typography.Icon.xxxs)
+                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                         }
                     }
                 }
@@ -963,30 +979,30 @@ struct AnchorBadgeHeader: View {
                 if anchorRange != nil, let onClear = onClearAnchor {
                     // Divider
                     Rectangle()
-                        .fill(Color.divider)
-                        .frame(width: AppTheme.Divider.hairline, height: Typography.Scale.sm)
-                        .padding(.horizontal, AppTheme.Spacing.sm)
+                        .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+                        .frame(width: Theme.Stroke.hairline, height: 14)
+                        .padding(.horizontal, Theme.Spacing.sm)
 
                     Button {
                         HapticService.shared.lightTap()
                         onClear()
                     } label: {
                         Image(systemName: "xmark")
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                             .fontWeight(.medium)
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Clear anchor")
                     .accessibilityHint("Removes the verse anchor and returns to general mode")
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(badgeBackground)
             .overlay(pulseOverlay)
-            .scaleEffect(isPressed ? AppTheme.Scale.subtle : 1.0)
-            .animation(AppTheme.Animation.quick, value: isPressed)
+            .scaleEffect(isPressed ? 0.99 : 1.0)
+            .animation(Theme.Animation.fade, value: isPressed)
             .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in isPressed = true }
@@ -995,7 +1011,7 @@ struct AnchorBadgeHeader: View {
 
             Spacer()
         }
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
         .background(headerBackground)
         .onAppear {
             triggerEntrancePulse()
@@ -1007,10 +1023,10 @@ struct AnchorBadgeHeader: View {
     private func triggerEntrancePulse() {
         guard anchorRange != nil, !respectsReducedMotion else { return }
 
-        withAnimation(AppTheme.Animation.sacredSpring) {
+        withAnimation(Theme.Animation.settle) {
             pulseGold = true
         }
-        withAnimation(AppTheme.Animation.reverent.delay(0.3)) {
+        withAnimation(Theme.Animation.slowFade.delay(0.3)) {
             pulseGold = false
         }
     }
@@ -1019,8 +1035,8 @@ struct AnchorBadgeHeader: View {
     private var pulseOverlay: some View {
         if !respectsReducedMotion {
             Capsule()
-                .stroke(Color.divineGold, lineWidth: AppTheme.Border.thin)
-                .opacity(pulseGold ? AppTheme.Opacity.medium : 0)
+                .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                .opacity(pulseGold ? Theme.Opacity.secondary : 0)
                 .scaleEffect(pulseGold ? 1.1 : 1.0)
         }
     }
@@ -1029,37 +1045,37 @@ struct AnchorBadgeHeader: View {
         Capsule()
             .fill(
                 anchorRange != nil
-                    ? Color.divineGold.opacity(AppTheme.Opacity.subtle)
-                    : Color.surfaceBackground.opacity(AppTheme.Opacity.pressed)
+                    ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
+                    : Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
             )
             .overlay(
                 Capsule()
                     .strokeBorder(
                         anchorRange != nil
-                            ? Color.divineGold.opacity(AppTheme.Opacity.light)
-                            : Color.divider,
-                        lineWidth: AppTheme.Divider.hairline
+                            ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+                            : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                        lineWidth: Theme.Stroke.hairline
                     )
             )
     }
 
     private var headerBackground: some View {
         Rectangle()
-            .fill(Color.appBackground.opacity(AppTheme.Opacity.nearOpaque))
+            .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
             .overlay(alignment: .bottom) {
                 Rectangle()
                     .fill(
                         LinearGradient(
                             colors: [
                                 Color.clear,
-                                Color.divineGold.opacity(AppTheme.Opacity.subtle),
+                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
                                 Color.clear
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
-                    .frame(height: AppTheme.Divider.hairline)
+                    .frame(height: Theme.Stroke.hairline)
             }
     }
 }
@@ -1072,7 +1088,7 @@ struct AnchorBadgeHeader: View {
 
         var body: some View {
             NavigationStack {
-                Color.appBackground
+                Colors.Surface.background(for: .dark)
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
@@ -1098,7 +1114,7 @@ struct AnchorBadgeHeader: View {
                     )
                     Spacer()
                 }
-                .background(Color.appBackground)
+                .background(Colors.Surface.background(for: .dark))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
@@ -1116,21 +1132,23 @@ struct AnchorBadgeHeader: View {
 /// Shows AI usage disclaimer for the Ask feature
 /// NOTE: Replaced by CompactAskHeader - keeping for backwards compatibility
 struct AskDisclaimerBanner: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkles")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.divineGold)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
 
             Text("AI study tool. Always verify with Scripture.")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
 
             Spacer()
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.xs)
-        .background(Color.surfaceBackground)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.xs)
+        .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
     }
 }
 
@@ -1140,6 +1158,7 @@ struct AskDisclaimerBanner: View {
 /// IMPORTANT: Hotline info is hardcoded (not AI-generated) for safety
 /// Enhanced with compassionate design: breathing heart, warm gradient, delayed appearance
 struct CrisisSupportBanner: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var heartScale: CGFloat = 1.0
     @State private var heartOpacity: CGFloat = 1.0
     @State private var isVisible = false
@@ -1149,55 +1168,55 @@ struct CrisisSupportBanner: View {
     }
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Header with breathing heart
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 breathingHeart
 
                 Text("You're Not Alone")
-                    .font(Typography.Display.headline)
-                    .foregroundStyle(Color.primaryText)
+                    .font(Typography.Scripture.heading)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
             }
 
             Text("If you're in crisis, please reach out for help:")
-                .font(Typography.UI.warmBody)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Command.body)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                 .multilineTextAlignment(.center)
 
             // 988 Hotline (US) - warm styling
             Link(destination: URL(string: "tel:988")!) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "phone.fill")
                     Text("Call or Text 988")
                 }
-                .font(Typography.UI.bodyBold)
+                .font(Typography.Command.body.weight(.semibold))
                 .foregroundStyle(.white)
-                .padding(.horizontal, AppTheme.Spacing.lg)
-                .padding(.vertical, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.md)
                 .background(
                     LinearGradient(
                         colors: [
-                            Color.vermillion,
-                            Color.vermillion.opacity(AppTheme.Opacity.high - 0.05)
+                            Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)),
+                            Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary - 0.05)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
-                .shadow(color: Color.vermillion.opacity(AppTheme.Opacity.medium), radius: AppTheme.Blur.medium, y: 4)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                .shadow(color: Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), radius: 8, y: 4)
             }
 
             Text("988 Suicide & Crisis Lifeline (US)")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.tertiaryText)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
 
             // International disclaimer
             Text("If you're outside the US, please contact your local emergency services or a crisis helpline in your country.")
-                .font(Typography.UI.caption2)
-                .foregroundStyle(Color.tertiaryText)
+                .font(Typography.Command.meta)
+                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
 
             // Warm divider
             Rectangle()
@@ -1205,32 +1224,32 @@ struct CrisisSupportBanner: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            Color.vermillion.opacity(AppTheme.Opacity.lightMedium),
+                            Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
                             Color.clear
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .frame(height: AppTheme.Divider.thin)
-                .padding(.vertical, AppTheme.Spacing.xs)
+                .frame(height: Theme.Stroke.hairline)
+                .padding(.vertical, Theme.Spacing.xs)
 
             Text("You matter. Please reach out to someone you trust.")
-                .font(Typography.UI.warmSubheadline)
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Command.subheadline)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                 .multilineTextAlignment(.center)
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(crisisBannerBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.large)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .strokeBorder(
-                    Color.vermillion.opacity(AppTheme.Opacity.light),
-                    lineWidth: AppTheme.Border.thin
+                    Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                    lineWidth: Theme.Stroke.hairline
                 )
         )
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
         .opacity(isVisible ? 1 : 0)
         .offset(y: isVisible ? 0 : 10)
         .onAppear {
@@ -1242,12 +1261,12 @@ struct CrisisSupportBanner: View {
 
     private var breathingHeart: some View {
         Image(systemName: "heart.fill")
-            .font(Typography.UI.title3)
+            .font(Typography.Command.title3)
             .foregroundStyle(
                 LinearGradient(
                     colors: [
-                        Color.vermillion,
-                        Color.vermillion.opacity(AppTheme.Opacity.pressed)
+                        Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)),
+                        Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -1255,7 +1274,7 @@ struct CrisisSupportBanner: View {
             )
             .scaleEffect(heartScale)
             .opacity(heartOpacity)
-            .shadow(color: Color.vermillion.opacity(AppTheme.Opacity.disabled), radius: AppTheme.Blur.medium)
+            .shadow(color: Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled), radius: 8)
     }
 
     // MARK: - Warm Gradient Background
@@ -1263,9 +1282,9 @@ struct CrisisSupportBanner: View {
     private var crisisBannerBackground: some View {
         LinearGradient(
             colors: [
-                Color.vermillion.opacity(AppTheme.Opacity.faint),
-                Color.vermillion.opacity(AppTheme.Opacity.subtle + 0.02),
-                Color.divineGold.opacity(AppTheme.Opacity.faint - 0.03)
+                Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02),
+                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint - 0.03)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -1284,7 +1303,7 @@ struct CrisisSupportBanner: View {
 
         // Delayed appearance (0.5s) for less jarring entry
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            withAnimation(AppTheme.Animation.reverent) {
+            withAnimation(Theme.Animation.slowFade) {
                 isVisible = true
             }
 
@@ -1303,10 +1322,10 @@ struct CrisisSupportBanner: View {
 
         // Gentle heartbeat rhythm (slower than real heartbeat for calmness)
         withAnimation(
-            AppTheme.Animation.pulse
+            Theme.Animation.fade
         ) {
             heartScale = 1.08
-            heartOpacity = AppTheme.Opacity.high
+            heartOpacity = Theme.Opacity.primary
         }
     }
 }
@@ -1315,6 +1334,7 @@ struct CrisisSupportBanner: View {
 // Subtle golden particles that burst from the send button when sending a message
 
 struct InkSplashParticles: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var particles: [InkParticle] = []
 
     private var respectsReducedMotion: Bool {
@@ -1325,7 +1345,7 @@ struct InkSplashParticles: View {
         ZStack {
             ForEach(particles) { particle in
                 Circle()
-                    .fill(Color.divineGold)
+                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: particle.size, height: particle.size)
                     .offset(x: particle.offset.x, y: particle.offset.y)
                     .opacity(particle.opacity)
@@ -1363,7 +1383,7 @@ struct InkSplashParticles: View {
 
             // Animate particle outward
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                withAnimation(AppTheme.Animation.slow) {
+                withAnimation(Theme.Animation.slowFade) {
                     if let index = particles.firstIndex(where: { $0.id == particle.id }) {
                         particles[index].offset = particles[index].targetOffset
                         particles[index].opacity = 0

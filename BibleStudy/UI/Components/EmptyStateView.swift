@@ -13,7 +13,7 @@ struct EmptyStateView: View {
     var animation: EmptyStateAnimationType?
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Animated illustration or fallback icon
             if let animationType = animation {
                 animationType.view
@@ -21,17 +21,17 @@ struct EmptyStateView: View {
                     .frame(maxWidth: 200)
             } else {
                 Image(systemName: icon)
-                    .font(Typography.UI.largeTitle)
+                    .font(Typography.Command.largeTitle)
                     .foregroundStyle(Color.tertiaryText)
             }
 
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.sm) {
                 Text(title)
-                    .font(Typography.Display.headline)
+                    .font(Typography.Scripture.heading)
                     .foregroundStyle(Color.primaryText)
 
                 Text(message)
-                    .font(Typography.UI.warmSubheadline)
+                    .font(Typography.Command.subheadline)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
             }
@@ -41,7 +41,7 @@ struct EmptyStateView: View {
                     .buttonStyle(.primary)
             }
         }
-        .padding(AppTheme.Spacing.xl)
+        .padding(Theme.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
@@ -194,7 +194,7 @@ extension EmptyStateView {
 // MARK: - Preview
 #Preview("Animated Empty States") {
     ScrollView {
-        VStack(spacing: AppTheme.Spacing.xxxl) {
+        VStack(spacing: Theme.Spacing.xxl) {
             EmptyStateView.noHighlights
             EmptyStateView.noNotes
             EmptyStateView.noCrossRefs

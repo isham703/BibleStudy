@@ -88,7 +88,7 @@ struct CollectionDetailView: View {
 
     // MARK: - Empty State
     private var emptyState: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             collectionHeader
 
             EmptyStateView(
@@ -101,36 +101,36 @@ struct CollectionDetailView: View {
 
     // MARK: - Collection Header
     private var collectionHeader: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color(viewModel.collection.color).opacity(AppTheme.Opacity.light))
+                    .fill(Color(viewModel.collection.color).opacity(Theme.Opacity.light))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: viewModel.collection.icon)
-                    .font(Typography.UI.title1)
+                    .font(Typography.Command.title1)
                     .foregroundStyle(Color(viewModel.collection.color))
             }
 
             // Type
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: viewModel.collection.type.icon)
                 Text(viewModel.collection.type.displayName)
             }
-            .font(Typography.UI.caption1)
+            .font(Typography.Command.caption)
             .foregroundStyle(Color.secondaryText)
 
             // Description
             if !viewModel.collection.description.isEmpty {
                 Text(viewModel.collection.description)
-                    .font(Typography.UI.warmBody)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.secondaryText)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, AppTheme.Spacing.xl)
+                    .padding(.horizontal, Theme.Spacing.xl)
             }
         }
-        .padding(.top, AppTheme.Spacing.lg)
+        .padding(.top, Theme.Spacing.lg)
     }
 
     // MARK: - Content List
@@ -145,7 +145,7 @@ struct CollectionDetailView: View {
 
             // Statistics
             Section {
-                HStack(spacing: AppTheme.Spacing.lg) {
+                HStack(spacing: Theme.Spacing.lg) {
                     StatBadge(
                         icon: "book",
                         value: "\(viewModel.collection.verseCount)",
@@ -163,7 +163,7 @@ struct CollectionDetailView: View {
                     )
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .padding(.vertical, Theme.Spacing.sm)
             }
             .listRowBackground(Color.clear)
 
@@ -202,15 +202,17 @@ struct CollectionItemRow: View {
     let highlight: Highlight?
     let note: Note?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             // Type Icon
             itemIcon
 
             // Content
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(item.reference)
-                    .font(Typography.UI.bodyBold)
+                    .font(Typography.Command.body.weight(.semibold))
                     .foregroundStyle(Color.primaryText)
 
                 itemSubtitle
@@ -218,7 +220,7 @@ struct CollectionItemRow: View {
 
             Spacer()
         }
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
     }
 
     @ViewBuilder
@@ -226,28 +228,28 @@ struct CollectionItemRow: View {
         switch item.type {
         case .verse:
             Image(systemName: "book")
-                .font(Typography.UI.subheadline)
-                .foregroundStyle(Color.accentBlue)
-                .frame(width: AppTheme.IconContainer.small)
+                .font(Typography.Command.subheadline)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 24)
 
         case .highlight:
             if let highlight {
                 Circle()
                     .fill(highlight.color.color)
                     .frame(width: 16, height: 16)
-                    .frame(width: AppTheme.IconContainer.small)
+                    .frame(width: 24)
             } else {
                 Image(systemName: "highlighter")
-                    .font(Typography.UI.subheadline)
-                    .foregroundStyle(Color.scholarAccent)
-                    .frame(width: AppTheme.IconContainer.small)
+                    .font(Typography.Command.subheadline)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .frame(width: 24)
             }
 
         case .note:
             Image(systemName: note?.template.icon ?? "note.text")
-                .font(Typography.UI.subheadline)
-                .foregroundStyle(Color.scholarAccent)
-                .frame(width: AppTheme.IconContainer.small)
+                .font(Typography.Command.subheadline)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 24)
         }
     }
 
@@ -256,26 +258,26 @@ struct CollectionItemRow: View {
         switch item.type {
         case .verse:
             Text("Verse")
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
 
         case .highlight:
             if let highlight {
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Text(highlight.color.displayName)
                     if highlight.category != .none {
                         Text("•")
                         Text(highlight.category.displayName)
                     }
                 }
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
             }
 
         case .note:
             if let note {
                 Text(note.preview)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
                     .lineLimit(1)
             }
@@ -291,17 +293,17 @@ struct StatBadge: View {
     let label: String
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: Theme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                 Text(value)
-                    .font(Typography.UI.headline.monospacedDigit())
+                    .font(Typography.Command.headline.monospacedDigit())
             }
             .foregroundStyle(Color.primaryText)
 
             Text(label)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
                 .foregroundStyle(Color.secondaryText)
         }
     }

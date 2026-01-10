@@ -140,9 +140,9 @@ private struct PageCurlCarouselPreview: View {
         NavigationStack {
             VStack(spacing: 0) {
                 Toggle("Page Curled Visible", isOn: $config.isCurledUpVisible)
-                    .padding(AppTheme.Spacing.lg)
-                    .background(.white.opacity(AppTheme.Opacity.subtle), in: .capsule)
-                    .padding(.horizontal, AppTheme.Spacing.xxl)
+                    .padding(Theme.Spacing.lg)
+                    .background(.white.opacity(Theme.Opacity.subtle), in: .capsule)
+                    .padding(.horizontal, Theme.Spacing.xxl)
                     .environment(\.colorScheme, .dark)
 
                 GeometryReader {
@@ -154,7 +154,7 @@ private struct PageCurlCarouselPreview: View {
                             ZStack {
                                 Color(hue: Double(index) / 6.0, saturation: 0.3, brightness: 0.95)
                                 Text("Page \(index + 1)")
-                                    .font(Typography.UI.largeTitle)
+                                    .font(Typography.Command.largeTitle)
                                     .fontWeight(.bold)
                             }
                         }
@@ -163,7 +163,7 @@ private struct PageCurlCarouselPreview: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .environment(\.colorScheme, .light)
                 }
-                .padding(AppTheme.Spacing.xl)
+                .padding(Theme.Spacing.xl)
             }
             .navigationTitle("Page Curl Carousel")
             .navigationBarTitleDisplayMode(.inline)

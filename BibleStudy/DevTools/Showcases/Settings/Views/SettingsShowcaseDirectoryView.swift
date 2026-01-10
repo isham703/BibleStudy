@@ -17,16 +17,16 @@ struct SettingsShowcaseDirectory: View {
                 backgroundGradient
 
                 ScrollView {
-                    VStack(spacing: AppTheme.Spacing.xl) {
+                    VStack(spacing: Theme.Spacing.xl) {
                         headerSection
 
                         variantCardsGrid
 
                         footerSection
                     }
-                    .padding(.horizontal, AppTheme.Spacing.lg)
-                    .padding(.top, AppTheme.Spacing.xl)
-                    .padding(.bottom, AppTheme.Spacing.xxxl)
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.top, Theme.Spacing.xl)
+                    .padding(.bottom, Theme.Spacing.xxl)
                 }
             }
             .navigationDestination(item: $selectedVariant) { variant in
@@ -53,7 +53,7 @@ struct SettingsShowcaseDirectory: View {
             // Subtle ambient gold glow at top
             RadialGradient(
                 colors: [
-                    Color.divineGold.opacity(0.03),
+                    Color.accentBronze.opacity(Theme.Opacity.faint),
                     Color.clear
                 ],
                 center: .top,
@@ -67,19 +67,19 @@ struct SettingsShowcaseDirectory: View {
     // MARK: - Header
 
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Ornamental top accent
-            OrnamentalDivider(style: .simple)
-                .frame(width: 60)
-                .foregroundStyle(Color.divineGold.opacity(0.6))
+            Rectangle()
+                .fill(Color.accentBronze.opacity(Theme.Opacity.tertiary))
+                .frame(width: 60, height: Theme.Stroke.hairline)
 
             Text("Settings Options")
                 .font(.custom("Cinzel-Regular", size: 32))
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Color(hex: "F5E6B8"),
-                            Color.divineGold,
+                            Color.decorativeCream,
+                            Color.accentBronze,
                             Color(hex: "C9943D")
                         ],
                         startPoint: .leading,
@@ -98,15 +98,15 @@ struct SettingsShowcaseDirectory: View {
                 .font(Typography.body)
                 .foregroundStyle(Color.secondaryText)
                 .multilineTextAlignment(.center)
-                .padding(.top, AppTheme.Spacing.xs)
+                .padding(.top, Theme.Spacing.xs)
         }
-        .padding(.bottom, AppTheme.Spacing.lg)
+        .padding(.bottom, Theme.Spacing.lg)
     }
 
     // MARK: - Variant Cards Grid
 
     private var variantCardsGrid: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             ForEach(SettingsVariant.allCases) { variant in
                 VariantCard(
                     variant: variant,
@@ -125,16 +125,16 @@ struct SettingsShowcaseDirectory: View {
     // MARK: - Footer
 
     private var footerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
-            OrnamentalDivider(style: .flourish)
-                .frame(width: 120)
-                .foregroundStyle(Color.divineGold.opacity(0.3))
+        VStack(spacing: Theme.Spacing.md) {
+            Rectangle()
+                .fill(Color.accentBronze.opacity(Theme.Opacity.subtle))
+                .frame(width: 120, height: Theme.Stroke.hairline)
 
             Text("Tap any card to view the full design")
                 .font(Typography.footnote)
                 .foregroundStyle(Color.tertiaryText)
         }
-        .padding(.top, AppTheme.Spacing.xl)
+        .padding(.top, Theme.Spacing.xl)
     }
 }
 
@@ -157,15 +157,15 @@ struct VariantCard: View {
                 infoSection
             }
             .background(cardBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg))
             .overlay {
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
+                RoundedRectangle(cornerRadius: Theme.Radius.lg)
                     .strokeBorder(
                         LinearGradient(
                             colors: [
-                                Color.divineGold.opacity(isHovered ? 0.5 : 0.15),
-                                Color.divineGold.opacity(isHovered ? 0.3 : 0.05),
-                                Color.divineGold.opacity(isHovered ? 0.5 : 0.15)
+                                Color.accentBronze.opacity(isHovered ? 0.5 : 0.15),
+                                Color.accentBronze.opacity(isHovered ? 0.3 : 0.05),
+                                Color.accentBronze.opacity(isHovered ? 0.5 : 0.15)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -174,7 +174,7 @@ struct VariantCard: View {
                     )
             }
             .shadow(
-                color: isHovered ? Color.divineGold.opacity(0.15) : Color.black.opacity(0.3),
+                color: isHovered ? Color.accentBronze.opacity(Theme.Opacity.divider) : Color.black.opacity(Theme.Opacity.subtle),
                 radius: isHovered ? 20 : 10,
                 y: isHovered ? 8 : 4
             )
@@ -207,14 +207,14 @@ struct VariantCard: View {
 
             // Preview content hint
             variant.previewContent
-                .padding(AppTheme.Spacing.lg)
+                .padding(Theme.Spacing.lg)
         }
         .frame(height: 160)
     }
 
     private var infoSection: some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        HStack(alignment: .top, spacing: Theme.Spacing.md) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(variant.title)
                     .font(.custom("Cinzel-Regular", size: 18))
                     .foregroundStyle(Color.primaryText)
@@ -229,21 +229,21 @@ struct VariantCard: View {
 
             // Arrow indicator
             Image(systemName: "arrow.right")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.divineGold)
-                .padding(AppTheme.Spacing.sm)
+                .font(Typography.Icon.sm)
+                .foregroundStyle(Color.accentBronze)
+                .padding(Theme.Spacing.sm)
                 .background(
                     Circle()
-                        .fill(Color.divineGold.opacity(0.1))
+                        .fill(Color.accentBronze.opacity(Theme.Opacity.overlay))
                 )
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
     }
 
     private var cardBackground: some View {
         LinearGradient(
             colors: [
-                Color(hex: "1A1816"),
+                Color.surfaceCharcoal,
                 Color(hex: "151311")
             ],
             startPoint: .top,
@@ -320,13 +320,13 @@ enum SettingsVariant: String, CaseIterable, Identifiable, Hashable {
 
 struct FloatingSanctuaryPreview: View {
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
+        VStack(spacing: Theme.Spacing.sm) {
             // Mini floating cards
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 previewCard
                 previewCard
             }
-            HStack(spacing: AppTheme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.sm) {
                 previewCard
                 previewCard
             }
@@ -334,47 +334,47 @@ struct FloatingSanctuaryPreview: View {
     }
 
     private var previewCard: some View {
-        RoundedRectangle(cornerRadius: 6)
-            .fill(Color.white.opacity(0.05))
+        RoundedRectangle(cornerRadius: Theme.Radius.tag)
+            .fill(Color.white.opacity(Theme.Opacity.faint))
             .frame(height: 40)
             .overlay {
-                RoundedRectangle(cornerRadius: 6)
-                    .strokeBorder(Color.divineGold.opacity(0.2), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: Theme.Radius.tag)
+                    .strokeBorder(Color.accentBronze.opacity(Theme.Opacity.light), lineWidth: 0.5)
             }
     }
 }
 
 struct SacredScrollPreview: View {
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xs) {
+        VStack(spacing: Theme.Spacing.xs) {
             ForEach(0..<4) { _ in
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.white.opacity(0.03))
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
+                    .fill(Color.white.opacity(Theme.Opacity.faint))
                     .frame(height: 28)
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.sm)
+        .padding(.horizontal, Theme.Spacing.sm)
     }
 }
 
 struct DivineHubPreview: View {
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Center hub
             Circle()
-                .fill(Color.divineGold.opacity(0.2))
+                .fill(Color.accentBronze.opacity(Theme.Opacity.light))
                 .frame(width: 50, height: 50)
                 .overlay {
                     Image(systemName: "gearshape.fill")
-                        .font(.system(size: 20))
-                        .foregroundStyle(Color.divineGold)
+                        .font(Typography.Command.title3)
+                        .foregroundStyle(Color.accentBronze)
                 }
 
             // Spokes
-            HStack(spacing: AppTheme.Spacing.xl) {
+            HStack(spacing: Theme.Spacing.xl) {
                 ForEach(0..<3) { _ in
                     Circle()
-                        .fill(Color.white.opacity(0.05))
+                        .fill(Color.white.opacity(Theme.Opacity.faint))
                         .frame(width: 30, height: 30)
                 }
             }

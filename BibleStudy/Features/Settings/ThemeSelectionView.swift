@@ -6,6 +6,7 @@ import SwiftUI
 struct ThemeSelectionView: View {
     @Binding var selectedTheme: ThemeMode
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         List {
@@ -16,13 +17,13 @@ struct ThemeSelectionView: View {
                 } label: {
                     HStack {
                         Text(theme.displayName)
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                         Spacer()
 
                         if selectedTheme == theme {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(Color.accentBlue)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 .fontWeight(.semibold)
                         }
                     }

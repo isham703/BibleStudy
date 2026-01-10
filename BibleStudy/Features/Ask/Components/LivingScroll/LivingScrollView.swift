@@ -13,6 +13,7 @@ struct LivingScrollView: View {
     let onDismissKeyboard: () -> Void
 
     @Environment(AppState.self) private var appState
+    @Environment(\.colorScheme) private var colorScheme
     @State private var scrollOffset: CGFloat = 0
     @State private var showScrollToBottom = false
 
@@ -30,7 +31,7 @@ struct LivingScrollView: View {
         ZStack(alignment: .bottom) {
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(spacing: AppTheme.Spacing.lg) {
+                    LazyVStack(spacing: Theme.Spacing.lg) {
                         // Scroll position tracker
                         GeometryReader { geometry in
                             Color.clear
@@ -74,12 +75,12 @@ struct LivingScrollView: View {
                         if isLoading {
                             EnhancedSacredGeometryThinking()
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, AppTheme.Spacing.md)
+                                .padding(.horizontal, Theme.Spacing.md)
                                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
                         }
                     }
-                    .padding(.vertical, AppTheme.Spacing.md)
-                    .animation(AppTheme.Animation.standard, value: messages.count)
+                    .padding(.vertical, Theme.Spacing.md)
+                    .animation(Theme.Animation.settle, value: messages.count)
                 }
                 .coordinateSpace(name: "scroll")
                 .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
@@ -117,7 +118,7 @@ struct LivingScrollView: View {
                     RadialGradient(
                         colors: [
                             Color.clear,
-                            Color.appBackground.opacity(vignetteIntensity)
+                            Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(vignetteIntensity)
                         ],
                         center: .center,
                         startRadius: geometry.size.width * 0.4,
@@ -132,7 +133,7 @@ struct LivingScrollView: View {
 
     private func scrollToBottomButton(proxy: ScrollViewProxy) -> some View {
         Button {
-            withAnimation(AppTheme.Animation.sacredSpring) {
+            withAnimation(Theme.Animation.settle) {
                 if let lastMessage = messages.last {
                     proxy.scrollTo(lastMessage.id, anchor: .bottom)
                 }
@@ -141,28 +142,28 @@ struct LivingScrollView: View {
         } label: {
             ZStack {
                 Circle()
-                    .fill(Color.scholarIndigo.opacity(0.1))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
                     .frame(width: 44, height: 44)
                     .overlay(
                         Circle()
                             .strokeBorder(
-                                Color.scholarIndigo.opacity(AppTheme.Opacity.medium),
-                                lineWidth: AppTheme.Border.thin
+                                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                                lineWidth: Theme.Stroke.hairline
                             )
                     )
                     .shadow(
-                        color: Color.scholarIndigo.opacity(AppTheme.Opacity.lightMedium),
+                        color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
                         radius: 8,
                         y: 2
                     )
 
                 Image(systemName: "chevron.down")
-                    .font(Typography.UI.callout)
+                    .font(Typography.Command.body)
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color.scholarIndigo)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
         }
-        .padding(.bottom, AppTheme.Spacing.lg)
+        .padding(.bottom, Theme.Spacing.lg)
         .transition(.scale.combined(with: .opacity))
     }
 
@@ -171,7 +172,7 @@ struct LivingScrollView: View {
     private func updateScrollToBottomVisibility() {
         let shouldShow = scrollOffset > 200 && !messages.isEmpty
         if shouldShow != showScrollToBottom {
-            withAnimation(AppTheme.Animation.quick) {
+            withAnimation(Theme.Animation.fade) {
                 showScrollToBottom = shouldShow
             }
         }
@@ -188,7 +189,7 @@ struct LivingScrollView: View {
 
     private func scrollToBottom(proxy: ScrollViewProxy) {
         guard let lastMessage = messages.last else { return }
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             proxy.scrollTo(lastMessage.id, anchor: .bottom)
         }
     }
@@ -214,28 +215,30 @@ struct LivingScrollView: View {
 private struct LivingScrollUncertaintyBanner: View {
     let level: UncertaintyLevel
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkles")
-                .font(Typography.UI.caption1)
-                .foregroundStyle(Color.scholarIndigo)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
             Text(level.displayText)
-                .font(Typography.Illuminated.quote(size: Typography.Scale.xs))
-                .foregroundStyle(Color.secondaryText)
+                .font(Typography.Scripture.footnote)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
 
             Spacer()
         }
-        .padding(AppTheme.Spacing.sm)
+        .padding(Theme.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                .fill(Color.scholarIndigo.opacity(0.1))
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
-                        .strokeBorder(Color.scholarIndigo.opacity(AppTheme.Opacity.light), lineWidth: AppTheme.Border.thin)
+                    RoundedRectangle(cornerRadius: Theme.Radius.card)
+                        .strokeBorder(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
                 )
         )
-        .padding(.horizontal, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.md)
     }
 }
 
@@ -246,6 +249,7 @@ private struct LivingScrollFollowUps: View {
     let suggestions: [String]
     let onSelect: (String) -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var visibleButtons: Set<Int> = []
     @State private var headerVisible = false
 
@@ -254,24 +258,24 @@ private struct LivingScrollFollowUps: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Header with fade-in
-            HStack(spacing: AppTheme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "arrow.turn.down.right")
-                    .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 Text("Continue exploring")
-                    .font(Typography.Illuminated.quote(size: Typography.Scale.xs))
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Scripture.footnote)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.leading, AppTheme.Spacing.md)
+            .padding(.leading, Theme.Spacing.md)
             .opacity(headerVisible ? 1 : 0)
             .offset(y: headerVisible ? 0 : 5)
 
             // Buttons with staggered appearance
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     ForEach(Array(suggestions.enumerated()), id: \.element) { index, question in
                         LivingScrollFollowUpButton(question: question) {
                             onSelect(question)
@@ -281,10 +285,10 @@ private struct LivingScrollFollowUps: View {
                         .scaleEffect(visibleButtons.contains(index) ? 1 : 0.95)
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
             }
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
         .onAppear {
             animateAppearance()
         }
@@ -298,14 +302,14 @@ private struct LivingScrollFollowUps: View {
         }
 
         // Header appears first
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             headerVisible = true
         }
 
         // Buttons appear with stagger
         for index in 0..<suggestions.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.15 + Double(index) * 0.1) {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(Theme.Animation.settle) {
                     _ = visibleButtons.insert(index)
                 }
             }
@@ -320,6 +324,7 @@ private struct LivingScrollFollowUpButton: View {
     let question: String
     let action: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
     @State private var glowIntensity: CGFloat = 0
     @State private var rippleScale: CGFloat = 0
@@ -337,21 +342,21 @@ private struct LivingScrollFollowUpButton: View {
                 // Ripple effect layer
                 if rippleScale > 0 {
                     Capsule()
-                        .fill(Color.scholarIndigo.opacity(AppTheme.Opacity.medium))
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
                         .scaleEffect(rippleScale)
                         .opacity(rippleOpacity)
                 }
 
                 // Button content
                 Text(question)
-                    .font(Typography.Illuminated.footnote)
-                    .foregroundStyle(Color.scholarIndigo)
-                    .padding(.horizontal, AppTheme.Spacing.md)
-                    .padding(.vertical, AppTheme.Spacing.sm)
+                    .font(Typography.Scripture.footnote)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.vertical, Theme.Spacing.sm)
                     .background(buttonBackground)
             }
-            .scaleEffect(isPressed ? AppTheme.Scale.pressed : 1)
-            .animation(AppTheme.Animation.quick, value: isPressed)
+            .scaleEffect(isPressed ? 0.98 : 1)
+            .animation(Theme.Animation.fade, value: isPressed)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
@@ -371,16 +376,16 @@ private struct LivingScrollFollowUpButton: View {
 
     private var buttonBackground: some View {
         Capsule()
-            .fill(Color.scholarIndigo.opacity(0.1).opacity(Double(1.0 + glowIntensity * 0.1)))
+            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay).opacity(Double(1.0 + glowIntensity * 0.1)))
             .overlay(
                 Capsule()
                     .strokeBorder(
-                        Color.scholarIndigo.opacity(AppTheme.Opacity.light + glowIntensity * 0.3),
-                        lineWidth: AppTheme.Border.thin
+                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light + glowIntensity * 0.3),
+                        lineWidth: Theme.Stroke.hairline
                     )
             )
             .shadow(
-                color: Color.scholarIndigo.opacity(glowIntensity * 0.2),
+                color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity * 0.2),
                 radius: 6 * glowIntensity
             )
     }
@@ -388,7 +393,7 @@ private struct LivingScrollFollowUpButton: View {
     private func animatePress() {
         guard !respectsReducedMotion else { return }
 
-        withAnimation(AppTheme.Animation.quick) {
+        withAnimation(Theme.Animation.fade) {
             glowIntensity = 1
         }
     }
@@ -396,7 +401,7 @@ private struct LivingScrollFollowUpButton: View {
     private func animateRelease() {
         guard !respectsReducedMotion else { return }
 
-        withAnimation(AppTheme.Animation.standard) {
+        withAnimation(Theme.Animation.settle) {
             glowIntensity = 0
         }
     }
@@ -409,7 +414,7 @@ private struct LivingScrollFollowUpButton: View {
             rippleScale = 0.5
             rippleOpacity = 0.5
 
-            withAnimation(AppTheme.Animation.slow) {
+            withAnimation(Theme.Animation.slowFade) {
                 rippleScale = 1.5
                 rippleOpacity = 0
             }
@@ -431,6 +436,7 @@ private struct LivingScrollFollowUpsStaggered: View {
     let suggestions: [String]
     let onSelect: (String) -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var visibleButtons: Set<Int> = []
 
     private var respectsReducedMotion: Bool {
@@ -438,20 +444,20 @@ private struct LivingScrollFollowUpsStaggered: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            HStack(spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "arrow.turn.down.right")
-                    .font(Typography.UI.caption2)
-                    .foregroundStyle(Color.scholarIndigo)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 Text("Continue exploring")
-                    .font(Typography.Illuminated.quote(size: Typography.Scale.xs))
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Scripture.footnote)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
-            .padding(.leading, AppTheme.Spacing.md)
+            .padding(.leading, Theme.Spacing.md)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     ForEach(Array(suggestions.enumerated()), id: \.element) { index, question in
                         LivingScrollFollowUpButton(question: question) {
                             onSelect(question)
@@ -460,10 +466,10 @@ private struct LivingScrollFollowUpsStaggered: View {
                         .offset(x: visibleButtons.contains(index) ? 0 : 20)
                     }
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
             }
         }
-        .padding(.vertical, AppTheme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
         .onAppear {
             animateButtonsAppearance()
         }
@@ -477,7 +483,7 @@ private struct LivingScrollFollowUpsStaggered: View {
 
         for index in 0..<suggestions.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.1) {
-                withAnimation(AppTheme.Animation.spring) {
+                withAnimation(Theme.Animation.settle) {
                     _ = visibleButtons.insert(index)
                 }
             }
@@ -500,6 +506,7 @@ private struct ScrollOffsetPreferenceKey: PreferenceKey {
 // Sacred Geometry with ambient glow background
 
 private struct EnhancedSacredGeometryThinking: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var ambientGlowOpacity: CGFloat = 0.4
 
     private var respectsReducedMotion: Bool {
@@ -513,8 +520,8 @@ private struct EnhancedSacredGeometryThinking: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color.scholarIndigo.opacity(AppTheme.Opacity.light),
-                            Color.scholarIndigo.opacity(AppTheme.Opacity.faint),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
                             Color.clear
                         ],
                         center: .center,
@@ -523,7 +530,7 @@ private struct EnhancedSacredGeometryThinking: View {
                     )
                 )
                 .frame(width: 160, height: 160)
-                .blur(radius: AppTheme.Blur.intense)
+                .blur(radius: 16)
                 .opacity(ambientGlowOpacity)
                 .offset(x: -30, y: 0)
 
@@ -534,7 +541,7 @@ private struct EnhancedSacredGeometryThinking: View {
 
             // Gentle pulsing of ambient glow
             withAnimation(
-                AppTheme.Animation.reverent
+                Theme.Animation.slowFade
                     .repeatForever(autoreverses: true)
             ) {
                 ambientGlowOpacity = 0.6

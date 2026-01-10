@@ -115,7 +115,7 @@ struct VerseContextMenu: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .onAppear {
-            withAnimation(AppTheme.Animation.spring) {
+            withAnimation(Theme.Animation.settle) {
                 isAppearing = true
             }
         }
@@ -134,17 +134,17 @@ struct VerseContextMenu: View {
     private var menuContent: some View {
         VStack(spacing: 0) {
             // Action buttons - vertical stack
-            VStack(spacing: AppTheme.Spacing.xxs) {
+            VStack(spacing: 2) {
                 actionRow(
                     icon: "sparkles",
                     label: "Interpret",
-                    accentColor: .scholarAccent,
+                    accentColor: .accentIndigo,
                     isFirst: true
                 ) {
                     HapticService.shared.buttonPress()
                     // Use inline insight callback if available (new UX), otherwise legacy
                     if let openInline = onOpenInlineInsight {
-                        withAnimation(AppTheme.Animation.quick) {
+                        withAnimation(Theme.Animation.fade) {
                             isAppearing = false
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -201,14 +201,14 @@ struct VerseContextMenu: View {
                         endPoint: .trailing
                     )
                 )
-                .frame(height: AppTheme.Divider.thin)
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.vertical, AppTheme.Spacing.sm)
+                .frame(height: Theme.Stroke.hairline)
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.vertical, Theme.Spacing.sm)
 
             // Highlight colors - horizontal row
             highlightColorRow
-                .padding(.horizontal, AppTheme.Spacing.md)
-                .padding(.bottom, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
+                .padding(.bottom, Theme.Spacing.md)
         }
         .frame(width: menuWidth)
     }
@@ -226,34 +226,34 @@ struct VerseContextMenu: View {
         Button {
             onTap()
         } label: {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Icon with subtle background
                 ZStack {
                     Circle()
-                        .fill(accentColor.opacity(AppTheme.Opacity.subtle + 0.02))
-                        .frame(width: AppTheme.IconSize.xl, height: AppTheme.IconSize.xl)
+                        .fill(accentColor.opacity(Theme.Opacity.subtle + 0.02))
+                        .frame(width: 24, height: 24)
 
                     Image(systemName: icon)
-                        .font(Typography.UI.iconMd.weight(.medium))
+                        .font(Typography.Icon.md.weight(.medium))
                         .foregroundStyle(accentColor)
                 }
 
                 // Label
                 Text(label)
-                    .font(Typography.UI.body)
+                    .font(Typography.Command.body)
                     .foregroundStyle(Color.primaryText)
 
                 Spacer()
 
                 // Subtle chevron indicator
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.iconXxs.weight(.semibold))
+                    .font(Typography.Icon.xxs.weight(.semibold))
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
             .frame(height: rowHeight)
             .background(
-                RoundedRectangle(cornerRadius: isFirst || isLast ? AppTheme.CornerRadius.medium + 2 : AppTheme.CornerRadius.small)
+                RoundedRectangle(cornerRadius: isFirst || isLast ? Theme.Radius.button + 2 : Theme.Radius.input)
                     .fill(hoveredAction == label ? Color.selectedBackground : Color.clear)
             )
             .contentShape(Rectangle())
@@ -271,7 +271,7 @@ struct VerseContextMenu: View {
     // MARK: - Highlight Color Row
 
     private var highlightColorRow: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
+        HStack(spacing: Theme.Spacing.sm) {
             // Remove highlight circle (if highlight exists)
             if existingHighlightColor != nil {
                 Button {
@@ -280,11 +280,11 @@ struct VerseContextMenu: View {
                 } label: {
                     ZStack {
                         Circle()
-                            .strokeBorder(Color.primaryText, lineWidth: AppTheme.Border.regular - 0.5)
+                            .strokeBorder(Color.primaryText, lineWidth: Theme.Stroke.control - 0.5)
                             .frame(width: colorCircleSize, height: colorCircleSize)
 
                         Image(systemName: "xmark")
-                            .font(Typography.UI.iconXxs.weight(.bold))
+                            .font(Typography.Icon.xxs.weight(.bold))
                             .foregroundStyle(Color.primaryText)
                     }
                 }
@@ -306,15 +306,15 @@ struct VerseContextMenu: View {
                         // Checkmark for selected color
                         if existingHighlightColor == color {
                             Image(systemName: "checkmark")
-                                .font(Typography.UI.iconXxs.weight(.bold))
+                                .font(Typography.Icon.xxs.weight(.bold))
                                 .foregroundStyle(.white)
                         }
 
                         // Selection ring
                         if existingHighlightColor == color {
                             Circle()
-                                .stroke(Color.primaryText, lineWidth: AppTheme.Border.regular)
-                                .frame(width: colorCircleSize + AppTheme.Spacing.xs, height: colorCircleSize + AppTheme.Spacing.xs)
+                                .stroke(Color.primaryText, lineWidth: Theme.Stroke.control)
+                                .frame(width: colorCircleSize + Theme.Spacing.xs, height: colorCircleSize + Theme.Spacing.xs)
                         }
                     }
                 }
@@ -389,40 +389,40 @@ private struct VerticalMenuBackground: View {
     var body: some View {
         ZStack {
             // Base shape with rounded corners
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.Radius.xl, style: .continuous)
                 .fill(Color.elevatedBackground)
 
             // Subtle inner border for definition
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl, style: .continuous)
+            RoundedRectangle(cornerRadius: Theme.Radius.xl, style: .continuous)
                 .strokeBorder(
                     LinearGradient(
                         colors: [
-                            Color.white.opacity(colorScheme == .dark ? AppTheme.Opacity.subtle : AppTheme.Opacity.heavy),
-                            Color.white.opacity(colorScheme == .dark ? AppTheme.Opacity.faint - 0.03 : AppTheme.Opacity.lightMedium)
+                            Color.white.opacity(colorScheme == .dark ? Theme.Opacity.subtle : Theme.Opacity.heavy),
+                            Color.white.opacity(colorScheme == .dark ? Theme.Opacity.faint - 0.03 : Theme.Opacity.lightMedium)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
                     ),
-                    lineWidth: AppTheme.Border.hairline
+                    lineWidth: Theme.Stroke.hairline
                 )
 
             // Material overlay for dark mode
             if colorScheme == .dark {
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xl, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.Radius.xl, style: .continuous)
                     .fill(.ultraThinMaterial)
             }
         }
         .shadow(
-            color: .black.opacity(colorScheme == .dark ? AppTheme.Opacity.disabled : AppTheme.Opacity.subtle + 0.02),
+            color: .black.opacity(colorScheme == .dark ? Theme.Opacity.disabled : Theme.Opacity.subtle + 0.02),
             radius: 20,
             x: 0,
-            y: AppTheme.Spacing.sm
+            y: Theme.Spacing.sm
         )
         .shadow(
-            color: .black.opacity(colorScheme == .dark ? AppTheme.Opacity.lightMedium : AppTheme.Opacity.faint - 0.02),
-            radius: AppTheme.Spacing.xs + 2,
+            color: .black.opacity(colorScheme == .dark ? Theme.Opacity.lightMedium : Theme.Opacity.faint - 0.02),
+            radius: Theme.Spacing.xs + 2,
             x: 0,
-            y: AppTheme.Spacing.xxs
+            y: 2
         )
     }
 }
@@ -433,9 +433,9 @@ private struct VerticalMenuBackground: View {
 private struct VerticalMenuButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? AppTheme.Scale.subtle : 1.0)
-            .opacity(configuration.isPressed ? AppTheme.Opacity.pressed : 1.0)
-            .animation(AppTheme.Animation.quick, value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .opacity(configuration.isPressed ? Theme.Opacity.pressed : 1.0)
+            .animation(Theme.Animation.fade, value: configuration.isPressed)
     }
 }
 
@@ -443,8 +443,8 @@ private struct VerticalMenuButtonStyle: ButtonStyle {
 private struct ColorCircleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? AppTheme.Scale.pressed - 0.1 : 1.0)
-            .animation(AppTheme.Animation.spring, value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.98 - 0.1 : 1.0)
+            .animation(Theme.Animation.settle, value: configuration.isPressed)
     }
 }
 
@@ -469,7 +469,7 @@ private struct ColorCircleButtonStyle: ButtonStyle {
                 Text("2 And the earth was without form, and void; and darkness was upon the face of the deep.")
                     .padding()
                     .background(Color.selectedBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
                     .padding(.horizontal)
 
                 Spacer()

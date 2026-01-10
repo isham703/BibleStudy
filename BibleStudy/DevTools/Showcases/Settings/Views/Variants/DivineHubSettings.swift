@@ -28,7 +28,7 @@ struct DivineHubSettings: View {
             hubBackground
 
             ScrollView {
-                VStack(spacing: AppTheme.Spacing.xl) {
+                VStack(spacing: Theme.Spacing.xl) {
                     headerSection
 
                     quickAccessGrid
@@ -37,9 +37,9 @@ struct DivineHubSettings: View {
 
                     footerSection
                 }
-                .padding(.horizontal, AppTheme.Spacing.lg)
+                .padding(.horizontal, Theme.Spacing.lg)
                 .padding(.top, 60)
-                .padding(.bottom, AppTheme.Spacing.xxxl)
+                .padding(.bottom, Theme.Spacing.xxl)
             }
 
             // Top bar
@@ -61,13 +61,13 @@ struct DivineHubSettings: View {
 
     private var hubBackground: some View {
         ZStack {
-            Color(hex: "0A0908")
+            Color.surfaceDeep
                 .ignoresSafeArea()
 
             // Radial hub glow
             RadialGradient(
                 colors: [
-                    Color.divineGold.opacity(0.04),
+                    Color.accentBronze.opacity(Theme.Opacity.faint),
                     Color.clear
                 ],
                 center: .center,
@@ -78,7 +78,7 @@ struct DivineHubSettings: View {
 
             // Grid pattern overlay
             GridPatternView()
-                .opacity(0.02)
+                .opacity(Theme.Opacity.faint)
                 .ignoresSafeArea()
         }
     }
@@ -91,19 +91,19 @@ struct DivineHubSettings: View {
                 dismiss()
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(Typography.Icon.md)
                     .foregroundStyle(Color.secondaryText)
                     .frame(width: 36, height: 36)
                     .background(
                         Circle()
-                            .fill(Color.white.opacity(0.05))
+                            .fill(Color.white.opacity(Theme.Opacity.faint))
                     )
             }
 
             Spacer()
 
             Text("SETTINGS")
-                .font(.system(size: 12, weight: .bold))
+                .font(Typography.Icon.xs.weight(.bold))
                 .foregroundStyle(Color.tertiaryText)
                 .kerning(3)
 
@@ -113,20 +113,20 @@ struct DivineHubSettings: View {
                 showProfileSheet = true
             } label: {
                 Circle()
-                    .fill(Color.divineGold.opacity(0.2))
+                    .fill(Color.accentBronze.opacity(Theme.Opacity.light))
                     .frame(width: 36, height: 36)
                     .overlay {
                         Text("JS")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(Color.divineGold)
+                            .font(Typography.Icon.xs.weight(.bold))
+                            .foregroundStyle(Color.accentBronze)
                     }
             }
         }
-        .padding(.horizontal, AppTheme.Spacing.lg)
-        .padding(.vertical, AppTheme.Spacing.md)
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
         .background {
             Rectangle()
-                .fill(.ultraThinMaterial.opacity(0.5))
+                .fill(.ultraThinMaterial.opacity(Theme.Opacity.medium))
                 .ignoresSafeArea()
         }
     }
@@ -134,13 +134,13 @@ struct DivineHubSettings: View {
     // MARK: - Header Section
 
     private var headerSection: some View {
-        VStack(spacing: AppTheme.Spacing.lg) {
+        VStack(spacing: Theme.Spacing.lg) {
             // Central hub icon
             ZStack {
                 // Outer glow rings
                 ForEach(0..<3) { index in
                     Circle()
-                        .stroke(Color.divineGold.opacity(0.1 - Double(index) * 0.03), lineWidth: 1)
+                        .stroke(Color.accentBronze.opacity(0.1 - Double(index) * 0.03), lineWidth: 1)
                         .frame(width: 120 + CGFloat(index) * 40)
                 }
 
@@ -149,8 +149,8 @@ struct DivineHubSettings: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.divineGold.opacity(0.3),
-                                Color.divineGold.opacity(0.1)
+                                Color.accentBronze.opacity(Theme.Opacity.subtle),
+                                Color.accentBronze.opacity(Theme.Opacity.overlay)
                             ],
                             center: .center,
                             startRadius: 0,
@@ -160,11 +160,11 @@ struct DivineHubSettings: View {
                     .frame(width: 100, height: 100)
                     .overlay {
                         Image(systemName: "gearshape.2.fill")
-                            .font(.system(size: 36))
-                            .foregroundStyle(Color.divineGold)
+                            .font(Typography.Icon.hero)
+                            .foregroundStyle(Color.accentBronze)
                     }
             }
-            .padding(.vertical, AppTheme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.lg)
 
             Text("Control Center")
                 .font(.custom("Cinzel-Regular", size: 24))
@@ -179,25 +179,25 @@ struct DivineHubSettings: View {
     // MARK: - Quick Access Grid
 
     private var quickAccessGrid: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Text("QUICK ACCESS")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(Color.divineGold.opacity(0.7))
+                .font(Typography.Icon.xxs.weight(.bold))
+                .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.heavy))
                 .kerning(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             LazyVGrid(
                 columns: [
-                    GridItem(.flexible(), spacing: AppTheme.Spacing.md),
-                    GridItem(.flexible(), spacing: AppTheme.Spacing.md)
+                    GridItem(.flexible(), spacing: Theme.Spacing.md),
+                    GridItem(.flexible(), spacing: Theme.Spacing.md)
                 ],
-                spacing: AppTheme.Spacing.md
+                spacing: Theme.Spacing.md
             ) {
                 QuickToggleTile(
                     icon: "sparkles",
                     title: "AI Insights",
                     isOn: $aiEnabled,
-                    color: Color.divineGold
+                    color: Color.accentBronze
                 )
 
                 QuickToggleTile(
@@ -222,26 +222,26 @@ struct DivineHubSettings: View {
                 )
             }
         }
-        .padding(.top, AppTheme.Spacing.lg)
+        .padding(.top, Theme.Spacing.lg)
     }
 
     // MARK: - Category Hubs
 
     private var categoryHubs: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             Text("CATEGORIES")
-                .font(.system(size: 11, weight: .bold))
-                .foregroundStyle(Color.divineGold.opacity(0.7))
+                .font(Typography.Icon.xxs.weight(.bold))
+                .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.heavy))
                 .kerning(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, AppTheme.Spacing.lg)
+                .padding(.top, Theme.Spacing.lg)
 
             ForEach(HubCategory.allCases) { category in
                 CategoryHub(
                     category: category,
                     isExpanded: expandedCategory == category,
                     onTap: {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        withAnimation(Theme.Animation.settle) {
                             if expandedCategory == category {
                                 expandedCategory = nil
                             } else {
@@ -262,7 +262,7 @@ struct DivineHubSettings: View {
     private func expandedContent(for category: HubCategory) -> some View {
         switch category {
         case .ai:
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 HubToggleRow(
                     title: "Scholar Mode",
                     subtitle: "Advanced theological analysis",
@@ -277,7 +277,7 @@ struct DivineHubSettings: View {
             }
 
         case .reading:
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 // Font size mini slider
                 HStack {
                     Text("Font Size")
@@ -286,18 +286,18 @@ struct DivineHubSettings: View {
 
                     Spacer()
 
-                    HStack(spacing: AppTheme.Spacing.md) {
+                    HStack(spacing: Theme.Spacing.md) {
                         Button {
                             if fontSize > 12 { fontSize -= 2 }
                         } label: {
                             Image(systemName: "minus")
                                 .frame(width: 32, height: 32)
-                                .background(Circle().fill(Color.white.opacity(0.1)))
+                                .background(Circle().fill(Color.white.opacity(Theme.Opacity.overlay)))
                         }
 
                         Text("\(Int(fontSize))")
                             .font(Typography.monospacedBody)
-                            .foregroundStyle(Color.divineGold)
+                            .foregroundStyle(Color.accentBronze)
                             .frame(width: 30)
 
                         Button {
@@ -305,12 +305,12 @@ struct DivineHubSettings: View {
                         } label: {
                             Image(systemName: "plus")
                                 .frame(width: 32, height: 32)
-                                .background(Circle().fill(Color.white.opacity(0.1)))
+                                .background(Circle().fill(Color.white.opacity(Theme.Opacity.overlay)))
                         }
                     }
                     .foregroundStyle(Color.secondaryText)
                 }
-                .padding(.vertical, AppTheme.Spacing.xs)
+                .padding(.vertical, Theme.Spacing.xs)
 
                 HubNavigationRow(title: "Typography", subtitle: "Fonts, spacing, margins")
                 HubNavigationRow(title: "Theme", subtitle: "Light, Dark, Sepia, OLED")
@@ -318,7 +318,7 @@ struct DivineHubSettings: View {
             }
 
         case .account:
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 HubNavigationRow(title: "Profile", subtitle: "john.smith@email.com")
                 HubNavigationRow(title: "Subscription", subtitle: "Premium • Active")
                 HubNavigationRow(title: "Data & Privacy", subtitle: "Export, delete data")
@@ -326,7 +326,7 @@ struct DivineHubSettings: View {
             }
 
         case .more:
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 HubToggleRow(
                     title: "Daily Verse",
                     subtitle: "Morning inspiration",
@@ -346,12 +346,12 @@ struct DivineHubSettings: View {
     // MARK: - Footer
 
     private var footerSection: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Decorative spokes
-            HStack(spacing: AppTheme.Spacing.lg) {
+            HStack(spacing: Theme.Spacing.lg) {
                 ForEach(0..<5) { _ in
                     Circle()
-                        .fill(Color.divineGold.opacity(0.2))
+                        .fill(Color.accentBronze.opacity(Theme.Opacity.light))
                         .frame(width: 6, height: 6)
                 }
             }
@@ -360,7 +360,7 @@ struct DivineHubSettings: View {
                 .font(Typography.caption)
                 .foregroundStyle(Color.tertiaryText)
         }
-        .padding(.top, AppTheme.Spacing.xxxl)
+        .padding(.top, Theme.Spacing.xxl)
     }
 }
 
@@ -385,7 +385,7 @@ enum HubCategory: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
-        case .ai: return Color.divineGold
+        case .ai: return Color.accentBronze
         case .reading: return Color(hex: "6B8E9F")
         case .account: return Color(hex: "7A9E7A")
         case .more: return Color(hex: "9E7A8E")
@@ -414,45 +414,45 @@ struct QuickToggleTile: View {
 
     var body: some View {
         Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            withAnimation(Theme.Animation.settle) {
                 isOn.toggle()
             }
         } label: {
-            VStack(spacing: AppTheme.Spacing.md) {
+            VStack(spacing: Theme.Spacing.md) {
                 ZStack {
                     Circle()
-                        .fill(isOn ? color.opacity(0.2) : Color.white.opacity(0.05))
+                        .fill(isOn ? color.opacity(Theme.Opacity.light) : Color.white.opacity(Theme.Opacity.faint))
                         .frame(width: 56, height: 56)
 
                     Image(systemName: icon)
-                        .font(.system(size: 24))
+                        .font(Typography.Icon.lg)
                         .foregroundStyle(isOn ? color : Color.tertiaryText)
                 }
 
                 Text(title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Typography.Icon.xs)
                     .foregroundStyle(isOn ? Color.primaryText : Color.tertiaryText)
 
                 // Status indicator
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(isOn ? color : Color.tertiaryText.opacity(0.5))
+                        .fill(isOn ? color : Color.tertiaryText.opacity(Theme.Opacity.medium))
                         .frame(width: 6, height: 6)
 
                     Text(isOn ? "ON" : "OFF")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(Typography.Icon.xxs.weight(.bold))
                         .foregroundStyle(isOn ? color : Color.tertiaryText)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, AppTheme.Spacing.lg)
+            .padding(.vertical, Theme.Spacing.lg)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
+                RoundedRectangle(cornerRadius: Theme.Radius.lg)
                     .fill(Color.white.opacity(isOn ? 0.05 : 0.02))
                     .overlay {
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
+                        RoundedRectangle(cornerRadius: Theme.Radius.lg)
                             .strokeBorder(
-                                isOn ? color.opacity(0.3) : Color.white.opacity(0.05),
+                                isOn ? color.opacity(Theme.Opacity.subtle) : Color.white.opacity(Theme.Opacity.faint),
                                 lineWidth: 1
                             )
                     }
@@ -484,15 +484,15 @@ struct CategoryHub<Content: View>: View {
         VStack(spacing: 0) {
             // Header
             Button(action: onTap) {
-                HStack(spacing: AppTheme.Spacing.lg) {
+                HStack(spacing: Theme.Spacing.lg) {
                     // Icon
                     ZStack {
                         Circle()
-                            .fill(category.color.opacity(0.15))
+                            .fill(category.color.opacity(Theme.Opacity.divider))
                             .frame(width: 48, height: 48)
 
                         Image(systemName: category.icon)
-                            .font(.system(size: 20))
+                            .font(Typography.Command.title3)
                             .foregroundStyle(category.color)
                     }
 
@@ -510,11 +510,11 @@ struct CategoryHub<Content: View>: View {
 
                     // Expand indicator
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(Typography.Command.caption.weight(.semibold))
                         .foregroundStyle(category.color)
                         .rotationEffect(.degrees(isExpanded ? 90 : 0))
                 }
-                .padding(AppTheme.Spacing.lg)
+                .padding(Theme.Spacing.lg)
             }
             .buttonStyle(.plain)
 
@@ -522,22 +522,22 @@ struct CategoryHub<Content: View>: View {
             if isExpanded {
                 VStack(spacing: 0) {
                     Rectangle()
-                        .fill(category.color.opacity(0.2))
+                        .fill(category.color.opacity(Theme.Opacity.light))
                         .frame(height: 1)
 
                     content
-                        .padding(AppTheme.Spacing.lg)
+                        .padding(Theme.Spacing.lg)
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
-                .fill(Color.white.opacity(0.03))
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .fill(Color.white.opacity(Theme.Opacity.faint))
                 .overlay {
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.lg)
+                    RoundedRectangle(cornerRadius: Theme.Radius.lg)
                         .strokeBorder(
-                            isExpanded ? category.color.opacity(0.3) : Color.white.opacity(0.05),
+                            isExpanded ? category.color.opacity(Theme.Opacity.subtle) : Color.white.opacity(Theme.Opacity.faint),
                             lineWidth: 1
                         )
                 }
@@ -570,7 +570,7 @@ struct HubToggleRow: View {
                 .toggleStyle(GoldToggleStyle())
                 .labelsHidden()
         }
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.xs)
     }
 }
 
@@ -598,10 +598,10 @@ struct HubNavigationRow: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Typography.Icon.xs)
                     .foregroundStyle(Color.tertiaryText)
             }
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.vertical, Theme.Spacing.xs)
         }
         .buttonStyle(.plain)
     }
@@ -624,10 +624,10 @@ struct HubDestructiveRow: View {
                 Spacer()
 
                 Image(systemName: "rectangle.portrait.and.arrow.right")
-                    .font(.system(size: 14))
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color(hex: "C94A4A"))
             }
-            .padding(.vertical, AppTheme.Spacing.xs)
+            .padding(.vertical, Theme.Spacing.xs)
         }
         .buttonStyle(.plain)
     }
@@ -639,13 +639,13 @@ struct ProfileSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: AppTheme.Spacing.xl) {
+        VStack(spacing: Theme.Spacing.xl) {
             // Avatar
             ZStack {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.divineGold.opacity(0.3), Color.divineGold.opacity(0.1)],
+                            colors: [Color.accentBronze.opacity(Theme.Opacity.subtle), Color.accentBronze.opacity(Theme.Opacity.overlay)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -654,11 +654,11 @@ struct ProfileSheet: View {
 
                 Text("JS")
                     .font(.custom("Cinzel-Regular", size: 36))
-                    .foregroundStyle(Color.divineGold)
+                    .foregroundStyle(Color.accentBronze)
             }
-            .padding(.top, AppTheme.Spacing.xl)
+            .padding(.top, Theme.Spacing.xl)
 
-            VStack(spacing: AppTheme.Spacing.xs) {
+            VStack(spacing: Theme.Spacing.xs) {
                 Text("John Smith")
                     .font(.custom("Cinzel-Regular", size: 24))
                     .foregroundStyle(Color.primaryText)
@@ -667,14 +667,14 @@ struct ProfileSheet: View {
                     .font(Typography.body)
                     .foregroundStyle(Color.secondaryText)
 
-                HStack(spacing: AppTheme.Spacing.xs) {
+                HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "crown.fill")
-                        .font(.system(size: 12))
+                        .font(Typography.Command.caption)
                     Text("Premium Member")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(Typography.Command.meta)
                 }
-                .foregroundStyle(Color.divineGold)
-                .padding(.top, AppTheme.Spacing.sm)
+                .foregroundStyle(Color.accentBronze)
+                .padding(.top, Theme.Spacing.sm)
             }
 
             Spacer()
@@ -684,16 +684,16 @@ struct ProfileSheet: View {
             } label: {
                 Text("Done")
                     .font(Typography.body)
-                    .foregroundStyle(Color.divineGold)
+                    .foregroundStyle(Color.accentBronze)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppTheme.Spacing.md)
+                    .padding(.vertical, Theme.Spacing.md)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.divineGold.opacity(0.15))
+                        RoundedRectangle(cornerRadius: Theme.Radius.md)
+                            .fill(Color.accentBronze.opacity(Theme.Opacity.divider))
                     )
             }
-            .padding(.horizontal, AppTheme.Spacing.xl)
-            .padding(.bottom, AppTheme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.xl)
+            .padding(.bottom, Theme.Spacing.xl)
         }
         .background(Color(hex: "141210"))
     }

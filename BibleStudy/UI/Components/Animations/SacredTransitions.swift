@@ -25,7 +25,7 @@ struct UnfurlTransition: ViewModifier {
         content
             .scaleEffect(y: isActive ? 1 : 0, anchor: .top)
             .opacity(isActive ? 1 : 0)
-            .animation(AppTheme.Animation.unfurl, value: isActive)
+            .animation(Theme.Animation.settle, value: isActive)
     }
 }
 
@@ -40,13 +40,13 @@ struct IlluminateTransition: ViewModifier {
     func body(content: Content) -> some View {
         ZStack {
             // Glow effect
-            if !AppTheme.Animation.isReduceMotionEnabled {
+            if !Theme.Animation.isReduceMotionEnabled {
                 Circle()
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.divineGold.opacity(AppTheme.Opacity.disabled),
-                                Color.divineGold.opacity(AppTheme.Opacity.subtle),
+                                Color.accentBronze.opacity(Theme.Opacity.disabled),
+                                Color.accentBronze.opacity(Theme.Opacity.subtle),
                                 Color.clear
                             ],
                             center: .center,
@@ -63,14 +63,14 @@ struct IlluminateTransition: ViewModifier {
                 .scaleEffect(isActive ? 1 : 0.8)
                 .opacity(isActive ? 1 : 0)
         }
-        .animation(AppTheme.Animation.luminous, value: isActive)
+        .animation(Theme.Animation.slowFade, value: isActive)
         .onChange(of: isActive) { _, newValue in
             if newValue {
                 // Flash glow then fade
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     glowOpacity = 1
                 }
-                withAnimation(AppTheme.Animation.luminous.delay(0.2)) {
+                withAnimation(Theme.Animation.slowFade.delay(0.2)) {
                     glowOpacity = 0
                 }
             }
@@ -100,7 +100,7 @@ struct ManuscriptTransition: ViewModifier {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.divineGold.opacity(isActive ? 0 : AppTheme.Opacity.heavy),
+                                Color.accentBronze.opacity(isActive ? 0 : 0.85),
                                 Color.clear
                             ],
                             startPoint: direction == .leading ? .trailing : .leading,
@@ -109,7 +109,7 @@ struct ManuscriptTransition: ViewModifier {
                     )
                     .allowsHitTesting(false)
             )
-            .animation(AppTheme.Animation.pageTurn, value: isActive)
+            .animation(Theme.Animation.fade, value: isActive)
     }
 }
 
@@ -124,7 +124,7 @@ struct AscendTransition: ViewModifier {
             .offset(y: isActive ? 0 : 30)
             .opacity(isActive ? 1 : 0)
             .blur(radius: isActive ? 0 : 2)
-            .animation(AppTheme.Animation.reverent, value: isActive)
+            .animation(Theme.Animation.slowFade, value: isActive)
     }
 }
 
@@ -169,11 +169,11 @@ extension View {
                 self.ascendTransition(isActive: isActive)
             case .fade:
                 self.opacity(isActive ? 1 : 0)
-                    .animation(AppTheme.Animation.reverent, value: isActive)
+                    .animation(Theme.Animation.slowFade, value: isActive)
             case .scale:
                 self.scaleEffect(isActive ? 1 : 0.9)
                     .opacity(isActive ? 1 : 0)
-                    .animation(AppTheme.Animation.sacredSpring, value: isActive)
+                    .animation(Theme.Animation.settle, value: isActive)
             }
         }
     }
@@ -221,7 +221,7 @@ extension AnyTransition {
 
     /// Reverent fade (slower, more dignified)
     static var reverentFade: AnyTransition {
-        .opacity.animation(AppTheme.Animation.reverent)
+        .opacity.animation(Theme.Animation.slowFade)
     }
 }
 
@@ -265,30 +265,19 @@ struct CelebrationTransitionModifier: ViewModifier {
     let isActive: Bool
     let onComplete: (() -> Void)?
 
-    @State private var showBurst = false
-
     func body(content: Content) -> some View {
-        ZStack {
-            content
-                .scaleEffect(isActive ? 1 : 0.5)
-                .opacity(isActive ? 1 : 0)
-
-            if showBurst && !AppTheme.Animation.isReduceMotionEnabled {
-                CelebrationBurst()
-            }
-        }
-        .animation(AppTheme.Animation.celebrationBounce, value: isActive)
-        .onChange(of: isActive) { _, newValue in
-            if newValue {
-                showBurst = true
-                HapticService.shared.goldenBurst()
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    showBurst = false
-                    onComplete?()
+        content
+            .scaleEffect(isActive ? 1 : 0.5)
+            .opacity(isActive ? 1 : 0)
+            .animation(Theme.Animation.settle, value: isActive)
+            .onChange(of: isActive) { _, newValue in
+                if newValue {
+                    HapticService.shared.goldenBurst()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        onComplete?()
+                    }
                 }
             }
-        }
     }
 }
 
@@ -315,7 +304,7 @@ extension View {
                 }
 
                 Text("Scroll-like reveal")
-                    .font(Typography.Scripture.body())
+                    .font(Typography.Scripture.body)
                     .padding()
                     .background(Color(.systemBackground))
                     .unfurlTransition(isActive: isActive)
@@ -338,7 +327,7 @@ extension View {
                 }
 
                 Text("Light bloom effect")
-                    .font(Typography.Scripture.body())
+                    .font(Typography.Scripture.body)
                     .padding()
                     .background(Color(.systemBackground))
                     .illuminateTransition(isActive: isActive)
@@ -361,7 +350,7 @@ extension View {
                 }
 
                 Text("Page turn effect")
-                    .font(Typography.Scripture.body())
+                    .font(Typography.Scripture.body)
                     .padding()
                     .background(Color(.systemBackground))
                     .manuscriptTransition(isActive: isActive)
@@ -386,11 +375,11 @@ extension View {
                 if showCelebration {
                     VStack {
                         Image(systemName: "star.fill")
-                            .font(.system(size: Typography.Scale.display + 4))
-                            .foregroundStyle(Color.divineGold)
+                            .font(Typography.Icon.display)
+                            .foregroundStyle(Color.accentBronze)
 
                         Text("Achievement!")
-                            .font(Typography.Illuminated.bookTitle())
+                            .font(Typography.Scripture.heading)
                     }
                     .celebrationTransition(isActive: showCelebration) {
                         showCelebration = false

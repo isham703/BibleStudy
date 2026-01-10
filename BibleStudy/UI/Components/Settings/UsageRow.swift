@@ -32,7 +32,7 @@ struct UsageRow: View {
         used: Int,
         total: Int,
         icon: String,
-        iconColor: Color = .scholarAccent,
+        iconColor: Color = .accentIndigo,
         onTap: (() -> Void)? = nil
     ) {
         self.label = label
@@ -45,15 +45,15 @@ struct UsageRow: View {
 
     var body: some View {
         Button(action: { onTap?() }) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Icon
                 iconView
 
                 // Label and progress
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     HStack {
                         Text(label)
-                            .font(Typography.UI.subheadline)
+                            .font(Typography.Command.subheadline)
                             .foregroundStyle(Color.primaryText)
 
                         Spacer()
@@ -71,18 +71,18 @@ struct UsageRow: View {
         .buttonStyle(.plain)
         .disabled(onTap == nil)
         .onAppear {
-            withAnimation(AppTheme.Animation.slow.delay(0.1)) {
+            withAnimation(Theme.Animation.slowFade.delay(0.1)) {
                 animatedProgress = progress
             }
-            if isExhausted && !AppTheme.Animation.isReduceMotionEnabled {
+            if isExhausted && !Theme.Animation.isReduceMotionEnabled {
                 startPulseAnimation()
             }
         }
         .onChange(of: used) { _, _ in
-            withAnimation(AppTheme.Animation.standard) {
+            withAnimation(Theme.Animation.settle) {
                 animatedProgress = progress
             }
-            if isExhausted && !AppTheme.Animation.isReduceMotionEnabled {
+            if isExhausted && !Theme.Animation.isReduceMotionEnabled {
                 startPulseAnimation()
             } else {
                 isPulsing = false
@@ -94,23 +94,23 @@ struct UsageRow: View {
 
     private var iconView: some View {
         Image(systemName: icon)
-            .font(Typography.UI.iconXs.weight(.medium))
+            .font(Typography.Icon.xs.weight(.medium))
             .foregroundStyle(isExhausted ? Color.error : iconColor)
             .frame(width: 24, height: 24)
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 1)
-                    .fill((isExhausted ? Color.error : iconColor).opacity(AppTheme.Opacity.subtle + 0.02))
+                RoundedRectangle(cornerRadius: Theme.Radius.input + 1)
+                    .fill((isExhausted ? Color.error : iconColor).opacity(Theme.Opacity.subtle + 0.02))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.input + 1)
                     .stroke(
-                        (isExhausted ? Color.error : iconColor).opacity(isPulsing ? AppTheme.Opacity.heavy : 0),
-                        lineWidth: AppTheme.Border.regular
+                        (isExhausted ? Color.error : iconColor).opacity(isPulsing ? Theme.Opacity.heavy : 0),
+                        lineWidth: Theme.Stroke.control
                     )
-                    .blur(radius: isPulsing ? AppTheme.Blur.subtle : 0)
+                    .blur(radius: isPulsing ? 4 : 0)
             )
             .animation(
-                isPulsing ? AppTheme.Animation.pulse : .default,
+                isPulsing ? Theme.Animation.fade : .default,
                 value: isPulsing
             )
     }
@@ -118,15 +118,15 @@ struct UsageRow: View {
     // MARK: - Usage Label
 
     private var usageLabel: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             if isExhausted {
                 Image(systemName: "exclamationmark.circle.fill")
-                    .font(Typography.UI.iconXxs)
+                    .font(Typography.Icon.xxs)
                     .foregroundStyle(Color.error)
             }
 
             Text(isExhausted ? "Limit reached" : "\(remaining) remaining")
-                .font(Typography.UI.caption2.monospacedDigit())
+                .font(Typography.Command.meta.monospacedDigit())
                 .foregroundStyle(isExhausted ? Color.error : Color.secondaryText)
         }
     }
@@ -137,34 +137,34 @@ struct UsageRow: View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
                 // Background track
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
-                    .fill(Color.divider.opacity(AppTheme.Opacity.medium))
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
+                    .fill(Color.divider.opacity(Theme.Opacity.medium))
 
                 // Filled portion
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.xs)
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
                     .fill(progressGradient)
                     .frame(width: geometry.size.width * animatedProgress)
             }
         }
-        .frame(height: AppTheme.Divider.thick)
+        .frame(height: 3)
     }
 
     private var progressGradient: LinearGradient {
         if isExhausted {
             return LinearGradient(
-                colors: [Color.error.opacity(AppTheme.Opacity.pressed), Color.error],
+                colors: [Color.error.opacity(Theme.Opacity.pressed), Color.error],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         } else if progress > 0.66 {
             return LinearGradient(
-                colors: [Color.warning.opacity(AppTheme.Opacity.pressed), Color.warning],
+                colors: [Color.warning.opacity(Theme.Opacity.pressed), Color.warning],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         } else {
             return LinearGradient(
-                colors: [iconColor.opacity(AppTheme.Opacity.overlay), iconColor],
+                colors: [iconColor.opacity(Theme.Opacity.overlay), iconColor],
                 startPoint: .leading,
                 endPoint: .trailing
             )
@@ -182,6 +182,7 @@ struct UsageRow: View {
 // Groups multiple usage rows with a header and reset countdown
 
 struct UsageStatisticsView: View {
+    @Environment(\.colorScheme) private var colorScheme
     let aiInsightsUsed: Int
     let aiInsightsTotal: Int
     let highlightsUsed: Int
@@ -191,11 +192,11 @@ struct UsageStatisticsView: View {
     let onUpgrade: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Header
             HStack {
                 Text("Today's Usage")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
 
                 Spacer()
@@ -205,13 +206,13 @@ struct UsageStatisticsView: View {
             }
 
             // Usage rows
-            VStack(spacing: AppTheme.Spacing.sm) {
+            VStack(spacing: Theme.Spacing.sm) {
                 UsageRow(
                     label: "AI Insights",
                     used: aiInsightsUsed,
                     total: aiInsightsTotal,
                     icon: "sparkles",
-                    iconColor: .scholarAccent,
+                    iconColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
                     onTap: { if aiInsightsUsed >= aiInsightsTotal { onUpgrade() } }
                 )
 
@@ -223,14 +224,14 @@ struct UsageStatisticsView: View {
                     used: notesUsed,
                     total: notesTotal,
                     icon: "note.text",
-                    iconColor: Color.accentBlue,
+                    iconColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
                     onTap: { if notesUsed >= notesTotal { onUpgrade() } }
                 )
             }
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium)
+            RoundedRectangle(cornerRadius: Theme.Radius.button)
                 .fill(Color.appBackground)
         )
     }
@@ -238,12 +239,12 @@ struct UsageStatisticsView: View {
     // MARK: - Reset Countdown
 
     private var resetCountdown: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             Image(systemName: "arrow.counterclockwise")
-                .font(.system(size: Typography.Scale.xs - 2, weight: .medium))
+                .font(Typography.Icon.xxs)
 
             Text("Resets \(resetTimeText)")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
         .foregroundStyle(Color.tertiaryText)
     }
@@ -277,45 +278,53 @@ struct UsageStatisticsView: View {
 
 // MARK: - Preview
 
-#Preview("Usage Statistics") {
-    VStack(spacing: AppTheme.Spacing.xl) {
-        // Partial usage
-        IlluminatedSettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
-            UsageStatisticsView(
-                aiInsightsUsed: 2,
-                aiInsightsTotal: 3,
-                highlightsUsed: 1,
-                highlightsTotal: 3,
-                notesUsed: 0,
-                notesTotal: 2,
-                onUpgrade: {}
-            )
-        }
+#if DEBUG
+struct UsageStatisticsView_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: Theme.Spacing.xl) {
+            // Partial usage
+            IlluminatedSettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
+                UsageStatisticsView(
+                    aiInsightsUsed: 2,
+                    aiInsightsTotal: 3,
+                    highlightsUsed: 1,
+                    highlightsTotal: 3,
+                    notesUsed: 0,
+                    notesTotal: 2,
+                    onUpgrade: {}
+                )
+            }
 
-        // Exhausted limits
-        IlluminatedSettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
-            UsageStatisticsView(
-                aiInsightsUsed: 3,
-                aiInsightsTotal: 3,
-                highlightsUsed: 3,
-                highlightsTotal: 3,
-                notesUsed: 2,
-                notesTotal: 2,
-                onUpgrade: {}
-            )
+            // Exhausted limits
+            IlluminatedSettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
+                UsageStatisticsView(
+                    aiInsightsUsed: 3,
+                    aiInsightsTotal: 3,
+                    highlightsUsed: 3,
+                    highlightsTotal: 3,
+                    notesUsed: 2,
+                    notesTotal: 2,
+                    onUpgrade: {}
+                )
+            }
         }
+        .padding()
+        .background(Color.appBackground)
+        .previewDisplayName("Usage Statistics")
     }
-    .padding()
-    .background(Color.appBackground)
 }
 
-#Preview("Usage Row States") {
-    VStack(spacing: AppTheme.Spacing.md) {
-        UsageRow(label: "AI Insights", used: 0, total: 3, icon: "sparkles")
-        UsageRow(label: "AI Insights", used: 1, total: 3, icon: "sparkles")
-        UsageRow(label: "AI Insights", used: 2, total: 3, icon: "sparkles")
-        UsageRow(label: "AI Insights", used: 3, total: 3, icon: "sparkles")
+struct UsageRow_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack(spacing: Theme.Spacing.md) {
+            UsageRow(label: "AI Insights", used: 0, total: 3, icon: "sparkles")
+            UsageRow(label: "AI Insights", used: 1, total: 3, icon: "sparkles")
+            UsageRow(label: "AI Insights", used: 2, total: 3, icon: "sparkles")
+            UsageRow(label: "AI Insights", used: 3, total: 3, icon: "sparkles")
+        }
+        .padding()
+        .background(Color.surfaceBackground)
+        .previewDisplayName("Usage Row States")
     }
-    .padding()
-    .background(Color.surfaceBackground)
 }
+#endif

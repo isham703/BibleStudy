@@ -14,7 +14,7 @@ struct TopicDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 // Description
                 if let description = topic.description {
                     descriptionSection(description)
@@ -35,7 +35,7 @@ struct TopicDetailView: View {
                     subtopicsSection
                 }
             }
-            .padding(AppTheme.Spacing.md)
+            .padding(Theme.Spacing.md)
         }
         .navigationTitle(topic.name)
         .navigationBarTitleDisplayMode(.large)
@@ -46,18 +46,18 @@ struct TopicDetailView: View {
 
     // MARK: - Description Section
     private func descriptionSection(_ description: String) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(description)
-                .font(Typography.UI.warmBody)
+                .font(Typography.Command.body)
                 .foregroundStyle(Color.secondaryText)
         }
     }
 
     // MARK: - Key Passages Section
     private var keyPassagesSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Key Passages")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
             ForEach(viewModel.verses) { verse in
@@ -71,13 +71,13 @@ struct TopicDetailView: View {
 
     // MARK: - Related Topics Section
     private var relatedTopicsSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Related Topics")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     ForEach(viewModel.relatedTopics) { related in
                         NavigationLink(value: related) {
                             TopicChip(topic: related)
@@ -90,13 +90,13 @@ struct TopicDetailView: View {
 
     // MARK: - Subtopics Section
     private var subtopicsSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Subtopics")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.sm) {
+                HStack(spacing: Theme.Spacing.sm) {
                     ForEach(viewModel.subtopics) { subtopic in
                         NavigationLink(value: subtopic) {
                             TopicChip(topic: subtopic)
@@ -113,30 +113,32 @@ struct TopicVerseCard: View {
     let verse: TopicVerse
     let verseText: String?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             HStack {
                 Text(verse.reference)
-                    .font(Typography.UI.caption1Bold)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.caption.weight(.semibold))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.tertiaryText)
             }
 
             if let text = verseText {
                 Text(text)
-                    .font(Typography.Scripture.body())
+                    .font(Typography.Scripture.body)
                     .foregroundStyle(Color.secondaryText)
                     .lineLimit(3)
             }
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .background(Color.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.md))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }
 
@@ -146,10 +148,10 @@ struct TopicChip: View {
 
     var body: some View {
         Text(topic.name)
-            .font(Typography.UI.caption1Bold)
+            .font(Typography.Command.caption.weight(.semibold))
             .foregroundStyle(Color.primaryText)
-            .padding(.horizontal, AppTheme.Spacing.md)
-            .padding(.vertical, AppTheme.Spacing.sm)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
             .background(Color.secondaryBackground)
             .clipShape(Capsule())
     }

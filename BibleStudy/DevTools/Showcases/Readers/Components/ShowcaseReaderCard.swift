@@ -21,7 +21,7 @@ struct ShowcaseReaderCard<Destination: View>: View {
         .buttonStyle(.plain)
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .brightness(isPressed ? 0.05 : 0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .animation(Theme.Animation.settle, value: isPressed)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
             isPressed = pressing
             if pressing {
@@ -33,35 +33,35 @@ struct ShowcaseReaderCard<Destination: View>: View {
     // MARK: - Card Content
 
     private var cardContent: some View {
-        HStack(spacing: AppTheme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.lg) {
             // Icon
             iconView
 
             // Text content
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 // Title
                 Text(variant.displayName)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(Typography.Icon.base.weight(.semibold))
                     .foregroundStyle(Color.showcasePrimaryText)
 
                 // Subtitle
                 Text(variant.subtitle)
-                    .font(.system(size: 13, weight: .regular))
+                    .font(Typography.Command.meta)
                     .foregroundStyle(Color.showcaseSecondaryText)
 
                 // Reading mode badge
                 readingModeBadge
-                    .padding(.top, AppTheme.Spacing.xxs)
+                    .padding(.top, 2)
             }
 
             Spacer()
 
             // Chevron
             Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .medium))
+                .font(Typography.Icon.sm)
                 .foregroundStyle(Color.showcaseTertiaryText)
         }
-        .padding(AppTheme.Spacing.lg)
+        .padding(Theme.Spacing.lg)
         .background(cardBackground)
         .overlay(cardBorder)
         .shadow(
@@ -77,22 +77,22 @@ struct ShowcaseReaderCard<Destination: View>: View {
         ZStack {
             // Glow background
             Circle()
-                .fill(variant.accentColor.opacity(0.2))
+                .fill(variant.accentColor.opacity(Theme.Opacity.light))
                 .frame(width: 56, height: 56)
                 .blur(radius: 8)
 
             // Icon container
             Circle()
-                .fill(Color.white.opacity(0.08))
+                .fill(Color.white.opacity(Theme.Opacity.overlay))
                 .frame(width: 48, height: 48)
                 .overlay(
                     Circle()
-                        .stroke(variant.accentColor.opacity(0.4), lineWidth: 1)
+                        .stroke(variant.accentColor.opacity(Theme.Opacity.lightMedium), lineWidth: 1)
                 )
 
             // Icon
             Image(systemName: variant.icon)
-                .font(.system(size: 22, weight: .medium))
+                .font(Typography.Command.title3)
                 .foregroundStyle(variant.accentColor)
         }
     }
@@ -101,7 +101,7 @@ struct ShowcaseReaderCard<Destination: View>: View {
 
     private var readingModeBadge: some View {
         Text(variant.readingMode.displayName)
-            .font(.system(size: 10, weight: .medium))
+            .font(Typography.Icon.xxs)
             .tracking(1)
             .textCase(.uppercase)
             .foregroundStyle(variant.accentColor)
@@ -109,17 +109,17 @@ struct ShowcaseReaderCard<Destination: View>: View {
             .padding(.vertical, 4)
             .background(
                 Capsule()
-                    .fill(variant.accentColor.opacity(0.15))
+                    .fill(variant.accentColor.opacity(Theme.Opacity.divider))
             )
     }
 
     // MARK: - Card Background
 
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-            .fill(Color.white.opacity(0.05))
+        RoundedRectangle(cornerRadius: Theme.Radius.card)
+            .fill(Color.white.opacity(Theme.Opacity.faint))
             .background(
-                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
                     .fill(Color.showcaseCard)
             )
     }
@@ -127,13 +127,13 @@ struct ShowcaseReaderCard<Destination: View>: View {
     // MARK: - Card Border
 
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+        RoundedRectangle(cornerRadius: Theme.Radius.card)
             .stroke(
                 LinearGradient(
                     colors: [
-                        variant.accentColor.opacity(0.4),
-                        Color.white.opacity(0.1),
-                        variant.accentColor.opacity(0.2)
+                        variant.accentColor.opacity(Theme.Opacity.lightMedium),
+                        Color.white.opacity(Theme.Opacity.overlay),
+                        variant.accentColor.opacity(Theme.Opacity.light)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing

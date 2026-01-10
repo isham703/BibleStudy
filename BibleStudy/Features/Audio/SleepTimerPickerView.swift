@@ -35,7 +35,7 @@ struct SleepTimerPickerView: View {
                                 if isSelected(minutes: option.minutes) {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(Color.Semantic.accent)
-                                        .font(Typography.UI.footnote)
+                                        .font(Typography.Command.caption)
                                         .fontWeight(.semibold)
                                 }
                             }
@@ -59,7 +59,7 @@ struct SleepTimerPickerView: View {
                             if audioService.sleepTimerEndOfChapter {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(Color.Semantic.accent)
-                                    .font(Typography.UI.footnote)
+                                    .font(Typography.Command.caption)
                                     .fontWeight(.semibold)
                             }
                         }
@@ -90,7 +90,7 @@ struct SleepTimerPickerView: View {
                     } footer: {
                         if !audioService.sleepTimerEndOfChapter && audioService.sleepTimerRemaining > 0 {
                             Text("Time remaining: \(audioService.formattedSleepTimerRemaining)")
-                                .font(Typography.UI.footnote.monospacedDigit())
+                                .font(Typography.Command.caption.monospacedDigit())
                                 .accessibilityAddTraits(.updatesFrequently)
                         }
                     }

@@ -4,8 +4,9 @@ import GRDB
 // MARK: - Bible Insight Service
 // Read-only access to bundled pre-generated commentary insights
 // Opens CommentaryData.sqlite directly from app bundle
+// Conforms to InsightProviding protocol for use in sermon enrichment
 
-final class BibleInsightService: Sendable {
+final class BibleInsightService: InsightProviding, Sendable {
     // MARK: - Singleton
 
     static let shared = BibleInsightService()
@@ -228,6 +229,61 @@ final class BibleInsightService: Sendable {
             grouped[insight.verseStart, default: []].append(insight)
         }
         return grouped
+    }
+
+    // MARK: - InsightProviding Protocol
+
+    /// Get insight summaries for a specific verse (InsightProviding protocol)
+    /// - Parameters:
+    ///   - bookId: Book ID (e.g., 43 for John)
+    ///   - chapter: Chapter number
+    ///   - verse: Verse number
+    /// - Returns: Array of insight summaries for sermon enrichment
+    func getInsightSummaries(bookId: Int, chapter: Int, verse: Int) async throws -> [InsightSummary] {
+        let insights = try await getInsights(bookId: bookId, chapter: chapter, verse: verse)
+        return insights.map { $0.toInsightSummary() }
+    }
+
+    /// Get insight summaries for a verse range (InsightProviding protocol)
+    /// - Parameters:
+    ///   - bookId: Book ID
+    ///   - chapter: Chapter number
+    ///   - verseStart: Starting verse number
+    ///   - verseEnd: Ending verse number (inclusive)
+    /// - Returns: Array of insight summaries for sermon enrichment
+    func getInsightSummaries(bookId: Int, chapter: Int, verseStart: Int, verseEnd: Int) async throws -> [InsightSummary] {
+        guard let dbQueue = dbQueue else {
+            throw BibleInsightError.databaseNotAvailable
+        }
+
+        let insights = try await dbQueue.read { db in
+            try BibleInsight
+                .filter(BibleInsight.Columns.bookId == bookId)
+                .filter(BibleInsight.Columns.chapter == chapter)
+                .filter(BibleInsight.Columns.verseStart <= verseEnd)
+                .filter(BibleInsight.Columns.verseEnd >= verseStart)
+                .order(BibleInsight.Columns.verseStart, BibleInsight.Columns.segmentStartChar)
+                .fetchAll(db)
+        }
+
+        return insights.map { $0.toInsightSummary() }
+    }
+}
+
+// MARK: - BibleInsight → InsightSummary Conversion
+
+extension BibleInsight {
+    /// Convert to InsightSummary for sermon enrichment (avoids Core → Features dependency)
+    func toInsightSummary() -> InsightSummary {
+        InsightSummary(
+            id: id,
+            bookId: bookId,
+            chapter: chapter,
+            verseStart: verseStart,
+            verseEnd: verseEnd,
+            title: title,
+            insightType: insightType.rawValue
+        )
     }
 }
 

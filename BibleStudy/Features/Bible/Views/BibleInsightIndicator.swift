@@ -20,6 +20,7 @@ struct BibleInsightIndicator: View {
     // MARK: - Environment
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - State
 
@@ -44,6 +45,9 @@ struct BibleInsightIndicator: View {
     // MARK: - Body
 
     var body: some View {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+
         Button(action: {
             HapticService.shared.lightTap()
             hasUsedIndicator = true  // User has learned the pattern
@@ -56,8 +60,8 @@ struct BibleInsightIndicator: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.divineGold.opacity(glowOpacity * 0.3),
-                                Color.divineGold.opacity(glowOpacity * 0.08),
+                                accentSeal.opacity(glowOpacity * 0.3),
+                                accentSeal.opacity(glowOpacity * 0.08),
                                 Color.clear
                             ],
                             center: .center,
@@ -119,11 +123,11 @@ struct BibleInsightIndicator: View {
                 glowOpacity = pressing ? 1.0 : (isExpanded ? 0.6 : 0)
                 showTooltip = pressing  // Show tooltip on long press
             } else {
-                withAnimation(AppTheme.Animation.quick) {
+                withAnimation(Theme.Animation.fade) {
                     isPressed = pressing
                     showTooltip = pressing  // Show tooltip on long press
                 }
-                withAnimation(AppTheme.Animation.luminous) {
+                withAnimation(Theme.Animation.slowFade) {
                     glowOpacity = pressing ? 1.0 : (isExpanded ? 0.6 : 0)
                 }
             }
@@ -131,7 +135,7 @@ struct BibleInsightIndicator: View {
         .onAppear {
             if !reduceMotion {
                 // Gentle entrance pulse
-                withAnimation(AppTheme.Animation.sacredSpring.delay(0.3)) {
+                withAnimation(Theme.Animation.settle.delay(0.3)) {
                     hasAppeared = true
                 }
 
@@ -143,11 +147,13 @@ struct BibleInsightIndicator: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                         // Only show if still not used (user might have tapped another one)
                         guard !hasUsedIndicator else { return }
+                        // swiftlint:disable:next hardcoded_with_animation hardcoded_animation_ease
                         withAnimation(.easeOut(duration: 0.25)) {
                             showTooltip = true
                         }
                         // Auto-hide after 3 seconds (longer for better visibility)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                            // swiftlint:disable:next hardcoded_with_animation hardcoded_animation_ease
                             withAnimation(.easeOut(duration: 0.4)) {
                                 showTooltip = false
                             }
@@ -162,7 +168,7 @@ struct BibleInsightIndicator: View {
             if reduceMotion {
                 glowOpacity = newValue ? 0.6 : 0
             } else {
-                withAnimation(AppTheme.Animation.luminous) {
+                withAnimation(Theme.Animation.slowFade) {
                     glowOpacity = newValue ? 0.6 : 0
                 }
             }
@@ -175,41 +181,53 @@ struct BibleInsightIndicator: View {
     // MARK: - Dot Color
 
     private var dotColor: Color {
+        let themeMode = ThemeMode.current(from: colorScheme)
+        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+
         if isExpanded {
-            return Color.divineGold
+            return accentSeal
         } else if isPressed {
-            return Color.divineGold.opacity(0.9)
+            return accentSeal.opacity(Theme.Opacity.high)
         } else {
-            return Color.divineGold.opacity(hasAppeared ? 0.6 : 0.3)
+            return accentSeal.opacity(hasAppeared ? Theme.Opacity.strong : Theme.Opacity.medium)
         }
     }
 
     // MARK: - Count Badge
 
     private var countBadge: some View {
-        Text("\(count)")
-            .font(.custom("CormorantGaramond-SemiBold", size: 10))
-            .foregroundStyle(Color.divineGold)
-            .padding(.horizontal, 4)
-            .padding(.vertical, 1)
+        let themeMode = ThemeMode.current(from: colorScheme)
+        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+
+        return Text("\(count)")
+            // swiftlint:disable:next hardcoded_font_custom
+            .font(.system(size: 10, weight: .semibold, design: .serif))
+            .foregroundStyle(accentSeal)
+            .padding(.horizontal, Theme.Spacing.xs)
+            // swiftlint:disable:next hardcoded_padding_edge
+            .padding(.vertical, 1)  // Minimal badge padding
             .background(
                 Capsule()
-                    .fill(Color.divineGold.opacity(0.15))
+                    .fill(accentSeal.opacity(Theme.Opacity.light))
             )
     }
 
     // MARK: - Insight Tooltip
 
     private var insightTooltip: some View {
-        Text("\(count) insight\(count == 1 ? "" : "s")")
-            .font(.system(size: 10, weight: .medium))
-            .foregroundStyle(Color.bibleInsightCardBackground)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+        let themeMode = ThemeMode.current(from: colorScheme)
+        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+
+        return Text("\(count) insight\(count == 1 ? "" : "s")")
+            // swiftlint:disable:next hardcoded_font_system
+            .font(Typography.Icon.xxs)
+            .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(Color.divineGold)
-                    .shadow(color: Color.black.opacity(0.15), radius: 4, y: 2)
+                    .fill(accentSeal)
+                    .shadow(color: Color.black.opacity(Theme.Opacity.light), radius: 4, y: 2)
             )
             .fixedSize()
     }
@@ -224,62 +242,62 @@ struct BibleInsightIndicator: View {
         @State private var expanded3 = false
 
         var body: some View {
-            VStack(spacing: 40) {
+            VStack(spacing: Theme.Spacing.xxl + Theme.Spacing.sm) {
                 // Rest state
-                VStack(spacing: 8) {
+                VStack(spacing: Theme.Spacing.sm) {
                     Text("Rest (1 insight)")
-                        .font(.caption)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(.secondary)
 
                     BibleInsightIndicator(count: 1, isExpanded: false, onTap: {})
                 }
 
                 // Multiple insights
-                VStack(spacing: 8) {
+                VStack(spacing: Theme.Spacing.sm) {
                     Text("Multiple (3 insights)")
-                        .font(.caption)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(.secondary)
 
                     BibleInsightIndicator(count: 3, isExpanded: false, onTap: {})
                 }
 
                 // Expanded state
-                VStack(spacing: 8) {
+                VStack(spacing: Theme.Spacing.sm) {
                     Text("Expanded")
-                        .font(.caption)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(.secondary)
 
                     BibleInsightIndicator(count: 2, isExpanded: true, onTap: {})
                 }
 
                 // Interactive
-                VStack(spacing: 8) {
+                VStack(spacing: Theme.Spacing.sm) {
                     Text("Interactive (tap to toggle)")
-                        .font(.caption)
+                        .font(Typography.Command.caption)
                         .foregroundStyle(.secondary)
 
-                    HStack(spacing: 40) {
+                    HStack(spacing: Theme.Spacing.xxl + Theme.Spacing.sm) {
                         BibleInsightIndicator(count: 1, isExpanded: expanded1) {
-                            withAnimation(AppTheme.Animation.cardUnfurl) {
+                            withAnimation(Theme.Animation.settle) {
                                 expanded1.toggle()
                             }
                         }
 
                         BibleInsightIndicator(count: 4, isExpanded: expanded2) {
-                            withAnimation(AppTheme.Animation.cardUnfurl) {
+                            withAnimation(Theme.Animation.settle) {
                                 expanded2.toggle()
                             }
                         }
 
                         BibleInsightIndicator(count: 2, isExpanded: expanded3) {
-                            withAnimation(AppTheme.Animation.cardUnfurl) {
+                            withAnimation(Theme.Animation.settle) {
                                 expanded3.toggle()
                             }
                         }
                     }
                 }
             }
-            .padding(40)
+            .padding(Theme.Spacing.xxl + Theme.Spacing.sm)
             .background(Color.bibleInsightParchment)
         }
     }
@@ -288,23 +306,25 @@ struct BibleInsightIndicator: View {
 }
 
 #Preview("Indicator in Verse Context") {
-    VStack(alignment: .leading, spacing: 20) {
-        HStack(alignment: .top, spacing: 8) {
+    VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Text("In the beginning was the Word, and the Word was with God, and the Word was God.")
-                .font(.custom("CormorantGaramond-Regular", size: 22))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 22, weight: .regular, design: .serif))
                 .foregroundStyle(Color.bibleInsightText)
 
             BibleInsightIndicator(count: 3, isExpanded: false, onTap: {})
         }
 
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Text("The same was in the beginning with God.")
-                .font(.custom("CormorantGaramond-Regular", size: 22))
+                // swiftlint:disable:next hardcoded_font_custom
+                .font(.system(size: 22, weight: .regular, design: .serif))
                 .foregroundStyle(Color.bibleInsightText)
 
             BibleInsightIndicator(count: 1, isExpanded: true, onTap: {})
         }
     }
-    .padding(28)
+    .padding(Theme.Spacing.xxl + Theme.Spacing.xs)
     .background(Color.bibleInsightParchment)
 }

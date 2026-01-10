@@ -9,15 +9,17 @@ struct AccountDetailView: View {
     @State private var editedName = ""
     @State private var showDeleteAccountInfo = false
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ScrollView {
-            VStack(spacing: AppTheme.Spacing.lg) {
+            VStack(spacing: Theme.Spacing.lg) {
                 // Profile Header
                 profileHeader
 
                 // Profile Section
                 IlluminatedSettingsCard(title: "Profile", icon: "person.text.rectangle.fill") {
-                    VStack(spacing: AppTheme.Spacing.md) {
+                    VStack(spacing: Theme.Spacing.md) {
                         editableNameRow
 
                         SettingsDivider()
@@ -30,7 +32,7 @@ struct AccountDetailView: View {
                 // Quick Access Section (if biometrics available)
                 if viewModel.isBiometricAvailable {
                     IlluminatedSettingsCard(title: "Quick Access", icon: "bolt.fill") {
-                        IlluminatedToggle(
+                        SettingsToggle(
                             isOn: Binding(
                                 get: { viewModel.isBiometricEnabled },
                                 set: { viewModel.isBiometricEnabled = $0 }
@@ -38,14 +40,14 @@ struct AccountDetailView: View {
                             label: viewModel.biometricType.displayName,
                             description: "Sign in quickly and securely",
                             icon: viewModel.biometricType.systemImage,
-                            iconColor: .scholarAccent
+                            iconColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
                         )
                     }
                 }
 
                 // Account Actions Section
                 IlluminatedSettingsCard(title: "Account", icon: "gear", showDivider: false) {
-                    VStack(spacing: AppTheme.Spacing.md) {
+                    VStack(spacing: Theme.Spacing.md) {
                         // Sign Out
                         signOutButton
 
@@ -59,10 +61,10 @@ struct AccountDetailView: View {
                 // Membership Footer
                 membershipFooter
             }
-            .padding(.horizontal, AppTheme.Spacing.lg)
-            .padding(.bottom, AppTheme.Spacing.xxl)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.bottom, Theme.Spacing.xxl)
         }
-        .background(Color.appBackground)
+        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
         .navigationTitle("Account")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showEditNameSheet) {
@@ -95,104 +97,86 @@ struct AccountDetailView: View {
     // MARK: - Profile Header
 
     private var profileHeader: some View {
-        VStack(spacing: AppTheme.Spacing.md) {
+        VStack(spacing: Theme.Spacing.md) {
             // Illuminated Avatar
             ZStack {
                 // Outer glow ring (pulses subtly)
                 Circle()
-                    .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
-                    .blur(radius: AppTheme.Blur.medium)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                    .blur(radius: 8)
                     .frame(width: 72, height: 72)
 
                 // Inner gold gradient background
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.illuminatedGold,
-                                Color.divineGold,
-                                Color.burnishedGold
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 56, height: 56)
 
                 // Person icon
                 Image(systemName: "person.fill")
-                    .font(Typography.UI.iconLg.weight(.medium))
-                    .foregroundStyle(.white)
+                    .font(Typography.Icon.lg.weight(.medium))
+                    .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
 
-                // Gold border with shimmer
+                // Border
                 Circle()
                     .stroke(
-                        LinearGradient(
-                            colors: [
-                                Color.illuminatedGold,
-                                Color.divineGold.opacity(AppTheme.Opacity.strong),
-                                Color.illuminatedGold
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: AppTheme.Border.regular
+                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle),
+                        lineWidth: Theme.Stroke.hairline
                     )
                     .frame(width: 56, height: 56)
             }
 
             // Display Name (Cormorant Garamond, elegant)
             Text(viewModel.displayName ?? "Bible Student")
-                .font(Typography.Codex.verseReference)
-                .foregroundStyle(Color.primaryText)
+                .font(Typography.Command.meta)
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
             // Email (system, subdued)
             if let email = viewModel.email {
                 Text(email)
-                    .font(Typography.UI.subheadline)
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Command.subheadline)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
             }
 
             // Tier Badge
             tierBadge
         }
-        .padding(.vertical, AppTheme.Spacing.xl)
+        .padding(.vertical, Theme.Spacing.xl)
     }
 
     // MARK: - Tier Badge
 
     private var tierBadge: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             // Decorative diamond
             Diamond()
                 .fill(badgeColor)
-                .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
+                .frame(width: 24, height: 24)
 
             Text(viewModel.tierDisplayName.uppercased())
-                .font(Typography.UI.caption2.weight(.semibold))
+                .font(Typography.Command.meta.weight(.semibold))
                 .tracking(2)
 
             Diamond()
                 .fill(badgeColor)
-                .frame(width: AppTheme.ComponentSize.dotSmall, height: AppTheme.ComponentSize.dotSmall)
+                .frame(width: 24, height: 24)
         }
         .foregroundStyle(badgeColor)
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.xs)
         .background(
             Capsule()
-                .fill(badgeColor.opacity(AppTheme.Opacity.subtle))
+                .fill(badgeColor.opacity(Theme.Opacity.faint))
                 .overlay(
                     Capsule()
-                        .stroke(badgeColor.opacity(AppTheme.Opacity.quarter), lineWidth: AppTheme.Border.thin)
+                        .stroke(badgeColor.opacity(Theme.Opacity.quarter), lineWidth: Theme.Stroke.hairline)
                 )
         )
     }
 
     private var badgeColor: Color {
         switch viewModel.currentTier {
-        case .free: return Color.secondaryText
-        case .premium, .scholar: return Color.scholarAccent
+        case .free: return Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme))
+        case .premium, .scholar: return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
         }
     }
 
@@ -203,32 +187,32 @@ struct AccountDetailView: View {
             editedName = viewModel.displayName ?? ""
             showEditNameSheet = true
         }) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 // Quill icon
                 Image(systemName: "pencil.line")
-                    .font(Typography.UI.iconSm.weight(.medium))
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Icon.sm.weight(.medium))
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 28, height: 28)
                     .background(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                            .fill(Color.scholarAccent.opacity(AppTheme.Opacity.subtle + 0.02))
+                        RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
                     )
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Display Name")
-                        .font(Typography.UI.body)
-                        .foregroundStyle(Color.primaryText)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                     Text(viewModel.displayName ?? "Bible Student")
-                        .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.secondaryText)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
             }
         }
         .buttonStyle(.plain)
@@ -237,24 +221,24 @@ struct AccountDetailView: View {
     // MARK: - Email Row
 
     private var emailRow: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.md) {
             Image(systemName: "envelope.fill")
-                .font(Typography.UI.iconSm.weight(.medium))
-                .foregroundStyle(Color.lapisLazuli)
+                .font(Typography.Icon.sm.weight(.medium))
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 .frame(width: 28, height: 28)
                 .background(
-                    RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                        .fill(Color.lapisLazuli.opacity(AppTheme.Opacity.subtle + 0.02))
+                    RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
                 )
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Email")
-                    .font(Typography.UI.body)
-                    .foregroundStyle(Color.primaryText)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                 Text(viewModel.email ?? "Not available")
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
             }
 
             Spacer()
@@ -267,26 +251,26 @@ struct AccountDetailView: View {
         Button(action: {
             viewModel.showSignOutConfirmation = true
         }) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "rectangle.portrait.and.arrow.right")
-                    .font(Typography.UI.iconSm.weight(.medium))
-                    .foregroundStyle(Color.vermillion)
+                    .font(Typography.Icon.sm.weight(.medium))
+                    .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 28, height: 28)
                     .background(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                            .fill(Color.vermillion.opacity(AppTheme.Opacity.subtle + 0.02))
+                        RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
+                            .fill(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
                     )
 
                 Text("Sign Out")
-                    .font(Typography.UI.body)
-                    .foregroundStyle(Color.vermillion)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
 
                 Spacer()
 
                 if viewModel.isSigningOut {
                     ProgressView()
-                        .scaleEffect(AppTheme.Scale.reduced)
-                        .tint(Color.vermillion)
+                        .scaleEffect(0.95)
+                        .tint(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
                 }
             }
         }
@@ -300,31 +284,31 @@ struct AccountDetailView: View {
         Button(action: {
             showDeleteAccountInfo = true
         }) {
-            HStack(spacing: AppTheme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "exclamationmark.triangle")
-                    .font(Typography.UI.iconSm.weight(.medium))
-                    .foregroundStyle(Color.tertiaryText)
+                    .font(Typography.Icon.sm.weight(.medium))
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: 28, height: 28)
                     .background(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.small + 2)
-                            .fill(Color.divider.opacity(AppTheme.Opacity.heavy))
+                        RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
+                            .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
                     )
 
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Delete Account")
-                        .font(Typography.UI.body)
-                        .foregroundStyle(Color.tertiaryText)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
 
                     Text("Learn about data deletion")
-                        .font(Typography.UI.caption1)
-                        .foregroundStyle(Color.tertiaryText.opacity(AppTheme.Opacity.overlay))
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.tertiaryText.opacity(AppTheme.Opacity.heavy))
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
             }
         }
         .buttonStyle(.plain)
@@ -333,14 +317,16 @@ struct AccountDetailView: View {
     // MARK: - Membership Footer
 
     private var membershipFooter: some View {
-        VStack(spacing: AppTheme.Spacing.sm) {
-            OrnamentalDivider(style: .sectionBreak, color: Color.scholarAccent.opacity(AppTheme.Opacity.disabled))
+        VStack(spacing: Theme.Spacing.sm) {
+            Rectangle()
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                .frame(height: Theme.Stroke.hairline)
 
             Text("Member since \(memberSinceDate)")
-                .font(Typography.Codex.italicTiny)
-                .foregroundStyle(Color.tertiaryText)
+                .font(Typography.Scripture.footnote.italic())
+                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
         }
-        .padding(.top, AppTheme.Spacing.xl)
+        .padding(.top, Theme.Spacing.xl)
     }
 
     private var memberSinceDate: String {
@@ -357,57 +343,58 @@ struct EditNameSheet: View {
     @Binding var name: String
     var onSave: () -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isFocused: Bool
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: AppTheme.Spacing.xl) {
+            VStack(spacing: Theme.Spacing.xl) {
                 // Header explanation
                 Text("How would you like to be addressed?")
-                    .font(Typography.Codex.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Scripture.body)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                     .multilineTextAlignment(.center)
-                    .padding(.top, AppTheme.Spacing.lg)
+                    .padding(.top, Theme.Spacing.lg)
 
                 // Text field with scribe styling
                 TextField("Your name", text: $name)
-                    .font(Typography.Display.title2)
-                    .foregroundStyle(Color.primaryText)
+                    .font(Typography.Scripture.heading)
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                     .multilineTextAlignment(.center)
                     .focused($isFocused)
-                    .padding(AppTheme.Spacing.lg)
+                    .padding(Theme.Spacing.lg)
                     .background(
-                        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                            .fill(Color.surfaceBackground)
+                        RoundedRectangle(cornerRadius: Theme.Radius.card)
+                            .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
                             .overlay(
-                                RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+                                RoundedRectangle(cornerRadius: Theme.Radius.card)
                                     .stroke(
                                         isFocused
-                                            ? Color.scholarAccent
-                                            : Color.cardBorder.opacity(AppTheme.Opacity.disabled),
-                                        lineWidth: isFocused ? AppTheme.Border.regular : AppTheme.Border.thin
+                                            ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+                                            : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled),
+                                        lineWidth: isFocused ? Theme.Stroke.control : Theme.Stroke.hairline
                                     )
                             )
                     )
                     .shadow(
                         color: isFocused
-                            ? Color.scholarAccent.opacity(AppTheme.Opacity.subtle)
+                            ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
                             : .clear,
-                        radius: isFocused ? AppTheme.Blur.medium : 0
+                        radius: isFocused ? 8 : 0
                     )
-                    .padding(.horizontal, AppTheme.Spacing.lg)
-                    .animation(AppTheme.Animation.sacredSpring, value: isFocused)
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .animation(Theme.Animation.settle, value: isFocused)
 
                 Spacer()
             }
-            .padding(AppTheme.Spacing.lg)
-            .background(Color.appBackground)
+            .padding(Theme.Spacing.lg)
+            .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
             .navigationTitle("Edit Name")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
@@ -415,7 +402,7 @@ struct EditNameSheet: View {
                         dismiss()
                     }
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color.scholarAccent)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .disabled(name.isEmpty)
                 }
             }
@@ -432,16 +419,17 @@ struct EditNameSheet: View {
 
 struct DeleteAccountInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
-    var body: some View {
+    var body: some View{
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppTheme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     Text("Deleting Your Account")
-                        .font(Typography.Display.title2)
-                        .foregroundStyle(Color.primaryText)
+                        .font(Typography.Scripture.heading)
+                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
-                    VStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                         infoRow(
                             icon: "cloud.fill",
                             title: "Cloud Data",
@@ -462,19 +450,19 @@ struct DeleteAccountInfoSheet: View {
                     }
 
                     Text("To delete your account, please contact us at support@biblestudy.app with your request.")
-                        .font(Typography.UI.body)
-                        .foregroundStyle(Color.secondaryText)
-                        .padding(.top, AppTheme.Spacing.md)
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                        .padding(.top, Theme.Spacing.md)
                 }
-                .padding(AppTheme.Spacing.lg)
+                .padding(Theme.Spacing.lg)
             }
-            .background(Color.appBackground)
+            .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
             .navigationTitle("Delete Account")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(Color.scholarAccent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 }
             }
         }
@@ -483,20 +471,20 @@ struct DeleteAccountInfoSheet: View {
     }
 
     private func infoRow(icon: String, title: String, description: String) -> some View {
-        HStack(alignment: .top, spacing: AppTheme.Spacing.md) {
+        HStack(alignment: .top, spacing: Theme.Spacing.md) {
             Image(systemName: icon)
-                .font(Typography.UI.iconSm)
-                .foregroundStyle(Color.secondaryText)
-                .frame(width: AppTheme.IconSize.small)
+                .font(Typography.Icon.sm)
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .frame(width: 20)
 
-            VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(Typography.UI.bodyBold)
-                    .foregroundStyle(Color.primaryText)
+                    .font(Typography.Command.body.weight(.semibold))
+                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
 
                 Text(description)
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.secondaryText)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
             }
         }
     }

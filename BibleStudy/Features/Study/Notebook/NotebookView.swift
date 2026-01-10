@@ -61,7 +61,7 @@ struct NotebookView: View {
     // MARK: - Content List
     private var contentList: some View {
         ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.md) {
+            LazyVStack(spacing: Theme.Spacing.md) {
                 // Filter Picker
                 Picker("Filter", selection: $viewModel.filterMode) {
                     ForEach(FilterMode.allCases, id: \.self) { mode in
@@ -69,7 +69,7 @@ struct NotebookView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
 
                 // Highlights Section
                 if viewModel.filterMode != .notes && !viewModel.filteredHighlights.isEmpty {
@@ -81,17 +81,17 @@ struct NotebookView: View {
                     notesSection
                 }
             }
-            .padding(.vertical, AppTheme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.md)
         }
     }
 
     // MARK: - Highlights Section
     private var highlightsSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Highlights")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
 
             ForEach(viewModel.filteredHighlights) { highlight in
                 HighlightCard(
@@ -101,7 +101,7 @@ struct NotebookView: View {
                         // Navigate to verse
                     }
                 )
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
                 .contextMenu {
                     Button(role: .destructive) {
                         Task {
@@ -117,17 +117,17 @@ struct NotebookView: View {
 
     // MARK: - Notes Section
     private var notesSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Notes")
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
 
             ForEach(viewModel.filteredNotes) { note in
                 NoteCard(note: note) {
                     selectedNote = note
                 }
-                .padding(.horizontal, AppTheme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
                 .contextMenu {
                     Button {
                         selectedNote = note

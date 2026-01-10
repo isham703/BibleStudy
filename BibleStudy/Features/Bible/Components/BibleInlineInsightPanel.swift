@@ -6,6 +6,7 @@ struct BibleInlineInsightPanel: View {
     let onOpenDeepStudy: () -> Void
     let onDismiss: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     var onRequestScroll: ((String) -> Void)?
     var onCopy: (() -> Void)?
     var onShare: (() -> Void)?
@@ -16,13 +17,13 @@ struct BibleInlineInsightPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(AppTheme.InlineInsight.divider)
-                .frame(height: 1)
+                .fill(Color.gray.opacity(Theme.Opacity.divider))
+                .frame(height: Theme.Stroke.hairline)
 
-            HStack(alignment: .top, spacing: AppTheme.Spacing.sm) {
+            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                 Rectangle()
-                    .fill(Color.scholarIndigo.opacity(0.35))
-                    .frame(width: 2)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium + 0.05))
+                    .frame(width: Theme.Stroke.control)
 
                 BibleInsightContent(
                     verseRange: verseRange,
@@ -39,7 +40,7 @@ struct BibleInlineInsightPanel: View {
                     cornerRadius: 0
                 )
             }
-            .padding(.top, AppTheme.Spacing.xs)
+            .padding(.top, Theme.Spacing.xs)
         }
     }
 }

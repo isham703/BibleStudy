@@ -7,6 +7,8 @@ struct StoryCard: View {
     let story: Story
     let progress: StoryProgress?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private var isInProgress: Bool {
         guard let progress = progress else { return false }
         return progress.isStarted && !progress.isCompleted
@@ -17,7 +19,7 @@ struct StoryCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Header with type badge and status
             HStack {
                 StoryTypeBadge(type: story.type)
@@ -33,7 +35,7 @@ struct StoryCard: View {
 
             // Title
             Text(story.title)
-                .font(Typography.Display.headline)
+                .font(Typography.Scripture.heading)
                 .foregroundStyle(Color.primaryText)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
@@ -41,19 +43,19 @@ struct StoryCard: View {
             // Subtitle (e.g., "Genesis 1-2")
             if let subtitle = story.subtitle {
                 Text(subtitle)
-                    .font(Typography.UI.caption1)
-                    .foregroundStyle(Color.scholarAccent)
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .lineLimit(1)
             }
 
             // Description
             Text(story.description)
-                .font(Typography.UI.caption1)
+                .font(Typography.Command.caption)
                 .foregroundStyle(Color.secondaryText)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
-            Spacer(minLength: AppTheme.Spacing.sm)
+            Spacer(minLength: Theme.Spacing.sm)
 
             // Footer with metadata and progress
             HStack {
@@ -61,14 +63,14 @@ struct StoryCard: View {
                 if let progress = progress, isInProgress, !story.segments.isEmpty {
                     let percent = Int(progress.progressPercentage(totalSegments: story.segments.count) * 100)
                     Text("\(percent)% complete")
-                        .font(Typography.UI.caption2.monospacedDigit())
-                        .foregroundStyle(Color.scholarAccent)
+                        .font(Typography.Command.meta.monospacedDigit())
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 } else {
-                    HStack(spacing: AppTheme.Spacing.xs) {
+                    HStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: "clock")
-                            .font(Typography.UI.caption2)
+                            .font(Typography.Command.meta)
                         Text("\(story.estimatedMinutes) min")
-                            .font(Typography.UI.caption2.monospacedDigit())
+                            .font(Typography.Command.meta.monospacedDigit())
                     }
                     .foregroundStyle(Color.tertiaryText)
                 }
@@ -82,37 +84,39 @@ struct StoryCard: View {
             // Progress bar (if in progress)
             if let progress = progress, isInProgress, !story.segments.isEmpty {
                 ProgressView(value: progress.progressPercentage(totalSegments: story.segments.count))
-                    .tint(Color.scholarAccent)
-                    .frame(height: AppTheme.Divider.thick)
+                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .frame(height: 3)
             }
         }
-        .padding(AppTheme.Spacing.md)
+        .padding(Theme.Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.surfaceBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
-            RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-                .stroke(isCompleted ? Color.highlightGreen.opacity(AppTheme.Opacity.heavy) : Color.clear, lineWidth: AppTheme.Border.regular)
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(isCompleted ? Color.highlightGreen.opacity(Theme.Opacity.heavy) : Color.clear, lineWidth: Theme.Stroke.control)
         )
-        .shadow(AppTheme.Shadow.small)
+        .shadow(color: .black.opacity(Theme.Opacity.overlay), radius: 4, x: 0, y: 2)
     }
 }
 
 // MARK: - Continue Badge
 struct ContinueBadge: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             Image(systemName: "play.fill")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
             Text("Continue")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
-        .foregroundStyle(Color.scholarAccent)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Color.scholarAccent.opacity(AppTheme.Opacity.light))
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
         )
     }
 }
@@ -120,18 +124,18 @@ struct ContinueBadge: View {
 // MARK: - Completed Badge
 struct CompletedBadge: View {
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             Image(systemName: "checkmark.circle.fill")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
             Text("Done")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
         .foregroundStyle(Color.highlightGreen)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Color.highlightGreen.opacity(AppTheme.Opacity.light))
+                .fill(Color.highlightGreen.opacity(Theme.Opacity.light))
         )
     }
 }
@@ -141,18 +145,18 @@ struct StoryTypeBadge: View {
     let type: StoryType
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
+        HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: type.icon)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
             Text(type.displayName)
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
         .foregroundStyle(type.storyColor)
-        .padding(.horizontal, AppTheme.Spacing.sm)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.xs)
         .background(
             Capsule()
-                .fill(type.storyColor.opacity(AppTheme.Opacity.light))
+                .fill(type.storyColor.opacity(Theme.Opacity.light))
         )
     }
 }
@@ -163,32 +167,34 @@ struct ReadingLevelBadge: View {
 
     var body: some View {
         Text(level.shortLabel)
-            .font(Typography.UI.caption2)
+            .font(Typography.Command.meta)
             .foregroundStyle(Color.secondaryText)
-            .padding(.horizontal, AppTheme.Spacing.sm)
-            .padding(.vertical, AppTheme.Spacing.xxs)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, 2)
             .background(
                 Capsule()
-                    .stroke(Color.cardBorder, lineWidth: AppTheme.Border.thin)
+                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
             )
     }
 }
 
 // MARK: - AI Generated Badge
 struct AIGeneratedBadge: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.xxs) {
+        HStack(spacing: 2) {
             Image(systemName: "sparkles")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
             Text("AI")
-                .font(Typography.UI.caption2)
+                .font(Typography.Command.meta)
         }
-        .foregroundStyle(Color.accentBlue)
-        .padding(.horizontal, AppTheme.Spacing.xs)
-        .padding(.vertical, AppTheme.Spacing.xxs)
+        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+        .padding(.horizontal, Theme.Spacing.xs)
+        .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Color.accentBlue.opacity(AppTheme.Opacity.light))
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
         )
     }
 }
@@ -204,7 +210,7 @@ extension StoryType {
 #Preview {
     LazyVGrid(
         columns: [GridItem(.flexible()), GridItem(.flexible())],
-        spacing: AppTheme.Spacing.md
+        spacing: Theme.Spacing.md
     ) {
         StoryCard(
             story: Story(

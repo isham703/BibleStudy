@@ -7,7 +7,7 @@ import SwiftUI
 struct ConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .divineGold
+    var color: Color = .accentBronze
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var flowProgress: CGFloat? = nil // nil = no flow, 0-1 = flow position
@@ -60,7 +60,7 @@ struct ConnectionLine: View {
                 )
                 context.fill(
                     Circle().path(in: glowRect),
-                    with: .color(color.opacity(AppTheme.Opacity.strong))
+                    with: .color(color.opacity(Theme.Opacity.strong))
                 )
             }
         }
@@ -86,7 +86,7 @@ struct ConnectionLine: View {
     }
 
     private func startPulseAnimation() {
-        withAnimation(AppTheme.Animation.slow.repeatForever(autoreverses: true)) {
+        withAnimation(Theme.Animation.slowFade.repeatForever(autoreverses: true)) {
             pulseOpacity = 0.8
         }
     }
@@ -96,7 +96,7 @@ struct ConnectionLine: View {
 struct CurvedConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .divineGold
+    var color: Color = .accentBronze
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var curvature: CGFloat = 0.3 // 0 = straight, 1 = very curved
@@ -140,7 +140,7 @@ struct CurvedConnectionLine: View {
             if respectsReducedMotion {
                 drawProgress = 1.0
             } else {
-                withAnimation(AppTheme.Animation.slow) {
+                withAnimation(Theme.Animation.slowFade) {
                     drawProgress = 1.0
                 }
             }
@@ -153,7 +153,7 @@ struct CurvedConnectionLine: View {
 struct FlowingConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .divineGold
+    var color: Color = .accentBronze
     var lineWidth: CGFloat = 2
     var flowSpeed: Double = 2.0 // seconds for full traversal
 
@@ -180,7 +180,7 @@ struct FlowingConnectionLine: View {
 
     private func startFlowAnimation() {
         flowProgress = 0
-        withAnimation(AppTheme.Animation.slow.repeatForever(autoreverses: false)) {
+        withAnimation(Theme.Animation.slowFade.repeatForever(autoreverses: false)) {
             flowProgress = 1.15 // Overshoot slightly so flow exits cleanly
         }
     }
@@ -196,18 +196,18 @@ enum LineState {
 
     var color: Color {
         switch self {
-        case .idle: return .divineGold.opacity(AppTheme.Opacity.medium)
-        case .active: return .divineGold
-        case .flowing: return .divineGold
+        case .idle: return .accentBronze.opacity(Theme.Opacity.medium)
+        case .active: return .accentBronze
+        case .flowing: return .accentBronze
         case .success: return .highlightGreen
-        case .dimmed: return .tertiaryText.opacity(AppTheme.Opacity.medium)
+        case .dimmed: return .tertiaryText.opacity(Theme.Opacity.medium)
         }
     }
 }
 
 // MARK: - Preview
 #Preview("Connection Lines") {
-    VStack(spacing: AppTheme.Spacing.xxxl + AppTheme.Spacing.md) {
+    VStack(spacing: Theme.Spacing.xxl + Theme.Spacing.md) {
         // Static lines
         ZStack {
             ConnectionLine(
