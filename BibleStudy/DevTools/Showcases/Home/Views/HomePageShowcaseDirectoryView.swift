@@ -229,10 +229,6 @@ struct HomePageShowcaseDirectoryView: View {
             TheAtriumPage()
         case .theScriptorium:
             TheScriptoriumPage()
-        case .theLibrary:
-            TheLibraryPage()
-        case .theVigil:
-            TheVigilPage()
         case .theThreshold:
             TheThresholdPage()
         case .theBasilica:

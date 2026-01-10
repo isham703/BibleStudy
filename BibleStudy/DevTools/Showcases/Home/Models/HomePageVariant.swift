@@ -11,8 +11,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
     case theStoa
     case theAtrium
     case theScriptorium
-    case theLibrary
-    case theVigil
     case theThreshold
     case theBasilica
     case theMonument
@@ -36,10 +34,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
             return "The Atrium"
         case .theScriptorium:
             return "The Scriptorium"
-        case .theLibrary:
-            return "The Library"
-        case .theVigil:
-            return "The Vigil"
         case .theThreshold:
             return "The Threshold"
         case .theBasilica:
@@ -65,10 +59,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
             return "Radiant courtyard focus"
         case .theScriptorium:
             return "Manuscript illumination"
-        case .theLibrary:
-            return "Scholarly meridian warmth"
-        case .theVigil:
-            return "Twilight contemplation"
         case .theThreshold:
             return "Dawn awakening hope"
         case .theBasilica:
@@ -94,10 +84,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
             return "Inspired by the Roman house atrium with its central impluvium. Light radiates from a focal point, with cards arranged around it. Time-aware gradients simulate natural light from above."
         case .theScriptorium:
             return "A manuscript-inspired design evoking medieval scriptoriums. Parchment tones on dark backgrounds, illuminated drop capitals, and scroll-like sections focused on reading and study."
-        case .theLibrary:
-            return "A warm, scholarly design using the Meridian palette. Parchment backgrounds with gilded accents evoke midday light streaming through library windows. Structured card layouts organize daily readings and study materials."
-        case .theVigil:
-            return "A contemplative design using the Vespers palette for evening devotion. Deep indigo backgrounds with amber accents suggest twilight hours. Emphasizes peaceful reflection and end-of-day spiritual practice."
         case .theThreshold:
             return "An awakening design using the Dawn palette. Soft lavender and coral gradients symbolize new beginnings and hope. Features morning devotional focus with gentle, encouraging visual hierarchy."
         case .theBasilica:
@@ -123,10 +109,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
             return "square.on.square.dashed"
         case .theScriptorium:
             return "scroll.fill"
-        case .theLibrary:
-            return "books.vertical.fill"
-        case .theVigil:
-            return "moon.stars.fill"
         case .theThreshold:
             return "sunrise.fill"
         case .theBasilica:
@@ -152,10 +134,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
             return Color(hex: "C9A959") // Warm bronze
         case .theScriptorium:
             return Color(hex: "8B4513") // Saddle brown/sepia
-        case .theLibrary:
-            return Color.decorativeGold // meridianGilded
-        case .theVigil:
-            return Color(hex: "FF9933") // vespersAmber
         case .theThreshold:
             return Color(hex: "FFB84D") // dawnSunrise
         case .theBasilica:
@@ -199,16 +177,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
                 Color(hex: "1C1410"), // Dark parchment
                 Color(hex: "0E0A08")
             ]
-        case .theLibrary:
-            return [
-                Color.accentBronze // meridianSepia,
-                Color.accentBronze // meridianSepia.opacity(Theme.Opacity.heavy)
-            ]
-        case .theVigil:
-            return [
-                Color(hex: "4B0082") // vespersIndigo,
-                Color(hex: "191970") // vespersSky
-            ]
         case .theThreshold:
             return [
                 Color(hex: "2F4F4F") // dawnSlate,
@@ -246,10 +214,6 @@ enum HomePageVariant: String, CaseIterable, Identifiable {
             return ["Radiant", "Bronze", "Courtyard"]
         case .theScriptorium:
             return ["Manuscript", "Sepia", "Scholarly"]
-        case .theLibrary:
-            return ["Meridian", "Parchment", "Warm"]
-        case .theVigil:
-            return ["Vespers", "Indigo", "Evening"]
         case .theThreshold:
             return ["Dawn", "Coral", "Hopeful"]
         case .theBasilica:
