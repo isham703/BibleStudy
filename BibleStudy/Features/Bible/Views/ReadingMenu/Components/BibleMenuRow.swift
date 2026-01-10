@@ -12,6 +12,7 @@ struct BibleMenuRow: View {
     let action: () -> Void
 
     @State private var isPressed = false
+    @Environment(\.colorScheme) private var colorScheme
 
     init(
         icon: String,
@@ -68,7 +69,7 @@ struct BibleMenuRow: View {
             .padding(.horizontal, Theme.Spacing.xs)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(isPressed ? Theme.Menu.buttonHover : Color.clear)
+                    .fill(isPressed ? Colors.StateOverlay.pressed() : Color.clear)
             )
             .contentShape(Rectangle())
         }
