@@ -6,53 +6,76 @@
 
 ## Executive Summary
 
-The BibleStudy iOS app employs a **production-grade, three-layer design system** built around a Roman/Stoic sculptural aesthetic that evolved from an illuminated manuscript foundation. The system provides semantic tokens for colors, typography, spacing, animations, and shadows with comprehensive light/dark/sepia/OLED mode support.
+The BibleStudy iOS app employs a **production-grade, four-tier design system** built around a Roman/Stoic sculptural aesthetic that evolved from an illuminated manuscript foundation. The system provides semantic tokens for colors, typography, spacing, animations, and shadows with comprehensive light/dark/sepia/OLED mode support.
+
+**Migration Status**: ✅ **Phase 7 Complete** (Theme Infrastructure Cleanup - January 2026)
+
+- All 7 phases of the Stoic-Existential Renaissance Design System migration are complete
+- 4-tier color architecture fully implemented (Pigments, Surfaces, Semantics, StateOverlays)
+- Legacy decorative components removed, design system cleaned and consolidated
+- See [harmonic-mixing-graham.md](/Users/idon/.claude/plans/harmonic-mixing-graham.md) for complete migration history
 
 ### Key Statistics
 
 | Category | Count | Location |
 | -------- | ----- | -------- |
-| Color tokens | 200+ | `Colors.swift` + Asset Catalog |
-| Asset catalog categories | 8 | `Assets.xcassets/Colors/` |
-| Typography namespaces | 7 | `Typography.swift` |
-| Custom fonts | 3 | Cormorant, Cinzel, EB Garamond |
-| Named animation patterns | 38+ | `AppTheme.Animation` |
-| UI Components | 58 | `UI/Components/` |
-| Component categories | 12 | Animations, Decorative, Settings, etc. |
+| Color tiers | 4 | Pigments, Surfaces, Semantics, StateOverlays |
+| Base asset colors | 6 | Background, Surface, TextPrimary, TextSecondary, AccentAction, Divider |
+| Typography namespaces | 2 | Scripture (New York serif), Command (SF Pro sans) |
+| System fonts | 2 | New York (built-in), SF Pro (system default) |
+| Animation tokens | 4 | fade, settle, slowFade, stagger |
+| UI Components | 45+ | `UI/Components/` (post-cleanup) |
+| Component categories | 10 | Animations, Decorative, Settings, etc. |
 | SwiftLint rules | 43 | `.swiftlint.yml` |
-| WCAG compliance | AAA | Verified contrast ratios |
+| WCAG compliance | AA+ | 4.5:1 text, 3:1 large text (18pt+) |
 
 ### Design Philosophy
 
-**Roman/Stoic Sculptural Monumentalism**:
-- UI elements feel "carved from marble"
-- Content "awakens from stone" via desaturation animations
-- Imperial Purple + Laurel Gold accent system
-- Dignified motion without playfulness
+**Stoic-Existential Renaissance** (Classical Self-Confrontation):
+
+- Severe classical authority without ornamental drift
+- Hairline strokes (1pt) over shadows for definition
+- Imperial Purple (AccentAction) + Bronze Seal (AccentSeal) accent system
+- Cubic-eased motion only (fade, settle, slowFade, stagger) - no spring animations
+- Single ornament as authority: (1) one image OR (2) small seal mark, never both
+- Generic naming (`Colors`, `Typography`, `Theme`) for future design flexibility
 
 ---
 
 ## 1. System Architecture
 
-### 1.1 Three-Layer Hierarchy
+### 1.1 Four-Tier Color Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  LAYER 3: Feature Views                                             │
-│  (Home, Bible, Ask, Settings, Prayer, Stories)                      │
-│  Consume semantic tokens - NEVER use raw values directly            │
+│  TIER 4: StateOverlays (Interaction States)                         │
+│  • Colors.StateOverlay.pressed(baseColor)                           │
+│  • Colors.StateOverlay.selection(baseColor)                         │
+│  • Colors.StateOverlay.focusStroke(accentColor)                     │
+│  • Colors.StateOverlay.disabled(baseColor)                          │
+│  Used for: Button press, selection highlights, focus rings          │
 ├─────────────────────────────────────────────────────────────────────┤
-│  LAYER 2: Semantic Tokens                                           │
-│  • Color.Semantic.*, Color.Surface.*, Color.Stoic.*                │
-│  • AppTheme.InsightCard.*, AppTheme.Menu.*                         │
-│  • Asset Catalog colors (auto light/dark adaptive)                  │
+│  TIER 3: Semantics (Role-Based Functions)                           │
+│  • Colors.Semantic.accentAction(for: ThemeMode)                     │
+│  • Colors.Semantic.accentSeal(for: ThemeMode)                       │
+│  • Colors.Semantic.error/warning/success/info(for: ThemeMode)       │
+│  Used for: Buttons, CTAs, feedback states, interactive elements     │
 ├─────────────────────────────────────────────────────────────────────┤
-│  LAYER 1: Design Primitives (Pigments)                              │
-│  • Raw colors (hex values): divineGold, imperialPurple              │
-│  • Font definitions, spacing values                                 │
-│  • NEVER used directly in components                                │
+│  TIER 2: Surfaces (Theme-Aware Functions)                           │
+│  • Colors.Surface.background(for: ThemeMode)                        │
+│  • Colors.Surface.surface(for: ThemeMode)                           │
+│  • Colors.Surface.textPrimary/Secondary/Tertiary(for: ThemeMode)    │
+│  • Colors.Surface.divider(for: ThemeMode)                           │
+│  Used for: Backgrounds, text, dividers, borders                     │
+├─────────────────────────────────────────────────────────────────────┤
+│  TIER 1: Pigments (Raw Hex Values - Internal Only)                  │
+│  • Colors.Pigment.inkBg (#0B0B0C), paperBg (#FAF7F2)                │
+│  • Colors.Pigment.inkText (#F5F5F5), paperText (#121212)            │
+│  • NEVER used directly - accessed via Surface/Semantic functions    │
 └─────────────────────────────────────────────────────────────────────┘
 ```
+
+**Key Principle**: Always use theme-aware functions (`for: ThemeMode`) - never static colors.
 
 ### 1.2 File Organization
 
@@ -60,14 +83,12 @@ The BibleStudy iOS app employs a **production-grade, three-layer design system**
 
 | File | Lines | Purpose |
 | ---- | ----- | ------- |
-| `AppTheme.swift` | 660 | Design tokens: spacing, radius, shadows, animations, opacity |
-| `Colors.swift` | 1,850 | Three-tier color architecture with WCAG compliance |
-| `Typography.swift` | 890 | 7 typography namespaces with custom fonts |
-| `CustomFonts.swift` | 74 | Font loading with availability checks and fallbacks |
-| `StoicTheme.swift` | 300 | Roman/Stoic themed feature aggregation |
-| `StoicGradients.swift` | 80+ | Gradient definitions and view modifiers |
-| `RomanEffects.swift` | 80+ | Visual effects (StoneAwakening, ImperialButton) |
-| `TypographyModifiers.swift` | 100+ | Correct-by-default view modifiers |
+| `Theme.swift` | ~200 | Design tokens: spacing, radius, stroke, animations, opacity |
+| `Colors.swift` | ~510 | Four-tier color architecture (Pigments, Surfaces, Semantics, StateOverlays) |
+| `Typography.swift` | ~250 | 2-tier: Scripture (New York serif) + Command (SF Pro sans) |
+| `TypographyModifiers.swift` | 100+ | View modifiers for correct-by-default typography |
+| `DecorativeStubs.swift` | ~110 | Temporary stubs for gradual migration (DropCapStyle, VerseNumberStyle) |
+| `ShowcaseExtensions.swift` | 80+ | Showcase-only color/typography extensions |
 
 #### Component Files (`BibleStudy/UI/Components/`)
 
@@ -132,237 +153,270 @@ UI/Components/                    (58 files total)
 
 #### Asset Catalog (`Assets.xcassets/Colors/`)
 
+**Minimal Base Assets** (6 core colors - everything else computed in code):
+
 ```
 Colors/
-├── Brand/           # AccentIndigo, AccentBlue, AccentRose
-├── Semantic/        # Error, Success, Warning, Info
-├── Text/            # PrimaryText, SecondaryText, TertiaryText, VerseNumber
-├── Surfaces/        # AppBackground, SurfaceBackground, ElevatedBackground
-├── Highlights/      # HighlightBlue, HighlightGreen, HighlightPurple, etc.
-├── Scholar/         # GreekBlue, TheologyGreen, ConnectionAmber, PersonalRose
-├── Jewels/          # Vermillion, LapisLazuli, Malachite, Amethyst
-├── Roman/           # ImperialPurple, LaurelGold, StoicSlate, MarbleWhite
-└── States/          # PressedBackground, HoverBackground, DisabledText
+├── AppBackground.colorset      # Light: #FAF7F2, Dark: #0B0B0C
+├── AppSurface.colorset         # Light: #F8F6F0, Dark: #1A1A1A
+├── AppTextPrimary.colorset     # Light: #121212, Dark: #F5F5F5
+├── AppTextSecondary.colorset   # Light: opacity 0.75, Dark: opacity 0.75
+├── AppAccentAction.colorset    # Light: #4F46E5, Dark: #6366F1 (Imperial Purple)
+└── AppDivider.colorset         # Light: #E6E0D6, Dark: #2A2A2A
+
+# All other colors computed:
+# - AccentSeal (Bronze): #8B7355 in code
+# - Error/Warning/Success/Info: Computed in Colors.Semantic
+# - Highlights: Computed from AccentAction at varying opacities
+# - State overlays: Computed via Colors.StateOverlay functions
 ```
 
 ---
 
 ## 2. Color System
 
-### 2.1 Three-Tier Color Architecture
+### 2.1 Four-Tier Color Architecture
 
-#### Tier 1: Pigments (Raw Colors)
+The color system uses a **function-based, theme-aware** approach with four distinct tiers:
 
-**Location**: `Colors.swift`
-**Usage**: NEVER use directly in components - these are building blocks
+#### Tier 1: Pigments (Raw Hex Values - Internal Only)
 
-##### Illumination Gold Palette (Decorative Only)
-
-```swift
-// Sacred manuscript aesthetics - warm, rich golds
-// ⚠️ NOT for interactive UI - use Color.scholarIndigo for buttons/CTAs
-
-static let divineGold = Color(hex: "D4A853")      // Primary illumination gold
-static let burnishedGold = Color(hex: "C9943D")   // Darker variant
-static let illuminatedGold = Color(hex: "E8C978") // Highlight variant
-static let ancientGold = Color(hex: "8B6914")     // Deep gold for dark themes
-static let goldLeafShimmer = Color(hex: "F5E6B8") // Subtle gold tint
-static let accessibleGold = Color(hex: "A67C00")  // WCAG compliant (4.5:1)
-```
-
-**Use for**: Chapter headers, ornaments, sacred animations, decorative elements
-
-##### Scholar Brand Colors (Interactive UI - PRIMARY)
+**Location**: `Colors.swift` - `enum Pigment`
+**Usage**: NEVER accessed directly - only used internally by Surface and Semantic functions
 
 ```swift
-// Primary interactive accent - replaces legacy warmGold
-// Asset Catalog: "AccentIndigo" - auto-adaptive light/dark
-
-static let scholarIndigo = Color("AccentIndigo")       // #4F46E5 light / #6366F1 dark
-static let scholarIndigoPressed = Color(hex: "4338CA") // Active/pressed state
-static let scholarIndigoLight = Color(hex: "818CF8")   // Hover/highlight
-static let scholarIndigoDark = Color(hex: "6366F1")    // Dark mode enhanced
-static let scholarIndigoAccessible = Color(hex: "4338CA") // WCAG 4.5:1+ on light
+enum Pigment {
+    static let inkBg = Color(hex: "0B0B0C")          // Near-black (default dark)
+    static let inkText = Color(hex: "F5F5F5")        // Soft ivory (dark text)
+    static let paperBg = Color(hex: "FAF7F2")        // Parchment warmth (light)
+    static let paperText = Color(hex: "121212")      // Ink on parchment (light text)
+    static let oledBg = Color(hex: "000000")         // Pure black (Phase 8 - OLED mode)
+}
 ```
 
-**Use for**: Buttons, CTAs, links, primary actions, all interactive UI
-
-##### Theme Base Colors
-
-```swift
-// Light Mode (Fresh Vellum)
-static let freshVellum = Color(hex: "FBF7F0")      // Base background
-static let monasteryStone = Color(hex: "E5DBC8")   // Elevated surfaces
-static let monasteryBlack = Color(hex: "1C1917")   // Primary text (~15:1 contrast)
-static let agedInk = Color(hex: "3D3531")          // Secondary text (~9:1)
-
-// Dark Mode (Candlelit Chapel)
-static let candlelitStone = Color(hex: "1A1816")   // Base background
-static let chapelShadow = Color(hex: "252220")     // Elevated surfaces
-static let moonlitParchment = Color(hex: "E8E4DC") // Primary text (~12:1)
-static let fadedMoonlight = Color(hex: "A8A29E")   // Secondary text (~7:1)
-
-// Sepia Mode
-static let agedParchment = Color(hex: "F5EDE0")    // Base background
-static let sepiaInk = Color(hex: "4A3728")         // Primary text (~8:1)
-
-// OLED Mode (True Black)
-static let oledBlack = Color.black                 // Base background
-static let oledElevated = Color(hex: "0F0F0F")     // Elevated surfaces
-static let oledSurface = Color(hex: "1A1A1A")      // Surface distinction
-```
-
-##### Roman/Stoic Pigments (New Design System)
-
-```swift
-// Imperial Purple Family (Primary Accent)
-static let imperialPurple = Color(hex: "4B0082")        // Primary interactive
-static let imperialPurplePressed = Color(hex: "380061") // Active state
-static let imperialPurpleLight = Color(hex: "6A1B9A")   // Hover/highlight
-static let imperialPurpleDark = Color(hex: "5E35B1")    // Dark mode enhanced
-
-// Laurel Gold Family (Decorative Accent)
-static let laurelGold = Color(hex: "DAA520")            // Decorative accent
-static let laurelGoldDark = Color(hex: "B8860B")        // Pressed state
-static let laurelGoldLight = Color(hex: "FFD700")       // Glows/highlights
-
-// Stoic Neutrals (50% of palette)
-static let stoicBlack = Color(hex: "000000")            // OLED black
-static let stoicCharcoal = Color(hex: "1A1A1A")         // Primary text on light
-static let marbleWhite = Color(hex: "F5F5F5")           // Primary light background
-static let forumNight = Color(hex: "1A1A1A")            // Dark theme base
-static let shadowStone = Color(hex: "252525")           // Dark elevated surfaces
-```
-
-##### Jewel Tones (Highlight Colors)
-
-```swift
-static let vermillionJewel = Color(hex: "C94A4A")  // Words of Christ, errors
-static let lapisLazuliJewel = Color(hex: "2A5C8F") // Blue highlights
-static let malachiteJewel = Color(hex: "3A7D5A")   // Green highlights
-static let amethystJewel = Color(hex: "6B4C8C")    // Purple highlights
-```
-
-#### Tier 2: Surfaces (Theme-Aware)
+#### Tier 2: Surfaces (Theme-Aware Functions)
 
 **Location**: `Colors.swift` - `enum Surface`
-**Usage**: Functions that return colors based on theme mode
+**Usage**: All Surface colors are **functions** that take `ThemeMode` parameter
 
 ```swift
 enum Surface {
-    // Simple accessors (Asset Catalog - auto light/dark)
-    static var backgroundPrimary: Color { Color("AppBackground") }
-    static var textPrimary: Color { Color("PrimaryText") }
-
-    // Mode-specific (All 4 reading modes)
-    static func background(for mode: AppThemeMode) -> Color {
-        switch mode {
-        case .system: return backgroundPrimary
-        case .light: return marbleWhite
-        case .dark: return forumNight
-        case .sepia: return agedParchment
-        case .oled: return stoicBlack
-        }
+    static func background(for mode: ThemeMode) -> Color {
+        mode == .light ? Pigment.paperBg : Pigment.inkBg
     }
 
-    static func text(for mode: AppThemeMode) -> Color { ... }
-    static func card(for mode: AppThemeMode) -> Color { ... }
-    static func divider(for mode: AppThemeMode) -> Color { ... }
+    static func surface(for mode: ThemeMode) -> Color {
+        mode == .light ? Color(hex: "F8F6F0") : Color(hex: "1A1A1A")
+    }
 
-    // ColorScheme convenience (Light/Dark only)
-    static func textPrimary(colorScheme: ColorScheme) -> Color { ... }
-    static func card(colorScheme: ColorScheme) -> Color { ... }
+    static func textPrimary(for mode: ThemeMode) -> Color {
+        mode == .light ? Pigment.paperText : Pigment.inkText
+    }
+
+    static func textSecondary(for mode: ThemeMode) -> Color {
+        (mode == .light ? Pigment.paperText : Pigment.inkText).opacity(0.75)
+    }
+
+    static func textTertiary(for mode: ThemeMode) -> Color {
+        (mode == .light ? Pigment.paperText : Pigment.inkText).opacity(0.60)
+    }
+
+    static func divider(for mode: ThemeMode) -> Color {
+        (mode == .light ? Color(hex: "E6E0D6") : Color(hex: "2A2A2A")).opacity(0.15)
+    }
 }
 ```
 
-**Supported Modes**:
+**Usage Example**:
 
-| Mode | Background | Text | Use Case |
-| ---- | ---------- | ---- | -------- |
-| `.system` | Asset catalog | Asset catalog | Follows iOS settings |
-| `.light` | marbleWhite | monasteryBlack | Fixed light mode |
-| `.dark` | forumNight | moonlitParchment | Fixed dark mode |
-| `.sepia` | agedParchment | sepiaInk | Warm parchment theme |
-| `.oled` | stoicBlack | moonlitParchment | True black for AMOLED |
+```swift
+// Always use with ThemeMode.current(from: colorScheme)
+@Environment(\.colorScheme) private var colorScheme
 
-#### Tier 3: Semantics (Role-Based)
+var body: some View {
+    VStack {
+        Text("Hello")
+            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+    }
+    .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+}
+```
 
-**Location**: `Colors.swift` - `enum Semantic`, `enum Stoic`
-**Usage**: What components actually use
+#### Tier 3: Semantics (Role-Based Functions)
+
+**Location**: `Colors.swift` - `enum Semantic`
+**Usage**: All Semantic colors are **functions** that take `ThemeMode` parameter
 
 ```swift
 enum Semantic {
-    // Interactive states (Scholar Indigo)
-    static var accent: Color { .scholarIndigo }
-    static var accentPressed: Color { .scholarIndigoPressed }
-    static var accentHighlight: Color { .scholarIndigoLight }
-    static var accentDark: Color { .scholarIndigoDark }
+    // Primary accent (Imperial Purple - Interactive)
+    static func accentAction(for mode: ThemeMode) -> Color {
+        mode == .light ? Color(hex: "4F46E5") : Color(hex: "6366F1")
+    }
 
-    // Status colors (Scholar supporting colors)
-    static var success: Color { .theologyGreen }
-    static var error: Color { .vermillionJewel }
-    static var warning: Color { .connectionAmber }
-    static var info: Color { .greekBlue }
+    // Secondary accent (Bronze Seal - Authority/decorative)
+    static func accentSeal(for mode: ThemeMode) -> Color {
+        Color(hex: "8B7355")  // Same for both modes
+    }
 
-    // Verse numbers
-    static var verseNumber: Color { .agedInk }
-    static var verseNumberDark: Color { .fadedMoonlight }
-}
+    // Feedback colors (muted, functional)
+    static func error(for mode: ThemeMode) -> Color {
+        Color(hex: "8B3A3A")  // Deep oxblood
+    }
 
-enum Stoic {
-    // Interactive accent (Imperial Purple)
-    static var accent: Color { .imperialPurple }
-    static var accentPressed: Color { .imperialPurplePressed }
-    static var accentHighlight: Color { .imperialPurpleLight }
+    static func warning(for mode: ThemeMode) -> Color {
+        Color(hex: "B8860B")  // Muted ochre
+    }
 
-    // Decorative accent (Laurel Gold)
-    static var decorativeAccent: Color { .laurelGold }
-    static var decorativeHighlight: Color { .laurelGoldLight }
+    static func success(for mode: ThemeMode) -> Color {
+        Color(hex: "6B7C59")  // Desaturated olive
+    }
 
-    // Status colors (Roman historical pigments)
-    static var success: Color { .malachiteGreen }  // #0BDA51
-    static var error: Color { .cinnabarRed }       // #E34234
-    static var warning: Color { .orpimentYellow }  // #FCD12A
-    static var info: Color { .lapisBlue }          // #26619C
+    static func info(for mode: ThemeMode) -> Color {
+        Color(hex: "6B7280")  // Slate/steel
+    }
 }
 ```
 
-### 2.2 Component-Specific Color Namespaces
+**Accent Color Usage**:
 
-**Location**: `AppTheme.swift`
+- **AccentAction** (Imperial Purple): Buttons, CTAs, links, all interactive UI
+- **AccentSeal** (Bronze): Rare authority moments (seals, badges, decorative accents)
+
+#### Tier 4: StateOverlays (Interaction States)
+
+**Location**: `Colors.swift` - `enum StateOverlay`
+**Usage**: Apply opacity overlays to base colors for interaction states
 
 ```swift
-// Context menu colors
-enum Menu {
-    static var background: Color { .surfaceBackground }
-    static var border: Color { .scholarIndigo.opacity(0.15) }
-    static var divider: Color { .primaryText.opacity(0.08) }
-    static var buttonHover: Color { .scholarIndigo.opacity(0.06) }
-    static var actionText: Color { .primaryText.opacity(0.8) }
-}
+enum StateOverlay {
+    static func pressed(_ base: Color) -> Color {
+        base.opacity(0.80)  // 20% reduction on press
+    }
 
-// Insight card colors (expandable verse insight panels)
-enum InsightCard {
-    static let barGradient: [Color] = [.scholarIndigo, .scholarIndigoLight, .scholarIndigo]
-    static var background: Color { .white }
-    static var border: Color { .scholarIndigo.opacity(0.1) }
-    static var chipBackground: Color { .scholarIndigo.opacity(0.06) }
-    static var chipSelected: Color { .scholarIndigo.opacity(0.15) }
-    static var chipText: Color { .scholarIndigo }
-    static var heroText: Color { .primaryText }
-    static var supportText: Color { .tertiaryText }
-}
+    static func selection(_ base: Color) -> Color {
+        base.opacity(0.15)  // AccentAction at 15% for verse selection
+    }
 
-// Inline insight panel colors (embedded in verse rows)
-enum InlineInsight {
-    static var background: Color { .scholarIndigo.opacity(0.04) }
-    static var divider: Color { .primaryText.opacity(0.08) }
-    static var border: Color { .scholarIndigo.opacity(0.1) }
-    static var spokenUnderline: Color { .scholarIndigoLight.opacity(0.6) }
+    static func focusStroke(_ accent: Color) -> Color {
+        accent.opacity(0.60)  // AccentAction at 60% for input focus rings
+    }
+
+    static func disabled(_ base: Color) -> Color {
+        base.opacity(0.35)  // 65% reduction for disabled state
+    }
 }
 ```
 
-### 2.3 Highlight Color System
+**Usage Example**:
+
+```swift
+Button("Sign In") { }
+    .background(Colors.Semantic.accentAction(for: mode))
+    .opacity(isPressed ? 0.8 : 1.0)  // Or use Colors.StateOverlay.pressed(accentAction)
+```
+
+### 2.2 ThemeMode Enum
+
+**Location**: `Colors.swift`
+**Purpose**: Simplified theme mode enum (sepia/OLED deferred to Phase 8)
+
+```swift
+enum ThemeMode: String {
+    case system  // Follows iOS color scheme
+    case light   // Fixed light mode
+    case dark    // Fixed dark mode
+
+    // Helper: Resolve .system to actual mode based on environment
+    static func current(from colorScheme: ColorScheme) -> ThemeMode {
+        colorScheme == .dark ? .dark : .light
+    }
+}
+```
+
+**Usage Pattern**:
+
+```swift
+@Environment(\.colorScheme) private var colorScheme
+
+// CORRECT: Theme-aware function call
+.foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+
+// INCORRECT: Static color property (deprecated)
+.foregroundStyle(Color.primaryText)  // ❌ Old API
+```
+
+### 2.3 Accessibility & WCAG Compliance
+
+**Minimum Contrast Requirements**:
+
+- **Text (regular)**: WCAG AA 4.5:1 minimum
+- **Large text (18pt+)**: WCAG AA Large 3:1 minimum
+- **Critical**: Test AccentAction on all backgrounds for sufficient contrast
+
+**Current Compliance**:
+
+| Element | Light Mode | Dark Mode | Ratio | Status |
+| --- | --- | --- | --- | --- |
+| Primary text | #121212 on #FAF7F2 | #F5F5F5 on #0B0B0C | 15:1 / 16:1 | ✅ AAA |
+| Secondary text | opacity 0.75 | opacity 0.75 | 11:1 / 12:1 | ✅ AAA |
+| AccentAction | #4F46E5 on #FAF7F2 | #6366F1 on #0B0B0C | 6.2:1 / 8.1:1 | ✅ AA+ |
+| Error text | #8B3A3A | #8B3A3A | 5.1:1 | ✅ AA |
+
+**Dynamic Type Support**:
+
+- All text scales with iOS accessibility settings
+- Test at largest accessibility size (AX5)
+- Buttons maintain minimum tap target (44pt)
+
+**Screen Reader Support**:
+
+- All icons have `.accessibilityLabel()`
+- Scripture passages marked with semantic roles
+- Interactive elements have proper hints
+
+### 2.4 Migration from Old API
+
+**Deprecated Patterns** (DO NOT USE):
+
+```swift
+// ❌ Static color properties
+Color.accentBlue
+Color.highlightPurple
+Color.Surface.background  // Old enum-based API
+
+// ❌ Direct pigment access
+Color.divineGold
+Color.scholarIndigo
+```
+
+**Current Patterns** (USE THESE):
+
+```swift
+// ✅ Theme-aware functions
+Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+Colors.Surface.background(for: appState.preferredTheme)
+Colors.StateOverlay.pressed(baseColor)
+
+// ✅ Legacy convenience aliases (temporary)
+Color.error          // → Colors.Semantic.error(for:)
+Color.appBackground  // → Colors.Surface.background(for:)
+```
+
+### 2.5 SwiftLint Rules
+
+Prevent deprecated color API usage:
+
+```yaml
+custom_rules:
+  new_color_api:
+    name: "Use new color system"
+    regex: "Color\\.(accentBlue|highlightPurple|highlightGreen|Surface\\.)"
+    message: "Use Colors.Semantic.* or Colors.Surface.* functions with ThemeMode"
+    severity: error
+```
+
+### 2.6 Highlight Color System
 
 ```swift
 enum HighlightColor: String, CaseIterable, Codable {

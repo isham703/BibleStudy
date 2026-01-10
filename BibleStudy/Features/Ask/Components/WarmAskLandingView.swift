@@ -258,7 +258,7 @@ private struct ContextualQuestionChip: View {
                     .fill(Color.surfaceBackground)
                     .overlay(
                         Capsule()
-                            .strokeBorder(Color.divider, lineWidth: Theme.Stroke.hairline)
+                            .strokeBorder(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
                     )
             )
             .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)

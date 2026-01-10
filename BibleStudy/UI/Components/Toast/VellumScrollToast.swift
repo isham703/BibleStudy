@@ -27,15 +27,15 @@ struct VellumScrollToast: View {
     // MARK: - Computed Properties
 
     private var backgroundColor: Color {
-        Color.Surface.card(colorScheme: colorScheme)
+        Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
     }
 
     private var textColor: Color {
-        Color.Surface.textPrimary(colorScheme: colorScheme)
+        Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme))
     }
 
     private var secondaryTextColor: Color {
-        Color.Surface.textSecondary(colorScheme: colorScheme)
+        Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme))
     }
 
     var body: some View {

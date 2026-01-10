@@ -61,7 +61,7 @@ struct EmailConfirmationView: View {
             .padding(.bottom, Theme.Spacing.xl)
         }
         .padding(Theme.Spacing.lg)
-        .background(Color.primaryBackground)
+        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
         .onAppear {
             // Start initial cooldown (user just signed up)
             startCooldown()
@@ -109,11 +109,11 @@ struct EmailConfirmationView: View {
             )
         }
         .padding(Theme.Spacing.lg)
-        .background(Color.secondaryBackground)
+        .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
+                .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -148,13 +148,13 @@ struct EmailConfirmationView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(Theme.Spacing.md)
-            .background(secondsRemaining > 0 ? Color.secondaryBackground : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .background(secondsRemaining > 0 ? Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             .foregroundStyle(secondsRemaining > 0 ? Color.tertiaryText : .white)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .stroke(
-                        secondsRemaining > 0 ? Color.divider : Color.clear,
+                        secondsRemaining > 0 ? Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)) : Color.clear,
                         lineWidth: Theme.Stroke.hairline
                     )
             )
@@ -240,14 +240,14 @@ struct VespersTimerRing: View {
         ZStack {
             // Background ring - subtle divider color
             Circle()
-                .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Border.thick)
+                .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.control)
 
             // Active ring - simplified to single accent color
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
                     Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
-                    style: StrokeStyle(lineWidth: Theme.Border.thick, lineCap: .round)
+                    style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)

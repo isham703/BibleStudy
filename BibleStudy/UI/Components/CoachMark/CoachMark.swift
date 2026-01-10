@@ -29,12 +29,12 @@ struct CoachMark: View {
     // MARK: - Computed Properties
 
     private var backgroundColor: Color {
-        Color.Surface.card(colorScheme: colorScheme)
+        Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
             .opacity(Theme.Opacity.nearOpaque + 0.03)
     }
 
     private var textColor: Color {
-        Color.Surface.textPrimary(colorScheme: colorScheme)
+        Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme))
     }
 
     var body: some View {

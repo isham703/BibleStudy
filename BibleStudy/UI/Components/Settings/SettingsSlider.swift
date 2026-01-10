@@ -147,7 +147,7 @@ struct SettingsFontSizeSlider: View {
         var body: some View {
             ScrollView {
                 VStack(spacing: Theme.Spacing.xl) {
-                    IlluminatedSettingsCard(title: "Reading", icon: "book.fill") {
+                    SettingsCard(title: "Reading", icon: "book.fill") {
                         VStack(spacing: Theme.Spacing.lg) {
                             SettingsSlider(
                                 value: $fontSize,

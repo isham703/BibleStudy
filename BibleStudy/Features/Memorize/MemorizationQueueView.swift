@@ -104,7 +104,7 @@ struct MemorizationQueueView: View {
                 icon: "book.pages.fill",
                 value: "\(memorizationService.totalItems)",
                 label: "Total",
-                color: .accentBlue
+                color: Color.accentIndigo
             )
         }
         .padding()
@@ -482,7 +482,7 @@ struct MemorizationItemRow: View {
 
     private var masteryColor: Color {
         switch item.masteryLevel {
-        case .learning: return .accentBlue
+        case .learning: return Color.accentIndigo
         case .reviewing: return Color.accentIndigo
         case .mastered: return .success
         }

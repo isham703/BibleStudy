@@ -211,6 +211,8 @@ final class StoryReaderViewModel {
 
 // MARK: - AI Disclaimer Banner
 struct AIDisclaimerBanner: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkles")
@@ -224,10 +226,10 @@ struct AIDisclaimerBanner: View {
             Image(systemName: "info.circle")
                 .font(Typography.Command.caption)
         }
-        .foregroundStyle(Color.accentBlue)
+        .foregroundStyle(Color.accentIndigo)
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.sm)
-        .background(Color.accentBlue.opacity(Theme.Opacity.subtle))
+        .background(Color.accentIndigo.opacity(Theme.Opacity.subtle))
     }
 }
 
@@ -274,7 +276,7 @@ struct SegmentNavigationBar: View {
                     .font(Typography.Command.subheadline)
                     .fontWeight(.semibold)
                 }
-                .tint(Color.highlightGreen)
+                .tint(.success)
             } else {
                 Button(action: onNext) {
                     HStack(spacing: Theme.Spacing.xs) {

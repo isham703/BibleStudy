@@ -65,7 +65,7 @@ struct SanctuaryIcon: View {
 
 // MARK: - Convenience Initializers
 
-extension IlluminatedIcon {
+extension SanctuaryIcon {
 
     /// Create an illuminated icon from an SF Symbol name
     init(
@@ -108,17 +108,17 @@ extension IlluminatedIcon {
 
 // MARK: - View Modifiers
 
-extension IlluminatedIcon {
+extension SanctuaryIcon {
 
     /// Apply hierarchical rendering for depth
-    func hierarchical() -> IlluminatedIcon {
+    func hierarchical() -> SanctuaryIcon {
         var copy = self
         copy.renderingMode = .hierarchical
         return copy
     }
 
     /// Apply monochrome rendering
-    func monochrome() -> IlluminatedIcon {
+    func monochrome() -> SanctuaryIcon {
         var copy = self
         copy.renderingMode = .monochrome
         copy.secondaryColor = nil
@@ -126,7 +126,7 @@ extension IlluminatedIcon {
     }
 
     /// Set icon weight
-    func weight(_ weight: Font.Weight) -> IlluminatedIcon {
+    func weight(_ weight: Font.Weight) -> SanctuaryIcon {
         var copy = self
         copy.weight = weight
         return copy

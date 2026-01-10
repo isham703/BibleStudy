@@ -67,7 +67,7 @@ struct BiometricOptInView: View {
             .padding(.horizontal, Theme.Spacing.lg)
             .padding(.bottom, Theme.Spacing.xl)
         }
-        .background(Color.primaryBackground)
+        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
         .onAppear {
             withAnimation(Theme.Animation.slowFade) {
                 isAnimating = true
@@ -87,14 +87,14 @@ struct BiometricOptInView: View {
 
             // Glow ring
             Circle()
-                .fill(Color.Glow.indigoAmbient)
+                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
                 .frame(width: 90, height: 90)
                 .blur(radius: 16)
                 .scaleEffect(isAnimating ? 1.1 : 0.9)
 
             // Inner background
             Circle()
-                .fill(Color.secondaryBackground)
+                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
                 .frame(width: 80, height: 80)
 
             // Biometric icon

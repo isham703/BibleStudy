@@ -110,7 +110,7 @@ struct VerseContextMenuBackground: View {
     private var arrowView: some View {
         MenuArrow(pointsUp: arrowDirection == .up)
             .fill(
-                Color.Surface.card(colorScheme: colorScheme)
+                Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
                     .opacity(colorScheme == .dark ? Theme.Opacity.high : 1.0)
             )
             .frame(width: arrowWidth, height: arrowHeight)

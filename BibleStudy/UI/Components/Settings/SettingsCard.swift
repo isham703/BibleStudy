@@ -152,7 +152,7 @@ struct SettingsDivider: View {
 #Preview("Settings Card") {
     ScrollView {
         VStack(spacing: Theme.Spacing.xl) {
-            IlluminatedSettingsCard(title: "Account", icon: "person.fill") {
+            SettingsCard(title: "Account", icon: "person.fill") {
                 VStack(spacing: Theme.Spacing.md) {
                     IlluminatedSettingsRow(
                         icon: "person.circle.fill",
@@ -167,7 +167,7 @@ struct SettingsDivider: View {
                 }
             }
 
-            IlluminatedSettingsCard(title: "Reading", icon: "book.fill") {
+            SettingsCard(title: "Reading", icon: "book.fill") {
                 VStack(spacing: Theme.Spacing.md) {
                     IlluminatedSettingsRow(
                         icon: "textformat.size",

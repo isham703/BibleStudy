@@ -53,19 +53,19 @@ struct NoteEditor: View {
                 referenceHeader
 
                 Divider()
-                    .background(Color.divider)
+                    .background(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
 
                 // Formatting toolbar
                 formattingToolbar
 
                 Divider()
-                    .background(Color.divider)
+                    .background(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
 
                 // Linked notes display (if any)
                 if !linkedNotes.isEmpty {
                     linkedNotesSection
                     Divider()
-                        .background(Color.divider)
+                        .background(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
                 }
 
                 // Note content or preview
@@ -102,7 +102,7 @@ struct NoteEditor: View {
                             showDeleteConfirmation = true
                         } label: {
                             Label("Delete Note", systemImage: "trash")
-                                .foregroundStyle(Color.error)
+                                .foregroundStyle(Color.feedbackError)
                         }
                     }
                 }

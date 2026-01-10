@@ -45,7 +45,7 @@ struct InlineErrorView: View {
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
             Image(systemName: "exclamationmark.circle")
-                .foregroundStyle(Color.error)
+                .foregroundStyle(Color.feedbackError)
 
             Text(message)
                 .font(Typography.Command.subheadline)
@@ -62,7 +62,7 @@ struct InlineErrorView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .fill(Color.error.opacity(Theme.Opacity.subtle))
+                .fill(Color.feedbackError.opacity(Theme.Opacity.subtle))
         )
     }
 }

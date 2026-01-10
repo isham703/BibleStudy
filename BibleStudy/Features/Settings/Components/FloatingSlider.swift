@@ -16,6 +16,7 @@ struct FloatingSlider: View {
     @State private var lastStepValue: Double = 0
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View{
         GeometryReader { geometry in
@@ -41,7 +42,7 @@ struct FloatingSlider: View {
                 // Thumb with glow effect
                 ZStack {
                     // Outer glow when dragging
-                    if isDragging && !Theme.Animation.isReduceMotionEnabled {
+                    if isDragging && !reduceMotion {
                         Circle()
                             .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
                             // swiftlint:disable:next hardcoded_frame_size
@@ -125,14 +126,14 @@ struct FloatingSlider_Previews: PreviewProvider {
         VStack(spacing: 32) {  // Preview layout spacing
             VStack(alignment: .leading) {
                 Text("Font Size: 18")
-                    .font(Typography.caption)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
                 FloatingSlider(value: .constant(18), range: 14...24, step: 1)
             }
 
             VStack(alignment: .leading) {
                 Text("Line Spacing: 1.5")
-                    .font(Typography.caption)
+                    .font(Typography.Command.caption)
                     .foregroundStyle(Color.secondaryText)
                 FloatingSlider(value: .constant(1.5), range: 1.0...2.0, step: 0.1)
             }

@@ -216,7 +216,7 @@ struct ReflectionCard: View {
                 HStack {
                     Image(systemName: "heart.fill")
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Color.accentRose)
+                        .foregroundStyle(Color.roseAccent)
 
                     Text("Reflection")
                         .font(Typography.Command.caption.weight(.semibold))
@@ -225,7 +225,7 @@ struct ReflectionCard: View {
                     if !reflectionText.isEmpty {
                         Image(systemName: "checkmark.circle.fill")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.highlightGreen)
+                            .foregroundStyle(Color.success)
                     }
 
                     Spacer()
@@ -271,7 +271,7 @@ struct ReflectionCard: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, Theme.Spacing.md)
                             .padding(.vertical, Theme.Spacing.sm)
-                            .background(Color.accentRose)
+                            .background(Color.roseAccent)
                             .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
@@ -280,7 +280,7 @@ struct ReflectionCard: View {
             }
         }
         .padding(Theme.Spacing.md)
-        .background(Color.accentRose.opacity(Theme.Opacity.faint))
+        .background(Color.roseAccent.opacity(Theme.Opacity.faint))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }

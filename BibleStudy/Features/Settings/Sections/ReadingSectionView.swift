@@ -20,7 +20,7 @@ struct ReadingSectionView: View {
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
             // Reading Settings Card with Expandable Appearance
-            IlluminatedSettingsCard(title: "Reading", icon: "book.fill") {
+            SettingsCard(title: "Reading", icon: "book.fill") {
                 VStack(spacing: Theme.Spacing.lg) {
                     // Expandable Reading Appearance Section
                     ReadingAppearanceSection(

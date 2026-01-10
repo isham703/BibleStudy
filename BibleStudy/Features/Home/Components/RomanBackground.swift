@@ -37,7 +37,7 @@ struct RomanBackground: View {
     // MARK: - Base Layer
 
     private var baseLayer: some View {
-        Color.Surface.background(for: appState.preferredTheme)
+        Colors.Surface.background(for: appState.preferredTheme)
     }
 
     // MARK: - Marble Vignette

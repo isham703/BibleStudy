@@ -66,3 +66,53 @@ enum VerseNumberStyle: String, CaseIterable, Codable {
         }
     }
 }
+
+// MARK: - ScriptureFont
+
+/// User preference for scripture body font
+enum ScriptureFont: String, CaseIterable, Codable {
+    case newYork = "newYork"           // System serif (default)
+    case georgia = "georgia"           // Classic web serif
+    case ebGaramond = "ebGaramond"     // Premium bundled (if available)
+
+    var displayName: String {
+        switch self {
+        case .newYork: return "New York"
+        case .georgia: return "Georgia"
+        case .ebGaramond: return "EB Garamond"
+        }
+    }
+
+    var manuscriptDescription: String {
+        switch self {
+        case .newYork: return "Apple's modern serif, optimized for reading"
+        case .georgia: return "Classic web typography, familiar elegance"
+        case .ebGaramond: return "Renaissance letterforms, scholarly beauty"
+        }
+    }
+}
+
+// MARK: - DisplayFont
+
+/// User preference for display/heading font
+enum DisplayFont: String, CaseIterable, Codable {
+    case system = "system"                     // System serif
+    case cormorantGaramond = "cormorant"       // Premium headers
+    case cinzel = "cinzel"                     // Roman capitals/drop caps
+
+    var displayName: String {
+        switch self {
+        case .system: return "System Serif"
+        case .cormorantGaramond: return "Cormorant Garamond"
+        case .cinzel: return "Cinzel"
+        }
+    }
+
+    var manuscriptDescription: String {
+        switch self {
+        case .system: return "Clean, modern system typography"
+        case .cormorantGaramond: return "Renaissance elegance, book titles"
+        case .cinzel: return "Roman capitals, illuminated initials"
+        }
+    }
+}

@@ -15,6 +15,7 @@ struct FloatingToggleRow: View {
     @State private var pulseScale: CGFloat = 1.0
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
@@ -38,7 +39,7 @@ struct FloatingToggleRow: View {
             // Toggle with illumination pulse effect
             ZStack {
                 // Radial pulse on activation (Phase 6 enhancement)
-                if justToggled && isOn && !Theme.Animation.isReduceMotionEnabled {
+                if justToggled && isOn && !reduceMotion {
                     Circle()
                         .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
                         .scaleEffect(pulseScale)
@@ -51,7 +52,7 @@ struct FloatingToggleRow: View {
                     .labelsHidden()
             }
             .onChange(of: isOn) { _, newValue in
-                guard !Theme.Animation.isReduceMotionEnabled else { return }
+                guard !reduceMotion else { return }
 
                 justToggled = true
                 pulseScale = 1.0

@@ -174,9 +174,9 @@ struct UnifiedContextMenu: View {
         .overlay(cardBorder)
         .shadow(
             color: .black.opacity(colorScheme == .dark ? Theme.Opacity.heavy : Theme.Opacity.light),
-            radius: Theme.Shadow.menu.radius,
-            x: Theme.Shadow.menu.x,
-            y: Theme.Shadow.menu.y
+            radius: 20,
+            x: 0,
+            y: 8
         )
         .frame(width: mode.menuWidth)
         .opacity(isAppearing ? 1 : 0)

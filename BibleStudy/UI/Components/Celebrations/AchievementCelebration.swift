@@ -13,6 +13,7 @@ struct AchievementCelebration: View {
     @State private var showPulse = false
     @State private var iconRotation: Double = -10
     @State private var iconScale: CGFloat = 0.5
+    @Environment(\.colorScheme) private var colorScheme
 
     private var respectsReducedMotion: Bool {
         UIAccessibility.isReduceMotionEnabled
@@ -95,11 +96,11 @@ struct AchievementCelebration: View {
 
     private var categoryColor: Color {
         switch achievement.category {
-        case .reading: return .accentBlue
-        case .memorization: return .highlightPurple
+        case .reading: return Color.accentIndigo
+        case .memorization: return Color.accentIndigo
         case .streaks: return .orange
         case .study: return .accentIndigo
-        case .milestones: return .highlightGreen
+        case .milestones: return .success
         }
     }
 
@@ -323,10 +324,10 @@ extension UserLevel {
     var color: Color {
         switch self {
         case .novice: return .secondaryText
-        case .apprentice: return .accentBlue
+        case .apprentice: return Color.accentIndigo
         case .scholar: return .accentIndigo
-        case .master: return .highlightPurple
-        case .sage: return .highlightGreen
+        case .master: return Color.accentIndigo
+        case .sage: return .success
         }
     }
 

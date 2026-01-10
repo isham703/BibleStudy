@@ -90,7 +90,7 @@ struct MiniatureActionsView<Actions: View, Background: View>: View {
                 width: isExpanded ? nil : minimisedButtonSize.width,
                 height: isExpanded ? nil : minimisedButtonSize.height
             )
-            .accessibleAnimation(animation, value: isExpanded)
+            .animation(animation, value: isExpanded)
     }
 }
 

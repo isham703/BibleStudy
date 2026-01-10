@@ -18,7 +18,7 @@ struct AccountDetailView: View {
                 profileHeader
 
                 // Profile Section
-                IlluminatedSettingsCard(title: "Profile", icon: "person.text.rectangle.fill") {
+                SettingsCard(title: "Profile", icon: "person.text.rectangle.fill") {
                     VStack(spacing: Theme.Spacing.md) {
                         editableNameRow
 
@@ -31,7 +31,7 @@ struct AccountDetailView: View {
 
                 // Quick Access Section (if biometrics available)
                 if viewModel.isBiometricAvailable {
-                    IlluminatedSettingsCard(title: "Quick Access", icon: "bolt.fill") {
+                    SettingsCard(title: "Quick Access", icon: "bolt.fill") {
                         SettingsToggle(
                             isOn: Binding(
                                 get: { viewModel.isBiometricEnabled },
@@ -46,7 +46,7 @@ struct AccountDetailView: View {
                 }
 
                 // Account Actions Section
-                IlluminatedSettingsCard(title: "Account", icon: "gear", showDivider: false) {
+                SettingsCard(title: "Account", icon: "gear", showDivider: false) {
                     VStack(spacing: Theme.Spacing.md) {
                         // Sign Out
                         signOutButton

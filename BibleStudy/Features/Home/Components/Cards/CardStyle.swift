@@ -40,13 +40,14 @@ struct CardStyle {
 
     static func roman(isPrimary: Bool, colorScheme: ColorScheme = .light) -> CardStyle {
         let isDark = colorScheme == .dark
+        let mode = ThemeMode.current(from: colorScheme)
 
         return CardStyle(
             // Text colors from Surface layer
-            textColor: Color.Surface.textPrimary(colorScheme: colorScheme),
-            secondaryTextColor: Color.Surface.textSecondary(colorScheme: colorScheme),
+            textColor: Colors.Surface.textPrimary(for: mode),
+            secondaryTextColor: Colors.Surface.textSecondary(for: mode),
             // Card background
-            backgroundColor: isDark ? .white : Color.Surface.background(colorScheme: colorScheme),
+            backgroundColor: isDark ? .white : Colors.Surface.background(for: mode),
             backgroundOpacity: isDark ? 0.06 : 0.9,
             // Effects
             useMaterial: !isDark,

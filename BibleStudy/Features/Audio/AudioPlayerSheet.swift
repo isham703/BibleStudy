@@ -5,6 +5,7 @@ import SwiftUI
 
 struct AudioPlayerSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     let audioService: AudioService
 
     @State private var isDraggingSlider = false
@@ -89,7 +90,7 @@ struct AudioPlayerSheet: View {
                     Image(systemName: "book.fill")
                         .font(Typography.Command.largeTitle)
                         .imageScale(.large)
-                        .foregroundStyle(Color.Semantic.accent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         .accessibilityHidden(true)
 
                     if let chapter = audioService.currentChapter {
@@ -148,7 +149,7 @@ struct AudioPlayerSheet: View {
                     }
                 }
             )
-            .tint(Color.Semantic.accent)
+            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             .accessibilityLabel("Playback progress")
             .accessibilityValue(sliderAccessibilityValue)
 
@@ -168,7 +169,7 @@ struct AudioPlayerSheet: View {
                     Text("Verse \(verse)")
                         .font(Typography.Command.meta.monospacedDigit())
                         .fontWeight(.medium)
-                        .foregroundStyle(Color.Semantic.accent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         .accessibilityAddTraits(.updatesFrequently)
                         .accessibilityLabel("Currently playing verse \(verse)")
                 }
@@ -220,7 +221,7 @@ struct AudioPlayerSheet: View {
             }) {
                 ZStack {
                     Circle()
-                        .fill(Color.Semantic.accent)
+                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         .frame(width: 72, height: 72)
 
                     if audioService.isLoading {
@@ -280,7 +281,7 @@ struct AudioPlayerSheet: View {
                     Text(speed == 1.0 ? "1x" : String(format: "%.2gx", speed))
                         .font(Typography.Command.meta.monospacedDigit())
                         .fontWeight(isSelected ? .bold : .medium)
-                        .foregroundStyle(isSelected ? Color.Semantic.accent : Color.secondaryText)
+                        .foregroundStyle(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.secondaryText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Theme.Spacing.sm)
                 }
@@ -366,7 +367,7 @@ struct AudioPlayerSheet: View {
             HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(Typography.Command.title3)
-                    .foregroundStyle(Color.error)
+                    .foregroundStyle(Color.feedbackError)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Audio Error")
@@ -394,7 +395,7 @@ struct AudioPlayerSheet: View {
                         .padding(.vertical, Theme.Spacing.sm)
                         .background {
                             Capsule()
-                                .fill(Color.Semantic.accent)
+                                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         }
                 }
                 .accessibilityLabel("Retry loading audio")
@@ -403,10 +404,10 @@ struct AudioPlayerSheet: View {
             .padding(Theme.Spacing.md)
             .background {
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.error.opacity(Theme.Opacity.subtle))
+                    .fill(Color.feedbackError.opacity(Theme.Opacity.subtle))
                     .overlay {
                         RoundedRectangle(cornerRadius: Theme.Radius.card)
-                            .stroke(Color.error.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                            .stroke(Color.feedbackError.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
                     }
             }
         }
@@ -470,6 +471,8 @@ private struct AudioOptionButton: View {
 private struct GenerationProgressButton: View {
     let progress: Double
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         VStack(spacing: Theme.Spacing.xs) {
             ZStack {
@@ -481,7 +484,7 @@ private struct GenerationProgressButton: View {
                 // Progress circle
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(Color.Semantic.accent, style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round))
+                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round))
                     .frame(width: 24, height: 24)
                     .rotationEffect(.degrees(-90))
                     .animation(Theme.Animation.fade, value: progress)
@@ -489,7 +492,7 @@ private struct GenerationProgressButton: View {
 
             Text("\(Int(progress * 100))%")
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.Semantic.accent)
+                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                 .monospacedDigit()
         }
         .frame(width: 72, height: 56)

@@ -423,12 +423,12 @@ struct UsageBadge: View {
                 .font(Typography.Command.meta)
                 .fontWeight(.medium)
         }
-        .foregroundStyle(remaining > 0 ? Color.accentIndigo : Color.error)
+        .foregroundStyle(remaining > 0 ? Color.accentIndigo : Color.feedbackError)
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(remaining > 0 ? Color.accentIndigo.opacity(Theme.Opacity.subtle) : Color.error.opacity(Theme.Opacity.subtle))
+                .fill(remaining > 0 ? Color.accentIndigo.opacity(Theme.Opacity.subtle) : Color.feedbackError.opacity(Theme.Opacity.subtle))
         )
     }
 }

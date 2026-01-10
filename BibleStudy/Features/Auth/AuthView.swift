@@ -26,14 +26,14 @@ struct AuthView: View {
         if !viewModel.password.isEmpty {
             return viewModel.isPasswordValid ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
         }
-        return focusedField == .password ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Color.divider
+        return focusedField == .password ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme))
     }
 
     private var confirmPasswordBorderColor: Color {
         if !viewModel.confirmPassword.isEmpty {
             return viewModel.doPasswordsMatch ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
         }
-        return focusedField == .confirmPassword ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Color.divider
+        return focusedField == .confirmPassword ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme))
     }
 
     var body: some View {
@@ -111,7 +111,7 @@ struct AuthView: View {
             }
             .padding(Theme.Spacing.lg)
         }
-        .background(Color.primaryBackground)
+        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             // Auto-focus email field with slight delay for smooth transition
@@ -216,7 +216,7 @@ struct AuthView: View {
                 }
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.button)
-                        .fill(Color.secondaryBackground)
+                        .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.button)
@@ -283,7 +283,7 @@ struct AuthView: View {
                     }
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .fill(Color.secondaryBackground)
+                            .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
@@ -303,7 +303,7 @@ struct AuthView: View {
                     if !viewModel.confirmPassword.isEmpty && !viewModel.doPasswordsMatch {
                         Text("Passwords don't match")
                             .font(Typography.Command.meta)
-                            .foregroundStyle(Color.error)
+                            .foregroundStyle(Color.feedbackError)
                     }
                 }
             }
@@ -355,7 +355,7 @@ struct AuthView: View {
     private var dividerSection: some View {
         HStack {
             Rectangle()
-                .fill(Color.divider)
+                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
                 .frame(height: Theme.Stroke.hairline)
 
             Text("or")
@@ -364,7 +364,7 @@ struct AuthView: View {
                 .padding(.horizontal, Theme.Spacing.sm)
 
             Rectangle()
-                .fill(Color.divider)
+                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
                 .frame(height: Theme.Stroke.hairline)
         }
     }
@@ -384,7 +384,7 @@ struct AuthView: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
             )
 
             // Biometric quick sign-in (only shown if enabled and not in sign-up mode)
@@ -437,11 +437,11 @@ struct AuthView: View {
                     .foregroundStyle(Color.tertiaryText)
             }
             .padding(Theme.Spacing.md)
-            .background(Color.secondaryBackground)
+            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -583,7 +583,7 @@ struct ScribeFocusStyle: TextFieldStyle {
         if let isValid = validationState {
             return isValid ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
         }
-        return isFocused ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Color.divider
+        return isFocused ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme))
     }
 
     private var borderWidth: CGFloat {
@@ -598,12 +598,12 @@ struct ScribeFocusStyle: TextFieldStyle {
                 ZStack {
                     // Base surface
                     RoundedRectangle(cornerRadius: Theme.Radius.button)
-                        .fill(Color.secondaryBackground)
+                        .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
 
                     // Focused glow layer - warm gold ambient
                     if isFocused {
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .fill(Color.Glow.indigoAmbient)
+                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
                             .blur(radius: 8)
                             .offset(y: 2)
                     }
@@ -648,15 +648,17 @@ struct PasswordFieldStyle: TextFieldStyle {
 
 // MARK: - Legacy Auth Text Field Style (deprecated, use ScribeFocusStyle)
 struct AuthTextFieldStyle: TextFieldStyle {
+    @Environment(\.colorScheme) private var colorScheme
+
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .padding(Theme.Spacing.md)
-            .background(Color.secondaryBackground)
+            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
             .foregroundStyle(Color.primaryText)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Color.divider, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
             )
     }
 }
@@ -677,7 +679,7 @@ struct IlluminationMeter: View {
                     RoundedRectangle(cornerRadius: Theme.Radius.xs)
                         .fill(segment <= strength.rawValue
                             ? strength.color(for: colorScheme)
-                            : Color.divider)
+                            : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
                         .frame(height: 3)
                         .overlay(
                             // Gold shimmer on filled high-strength segments

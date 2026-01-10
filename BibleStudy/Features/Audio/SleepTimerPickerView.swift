@@ -5,6 +5,7 @@ import SwiftUI
 
 struct SleepTimerPickerView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     let audioService: AudioService
 
     private let timerOptions: [(label: String, minutes: Int)] = [
@@ -34,7 +35,7 @@ struct SleepTimerPickerView: View {
 
                                 if isSelected(minutes: option.minutes) {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Color.Semantic.accent)
+                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                         .font(Typography.Command.caption)
                                         .fontWeight(.semibold)
                                 }
@@ -58,7 +59,7 @@ struct SleepTimerPickerView: View {
 
                             if audioService.sleepTimerEndOfChapter {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.Semantic.accent)
+                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                     .font(Typography.Command.caption)
                                     .fontWeight(.semibold)
                             }
@@ -82,7 +83,7 @@ struct SleepTimerPickerView: View {
                             HStack {
                                 Spacer()
                                 Text("Cancel Timer")
-                                    .foregroundStyle(Color.error)
+                                    .foregroundStyle(Color.feedbackError)
                                 Spacer()
                             }
                         }

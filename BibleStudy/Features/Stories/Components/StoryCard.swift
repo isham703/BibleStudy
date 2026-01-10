@@ -94,7 +94,7 @@ struct StoryCard: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(isCompleted ? Color.highlightGreen.opacity(Theme.Opacity.heavy) : Color.clear, lineWidth: Theme.Stroke.control)
+                .stroke(isCompleted ? Color.success.opacity(Theme.Opacity.heavy) : Color.clear, lineWidth: Theme.Stroke.control)
         )
         .shadow(color: .black.opacity(Theme.Opacity.overlay), radius: 4, x: 0, y: 2)
     }
@@ -130,12 +130,12 @@ struct CompletedBadge: View {
             Text("Done")
                 .font(Typography.Command.meta)
         }
-        .foregroundStyle(Color.highlightGreen)
+        .foregroundStyle(Color.success)
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Color.highlightGreen.opacity(Theme.Opacity.light))
+                .fill(Color.success.opacity(Theme.Opacity.light))
         )
     }
 }

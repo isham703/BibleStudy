@@ -128,7 +128,7 @@ struct TodayReadingCard: View {
                 }
             }
             .padding(Theme.Spacing.lg)
-            .background(Color.secondaryBackground)
+            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg))
         }
     }
@@ -156,7 +156,7 @@ struct PlanCard: View {
                     .tint(plan.isCompleted ? Color.success : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
             }
             .padding(Theme.Spacing.md)
-            .background(Color.secondaryBackground)
+            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
     }
@@ -165,6 +165,7 @@ struct PlanCard: View {
 // MARK: - Plan Picker Sheet
 struct PlanPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     let onSelect: (ReadingPlan) -> Void
 
     var body: some View {
@@ -193,7 +194,7 @@ struct PlanPickerSheet: View {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(Theme.Spacing.md)
-                            .background(Color.secondaryBackground)
+                            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
                             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                         }
                     }

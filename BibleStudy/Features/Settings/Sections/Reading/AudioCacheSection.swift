@@ -10,7 +10,7 @@ struct AudioCacheSection: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        IlluminatedSettingsCard(title: "Audio", icon: "speaker.wave.2.fill") {
+        SettingsCard(title: "Audio", icon: "speaker.wave.2.fill") {
             VStack(spacing: Theme.Spacing.lg) {
                 // Cache size picker
                 audioCacheLimitRow
@@ -143,11 +143,11 @@ struct AudioCacheSection: View {
                 // Icon
                 Image(systemName: "trash.fill")
                     .font(Typography.Icon.sm.weight(.medium))
-                    .foregroundStyle(Color.error)
+                    .foregroundStyle(Color.feedbackError)
                     .frame(width: 28, height: 28)
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                            .fill(Color.error.opacity(Theme.Opacity.faint + 0.02))
+                            .fill(Color.feedbackError.opacity(Theme.Opacity.faint + 0.02))
                     )
 
                 // Label

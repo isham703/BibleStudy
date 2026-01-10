@@ -10,7 +10,7 @@ struct NotificationsSectionView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        IlluminatedSettingsCard(title: "Notifications", icon: "bell.fill") {
+        SettingsCard(title: "Notifications", icon: "bell.fill") {
             if viewModel.notificationsAuthorized {
                 authorizedContent
             } else {
@@ -49,7 +49,7 @@ struct NotificationsSectionView: View {
                     label: "Streak Protection",
                     description: nil,
                     icon: "flame.fill",
-                    iconColor: .vermillion
+                    iconColor: .feedbackError
                 )
 
                 if viewModel.streakReminderEnabled {

@@ -13,6 +13,8 @@ struct UsageRow: View {
 
     @State private var animatedProgress: Double = 0
     @State private var isPulsing = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     private var progress: Double {
         guard total > 0 else { return 0 }
@@ -74,7 +76,7 @@ struct UsageRow: View {
             withAnimation(Theme.Animation.slowFade.delay(0.1)) {
                 animatedProgress = progress
             }
-            if isExhausted && !Theme.Animation.isReduceMotionEnabled {
+            if isExhausted && !reduceMotion {
                 startPulseAnimation()
             }
         }
@@ -82,7 +84,7 @@ struct UsageRow: View {
             withAnimation(Theme.Animation.settle) {
                 animatedProgress = progress
             }
-            if isExhausted && !Theme.Animation.isReduceMotionEnabled {
+            if isExhausted && !reduceMotion {
                 startPulseAnimation()
             } else {
                 isPulsing = false
@@ -95,16 +97,16 @@ struct UsageRow: View {
     private var iconView: some View {
         Image(systemName: icon)
             .font(Typography.Icon.xs.weight(.medium))
-            .foregroundStyle(isExhausted ? Color.error : iconColor)
+            .foregroundStyle(isExhausted ? Color.feedbackError : iconColor)
             .frame(width: 24, height: 24)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input + 1)
-                    .fill((isExhausted ? Color.error : iconColor).opacity(Theme.Opacity.subtle + 0.02))
+                    .fill((isExhausted ? Color.feedbackError : iconColor).opacity(Theme.Opacity.subtle + 0.02))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input + 1)
                     .stroke(
-                        (isExhausted ? Color.error : iconColor).opacity(isPulsing ? Theme.Opacity.heavy : 0),
+                        (isExhausted ? Color.feedbackError : iconColor).opacity(isPulsing ? Theme.Opacity.heavy : 0),
                         lineWidth: Theme.Stroke.control
                     )
                     .blur(radius: isPulsing ? 4 : 0)
@@ -122,12 +124,12 @@ struct UsageRow: View {
             if isExhausted {
                 Image(systemName: "exclamationmark.circle.fill")
                     .font(Typography.Icon.xxs)
-                    .foregroundStyle(Color.error)
+                    .foregroundStyle(Color.feedbackError)
             }
 
             Text(isExhausted ? "Limit reached" : "\(remaining) remaining")
                 .font(Typography.Command.meta.monospacedDigit())
-                .foregroundStyle(isExhausted ? Color.error : Color.secondaryText)
+                .foregroundStyle(isExhausted ? Color.feedbackError : Color.secondaryText)
         }
     }
 
@@ -138,7 +140,7 @@ struct UsageRow: View {
             ZStack(alignment: .leading) {
                 // Background track
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                    .fill(Color.divider.opacity(Theme.Opacity.medium))
+                    .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
 
                 // Filled portion
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
@@ -152,7 +154,7 @@ struct UsageRow: View {
     private var progressGradient: LinearGradient {
         if isExhausted {
             return LinearGradient(
-                colors: [Color.error.opacity(Theme.Opacity.pressed), Color.error],
+                colors: [Color.feedbackError.opacity(Theme.Opacity.pressed), Color.feedbackError],
                 startPoint: .leading,
                 endPoint: .trailing
             )
@@ -283,7 +285,7 @@ struct UsageStatisticsView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: Theme.Spacing.xl) {
             // Partial usage
-            IlluminatedSettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
+            SettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
                 UsageStatisticsView(
                     aiInsightsUsed: 2,
                     aiInsightsTotal: 3,
@@ -296,7 +298,7 @@ struct UsageStatisticsView_Previews: PreviewProvider {
             }
 
             // Exhausted limits
-            IlluminatedSettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
+            SettingsCard(title: "Subscription", icon: "crown.fill", showDivider: false) {
                 UsageStatisticsView(
                     aiInsightsUsed: 3,
                     aiInsightsTotal: 3,

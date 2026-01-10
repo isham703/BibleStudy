@@ -36,11 +36,12 @@ struct IlluminateTransition: ViewModifier {
     let isActive: Bool
 
     @State private var glowOpacity: Double = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         ZStack {
             // Glow effect
-            if !Theme.Animation.isReduceMotionEnabled {
+            if !reduceMotion {
                 Circle()
                     .fill(
                         RadialGradient(

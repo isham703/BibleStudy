@@ -98,7 +98,7 @@ struct MemorizeView: View {
 
     private var masteryColor: Color {
         switch item.masteryLevel {
-        case .learning: return .accentBlue
+        case .learning: return Color.accentIndigo
         case .reviewing: return Color.accentIndigo
         case .mastered: return .success
         }
@@ -255,12 +255,12 @@ struct MemorizeView: View {
             Text(result.feedbackMessage)
         }
         .font(Typography.Command.subheadline)
-        .foregroundStyle(result.isCorrect ? Color.success : Color.error)
+        .foregroundStyle(result.isCorrect ? Color.success : Color.feedbackError)
         .padding()
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .fill((result.isCorrect ? Color.success : Color.error).opacity(Theme.Opacity.subtle))
+                .fill((result.isCorrect ? Color.success : Color.feedbackError).opacity(Theme.Opacity.subtle))
         )
     }
 

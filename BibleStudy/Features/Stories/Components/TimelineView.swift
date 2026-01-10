@@ -78,7 +78,7 @@ enum TimelineNodeState {
         switch self {
         case .upcoming: return Color.surfaceBackground
         case .current: return Colors.Semantic.accentAction(for: mode)
-        case .completed: return Color.highlightGreen
+        case .completed: return Color.success
         }
     }
 
@@ -87,7 +87,7 @@ enum TimelineNodeState {
         switch self {
         case .upcoming: return Color.cardBorder
         case .current: return Colors.Semantic.accentAction(for: mode)
-        case .completed: return Color.highlightGreen
+        case .completed: return Color.success
         }
     }
 
@@ -114,7 +114,7 @@ struct TimelineConnector: View {
 
     var body: some View {
         Rectangle()
-            .fill(isCompleted ? Color.highlightGreen : Color.cardBorder)
+            .fill(isCompleted ? Color.success : Color.cardBorder)
             .frame(width: 24, height: 2)
     }
 }

@@ -11,7 +11,7 @@ struct DeveloperSectionView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        IlluminatedSettingsCard(title: "Design Studio", icon: "paintbrush.fill", showDivider: false) {
+        SettingsCard(title: "Design Studio", icon: "paintbrush.fill", showDivider: false) {
             VStack(spacing: Theme.Spacing.md) {
                 // Design Showcase header
                 showcaseHeader

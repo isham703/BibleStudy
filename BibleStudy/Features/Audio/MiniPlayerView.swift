@@ -8,6 +8,8 @@ struct MiniPlayerView: View {
     let onTap: () -> Void
     let onClose: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
             // Play/Pause button OR Loading indicator
@@ -21,7 +23,7 @@ struct MiniPlayerView: View {
                 }) {
                     Image(systemName: audioService.isPlaying ? "pause.fill" : "play.fill")
                         .font(Typography.Command.title3.weight(.semibold))
-                        .foregroundStyle(Color.Semantic.accent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         .frame(width: 44, height: 44)
                 }
                 .accessibilityLabel(audioService.isPlaying ? "Pause" : "Play")
@@ -51,7 +53,7 @@ struct MiniPlayerView: View {
 
                             Text("\(Int(audioService.generationProgress * 100))%")
                                 .font(Typography.Command.meta.monospacedDigit())
-                                .foregroundStyle(Color.Semantic.accent)
+                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                                 .accessibilityAddTraits(.updatesFrequently)
                         }
                     } else {
@@ -136,7 +138,7 @@ struct MiniPlayerView: View {
             // Progress bar
             GeometryReader { geometry in
                 Rectangle()
-                    .fill(Color.Semantic.accent)
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     .frame(width: geometry.size.width * audioService.progress, height: 2)
             }
             .frame(height: 2)
@@ -218,6 +220,8 @@ private struct IlluminatedLoadingIndicator: View {
     @State private var pulseScale: CGFloat = 1.0
     @State private var shimmerOffset: CGFloat = -1.0
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
             // Outer indigo ring - orbital accent
@@ -225,9 +229,9 @@ private struct IlluminatedLoadingIndicator: View {
                 .stroke(
                     LinearGradient(
                         colors: [
-                            Color.Semantic.accent.opacity(Theme.Opacity.lightMedium),
-                            Color.Semantic.accent.opacity(Theme.Opacity.disabled),
-                            Color.Semantic.accent.opacity(Theme.Opacity.lightMedium)
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -246,7 +250,7 @@ private struct IlluminatedLoadingIndicator: View {
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
-                    Color.Semantic.accent,
+                    Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
                     style: StrokeStyle(lineWidth: Theme.Stroke.control + 0.5, lineCap: .round)
                 )
                 .frame(width: 40, height: 40)
@@ -258,8 +262,8 @@ private struct IlluminatedLoadingIndicator: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Color.Semantic.accent.opacity(Theme.Opacity.medium),
-                            Color.Semantic.accent.opacity(Theme.Opacity.subtle),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle),
                             Color.clear
                         ],
                         center: .center,
@@ -281,8 +285,8 @@ private struct IlluminatedLoadingIndicator: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Color.Semantic.accent,
-                            Color.Semantic.accent.opacity(Theme.Opacity.overlay)
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
+                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -315,7 +319,7 @@ private struct IlluminatedLoadingIndicator: View {
             // Ornamental details - progress indicators
             ForEach(0..<4, id: \.self) { index in
                 Circle()
-                    .fill(Color.Semantic.accent.opacity(Theme.Opacity.disabled))
+                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
                     .frame(width: 2, height: 2)
                     .offset(y: -20)
                     .rotationEffect(.degrees(Double(index) * 90))

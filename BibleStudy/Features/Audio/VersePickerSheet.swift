@@ -5,6 +5,7 @@ import SwiftUI
 
 struct AudioVersePickerSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     let audioService: AudioService
 
     var body: some View {
@@ -70,13 +71,15 @@ private struct VerseRow: View {
     let isPlaying: Bool
     let onTap: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: onTap) {
             HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 // Verse number badge
                 ZStack {
                     Circle()
-                        .fill(isPlaying ? Color.Semantic.accent : Color.surfaceBackground)
+                        .fill(isPlaying ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
                         .frame(width: 32, height: 32)
 
                     Text("\(verse.number)")
@@ -100,7 +103,7 @@ private struct VerseRow: View {
                             Text("Now playing")
                                 .font(Typography.Command.meta)
                         }
-                        .foregroundStyle(Color.Semantic.accent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -109,7 +112,7 @@ private struct VerseRow: View {
                 if isPlaying {
                     Image(systemName: "waveform")
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Color.Semantic.accent)
+                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
                         .symbolEffect(.variableColor.iterative)
                 }
             }
@@ -117,7 +120,7 @@ private struct VerseRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowBackground(isPlaying ? Color.Semantic.accent.opacity(Theme.Opacity.subtle) : Color.clear)
+        .listRowBackground(isPlaying ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle) : Color.clear)
         .accessibilityLabel("Verse \(verse.number)")
         .accessibilityHint(isPlaying ? "Currently playing. Double tap to restart from beginning of verse" : "Double tap to play from this verse")
         .accessibilityAddTraits(isPlaying ? .isSelected : [])

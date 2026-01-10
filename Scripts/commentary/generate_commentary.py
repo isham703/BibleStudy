@@ -60,6 +60,8 @@ BOOKS = {
     "1john": {"id": 62, "chapters": 5, "name": "1 John"},
     "ephesians": {"id": 49, "chapters": 6, "name": "Ephesians"},
     "proverbs": {"id": 20, "chapters": 31, "name": "Proverbs"},
+    "1corinthians": {"id": 46, "chapters": 16, "name": "1 Corinthians"},
+    "1peter": {"id": 60, "chapters": 5, "name": "1 Peter"},
 }
 
 # Paths

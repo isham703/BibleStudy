@@ -199,7 +199,7 @@ enum LineState {
         case .idle: return .accentBronze.opacity(Theme.Opacity.medium)
         case .active: return .accentBronze
         case .flowing: return .accentBronze
-        case .success: return .highlightGreen
+        case .success: return .success
         case .dimmed: return .tertiaryText.opacity(Theme.Opacity.medium)
         }
     }

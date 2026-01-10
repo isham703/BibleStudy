@@ -11,7 +11,7 @@ struct SessionRestorationView: View {
     var body: some View {
         ZStack {
             // Background
-            Color.primaryBackground
+            Colors.Surface.background(for: ThemeMode.current(from: colorScheme))
                 .ignoresSafeArea()
 
             VStack(spacing: Theme.Spacing.xxl) {

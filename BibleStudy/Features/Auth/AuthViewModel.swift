@@ -14,7 +14,7 @@ enum PasswordIllumination: Int, Sendable {
     func color(for colorScheme: ColorScheme) -> Color {
         let mode = ThemeMode.current(from: colorScheme)
         switch self {
-        case .blank: return Color.divider
+        case .blank: return Colors.Surface.divider(for: mode)
         case .rawPigment: return Colors.Semantic.error(for: mode).opacity(Theme.Opacity.overlay)
         case .groundPigment: return Colors.Semantic.warning(for: mode)
         case .gilded: return Colors.Semantic.accentSeal(for: mode)

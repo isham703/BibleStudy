@@ -14,6 +14,7 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
     @ViewBuilder var trailingAction: () -> TrailingAction
     @ViewBuilder var mainAction: () -> MainAction
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - View State
 
@@ -21,7 +22,7 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
     private let slideOffset: CGFloat = 20
 
     private var respectsReducedMotion: Bool {
-        Theme.Animation.isReduceMotionEnabled
+        reduceMotion
     }
 
     var body: some View {
@@ -193,11 +194,12 @@ struct AskAnimatedInputBar: View {
     let onSearch: () -> Void
     var onClearAnchor: (() -> Void)?
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let fillColor = Color.gray.opacity(Theme.Opacity.light)
 
     private var respectsReducedMotion: Bool {
-        Theme.Animation.isReduceMotionEnabled
+        reduceMotion
     }
 
     var body: some View {

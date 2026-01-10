@@ -9,7 +9,7 @@ struct AccountSectionView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        IlluminatedSettingsCard(title: "Account", icon: "person.fill") {
+        SettingsCard(title: "Account", icon: "person.fill") {
             if viewModel.isAuthenticated {
                 NavigationLink {
                     AccountDetailView(viewModel: viewModel)

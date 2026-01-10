@@ -117,7 +117,7 @@ struct SettingsToggleRow: View {
 
         var body: some View {
             VStack(spacing: Theme.Spacing.xl) {
-                IlluminatedSettingsCard(title: "Notifications", icon: "bell.fill") {
+                SettingsCard(title: "Notifications", icon: "bell.fill") {
                     VStack(spacing: Theme.Spacing.lg) {
                         SettingsToggle(
                             isOn: $toggle1,

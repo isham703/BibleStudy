@@ -166,15 +166,15 @@ struct GenerateStorySheet: View {
     private func errorView(_ error: Error) -> some View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(Color.error)
+                .foregroundStyle(Color.feedbackError)
 
             Text(error.localizedDescription)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.error)
+                .foregroundStyle(Color.feedbackError)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.error.opacity(Theme.Opacity.subtle))
+        .background(Color.feedbackError.opacity(Theme.Opacity.subtle))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
     }
 

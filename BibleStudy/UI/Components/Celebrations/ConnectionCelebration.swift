@@ -512,9 +512,9 @@ struct LevelUpCelebration: View {
 extension MasteryLevel {
     var uiColor: Color {
         switch self {
-        case .learning: return .accentBlue
+        case .learning: return Color.accentIndigo
         case .reviewing: return .accentIndigo
-        case .mastered: return .highlightGreen
+        case .mastered: return .success
         }
     }
 }

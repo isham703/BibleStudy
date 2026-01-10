@@ -388,17 +388,11 @@ extension Color {
 // MARK: - Temporary Color Stubs (TO DELETE after production file migration)
 
 extension Color {
-    // Production preview colors - TODO: Update previews to use Colors.Surface.background(for:)
-    /// Used in: AIInsightCard, StreakBadge, ChatEntryButton, DiscoveryCarousel previews
-    static var forumNight: Color { Color(hex: "0B0B0C") }
-
     /// Legacy marble white - kept for backward compatibility
     static var marbleWhite: Color { Color(hex: "F5F5F5") }
 
 
     // Production decorative colors - TO DELETE after component migration
-    /// Used in: IlluminatedInsightPreview, MenuPositioning
-    static var antiqueStone: Color { Color(hex: "F5F5F5").opacity(0.95) }
 
     /// Used in: IlluminatedIcon
     static var monasteryBlack: Color { Color(hex: "0B0B0C") }
@@ -408,9 +402,6 @@ extension Color {
 
     /// Used in: Preview backgrounds
     static var chapelShadow: Color { Color(hex: "1A1A1A") }
-
-    /// Used in: IlluminatedIcon
-    static var illuminatedGold: Color { Color(hex: "D4AF37") }
 
     /// Used in: Breathe feature
     static var complineStarlight: Color { Color(hex: "E8D5B7") }
@@ -423,24 +414,78 @@ extension Color {
     /// TO DELETE after VellumScrollToast migration
     static var burnishedGold: Color { Color(hex: "6B5844") }
 
-    /// Used in: TheLibraryPage showcase
-    /// TO DELETE after showcase exclusion from build
-    static var meridianGilded: Color { Color(hex: "D4AF37") }
-    static var meridianSepia: Color { Color(hex: "8B7355") }
-    static var meridianIllumination: Color { Color(hex: "FFE5B4") }
-
     /// Legacy soft rose - kept for backward compatibility
     static var softRose: Color { Color(hex: "FFB6C1") }
 
+    /// Faded moonlight - muted secondary text
+    static var fadedMoonlight: Color { Color(hex: "A8A29E") }
+
+    /// Moonlit marble - light surface color
+    static var moonlitMarble: Color { Color(hex: "E8E4DC") }
+
+    // MARK: - Semantic Color Convenience Aliases
+    // Non-theme-aware shortcuts to semantic colors
+    // Use theme-aware Colors.Semantic functions for dynamic color support
+
+    /// Error color (red for error states)
+    static var error: Color { feedbackError }
+
+    /// Warning color (amber/orange for caution states)
+    static var warning: Color { feedbackWarning }
+
+    /// Success color (green for positive outcomes)
+    static var success: Color { feedbackSuccess }
+
+    /// Info color (gray for informational content)
+    static var info: Color { feedbackInfo }
+
+    /// Card border color (subtle divider)
+    static var cardBorder: Color { Color.gray.opacity(0.15) }
+
+    // MARK: - Theme Mode Background Colors
+    // Used by BibleStudyApp for theme switching (light/dark/sepia/oled)
+
+    static var lightBackground: Color { Color(hex: "FAF7F2") }  // Parchment
+    static var darkBackground: Color { Color(hex: "0B0B0C") }   // Near-black
+    static var sepiaBackground: Color { Color(hex: "F4ECD8") }  // Warm sepia
+    static var oledBackground: Color { Color(hex: "000000") }   // Pure black
+
+    static var moonlitParchment: Color { Color(hex: "E8E4DC") } // Light mode text background
+    static var sepiaText: Color { Color(hex: "2C1810") }        // Sepia mode text
+    static var oledText: Color { Color(hex: "F5F5F5") }         // OLED mode text (soft ivory)
+
+    static var sepiaSurface: Color { Color(hex: "EAE0CC") }     // Sepia mode surface
+    static var oledSurface: Color { Color(hex: "0F0F0F") }      // OLED mode surface (slightly raised from pure black)
+
+    static var sepiaSecondaryText: Color { Color(hex: "5C4A3A") } // Sepia mode secondary text
+    static var oledSecondaryText: Color { Color.gray.opacity(0.75) } // OLED mode secondary text
+
+    // MARK: - Jewel Accent Colors
+    // Used for feature icons and discovery carousel
+
+    static var lapisLazuli: Color { Color(hex: "2A5C8F") }  // Deep lapis blue
+    static var amethyst: Color { Color(hex: "6B4C8C") }     // Purple amethyst
+    static var deepPurple: Color { Color(hex: "1A0A2E") }   // Very deep purple
 
     // MARK: - Surface Convenience Colors
-    // Shorthand access to common surface colors
-    // Note: Color.surfaceBackground is auto-generated from SurfaceBackground.colorset asset
-    // We don't need to define it here - it comes from the asset catalog
+    // Mappings from code names to Asset Catalog colors
+    // Asset Catalog colors use App prefix (AppTextPrimary, AppSurface, etc.)
+
+    static var primaryText: Color { Color("AppTextPrimary") }
+    static var secondaryText: Color { Color("AppTextSecondary") }
+    static var tertiaryText: Color { Color.gray.opacity(0.6) }  // No asset, computed
+    static var surfaceBackground: Color { Color("AppSurface") }
+    static var elevatedBackground: Color { Color("AppSurface") }
+    static var selectedBackground: Color { Color.accentIndigo.opacity(0.15) }
+    static var nightVoid: Color { Color(hex: "03030a") }
+
+    // Scholar/Bible feature colors
+    static var accentIndigo: Color { Color("AppAccentAction") }  // Primary interactive accent
+    static var theologyGreen: Color { Color(hex: "059669") }     // Doctrinal study notes
+    static var greekBlue: Color { Color(hex: "2563EB") }         // Original language annotations
 
     // MARK: - Roman Palette Colors
     // Used in RomanSanctuaryView and Bible features for gem-stone accents
-    // Note: Color.greekBlue is auto-generated from GreekBlue.colorset asset
 
     /// Lapis blue - Sermon recording accent
     static var lapisBlue: Color { Color(hex: "1E3A5F") }  // Deep lapis lazuli
@@ -458,6 +503,12 @@ extension Color {
 
     /// Dusky rose - Bible insight reflection
     static var bibleReflection: Color { Color(hex: "9D6B7C") }
+
+    /// Personal rose - Reflection prompts and personal application
+    static var personalRose: Color { Color(hex: "C76E8B") }
+
+    /// Connection amber - Cross-references and scripture connections
+    static var connectionAmber: Color { Color(hex: "D4A574") }
 
     /// Purple accent - Bible study
     static var studyPurple: Color { Color(hex: "9966CC") }

@@ -54,7 +54,7 @@ private struct HighlightShapeIndicator: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: Theme.Radius.input)
-            .fill(Color.highlightGold.opacity(Theme.Opacity.medium))
+            .fill(Color.decorativeGold.opacity(Theme.Opacity.medium))
             .frame(width: 60, height: 20)
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
@@ -271,14 +271,14 @@ struct AllCaughtUpAnimation: View {
                     NetworkNode(id: "c", x: 0.75, y: 0.3, size: 10, state: .success),
                 ],
                 connections: [
-                    NetworkConnection(from: "a", to: "b", color: .highlightGreen, isActive: true),
-                    NetworkConnection(from: "b", to: "c", color: .highlightGreen, isActive: true),
+                    NetworkConnection(from: "a", to: "b", color: .success, isActive: true),
+                    NetworkConnection(from: "b", to: "c", color: .success, isActive: true),
                 ]
             )
 
             // Animated checkmark overlay
             if showCheckmark {
-                AnimatedCheckmark(color: .highlightGreen, size: 50)
+                AnimatedCheckmark(color: .success, size: 50)
                     .offset(y: -5)
             }
         }

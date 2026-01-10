@@ -137,7 +137,7 @@ struct TopicVerseCard: View {
             }
         }
         .padding(Theme.Spacing.md)
-        .background(Color.secondaryBackground)
+        .background(Color.surfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }
@@ -152,7 +152,7 @@ struct TopicChip: View {
             .foregroundStyle(Color.primaryText)
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
-            .background(Color.secondaryBackground)
+            .background(Color.surfaceRaised)
             .clipShape(Capsule())
     }
 }

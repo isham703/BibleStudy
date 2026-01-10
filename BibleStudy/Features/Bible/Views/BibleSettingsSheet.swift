@@ -65,7 +65,7 @@ struct BibleSettingsSheet: View {
     // MARK: - Insight Types Section
 
     private var insightTypesSection: some View {
-        IlluminatedSettingsCard(title: "Insight Types", icon: "sparkles") {
+        SettingsCard(title: "Insight Types", icon: "sparkles") {
             VStack(spacing: Theme.Spacing.md) {
                 Text("Choose which insights appear when you long-press a verse.")
                     .font(Typography.Command.caption)
@@ -165,7 +165,7 @@ struct BibleSettingsSheet: View {
     // MARK: - Greek Section
 
     private var greekSection: some View {
-        IlluminatedSettingsCard(title: "Greek Annotations", icon: "character.book.closed") {
+        SettingsCard(title: "Greek Annotations", icon: "character.book.closed") {
             VStack(spacing: Theme.Spacing.md) {
                 Text("Control the depth of Greek language annotations.")
                     .font(Typography.Command.caption)
@@ -208,7 +208,7 @@ struct BibleSettingsSheet: View {
     // MARK: - Behavior Section
 
     private var behaviorSection: some View {
-        IlluminatedSettingsCard(title: "Behavior", icon: "slider.horizontal.3") {
+        SettingsCard(title: "Behavior", icon: "slider.horizontal.3") {
             VStack(spacing: Theme.Spacing.md) {
                 IlluminatedSettingsRow(
                     icon: "eye",
@@ -240,7 +240,7 @@ struct BibleSettingsSheet: View {
     // MARK: - About Section
 
     private var aboutSection: some View {
-        IlluminatedSettingsCard(title: "About", icon: "info.circle") {
+        SettingsCard(title: "About", icon: "info.circle") {
             VStack(spacing: Theme.Spacing.md) {
                 Button {
                     showAboutSheet = true
@@ -278,7 +278,7 @@ struct BibleSettingsSheet: View {
     // MARK: - Reset Section
 
     private var resetSection: some View {
-        IlluminatedSettingsCard(title: "Data", icon: "arrow.counterclockwise", showDivider: false) {
+        SettingsCard(title: "Data", icon: "arrow.counterclockwise", showDivider: false) {
             Button {
                 showResetConfirmation = true
             } label: {

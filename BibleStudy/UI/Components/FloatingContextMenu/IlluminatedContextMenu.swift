@@ -132,9 +132,9 @@ struct FloatingContextMenu: View {
         .overlay(cardBorder)
         .shadow(
             color: .black.opacity(colorScheme == .dark ? Theme.Opacity.heavy : Theme.Opacity.light),
-            radius: Theme.Shadow.menu.radius,
-            x: Theme.Shadow.menu.x,
-            y: Theme.Shadow.menu.y
+            radius: 20,
+            x: 0,
+            y: 8
         )
         .frame(width: menuWidth)
         .opacity(isAppearing ? 1 : 0)
@@ -145,13 +145,7 @@ struct FloatingContextMenu: View {
     // MARK: - Card Background
 
     private var cardBackground: some View {
-        Group {
-            if colorScheme == .dark {
-                Color.Menu.backgroundDark
-            } else {
-                Color.Menu.backgroundLight
-            }
-        }
+        Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
     }
 
     private var cardBorder: some View {

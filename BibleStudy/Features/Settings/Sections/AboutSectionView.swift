@@ -9,7 +9,7 @@ struct AboutSectionView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        IlluminatedSettingsCard(title: "About", icon: "info.circle.fill", showDivider: false) {
+        SettingsCard(title: "About", icon: "info.circle.fill", showDivider: false) {
             VStack(spacing: Theme.Spacing.md) {
                 // Version info
                 versionRow
@@ -34,7 +34,7 @@ struct AboutSectionView: View {
                 Link(destination: URL(string: "https://example.com/privacy")!) {
                     aboutRow(
                         icon: "shield.fill",
-                        iconColor: .malachite,
+                        iconColor: .feedbackSuccess,
                         title: "Privacy Policy",
                         isExternal: true
                     )

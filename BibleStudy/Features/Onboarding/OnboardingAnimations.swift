@@ -123,7 +123,7 @@ struct ReadStudyAnimation: View {
                 CurvedConnectionLine(
                     start: CGPoint(x: 80, y: 125),
                     end: CGPoint(x: 180, y: 60),
-                    color: .highlightGold,
+                    color: .decorativeGold,
                     isActive: true,
                     curvature: 0.15
                 )
@@ -143,7 +143,7 @@ struct ReadStudyAnimation: View {
                 CurvedConnectionLine(
                     start: CGPoint(x: 80, y: 125),
                     end: CGPoint(x: 180, y: 190),
-                    color: .accentBlue,
+                    color: Color.accentIndigo,
                     isActive: true,
                     curvature: -0.15
                 )
@@ -382,7 +382,7 @@ struct AskAIAnimation: View {
                 VStack(spacing: Theme.Spacing.xs) {
                     ZStack {
                         Circle()
-                            .fill(Color.accentBlue)
+                            .fill(Color.accentIndigo)
                             .frame(width: 36, height: 36)
 
                         Text("?")

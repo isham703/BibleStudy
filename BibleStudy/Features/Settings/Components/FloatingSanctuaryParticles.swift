@@ -21,6 +21,7 @@ struct FloatingSanctuaryParticles: View {
     @State private var startTime: Date?
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         Canvas { context, size in
@@ -44,7 +45,7 @@ struct FloatingSanctuaryParticles: View {
     // MARK: - Animation Control
 
     private func startAnimation() {
-        guard !Theme.Animation.isReduceMotionEnabled else { return }
+        guard !reduceMotion else { return }
         startTime = Date()
 
         timerCancellable = Timer.publish(every: 1/30, on: .main, in: .common)

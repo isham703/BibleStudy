@@ -9,7 +9,7 @@ struct SubscriptionSectionView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        IlluminatedSettingsCard(title: "Subscription", icon: "crown.fill") {
+        SettingsCard(title: "Subscription", icon: "crown.fill") {
             VStack(spacing: Theme.Spacing.lg) {
                 // Tier status card
                 tierStatusCard

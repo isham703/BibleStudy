@@ -68,9 +68,9 @@ struct InsightPreview: View {
                 .font(Typography.Icon.xxs.weight(.medium))
                 .foregroundStyle(Color.accentBronze)
 
-            // "Quick Insight" in Cinzel with tracking
+            // "Quick Insight" header
             Text("Quick Insight")
-                .font(DisplayFont.cinzel.font(size: 11, weight: .medium))
+                .font(Typography.Command.meta.weight(.medium))
                 .tracking(headerTracking)
                 .foregroundStyle(Color.surfaceRaised)
 
@@ -126,7 +126,7 @@ struct InsightPreview: View {
     private func insightContentView(_ insight: QuickInsightOutput) -> some View {
         // Summary text in Cormorant Garamond italic
         Text(insight.summary)
-            .font(DisplayFont.cormorantGaramond.font(size: 14, weight: .regular))
+            .font(Typography.Scripture.body)
             .italic()
             .foregroundStyle(Color.primaryText)
             .lineLimit(maxLines)
@@ -147,7 +147,7 @@ struct InsightPreview: View {
         HStack(spacing: Theme.Spacing.xs) {
             // Term in Cinzel with gold
             Text(term)
-                .font(DisplayFont.cinzel.font(size: 12, weight: .medium))
+                .font(Typography.Command.caption.weight(.semibold))
                 .foregroundStyle(Color.accentBronze)
 
             // Em dash

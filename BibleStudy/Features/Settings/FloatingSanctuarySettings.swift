@@ -9,6 +9,7 @@ struct FloatingSanctuarySettings: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppState.self) private var appState
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel = SettingsViewModel()
 
     @State private var activeSection: SanctuarySection = .reading
@@ -1121,9 +1122,10 @@ enum AppThemeOption: String, CaseIterable, Identifiable {
 struct SectionRevealModifier: ViewModifier {
     let appeared: Bool
     let delay: Double
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
-        if Theme.Animation.isReduceMotionEnabled {
+        if reduceMotion {
             // Simple fade for accessibility
             content
                 .opacity(appeared ? 1 : 0)

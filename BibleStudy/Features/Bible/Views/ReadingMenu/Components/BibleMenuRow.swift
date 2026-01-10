@@ -69,7 +69,7 @@ struct BibleMenuRow: View {
             .padding(.horizontal, Theme.Spacing.xs)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(isPressed ? Colors.StateOverlay.pressed() : Color.clear)
+                    .fill(isPressed ? Colors.StateOverlay.pressed(Color.gray) : Color.clear)
             )
             .contentShape(Rectangle())
         }

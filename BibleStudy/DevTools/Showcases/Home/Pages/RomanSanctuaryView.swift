@@ -173,7 +173,7 @@ struct RomanHeaderSection: View {
     private var greetingText: some View {
         Text("Welcome, \(userName ?? "friend")")
             .font(Typography.Scripture.heading)
-            .foregroundStyle(Color.Surface.text(for: .system))
+            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
     }
 
     // MARK: - Settings Button
@@ -183,7 +183,7 @@ struct RomanHeaderSection: View {
             Image(systemName: "gearshape")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Icon.base.weight(.regular))
-                .foregroundStyle(Color.Surface.textSecondary.opacity(Theme.Opacity.strong))
+                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.strong))
         }
     }
 
@@ -198,7 +198,7 @@ struct RomanHeaderSection: View {
             Text("\(currentStreak)")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Command.caption.weight(.bold))
-                .foregroundStyle(Color.Surface.textPrimary(colorScheme: colorScheme))
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
         }
         .padding(.horizontal, Theme.Spacing.md - 2)
         .padding(.vertical, Theme.Spacing.xs + 2)
@@ -258,7 +258,7 @@ struct RomanVerseSection: View {
             Text(verseText)
                 // swiftlint:disable:next hardcoded_font_custom
                 .font(.custom("CormorantGaramond-Italic", size: 22))
-                .foregroundStyle(Color.Surface.textPrimary(colorScheme: colorScheme))
+                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
                 .padding(.horizontal, Theme.Spacing.xxl)

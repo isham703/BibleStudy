@@ -122,7 +122,7 @@ enum NodeState {
         case .idle: return .accentBronze.opacity(Theme.Opacity.heavy)
         case .active: return .accentBronze
         case .pulsing: return .accentBronze
-        case .success: return .highlightGreen
+        case .success: return .success
         case .dimmed: return .tertiaryText
         }
     }

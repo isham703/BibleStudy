@@ -76,7 +76,7 @@ struct TopicCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Theme.Spacing.md)
-        .background(Color.secondaryBackground)
+        .background(Color.surfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }

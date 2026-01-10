@@ -61,6 +61,7 @@ struct VerseContextMenu: View {
     @State private var menuSize: CGSize = .zero
     @State private var isAppearing = false
     @State private var hoveredAction: String? = nil
+    @Environment(\.colorScheme) private var colorScheme
 
     // Scaled dimensions for Dynamic Type
     @ScaledMetric(relativeTo: .body) private var rowHeight: CGFloat = 44
@@ -159,7 +160,7 @@ struct VerseContextMenu: View {
                 actionRow(
                     icon: "note.text",
                     label: "Add Note",
-                    accentColor: .accentBlue,
+                    accentColor: Color.accentIndigo,
                     isFirst: false
                 ) {
                     HapticService.shared.buttonPress()
@@ -193,9 +194,9 @@ struct VerseContextMenu: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.divider.opacity(0),
-                            Color.divider,
-                            Color.divider.opacity(0)
+                            Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(0),
+                            Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                            Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(0)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
