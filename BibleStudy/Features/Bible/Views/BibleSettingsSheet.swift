@@ -41,7 +41,7 @@ struct BibleSettingsSheet: View {
                         dismiss()
                     }
                     .font(Typography.Command.body.weight(.medium))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                 }
             }
         }
@@ -69,14 +69,14 @@ struct BibleSettingsSheet: View {
             VStack(spacing: Theme.Spacing.md) {
                 Text("Choose which insights appear when you long-press a verse.")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, Theme.Spacing.xs)
 
                 // Theology
                 insightTypeRow(
                     icon: "person.2.fill",
-                    color: .theologyGreen,
+                    color: Color("FeedbackSuccess"),
                     title: "Theology",
                     subtitle: "Doctrinal concepts and themes",
                     isEnabled: $settings.showTheology
@@ -87,7 +87,7 @@ struct BibleSettingsSheet: View {
                 // Reflection
                 insightTypeRow(
                     icon: "questionmark.circle.fill",
-                    color: .personalRose,
+                    color: Color("FeedbackError").opacity(Theme.Opacity.textSecondary),
                     title: "Reflection",
                     subtitle: "Personal application prompts",
                     isEnabled: $settings.showReflection
@@ -98,7 +98,7 @@ struct BibleSettingsSheet: View {
                 // Connections
                 insightTypeRow(
                     icon: "link",
-                    color: .connectionAmber,
+                    color: Color("AccentBronze"),
                     title: "Connections",
                     subtitle: "Cross-references to other Scripture",
                     isEnabled: $settings.showConnections
@@ -109,7 +109,7 @@ struct BibleSettingsSheet: View {
                 // Greek
                 insightTypeRow(
                     icon: "textformat.abc",
-                    color: .greekBlue,
+                    color: Color("FeedbackInfo"),
                     title: "Greek",
                     subtitle: "Original language notes",
                     isEnabled: $settings.showGreek
@@ -124,7 +124,7 @@ struct BibleSettingsSheet: View {
                             .font(Typography.Command.caption.weight(.medium))
                     }
                     .buttonStyle(.bordered)
-                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(Color("AppAccentAction"))
 
                     Button {
                         settings.disableAll()
@@ -133,7 +133,7 @@ struct BibleSettingsSheet: View {
                             .font(Typography.Command.caption.weight(.medium))
                     }
                     .buttonStyle(.bordered)
-                    .tint(Color.secondaryText)
+                    .tint(Color("AppTextSecondary"))
 
                     Spacer()
                 }
@@ -169,13 +169,13 @@ struct BibleSettingsSheet: View {
             VStack(spacing: Theme.Spacing.md) {
                 Text("Control the depth of Greek language annotations.")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, Theme.Spacing.xs)
 
                 IlluminatedSettingsRow(
                     icon: "textformat.abc",
-                    iconColor: .greekBlue,
+                    iconColor: Color("FeedbackInfo"),
                     title: "Annotation Level",
                     subtitle: settings.greekLevel.description
                 ) {
@@ -185,18 +185,18 @@ struct BibleSettingsSheet: View {
                         }
                     }
                     .pickerStyle(.menu)
-                    .tint(Color.navyDeep)
+                    .tint(Color("AppAccentAction"))
                 }
 
                 if settings.greekLevel == .off && settings.showGreek {
                     HStack(spacing: Theme.Spacing.sm) {
                         Image(systemName: "info.circle")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.info)
+                            .foregroundStyle(Color("FeedbackInfo"))
 
                         Text("Greek insights are enabled but annotations are off. You'll see Greek insights in the sheet but no inline annotations.")
                             .font(Typography.Command.meta)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, Theme.Spacing.xs)
@@ -212,24 +212,24 @@ struct BibleSettingsSheet: View {
             VStack(spacing: Theme.Spacing.md) {
                 IlluminatedSettingsRow(
                     icon: "eye",
-                    iconColor: Color.accentIndigo,
+                    iconColor: Color("AppAccentAction"),
                     title: "Auto-Reveal",
                     subtitle: "Show insight indicators as you scroll"
                 ) {
                     Toggle("", isOn: $settings.autoReveal)
                         .labelsHidden()
-                        .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .tint(Color("AppAccentAction"))
                 }
 
                 if !settings.autoReveal {
                     HStack(spacing: Theme.Spacing.sm) {
                         Image(systemName: "info.circle")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.info)
+                            .foregroundStyle(Color("FeedbackInfo"))
 
                         Text("Long-press any verse to access insights")
                             .font(Typography.Command.meta)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -247,13 +247,13 @@ struct BibleSettingsSheet: View {
                 } label: {
                     IlluminatedSettingsRow(
                         icon: "wand.and.stars",
-                        iconColor: Color.accentBronze,
+                        iconColor: Color("AccentBronze"),
                         title: "How It Works",
                         subtitle: "Learn about AI-generated insights"
                     ) {
                         Image(systemName: "chevron.right")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
                     }
                 }
                 .buttonStyle(.plain)
@@ -264,11 +264,11 @@ struct BibleSettingsSheet: View {
                 HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "checkmark.seal.fill")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.success)
+                        .foregroundStyle(Color("FeedbackSuccess"))
 
                     Text("Insights are pre-generated and reviewed. No data is sent during use.")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -284,13 +284,13 @@ struct BibleSettingsSheet: View {
             } label: {
                 IlluminatedSettingsRow(
                     icon: "bookmark.slash",
-                    iconColor: .warning,
+                    iconColor: Color("FeedbackWarning"),
                     title: "Reset Reading Position",
                     subtitle: "Return to John Chapter 1"
                 ) {
                     Image(systemName: "chevron.right")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
             .buttonStyle(.plain)
@@ -312,11 +312,11 @@ struct BibleAboutSheet: View {
                     VStack(spacing: Theme.Spacing.md) {
                         Image(systemName: "sparkles")
                             .font(Typography.Icon.hero)
-                            .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AccentBronze"))
 
                         Text("AI-Powered Insights")
                             .font(Typography.Scripture.title)
-                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppTextPrimary"))
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, Theme.Spacing.xl)
@@ -352,11 +352,11 @@ struct BibleAboutSheet: View {
                         Text("ATTRIBUTION")
                             .font(Typography.Command.meta.weight(.semibold))
                             .tracking(1.5)
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
 
                         Text("Bible text: King James Version (Public Domain)\nGreek data: STEP Bible (CC BY 4.0)\nCross-references: Open Bible (CC BY 4.0)")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
                     .padding(.top, Theme.Spacing.md)
                 }
@@ -372,7 +372,7 @@ struct BibleAboutSheet: View {
                         dismiss()
                     }
                     .font(Typography.Command.body.weight(.medium))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                 }
             }
         }
@@ -383,11 +383,11 @@ struct BibleAboutSheet: View {
             Text(title.uppercased())
                 .font(Typography.Command.meta.weight(.semibold))
                 .tracking(1.5)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             Text(LocalizedStringKey(content))
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .lineSpacing(4)
         }
     }

@@ -19,33 +19,36 @@ struct BibleVerseRow: View {
     let onLongPress: () -> Void
     let onBoundsChange: (CGRect) -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
     private let verseNumberWidth: CGFloat = 28
+    // 4pt: selection should read as highlight band, not card. One-off, not tokenized.
+    // swiftlint:disable:next hardcoded_corner_radius
+    private let verseCornerRadius: CGFloat = 4
 
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            HStack(alignment: .top, spacing: Theme.Spacing.md) {
-                // Verse number
+            HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.md) {
+                // Verse number - always muted (functional UI, not sacred)
+                // Per design feedback: don't let number become hero even when selected
                 Text("\(verse.verse)")
                     .readingVerseNumber()
-                    .foregroundStyle(isSelected ? Colors.Semantic.accentAction(for: themeMode) : Colors.Surface.textPrimary(for: themeMode))
+                    .foregroundStyle(Color("TertiaryText"))
                     .frame(width: verseNumberWidth, alignment: .trailing)
 
                 // Verse text
                 Text(verse.text)
                     .readingVerse(size: fontSize, font: scriptureFont, lineSpacing: lineSpacing)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(Theme.Spacing.md)
+        // Tight vertical (6pt), standard horizontal (16pt) = highlight band, not card
+        .padding(.vertical, Theme.Spacing.xs)
+        .padding(.horizontal, Theme.Spacing.md)
         .background(verseBackground)
-        .overlay(verseOverlay)
         .overlay(flashOverlay)
         .overlay(spokenUnderline, alignment: .bottomLeading)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
+        .clipShape(RoundedRectangle(cornerRadius: verseCornerRadius))
         .contentShape(Rectangle())
         .scaleEffect(isPressed ? 0.98 : 1)
         .onTapGesture(perform: onTap)
@@ -55,52 +58,40 @@ struct BibleVerseRow: View {
             }
         }, perform: onLongPress)
         .background(selectionBoundsReader)
-        .frame(minHeight: 60)
+        .frame(minHeight: Theme.Size.minTapTarget)
     }
 
     // MARK: - Verse Background
 
     @ViewBuilder
     private var verseBackground: some View {
-        RoundedRectangle(cornerRadius: Theme.Radius.input)
+        RoundedRectangle(cornerRadius: verseCornerRadius)
             .fill(backgroundColor)
     }
 
     private var backgroundColor: Color {
         if isSelected || isInRange {
-            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
+            // Selection: temporary "I tapped this" state
+            // Asset Catalog handles light/dark variants automatically
+            return Color("SelectionBackground")
         } else if isSpokenVerse {
-            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+            return Color("SelectionBackground")
         } else if let highlight = highlightColor {
-            return highlight.color.opacity(Theme.Opacity.light)
+            // Highlight: persistent "I marked this" state (stronger to differentiate)
+            // Asset Catalog handles light/dark variants automatically
+            return highlight.color
         } else {
             return Color.clear
         }
     }
 
-    // MARK: - Verse Overlay
-
-    @ViewBuilder
-    private var verseOverlay: some View {
-        RoundedRectangle(cornerRadius: Theme.Radius.input)
-            .stroke(overlayColor, lineWidth: isSelected ? 1.5 : 1)
-    }
-
-    private var overlayColor: Color {
-        if isSelected {
-            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary)
-        } else if isInRange {
-            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.tertiary)
-        } else {
-            return Color.clear
-        }
-    }
+    // MARK: - Flash Overlay
 
     @ViewBuilder
     private var flashOverlay: some View {
         if flashOpacity > 0 {
-            RoundedRectangle(cornerRadius: Theme.Radius.input)
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(flashOpacity * 0.4))
+            RoundedRectangle(cornerRadius: verseCornerRadius)
+                .fill(Color("AppAccentAction").opacity(flashOpacity * 0.4))
         }
     }
 
@@ -108,7 +99,7 @@ struct BibleVerseRow: View {
     private var spokenUnderline: some View {
         if isSpokenVerse {
             Rectangle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AppAccentAction"))
                 .frame(height: 2)
                 .padding(.leading, verseNumberWidth + Theme.Spacing.md)
                 .padding(.trailing, Theme.Spacing.sm)
@@ -194,5 +185,5 @@ struct BibleVerseRow: View {
         )
     }
     .padding()
-    .background(Colors.Surface.background(for: .dark))
+    .background(Color("AppBackground"))
 }

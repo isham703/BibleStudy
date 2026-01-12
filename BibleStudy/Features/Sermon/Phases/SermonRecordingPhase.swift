@@ -1,37 +1,126 @@
 import SwiftUI
 
 // MARK: - Sermon Recording Phase
-// Live recording interface with waveform visualization
+// Atrium-style: Clean, spacious recording interface with waveform visualization
 
 struct SermonRecordingPhase: View {
     @Bindable var flowState: SermonFlowState
     @State private var pulsePhase: CGFloat = 0
+    @State private var isAwakened = false
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.xxl) {
-            Spacer()
+        ZStack {
+            backgroundLayer
 
-            // Waveform visualizer
-            waveformSection
+            VStack(spacing: 0) {
+                Spacer()
 
-            // Timer display
-            timerSection
+                // Header with recording indicator
+                headerSection
+                    .padding(.bottom, Theme.Spacing.xxl)
 
-            // Status text
-            statusSection
+                // Waveform visualizer card
+                waveformSection
+                    .padding(.horizontal, Theme.Spacing.lg)
 
-            Spacer()
+                // Timer display
+                timerSection
+                    .padding(.top, Theme.Spacing.xxl)
 
-            // Control buttons
-            controlsSection
+                Spacer()
 
-            // Bookmark button
-            bookmarkButton
-                .padding(.bottom, Theme.Spacing.xxl)
+                // Control buttons
+                controlsSection
+                    .padding(.bottom, Theme.Spacing.xxl * 2)
+            }
         }
-        .padding(.horizontal, Theme.Spacing.xxl)
         .onAppear {
             startPulseAnimation()
+            withAnimation(Theme.Animation.settle) {
+                isAwakened = true
+            }
+        }
+    }
+
+    // MARK: - Background
+
+    private var backgroundLayer: some View {
+        ZStack {
+            Color("AppBackground")
+                .ignoresSafeArea()
+
+            // Soft top glow
+            RadialGradient(
+                colors: [
+                    Color("AppAccentAction").opacity(Theme.Opacity.subtle / 3),
+                    Color.clear
+                ],
+                center: .init(x: 0.5, y: 0.2),
+                startRadius: 0,
+                endRadius: 400
+            )
+            .ignoresSafeArea()
+
+            // Recording pulse glow when active
+            if flowState.isRecording && !flowState.isPaused {
+                RadialGradient(
+                    colors: [
+                        Color.red.opacity(Double(0.08 * pulsePhase)),
+                        Color.clear
+                    ],
+                    center: .init(x: 0.5, y: 0.35),
+                    startRadius: 0,
+                    endRadius: 300
+                )
+                .ignoresSafeArea()
+            }
+        }
+    }
+
+    // MARK: - Header Section
+
+    private var headerSection: some View {
+        VStack(spacing: Theme.Spacing.md) {
+            // Recording indicator circle
+            ZStack {
+                // Outer pulse ring (when recording)
+                if flowState.isRecording && !flowState.isPaused {
+                    Circle()
+                        .stroke(Color.red.opacity(0.3), lineWidth: 2)
+                        .frame(width: 80, height: 80)
+                        .scaleEffect(1 + pulsePhase * 0.15)
+                        .opacity(Double(1 - pulsePhase * 0.5))
+                }
+
+                // Main circle
+                Circle()
+                    .fill(Color("AppSurface"))
+                    .frame(width: 72, height: 72)
+                    .overlay(
+                        Circle()
+                            .stroke(
+                                flowState.isPaused ? Color("AppDivider") : Color.red.opacity(0.5),
+                                lineWidth: 2
+                            )
+                    )
+
+                // Inner recording dot
+                Circle()
+                    .fill(flowState.isPaused ? Color("TertiaryText") : Color.red)
+                    .frame(width: 24, height: 24)
+                    .shadow(color: flowState.isPaused ? .clear : .red.opacity(0.5), radius: 8)
+            }
+            .opacity(isAwakened ? 1 : 0)
+            .scaleEffect(isAwakened ? 1 : 0.9)
+            .animation(Theme.Animation.settle.delay(0.1), value: isAwakened)
+
+            // Status label
+            Text(flowState.isPaused ? "PAUSED" : "RECORDING")
+                .font(Typography.Command.meta)
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(flowState.isPaused ? Color("TertiaryText") : Color.red)
+                .opacity(isAwakened ? 1 : 0)
+                .animation(Theme.Animation.slowFade.delay(0.2), value: isAwakened)
         }
     }
 
@@ -43,58 +132,43 @@ struct SermonRecordingPhase: View {
             currentLevel: flowState.currentAudioLevel,
             isActive: flowState.isRecording && !flowState.isPaused
         )
-        .frame(height: 120)
-        .padding(.horizontal, Theme.Spacing.lg)
+        .frame(height: 100)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Color("AppSurface"))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+        )
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.25), value: isAwakened)
     }
 
     // MARK: - Timer Section
 
     private var timerSection: some View {
         VStack(spacing: Theme.Spacing.sm) {
-            // Recording indicator
-            HStack(spacing: Theme.Spacing.sm) {
-                Circle()
-                    .fill(Color.red)
-                    .frame(width: Theme.Spacing.md, height: Theme.Spacing.md)
-                    .shadow(color: .red.opacity(Theme.Opacity.strong), radius: 8)
-                    .scaleEffect(flowState.isRecording && !flowState.isPaused ? 1 + pulsePhase * 0.2 : 1.0)
-
-                Text(flowState.isPaused ? "PAUSED" : "RECORDING")
-                    .font(Typography.Scripture.heading)
-                    .foregroundStyle(flowState.isPaused ? Color.textSecondary : Color.red)
-                    // swiftlint:disable:next hardcoded_tracking
-                    .tracking(4)
-            }
-
             // Duration timer
             Text(flowState.formattedDuration)
-                .font(Typography.Scripture.display)
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.accentBronze, Color.decorativeGold.opacity(0.15)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .font(.system(size: 56, weight: .light, design: .default))
                 .monospacedDigit()
+                .foregroundStyle(Color("AppTextPrimary"))
                 .contentTransition(.numericText())
-        }
-    }
 
-    // MARK: - Status Section
-
-    private var statusSection: some View {
-        VStack(spacing: Theme.Spacing.xs) {
-            if let title = flowState.currentSermon?.title, !title.isEmpty {
-                Text(title)
-                    .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.textPrimary)
+            // Subtitle with conditional countdown
+            if !flowState.meetsMinimumDuration && !flowState.isPaused {
+                Text("Minimum recording: \(flowState.formattedRemainingTime) remaining")
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Color("FeedbackWarning"))
+            } else {
+                Text(flowState.isPaused ? "Tap play to continue" : "Recording sermon...")
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
-
-            Text(flowState.isPaused ? "Recording paused" : "Recording sermon...")
-                .font(Typography.Scripture.body)
-                .foregroundStyle(Color.textSecondary)
         }
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.3), value: isAwakened)
     }
 
     // MARK: - Controls Section
@@ -103,6 +177,7 @@ struct SermonRecordingPhase: View {
         HStack(spacing: Theme.Spacing.xxl) {
             // Pause/Resume button
             Button {
+                HapticService.shared.lightTap()
                 if flowState.isPaused {
                     flowState.resumeRecording()
                 } else {
@@ -111,22 +186,24 @@ struct SermonRecordingPhase: View {
             } label: {
                 ZStack {
                     Circle()
-                        .fill(Color.surfaceRaised)
-                        .frame(width: 40 + 8, height: 40 + 8)
+                        .fill(Color("AppSurface"))
+                        .frame(width: 56, height: 56)
                         .overlay(
                             Circle()
-                                .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                                .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
                         )
 
                     Image(systemName: flowState.isPaused ? "play.fill" : "pause.fill")
-                        .font(Typography.Icon.xxl)
-                        .foregroundStyle(Color.accentBronze)
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(SermonRecordingButtonStyle())
+            .accessibilityLabel(flowState.isPaused ? "Resume recording" : "Pause recording")
 
             // Stop button (primary)
             Button {
+                HapticService.shared.mediumTap()
                 Task {
                     await flowState.stopRecording()
                 }
@@ -135,78 +212,92 @@ struct SermonRecordingPhase: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [Color.accentBronze, Color.decorativeGold.opacity(0.15)],
+                                colors: flowState.canStopRecording
+                                    ? [
+                                        Color("AppAccentAction"),
+                                        Color("AppAccentAction").opacity(0.85)
+                                    ]
+                                    : [
+                                        Color("AppSurface"),
+                                        Color("AppSurface").opacity(0.85)
+                                    ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .frame(width: 80, height: 80)
-                        .shadow(color: Color.accentBronze.opacity(Theme.Opacity.disabled), radius: 12, y: 4)
+                        .shadow(
+                            color: flowState.canStopRecording
+                                ? Color("AppAccentAction").opacity(0.3)
+                                : Color.clear,
+                            radius: 12,
+                            y: 4
+                        )
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    flowState.canStopRecording
+                                        ? Color.clear
+                                        : Color("AppDivider"),
+                                    lineWidth: Theme.Stroke.hairline
+                                )
+                        )
 
-                    RoundedRectangle(cornerRadius: Theme.Radius.input)
-                        .fill(Color.surfaceParchment)
-                        .frame(width: Theme.Spacing.xxl, height: Theme.Spacing.xxl)
+                    // Stop square icon
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(flowState.canStopRecording ? Color.white : Color("TertiaryText"))
+                        .frame(width: 24, height: 24)
                 }
             }
-            .buttonStyle(.plain)
+            .disabled(!flowState.canStopRecording)
+            .buttonStyle(SermonRecordingButtonStyle())
+            .accessibilityLabel("Stop recording")
+            .accessibilityHint(flowState.canStopRecording ? "Double tap to finish and save" : "Record at least 30 seconds to enable")
 
             // Cancel button
             Button {
+                HapticService.shared.lightTap()
                 flowState.cancelRecording()
             } label: {
                 ZStack {
                     Circle()
-                        .fill(Color.surfaceRaised)
-                        .frame(width: 40 + 8, height: 40 + 8)
+                        .fill(Color("AppSurface"))
+                        .frame(width: 56, height: 56)
                         .overlay(
                             Circle()
-                                .stroke(Color.red.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                                .stroke(Color("FeedbackError").opacity(0.3), lineWidth: Theme.Stroke.hairline)
                         )
 
                     Image(systemName: "xmark")
-                        .font(Typography.Icon.xxl)
-                        .foregroundStyle(Color.red.opacity(Theme.Opacity.pressed))
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(Color("FeedbackError"))
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(SermonRecordingButtonStyle())
+            .accessibilityLabel("Cancel recording")
+            .accessibilityHint("Double tap to discard recording and start over")
         }
-    }
-
-    // MARK: - Bookmark Button
-
-    private var bookmarkButton: some View {
-        Button {
-            Task {
-                await flowState.addBookmark(label: .keyPoint)
-            }
-        } label: {
-            HStack(spacing: Theme.Spacing.sm) {
-                Image(systemName: "bookmark.fill")
-                    .font(Typography.Icon.md)
-
-                Text("Bookmark Moment")
-                    .font(Typography.Scripture.heading)
-            }
-            .foregroundStyle(Color.accentBronze)
-            .padding(.horizontal, Theme.Spacing.xxl)
-            .padding(.vertical, Theme.Spacing.md)
-            .background(Color.surfaceRaised.opacity(Theme.Opacity.pressed))
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
-            )
-        }
-        .buttonStyle(.plain)
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.35), value: isAwakened)
     }
 
     // MARK: - Animation
 
     private func startPulseAnimation() {
-        // swiftlint:disable:next hardcoded_animation_ease
-        withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+        withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
             pulsePhase = 1
         }
+    }
+}
+
+// MARK: - Button Style
+
+private struct SermonRecordingButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(Theme.Animation.fade, value: configuration.isPressed)
     }
 }
 
@@ -217,56 +308,61 @@ struct SermonWaveformView: View {
     let currentLevel: Float
     let isActive: Bool
 
-    private let barCount = 40
-    private let barWidth: CGFloat = 4
+    private let barCount = 50
+    private let barWidth: CGFloat = 3
     private let spacing: CGFloat = 3
 
+    // Static gradient to avoid recreating on every draw
+    private static let barGradient = Gradient(colors: [
+        Color(red: 0.85, green: 0.65, blue: 0.35).opacity(0.9),
+        Color(red: 0.75, green: 0.55, blue: 0.25).opacity(0.7)
+    ])
+
     var body: some View {
-        Canvas { context, size in
-            let totalBars = barCount
-            let maxHeight = size.height * 0.8
+        // Throttle redraws to 10fps when active (use fully qualified name to avoid conflict)
+        SwiftUI.TimelineView(.periodic(from: .now, by: 0.1)) { _ in
+            GeometryReader { _ in
+                Canvas { context, size in
+                    let totalBars = barCount
+                    let totalWidth = CGFloat(totalBars) * (barWidth + spacing) - spacing
+                    let startX = (size.width - totalWidth) / 2
+                    let maxHeight = size.height * 0.7
 
-            for i in 0..<totalBars {
-                // Get level from array or use current level for recent bars
-                let level: CGFloat
-                if i < audioLevels.count {
-                    level = CGFloat(audioLevels[i])
-                } else if i == audioLevels.count && isActive {
-                    level = CGFloat(currentLevel)
-                } else {
-                    level = 0.1
+                    for i in 0..<totalBars {
+                        // Get level from array or use current level for recent bars
+                        let level: CGFloat
+                        if i < audioLevels.count {
+                            level = CGFloat(audioLevels[i])
+                        } else if i == audioLevels.count && isActive {
+                            level = CGFloat(currentLevel)
+                        } else {
+                            level = 0.05
+                        }
+
+                        let height = max(3, level * maxHeight)
+                        let x = startX + CGFloat(i) * (barWidth + spacing)
+                        let y = (size.height - height) / 2
+
+                        let rect = CGRect(x: x, y: y, width: barWidth, height: height)
+
+                        context.fill(
+                            RoundedRectangle(cornerRadius: 1.5).path(in: rect),
+                            with: .linearGradient(
+                                Self.barGradient,
+                                startPoint: CGPoint(x: rect.midX, y: rect.minY),
+                                endPoint: CGPoint(x: rect.midX, y: rect.maxY)
+                            )
+                        )
+                    }
                 }
-
-                let height = max(4, level * maxHeight)
-                let x = CGFloat(i) * (barWidth + spacing)
-                let y = (size.height - height) / 2
-
-                let rect = CGRect(x: x, y: y, width: barWidth, height: height)
-
-                // Gold gradient per bar
-                let gradient = Gradient(colors: [
-                    Color(red: 0.91, green: 0.79, blue: 0.47), // Gold light
-                    Color(red: 0.83, green: 0.66, blue: 0.33)  // Gold
-                ])
-
-                context.fill(
-                    RoundedRectangle(cornerRadius: Theme.Radius.xs).path(in: rect),
-                    with: .linearGradient(
-                        gradient,
-                        startPoint: CGPoint(x: rect.midX, y: rect.minY),
-                        endPoint: CGPoint(x: rect.midX, y: rect.maxY)
-                    )
-                )
             }
         }
-        .background(Color.surfaceRaised.opacity(Theme.Opacity.heavy))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
-        )
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
     }
 }
+
+// MARK: - Preview
 
 #Preview {
     SermonRecordingPhase(flowState: {

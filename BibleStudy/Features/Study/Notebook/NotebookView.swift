@@ -90,7 +90,7 @@ struct NotebookView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Highlights")
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .padding(.horizontal, Theme.Spacing.md)
 
             ForEach(viewModel.filteredHighlights) { highlight in
@@ -120,7 +120,7 @@ struct NotebookView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Notes")
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .padding(.horizontal, Theme.Spacing.md)
 
             ForEach(viewModel.filteredNotes) { note in

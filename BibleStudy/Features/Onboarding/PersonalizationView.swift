@@ -38,7 +38,7 @@ struct PersonalizationView: View {
                 VStack(spacing: Theme.Spacing.lg) {
                     Text("Creating your experience...")
                         .font(Typography.Command.title2)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     // Animated checklist
                     VStack(alignment: .leading, spacing: Theme.Spacing.md) {
@@ -47,23 +47,23 @@ struct PersonalizationView: View {
                                 ZStack {
                                     if index < currentStep {
                                         Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                            .foregroundStyle(Color("AppAccentAction"))
                                             .transition(.scale.combined(with: .opacity))
                                     } else if index == currentStep {
                                         ProgressView()
                                             .scaleEffect(0.8)
-                                            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                            .tint(Color("AppAccentAction"))
                                     } else {
                                         Circle()
-                                            .stroke(Color.cardBorder, lineWidth: Theme.Stroke.control)
+                                            .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.control)
                                             .frame(width: 20, height: 20)
                                     }
                                 }
-                                .frame(width: 24, height: 24)
+                                .frame(width: Theme.Size.iconSize, height: Theme.Size.iconSize)
 
                                 Text(step)
                                     .font(Typography.Command.body)
-                                    .foregroundStyle(index <= currentStep ? Color.primaryText : Color.tertiaryText)
+                                    .foregroundStyle(index <= currentStep ? Color("AppTextPrimary") : Color("TertiaryText"))
                             }
                             .animation(Theme.Animation.settle, value: currentStep)
                         }
@@ -78,20 +78,20 @@ struct PersonalizationView: View {
                     VStack(spacing: Theme.Spacing.md) {
                         HStack(spacing: Theme.Spacing.sm) {
                             Image(systemName: onboardingData.recommendedMode.icon)
-                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppAccentAction"))
                             Text(onboardingData.recommendedMode.displayName)
                                 .font(Typography.Command.headline)
-                                .foregroundStyle(Color.primaryText)
+                                .foregroundStyle(Color("AppTextPrimary"))
                         }
 
                         Text(onboardingData.recommendedMode.description)
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                             .multilineTextAlignment(.center)
 
                         Text("You can change this anytime in Settings")
                             .font(Typography.Command.meta)
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
                             .padding(.top, Theme.Spacing.xs)
                     }
                     .padding(.horizontal, Theme.Spacing.xl)
@@ -162,7 +162,7 @@ struct PersonalizationAnimation: View {
                 let radius: CGFloat = 70 + progress * 20
 
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.strong * particleOpacity))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.pressed * particleOpacity))
                     .frame(width: 8 + progress * 4, height: 8 + progress * 4)
                     .blur(radius: 4 - 1)
                     .offset(
@@ -173,14 +173,14 @@ struct PersonalizationAnimation: View {
 
             // Outer glow
             Circle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium * progress))
+                .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground * progress))
                 .frame(width: 120, height: 120)
                 .blur(radius: 16)
 
             // Book pages effect
             ForEach(0..<3, id: \.self) { index in
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium + Double(index) * Theme.Opacity.lightMedium))
+                    .fill(Color("AccentBronze").opacity(Theme.Opacity.focusStroke + Double(index) * Theme.Opacity.selectionBackground))
                     .frame(width: 50 - CGFloat(index) * 4, height: 70)
                     .offset(x: CGFloat(index) * 3, y: 0)
                     .rotationEffect(.degrees(Double(index) * 2))
@@ -189,26 +189,26 @@ struct PersonalizationAnimation: View {
             // Main book
             ZStack {
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("AccentBronze"))
                     .frame(width: 60, height: 75)
 
                 // Book spine
                 Rectangle()
-                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
+                    .fill(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
                     .frame(width: 4, height: 75)
                     .offset(x: -28)
 
                 // Cross symbol
                 Image(systemName: "cross.fill")
                     .font(Typography.Command.title2)
-                    .foregroundStyle(.white.opacity(Theme.Opacity.high))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.textPrimary))
             }
 
             // Progress ring
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
-                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                    Color("AccentBronze"),
                     style: StrokeStyle(lineWidth: Theme.Stroke.control + 1, lineCap: .round)
                 )
                 .frame(width: 100, height: 100)

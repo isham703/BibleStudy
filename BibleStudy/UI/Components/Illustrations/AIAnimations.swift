@@ -88,7 +88,7 @@ struct AIThinkingAnimation: View {
             HStack(spacing: Theme.Spacing.xs) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("AccentBronze"))
                         .frame(width: 4, height: 4)
                         .opacity(dotOpacities[index])
                 }
@@ -137,7 +137,7 @@ struct AIResponseReceivedAnimation: View {
             ConnectionLine(
                 start: CGPoint(x: 30, y: 25),
                 end: CGPoint(x: 170, y: 25),
-                color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                color: Color("AccentBronze"),
                 lineWidth: Theme.Stroke.control,
                 isActive: connectionComplete
             )
@@ -150,7 +150,7 @@ struct AIResponseReceivedAnimation: View {
             ZStack {
                 if showGlow {
                     Circle()
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
+                        .fill(Color("AccentBronze").opacity(Theme.Opacity.focusStroke))
                         .frame(width: 40, height: 40)
                         .blur(radius: 8)
                 }
@@ -202,29 +202,29 @@ struct AIInlineThinking: View {
             // Mini network
             HStack(spacing: 2) {
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(currentDot == 0 ? 1.0 : 0.3))
+                    .fill(Color("AppAccentAction").opacity(currentDot == 0 ? 1.0 : 0.3))
                     .frame(width: 6, height: 6)
 
                 Rectangle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.textSecondary))
                     .frame(width: 8, height: 1)
 
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(currentDot == 1 ? 1.0 : 0.3))
+                    .fill(Color("AppAccentAction").opacity(currentDot == 1 ? 1.0 : 0.3))
                     .frame(width: 6, height: 6)
 
                 Rectangle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.textSecondary))
                     .frame(width: 8, height: 1)
 
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(currentDot == 2 ? 1.0 : 0.3))
+                    .fill(Color("AppAccentAction").opacity(currentDot == 2 ? 1.0 : 0.3))
                     .frame(width: 6, height: 6)
             }
 
             Text("Thinking")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .onReceive(timer) { _ in
             guard !respectsReducedMotion else { return }
@@ -250,7 +250,7 @@ struct AISparkle: View {
     var body: some View {
         Image(systemName: "sparkle")
             .font(Typography.Command.caption)
-            .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("AccentBronze"))
             .opacity(sparkleOpacity)
             .scaleEffect(sparkleScale)
             .onAppear {
@@ -281,25 +281,25 @@ struct AIAnimations_Previews: PreviewProvider {
                 Text("Empty State").font(Typography.Command.headline)
                 AIEmptyStateAnimation()
                     .frame(width: 200, height: 180)
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
                 Text("Thinking").font(Typography.Command.headline)
                 AIThinkingAnimation()
                     .padding()
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
                 Text("Response Received").font(Typography.Command.headline)
                 AIResponseReceivedAnimation()
                     .padding()
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
                 Text("Inline Thinking").font(Typography.Command.headline)
                 AIInlineThinking()
                     .padding()
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
                 Text("Sparkle").font(Typography.Command.headline)
@@ -309,7 +309,7 @@ struct AIAnimations_Previews: PreviewProvider {
                     AISparkle()
                 }
                 .padding()
-                .background(Color.surfaceBackground)
+                .background(Color("AppSurface"))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             }
             .padding()

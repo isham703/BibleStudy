@@ -82,16 +82,16 @@ struct StudySectionButton: View {
                 Text(section.title)
                     .font(Typography.Command.meta)
             }
-            .foregroundStyle(isSelected ? .white : Color.primaryText)
+            .foregroundStyle(isSelected ? .white : Color("AppTextPrimary"))
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
+                    .fill(isSelected ? Color("AppAccentAction") : Color("AppSurface"))
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(isSelected ? Color.clear : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)

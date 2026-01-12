@@ -11,14 +11,12 @@ struct SettingsToggle: View {
     let icon: String?
     let iconColor: Color
 
-    @Environment(\.colorScheme) private var colorScheme
-
     init(
         isOn: Binding<Bool>,
         label: String,
         description: String? = nil,
         icon: String? = nil,
-        iconColor: Color = .accentIndigo
+        iconColor: Color = Color("AppAccentAction")
     ) {
         self._isOn = isOn
         self.label = label
@@ -31,19 +29,19 @@ struct SettingsToggle: View {
         HStack(spacing: Theme.Spacing.md) {
             // Icon (optional)
             if let icon = icon {
-                iconView(icon: icon)
+                IconBadge.settings(icon, color: iconColor)
             }
 
             // Label and description
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(label)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 if let description = description {
                     Text(description)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextSecondary"))
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -56,19 +54,6 @@ struct SettingsToggle: View {
                 .tint(iconColor)
         }
         .contentShape(Rectangle())
-    }
-
-    // MARK: - Icon View
-
-    private func iconView(icon: String) -> some View {
-        Image(systemName: icon)
-            .font(Typography.Icon.sm.weight(.medium))
-            .foregroundStyle(iconColor)
-            .frame(width: 28, height: 28)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.tag)
-                    .fill(iconColor.opacity(Theme.Opacity.divider))
-            )
     }
 }
 
@@ -85,7 +70,7 @@ struct SettingsToggleRow: View {
     init(
         isOn: Binding<Bool>,
         icon: String,
-        iconColor: Color = .accentIndigo,
+        iconColor: Color = Color("AppAccentAction"),
         title: String,
         subtitle: String? = nil
     ) {
@@ -124,7 +109,7 @@ struct SettingsToggleRow: View {
                             label: "Daily Reading Reminder",
                             description: "Get reminded at your chosen time",
                             icon: "bell.fill",
-                            iconColor: .accentIndigo
+                            iconColor: Color("AppAccentAction")
                         )
 
                         SettingsDivider()
@@ -134,7 +119,7 @@ struct SettingsToggleRow: View {
                             label: "Streak Protection",
                             description: "We'll remind you at 8 PM if you haven't read today",
                             icon: "flame.fill",
-                            iconColor: .warning
+                            iconColor: Color("FeedbackWarning")
                         )
 
                         SettingsDivider()
@@ -143,7 +128,7 @@ struct SettingsToggleRow: View {
                             isOn: $toggle3,
                             label: "Devotional Mode",
                             icon: "sparkles",
-                            iconColor: .accentIndigo
+                            iconColor: Color("AppAccentAction")
                         )
                     }
                 }

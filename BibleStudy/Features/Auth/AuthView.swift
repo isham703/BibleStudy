@@ -24,16 +24,16 @@ struct AuthView: View {
 
     private var passwordBorderColor: Color {
         if !viewModel.password.isEmpty {
-            return viewModel.isPasswordValid ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
+            return viewModel.isPasswordValid ? Color("AccentBronze") : Color("FeedbackError")
         }
-        return focusedField == .password ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme))
+        return focusedField == .password ? Color("AccentBronze") : Color.appDivider
     }
 
     private var confirmPasswordBorderColor: Color {
         if !viewModel.confirmPassword.isEmpty {
-            return viewModel.doPasswordsMatch ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
+            return viewModel.doPasswordsMatch ? Color("AccentBronze") : Color("FeedbackError")
         }
-        return focusedField == .confirmPassword ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme))
+        return focusedField == .confirmPassword ? Color("AccentBronze") : Color.appDivider
     }
 
     var body: some View {
@@ -111,7 +111,7 @@ struct AuthView: View {
             }
             .padding(Theme.Spacing.lg)
         }
-        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+        .background(Color.appBackground)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             // Auto-focus email field with slight delay for smooth transition
@@ -127,15 +127,15 @@ struct AuthView: View {
             Image(systemName: "book.closed.fill")
                 .font(Typography.Command.largeTitle)
                 .imageScale(.large)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             Text("Bible Study")
                 .font(Typography.Scripture.title)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Text(viewModel.isSignUp ? "Create your account" : "Welcome back")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .padding(.top, Theme.Spacing.xl)
     }
@@ -152,7 +152,7 @@ struct AuthView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Email")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 TextField("you@example.com", text: $viewModel.email)
                     .textFieldStyle(ScribeFocusStyle(
@@ -174,7 +174,7 @@ struct AuthView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Password")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 HStack(spacing: 0) {
                     Group {
@@ -209,14 +209,14 @@ struct AuthView: View {
                     } label: {
                         Image(systemName: showPassword ? "eye.slash" : "eye")
                             .font(Typography.Icon.md)
-                            .foregroundStyle(Color.tertiaryText)
-                            .frame(width: 44, height: 44)
+                            .foregroundStyle(Color("TertiaryText"))
+                            .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                     }
                     .accessibilityLabel(showPassword ? "Hide password" : "Show password")
                 }
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.button)
-                        .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color.appSurface)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.button)
@@ -227,7 +227,7 @@ struct AuthView: View {
                 )
                 .shadow(
                     color: focusedField == .password
-                        ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+                        ? Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
                         : .clear,
                     radius: focusedField == .password ? 8 : 0,
                     y: focusedField == .password ? 2 : 0
@@ -245,7 +245,7 @@ struct AuthView: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text("Confirm Password")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
 
                     HStack(spacing: 0) {
                         Group {
@@ -276,14 +276,14 @@ struct AuthView: View {
                         } label: {
                             Image(systemName: showConfirmPassword ? "eye.slash" : "eye")
                                 .font(Typography.Icon.md)
-                                .foregroundStyle(Color.tertiaryText)
-                                .frame(width: 44, height: 44)
+                                .foregroundStyle(Color("TertiaryText"))
+                                .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                         }
                         .accessibilityLabel(showConfirmPassword ? "Hide password" : "Show password")
                     }
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                            .fill(Color.appSurface)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
@@ -294,7 +294,7 @@ struct AuthView: View {
                     )
                     .shadow(
                         color: focusedField == .confirmPassword
-                            ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+                            ? Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
                             : .clear,
                         radius: focusedField == .confirmPassword ? 8 : 0,
                         y: focusedField == .confirmPassword ? 2 : 0
@@ -303,7 +303,7 @@ struct AuthView: View {
                     if !viewModel.confirmPassword.isEmpty && !viewModel.doPasswordsMatch {
                         Text("Passwords don't match")
                             .font(Typography.Command.meta)
-                            .foregroundStyle(Color.feedbackError)
+                            .foregroundStyle(Color("FeedbackError"))
                     }
                 }
             }
@@ -316,7 +316,7 @@ struct AuthView: View {
                         viewModel.showResetPassword = true
                     }
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                 }
             }
 
@@ -340,7 +340,7 @@ struct AuthView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(Theme.Spacing.md)
-                .background(viewModel.canSubmit ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.tertiaryText)
+                .background(viewModel.canSubmit ? Color("AppAccentAction") : Color("TertiaryText"))
                 .foregroundStyle(.white)
                 .font(Typography.Command.body.weight(.semibold))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
@@ -355,16 +355,16 @@ struct AuthView: View {
     private var dividerSection: some View {
         HStack {
             Rectangle()
-                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color.appDivider)
                 .frame(height: Theme.Stroke.hairline)
 
             Text("or")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
                 .padding(.horizontal, Theme.Spacing.sm)
 
             Rectangle()
-                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color.appDivider)
                 .frame(height: Theme.Stroke.hairline)
         }
     }
@@ -384,7 +384,7 @@ struct AuthView: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
 
             // Biometric quick sign-in (only shown if enabled and not in sign-up mode)
@@ -408,7 +408,7 @@ struct AuthView: View {
                     Circle()
                         .stroke(
                             LinearGradient(
-                                colors: [Color.accentBronze, Color.accentBronze, .burnishedGold],
+                                colors: [Color("AccentBronze"), Color("AccentBronze"), Color("AccentBronze").opacity(0.7)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -418,30 +418,30 @@ struct AuthView: View {
 
                     Image(systemName: viewModel.biometricType.systemImage)
                         .font(Typography.Icon.md.weight(.medium))
-                        .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AccentBronze"))
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.biometricType.signInLabel)
                         .font(Typography.Command.body.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                     Text("Quick & secure access")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.md)
-            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+            .background(Color.appSurface)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -455,13 +455,13 @@ struct AuthView: View {
         HStack(spacing: Theme.Spacing.xs) {
             Text(viewModel.isSignUp ? "Already have an account?" : "Don't have an account?")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Button(viewModel.isSignUp ? "Sign In" : "Sign Up") {
                 viewModel.toggleMode()
             }
             .font(Typography.Command.body.weight(.semibold))
-            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("AppAccentAction"))
         }
         .padding(.bottom, Theme.Spacing.lg)
     }
@@ -472,7 +472,7 @@ struct AuthView: View {
             VStack(spacing: Theme.Spacing.lg) {
                 Text("Enter your email and we'll send you a link to reset your password.")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .multilineTextAlignment(.center)
 
                 TextField("Email", text: $viewModel.resetEmail)
@@ -504,7 +504,7 @@ struct AuthView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(Theme.Spacing.md)
-                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .background(Color("AppAccentAction"))
                     .foregroundStyle(.white)
                     .font(Typography.Command.body.weight(.semibold))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
@@ -539,11 +539,11 @@ struct AuthView: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(Typography.Icon.md)
-                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("FeedbackError"))
 
             Text(message)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("FeedbackError"))
                 .multilineTextAlignment(.leading)
 
             Spacer()
@@ -553,16 +553,16 @@ struct AuthView: View {
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(Typography.Icon.md)
-                    .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+                    .foregroundStyle(Color("FeedbackError").opacity(Theme.Opacity.overlay))
             }
             .accessibilityLabel("Dismiss error")
         }
         .padding(Theme.Spacing.md)
-        .background(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+        .background(Color("FeedbackError").opacity(Theme.Opacity.overlay))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .stroke(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("FeedbackError").opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
         )
         .transition(.asymmetric(
             insertion: .move(edge: .top).combined(with: .opacity),
@@ -581,9 +581,9 @@ struct ScribeFocusStyle: TextFieldStyle {
 
     private var borderColor: Color {
         if let isValid = validationState {
-            return isValid ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.error(for: ThemeMode.current(from: colorScheme))
+            return isValid ? Color("AccentBronze") : Color("FeedbackError")
         }
-        return isFocused ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme))
+        return isFocused ? Color("AccentBronze") : Color.appDivider
     }
 
     private var borderWidth: CGFloat {
@@ -593,17 +593,17 @@ struct ScribeFocusStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .padding(Theme.Spacing.md)
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
             .background(
                 ZStack {
                     // Base surface
                     RoundedRectangle(cornerRadius: Theme.Radius.button)
-                        .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color.appSurface)
 
                     // Focused glow layer - warm gold ambient
                     if isFocused {
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                            .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                             .blur(radius: 8)
                             .offset(y: 2)
                     }
@@ -617,7 +617,7 @@ struct ScribeFocusStyle: TextFieldStyle {
             // Subtle lift on focus with gold glow
             .shadow(
                 color: isFocused
-                    ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
+                    ? Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
                     : .clear,
                 radius: isFocused ? 8 : 0,
                 y: isFocused ? 2 : 0
@@ -642,7 +642,7 @@ struct PasswordFieldStyle: TextFieldStyle {
         configuration
             .padding(.leading, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.md)
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
     }
 }
 
@@ -653,12 +653,12 @@ struct AuthTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .padding(Theme.Spacing.md)
-            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
-            .foregroundStyle(Color.primaryText)
+            .background(Color.appSurface)
+            .foregroundStyle(Color("AppTextPrimary"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
     }
 }
@@ -679,7 +679,7 @@ struct IlluminationMeter: View {
                     RoundedRectangle(cornerRadius: Theme.Radius.xs)
                         .fill(segment <= strength.rawValue
                             ? strength.color(for: colorScheme)
-                            : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+                            : Color.appDivider)
                         .frame(height: 3)
                         .overlay(
                             // Gold shimmer on filled high-strength segments
@@ -724,14 +724,14 @@ struct IlluminationMeter: View {
                 LinearGradient(
                     colors: [
                         .clear,
-                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
+                        Color("AccentBronze").opacity(Theme.Opacity.focusStroke),
                         .clear
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
             )
-            .opacity(Theme.Opacity.heavy)
+            .opacity(Theme.Opacity.textSecondary)
     }
 }
 

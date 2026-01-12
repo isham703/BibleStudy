@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Roman Background
 // Unified background for the Roman/Stoic sanctuary experience
-// Marble and stone aesthetic that responds to reading mode (Light/Dark/Sepia/OLED)
+// Marble and stone aesthetic that responds to reading mode (Light/Dark)
 // No time-awareness - timeless Roman monumentalism
 
 struct RomanBackground: View {
@@ -37,7 +37,7 @@ struct RomanBackground: View {
     // MARK: - Base Layer
 
     private var baseLayer: some View {
-        Colors.Surface.background(for: appState.preferredTheme)
+        Color.appBackground
     }
 
     // MARK: - Marble Vignette
@@ -47,8 +47,8 @@ struct RomanBackground: View {
         RadialGradient(
             colors: [
                 Color.clear,
-                vignetteTint.opacity(Theme.Opacity.faint),
-                vignetteTint.opacity(Theme.Opacity.faint)
+                vignetteTint.opacity(Theme.Opacity.subtle),
+                vignetteTint.opacity(Theme.Opacity.subtle)
             ],
             center: .center,
             startRadius: size.width * 0.3,
@@ -61,11 +61,7 @@ struct RomanBackground: View {
         case .light, .system:
             return Color.surfaceSlate
         case .dark:
-            return Color.surfaceInk
-        case .sepia:
-            return Color.brownStone
-        case .oled:
-            return Color.surfaceInk
+            return Color("AppBackground")
         }
     }
 
@@ -75,8 +71,8 @@ struct RomanBackground: View {
         // swiftlint:disable:next hardcoded_gradient_colors
         RadialGradient(
             colors: [
-                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(0.06 + pulsePhase * 0.02),
-                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                Color("AppAccentAction").opacity(0.06 + pulsePhase * 0.02),
+                Color("AppAccentAction").opacity(Theme.Opacity.subtle),
                 Color.clear
             ],
             center: .center,
@@ -90,12 +86,11 @@ struct RomanBackground: View {
     // MARK: - Laurel Warmth
 
     private func laurelWarmth(size: CGSize) -> some View {
-        let accentSeal = Colors.Semantic.accentSeal(for: appState.preferredTheme)
         // swiftlint:disable:next hardcoded_gradient_colors
-        return RadialGradient(
+        RadialGradient(
             colors: [
-                accentSeal.opacity(Theme.Opacity.faint),
-                accentSeal.opacity(Theme.Opacity.faint),
+                Color("AccentBronze").opacity(Theme.Opacity.subtle),
+                Color("AccentBronze").opacity(Theme.Opacity.subtle),
                 Color.clear
             ],
             center: .topTrailing,
@@ -118,11 +113,4 @@ struct RomanBackground: View {
     return RomanBackground()
         .environment(appState)
         .preferredColorScheme(.dark)
-}
-
-#Preview("Roman Background - Sepia") {
-    let appState = AppState()
-    appState.preferredTheme = .sepia
-    return RomanBackground()
-        .environment(appState)
 }

@@ -61,7 +61,7 @@ struct PlansTabView: View {
                 // All Plans
                 Text("Your Plans")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.top, Theme.Spacing.md)
@@ -90,46 +90,46 @@ struct TodayReadingCard: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 HStack {
                     Image(systemName: "book.fill")
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                     Text("Today's Reading")
                         .font(Typography.Command.caption.weight(.semibold))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                         .textCase(.uppercase)
                         .tracking(1.2)
                 }
 
                 Text(plan.title)
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 if let reading = plan.todayReading {
                     Text(reading.reference)
                         .font(Typography.Command.body)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
 
                 // Progress bar
                 ProgressView(value: plan.progressPercentage)
-                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(Color("AppAccentAction"))
 
                 HStack {
                     Text("\(Int(plan.progressPercentage * 100))%")
                         .font(Typography.Command.meta.monospacedDigit())
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
 
                     Spacer()
 
                     Text("Continue")
                         .font(Typography.Command.caption.weight(.semibold))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                     Image(systemName: "arrow.right")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
             }
             .padding(Theme.Spacing.lg)
-            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg))
+            .background(Color.appSurface)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         }
     }
 }
@@ -146,17 +146,17 @@ struct PlanCard: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text(plan.title)
                     .font(Typography.Command.body.weight(.semibold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Day \(plan.currentDay) of \(plan.totalDays)")
                     .font(Typography.Command.caption.monospacedDigit())
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 ProgressView(value: plan.progressPercentage)
-                    .tint(plan.isCompleted ? Color.success : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(plan.isCompleted ? Color("FeedbackSuccess") : Color("AppAccentAction"))
             }
             .padding(Theme.Spacing.md)
-            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+            .background(Color.appSurface)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
     }
@@ -180,21 +180,21 @@ struct PlanPickerSheet: View {
                             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                                 Text(plan.title)
                                     .font(Typography.Scripture.heading)
-                                    .foregroundStyle(Color.primaryText)
+                                    .foregroundStyle(Color("AppTextPrimary"))
 
                                 if let description = plan.description {
                                     Text(description)
                                         .font(Typography.Command.body)
-                                        .foregroundStyle(Color.secondaryText)
+                                        .foregroundStyle(Color("AppTextSecondary"))
                                 }
 
                                 Text("\(plan.totalDays) days")
                                     .font(Typography.Command.caption.monospacedDigit())
-                                    .foregroundStyle(Color.tertiaryText)
+                                    .foregroundStyle(Color("TertiaryText"))
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(Theme.Spacing.md)
-                            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                            .background(Color.appSurface)
                             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                         }
                     }
@@ -231,11 +231,11 @@ struct PlanDetailSheet: View {
                             .font(Typography.Scripture.heading)
 
                         ProgressView(value: plan.progressPercentage)
-                            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .tint(Color("AppAccentAction"))
 
                         Text("\(plan.completedDays) of \(plan.totalDays) days completed")
                             .font(Typography.Command.caption.monospacedDigit())
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
 
                     // Today's reading
@@ -246,7 +246,7 @@ struct PlanDetailSheet: View {
 
                             Text(reading.reference)
                                 .font(Typography.Command.body)
-                                .foregroundStyle(Color.secondaryText)
+                                .foregroundStyle(Color("AppTextSecondary"))
 
                             Button {
                                 viewModel.markDayComplete(plan: plan, day: reading.day)
@@ -257,7 +257,7 @@ struct PlanDetailSheet: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(Theme.Spacing.md)
-                                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .background(Color("AppAccentAction"))
                                 .foregroundStyle(.white)
                                 .font(Typography.Command.body.weight(.semibold))
                                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
@@ -305,16 +305,16 @@ struct ScheduleDayRow: View {
     var body: some View {
         HStack {
             Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(isCompleted ? Color.success : Color.tertiaryText)
+                .foregroundStyle(isCompleted ? Color("FeedbackSuccess") : Color("TertiaryText"))
 
             VStack(alignment: .leading) {
                 Text("Day \(day.day)")
                     .font(Typography.Command.body.weight(.semibold))
-                    .foregroundStyle(isCompleted ? Color.secondaryText : Color.primaryText)
+                    .foregroundStyle(isCompleted ? Color("AppTextSecondary") : Color("AppTextPrimary"))
 
                 Text(day.reference)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             Spacer()

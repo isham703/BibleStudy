@@ -29,13 +29,13 @@ struct SleepTimerPickerView: View {
                         }) {
                             HStack {
                                 Text(option.label)
-                                    .foregroundStyle(Color.primaryText)
+                                    .foregroundStyle(Color("AppTextPrimary"))
 
                                 Spacer()
 
                                 if isSelected(minutes: option.minutes) {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                        .foregroundStyle(Color("AppAccentAction"))
                                         .font(Typography.Command.caption)
                                         .fontWeight(.semibold)
                                 }
@@ -53,13 +53,13 @@ struct SleepTimerPickerView: View {
                     }) {
                         HStack {
                             Text("End of chapter")
-                                .foregroundStyle(Color.primaryText)
+                                .foregroundStyle(Color("AppTextPrimary"))
 
                             Spacer()
 
                             if audioService.sleepTimerEndOfChapter {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .foregroundStyle(Color("AppAccentAction"))
                                     .font(Typography.Command.caption)
                                     .fontWeight(.semibold)
                             }
@@ -83,7 +83,7 @@ struct SleepTimerPickerView: View {
                             HStack {
                                 Spacer()
                                 Text("Cancel Timer")
-                                    .foregroundStyle(Color.feedbackError)
+                                    .foregroundStyle(Color("FeedbackError"))
                                 Spacer()
                             }
                         }

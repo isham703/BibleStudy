@@ -27,14 +27,14 @@ struct BibleThemeCard: View {
                                 .frame(width: 36, height: 2)
                             // swiftlint:disable:next hardcoded_rounded_rectangle
                             RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                                .fill(theme.previewText.opacity(Theme.Opacity.strong))
+                                .fill(theme.previewText.opacity(Theme.Opacity.pressed))
                                 .frame(width: 28, height: 2)
                         }
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.input)
                             .stroke(
-                                isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                                isSelected ? Color("AppAccentAction") : Color.appDivider,
                                 lineWidth: isSelected ? Theme.Stroke.control : Theme.Stroke.hairline
                             )
                     )
@@ -42,16 +42,16 @@ struct BibleThemeCard: View {
                 // Theme name
                 Text(theme.displayName)
                     .font(Typography.Command.meta)
-                    .foregroundStyle(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.primaryText)
+                    .foregroundStyle(isSelected ? Color("AppAccentAction") : Color("AppTextPrimary"))
 
                 // Selection indicator
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 } else {
                     Circle()
-                        .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                        .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
                         .frame(width: 14, height: 14)
                 }
             }
@@ -72,7 +72,7 @@ struct BibleThemeCard_Previews: PreviewProvider {
             BibleThemeCard(theme: .system, isSelected: false) {}
         }
         .padding()
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 }
 #endif

@@ -10,8 +10,6 @@ struct SettingsCard<Content: View>: View {
     let showDivider: Bool
     @ViewBuilder let content: () -> Content
 
-    @Environment(\.colorScheme) private var colorScheme
-
     init(
         title: String? = nil,
         icon: String? = nil,
@@ -39,14 +37,11 @@ struct SettingsCard<Content: View>: View {
             .padding(Theme.Spacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                    .fill(.appSurface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(
-                        Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
-                        lineWidth: Theme.Stroke.hairline
-                    )
+                    .stroke(.appDivider, lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -58,13 +53,13 @@ struct SettingsCard<Content: View>: View {
             if let icon = icon {
                 Image(systemName: icon)
                     .font(Typography.Icon.xxs.weight(.medium))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
 
             Text(title.uppercased())
                 .font(Typography.Command.meta)
                 .tracking(2.2)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
         }
     }
 }
@@ -79,11 +74,9 @@ struct IlluminatedSettingsRow<Accessory: View>: View {
     let subtitle: String?
     @ViewBuilder let accessory: () -> Accessory
 
-    @Environment(\.colorScheme) private var colorScheme
-
     init(
         icon: String,
-        iconColor: Color = .accentIndigo,
+        iconColor: Color = Color("AppAccentAction"),
         title: String,
         subtitle: String? = nil,
         @ViewBuilder accessory: @escaping () -> Accessory
@@ -97,19 +90,19 @@ struct IlluminatedSettingsRow<Accessory: View>: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Icon in colored square
-            iconView
+            // Icon using IconBadge
+            IconBadge.settings(icon, color: iconColor)
 
             // Title and subtitle
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(title)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 if let subtitle = subtitle {
                     Text(subtitle)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
             }
 
@@ -120,30 +113,17 @@ struct IlluminatedSettingsRow<Accessory: View>: View {
         }
         .contentShape(Rectangle())
     }
-
-    private var iconView: some View {
-        Image(systemName: icon)
-            .font(Typography.Icon.sm.weight(.medium))
-            .foregroundStyle(iconColor)
-            .frame(width: 28, height: 28)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.tag)
-                    .fill(iconColor.opacity(Theme.Opacity.divider))
-            )
-    }
 }
 
 // MARK: - Settings Divider
 // A subtle divider between settings rows
 
 struct SettingsDivider: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         Rectangle()
-            .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+            .fill(.appDivider)
             .frame(height: Theme.Stroke.hairline)
-            .padding(.leading, 44)
+            .padding(.leading, Theme.Size.minTapTarget)
     }
 }
 
@@ -156,13 +136,13 @@ struct SettingsDivider: View {
                 VStack(spacing: Theme.Spacing.md) {
                     IlluminatedSettingsRow(
                         icon: "person.circle.fill",
-                        iconColor: .accentIndigo,
+                        iconColor: Color("AppAccentAction"),
                         title: "Bible Student",
                         subtitle: "user@example.com"
                     ) {
                         Image(systemName: "chevron.right")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
                 }
             }
@@ -176,7 +156,7 @@ struct SettingsDivider: View {
                     ) {
                         Text("Medium")
                             .font(Typography.Command.body)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
 
                     SettingsDivider()
@@ -187,12 +167,12 @@ struct SettingsDivider: View {
                     ) {
                         Text("KJV")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
                             .padding(.horizontal, Theme.Spacing.sm)
                             .padding(.vertical, Theme.Spacing.xs)
                             .background(
                                 RoundedRectangle(cornerRadius: Theme.Radius.tag)
-                                    .fill(Colors.Semantic.accentAction(for: .dark))
+                                    .fill(Color("AppAccentAction"))
                             )
                     }
                 }

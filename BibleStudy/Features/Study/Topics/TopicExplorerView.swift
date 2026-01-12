@@ -55,13 +55,13 @@ struct TopicCard: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(topic.name)
                 .font(Typography.Command.headline)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .lineLimit(1)
 
             if let description = topic.description {
                 Text(description)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }
@@ -72,11 +72,11 @@ struct TopicCard: View {
                 Text("\(verseCount) verses")
                     .font(Typography.Command.meta.monospacedDigit())
             }
-            .foregroundStyle(Color.tertiaryText)
+            .foregroundStyle(Color("TertiaryText"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Theme.Spacing.md)
-        .background(Color.surfaceRaised)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }

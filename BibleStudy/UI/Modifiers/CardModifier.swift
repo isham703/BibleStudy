@@ -3,6 +3,7 @@
 //  BibleStudy
 //
 //  Standard card styling with surface background and hairline border
+//  Uses Asset Catalog colors for automatic light/dark mode adaptation
 //
 
 import SwiftUI
@@ -27,18 +28,14 @@ extension View {
 }
 
 private struct CardModifier: ViewModifier {
-    @Environment(\.colorScheme) var colorScheme
-
     func body(content: Content) -> some View {
-        let mode = ThemeMode.current(from: colorScheme)
-
         content
             .padding(Theme.Spacing.lg)
-            .background(Colors.Surface.surface(for: mode))
+            .background(.appSurface)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Surface.divider(for: mode), lineWidth: Theme.Stroke.hairline)
+                    .stroke(.appDivider, lineWidth: Theme.Stroke.hairline)
             )
     }
 }

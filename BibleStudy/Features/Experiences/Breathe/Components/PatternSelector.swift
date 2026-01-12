@@ -44,28 +44,28 @@ struct PatternCard: View {
             VStack(spacing: Theme.Spacing.sm + 2) {
                 ZStack {
                     Circle()
-                        .fill(pattern.color.opacity(isSelected ? Theme.Opacity.medium : Theme.Opacity.subtle))
+                        .fill(pattern.color.opacity(isSelected ? Theme.Opacity.focusStroke : Theme.Opacity.subtle))
                         .frame(width: 50, height: 50)
 
                     Image(systemName: pattern.icon)
                         .font(Typography.Icon.lg)
-                        .foregroundStyle(isSelected ? pattern.color : .white.opacity(Theme.Opacity.strong))
+                        .foregroundStyle(isSelected ? pattern.color : .white.opacity(Theme.Opacity.pressed))
                 }
 
                 Text(pattern.name)
                     .font(Typography.Command.caption.weight(isSelected ? .semibold : .medium))
-                    .foregroundStyle(isSelected ? .white : .white.opacity(Theme.Opacity.strong))
+                    .foregroundStyle(isSelected ? .white : .white.opacity(Theme.Opacity.pressed))
             }
             .padding(.vertical, Theme.Spacing.lg)
             .padding(.horizontal, Theme.Spacing.xl)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous)
                     // swiftlint:disable:next hardcoded_opacity
-                    .fill(isSelected ? pattern.color.opacity(Theme.Opacity.lightMedium) : .white.opacity(Theme.Opacity.faint))
+                    .fill(isSelected ? pattern.color.opacity(Theme.Opacity.selectionBackground) : .white.opacity(Theme.Opacity.subtle))
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous)
                             .stroke(
-                                isSelected ? pattern.color.opacity(Theme.Opacity.heavy) : .white.opacity(Theme.Opacity.subtle),
+                                isSelected ? pattern.color.opacity(Theme.Opacity.textSecondary) : .white.opacity(Theme.Opacity.subtle),
                                 lineWidth: Theme.Stroke.hairline
                             )
                     )

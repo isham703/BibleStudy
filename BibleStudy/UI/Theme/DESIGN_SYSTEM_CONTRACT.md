@@ -1,16 +1,17 @@
 # Design System Enforcement Contract
 
-This document defines what is forbidden, allowed, and how to request exceptions when working with the BibleStudy design system.
+Rules for working with the BibleStudy design system. Source files: `Theme.swift`, `Typography.swift`, `Colors.swift`.
 
 ## Enforcement Summary
 
-| Category | Forbidden | Allowed | Escape Hatch |
-|----------|-----------|---------|--------------|
-| Colors | `Color(red:)`, `Color(.sRGB, red:)`, `UIColor(red:)` | `Color.primaryText`, `Color.accentGold`, etc. | `// swiftlint:disable:next` + justification |
-| Typography | `.font(.system(size:))`, `.font(.custom(_, size:))`, `.font(.title2)` | `Typography.UI.*`, `Typography.Scripture.*` | Same |
-| Spacing | Any hardcoded numeric `.padding()` or `spacing:` | `AppTheme.Spacing.*` | Same |
-| Corner Radius | `.cornerRadius(N)`, `RoundedRectangle(cornerRadius: N)` | `AppTheme.CornerRadius.*` | Same |
-| Animation | `.easeIn/Out(duration:)`, `.spring(response:)` | `AppTheme.Animation.*` | Same |
+| Category | Forbidden | Allowed |
+|----------|-----------|---------|
+| Colors | `Color(red:)`, `UIColor(red:)` | `Color("AppTextPrimary")`, `Color("AppSurface")` |
+| Typography | `.font(.system(size:))`, `.font(.title)` | `Typography.Scripture.*`, `Typography.Command.*` |
+| Spacing | Hardcoded `.padding(16)` | `Theme.Spacing.md` |
+| Corner Radius | `.cornerRadius(12)` | `Theme.Radius.card` |
+| Animation | `.easeInOut(duration: 0.3)` | `Theme.Animation.fade` |
+| Opacity | `.opacity(0.5)` | `Theme.Opacity.textSecondary` |
 
 ## Detailed Rules
 
@@ -18,146 +19,149 @@ This document defines what is forbidden, allowed, and how to request exceptions 
 
 **Forbidden:**
 ```swift
-// Direct RGB construction
 Color(red: 0.5, green: 0.5, blue: 0.5)
 Color(.sRGB, red: 0.5, green: 0.5, blue: 0.5)
-Color(white: 0.8)
 UIColor(red: 1.0, green: 0, blue: 0, alpha: 1)
 ```
 
 **Allowed:**
 ```swift
-// Semantic colors from asset catalog
-Color.primaryText
-Color.secondaryText
-Color.accentGold
-Color.surfaceBackground
-Color.highlightBlue
+Color("AppTextPrimary")
+Color("AppSurface")
+Color("AppAccentAction")
+Color("FeedbackError")
 ```
 
 ### Typography
 
 **Forbidden:**
 ```swift
-// Hardcoded font sizes
 .font(.system(size: 14))
 .font(.system(size: 16, weight: .bold))
-.font(.custom("CustomFont", size: 18))
-Font.system(size: 20)
-
-// SwiftUI built-in text styles
 .font(.title)
-.font(.title2)
 .font(.headline)
-.font(.body)
 ```
 
 **Allowed:**
 ```swift
-// Typography tokens
-.font(Typography.UI.body)
-.font(Typography.UI.headline)
-.font(Typography.UI.title1)
-.font(Typography.UI.warmBody)              // Rounded for welcoming contexts
-.font(Typography.Display.title1)           // Serif for premium headlines
-.font(Typography.Display.headline)         // Serif for section headers
-.font(Typography.Scripture.body(size: fontSize))
-.font(Typography.Language.hebrew)
+.font(Typography.Scripture.body)
+.font(Typography.Scripture.heading)
+.font(Typography.Command.cta)
+.font(Typography.Command.label)
+
+// View modifiers
+Text("Title").scriptureHeading()
+Text("Begin").commandCTA()
+Text("LESSON").uppercaseLabel()
 ```
 
 ### Spacing
 
 **Forbidden:**
 ```swift
-// ANY hardcoded numeric value, including micro values
-.padding(0)
-.padding(2)
 .padding(8)
 .padding(16)
 .padding(.horizontal, 24)
-.padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 VStack(spacing: 12) { }
-HStack(alignment: .center, spacing: 8) { }
 ```
 
 **Allowed:**
 ```swift
-// Spacing tokens
-.padding(AppTheme.Spacing.sm)
-.padding(.horizontal, AppTheme.Spacing.lg)
-VStack(spacing: AppTheme.Spacing.md) { }
-HStack(alignment: .center, spacing: AppTheme.Spacing.xs) { }
+.padding(Theme.Spacing.sm)
+.padding(.horizontal, Theme.Spacing.lg)
+VStack(spacing: Theme.Spacing.md) { }
 ```
 
 ### Corner Radius
 
 **Forbidden:**
 ```swift
-// Hardcoded corner radius values
 .cornerRadius(8)
 .clipShape(RoundedRectangle(cornerRadius: 12))
-RoundedRectangle(cornerRadius: 16)
 ```
 
 **Allowed:**
 ```swift
-// Corner radius tokens
-.clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
-RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
+.clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
+.clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+RoundedRectangle(cornerRadius: Theme.Radius.button)
 ```
 
 ### Animations
 
 **Forbidden:**
 ```swift
-// Hardcoded animation durations
 .animation(.easeInOut(duration: 0.3), value: state)
-withAnimation(.easeOut(duration: 0.2)) { }
-withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) { }
-Animation.easeIn(duration: 0.15)
+withAnimation(.spring()) { }
 ```
 
 **Allowed:**
 ```swift
-// Animation tokens
-.animation(AppTheme.Animation.standard, value: state)
-withAnimation(AppTheme.Animation.quick) { }
-withAnimation(AppTheme.Animation.spring) { }
+.animation(Theme.Animation.fade, value: state)
+withAnimation(Theme.Animation.settle) { }
+withAnimation(Theme.Animation.slowFade) { }
 ```
 
-## Escape Hatch Pattern
+**Motion Doctrine:** Ceremonial, restrained, almost invisible. NO spring animations, NO bounce, NO confetti.
 
-When you have a legitimate reason to use a hardcoded value, use this pattern:
+### Opacity
+
+**Forbidden:**
+```swift
+.opacity(0.5)
+.opacity(0.8)
+```
+
+**Allowed:**
+```swift
+.opacity(Theme.Opacity.textSecondary)
+.opacity(Theme.Opacity.pressed)
+.opacity(Theme.Opacity.divider)
+```
+
+## Escape Hatch
+
+When you have a legitimate reason to use a hardcoded value:
 
 ```swift
 // swiftlint:disable:next hardcoded_padding_single
-// Reason: Pixel-perfect alignment required for third-party component integration
+// Reason: Pixel-perfect alignment for third-party component
 .padding(13)
 ```
 
-**Valid reasons for exceptions:**
-- Third-party component integration with specific requirements
-- Accessibility edge cases requiring precise adjustments
-- Pixel-perfect alignment that doesn't fit the token scale
-- Temporary prototyping (must be converted before merge)
+**Valid reasons:**
+- Third-party component integration
+- Accessibility edge cases
+- Pixel-perfect alignment outside token scale
 
 **Invalid reasons:**
-- "It looks better this way" (add a new token instead)
+- "It looks better" (add a new token instead)
 - "I didn't know about the token" (see README.md)
-- "It's faster" (the lint warning is the point)
 
 ## Adding New Tokens
 
-If you need a value that doesn't exist in the token system:
-
-1. Check if an existing token is close enough
-2. If not, propose a new token in `AppTheme.swift` or `Typography.swift`
-3. Update `README.md` with the new token
+1. Check if an existing token works
+2. Propose new token in `Theme.swift` or `Typography.swift`
+3. Update `README.md`
 4. Get design review approval
-5. Use the new token instead of a hardcoded value
 
-## Questions?
+## Token Reference
 
-- Token reference: See [README.md](README.md)
-- SwiftLint config: See `/.swiftlint.yml`
-- Design system source: See `AppTheme.swift`, `Typography.swift`, `Colors.swift`
+| System | File | Namespace |
+|--------|------|-----------|
+| Spacing | Theme.swift | `Theme.Spacing.*` |
+| Radius | Theme.swift | `Theme.Radius.*` |
+| Stroke | Theme.swift | `Theme.Stroke.*` |
+| Animation | Theme.swift | `Theme.Animation.*` |
+| Size | Theme.swift | `Theme.Size.*` |
+| Opacity | Theme.swift | `Theme.Opacity.*` |
+| Reading | Theme.swift | `Theme.Reading.*` |
+| Toggle | Theme.swift | `Theme.Toggle.*` |
+| Scripture | Typography.swift | `Typography.Scripture.*` |
+| Command | Typography.swift | `Typography.Command.*` |
+| Editorial | Typography.swift | `Typography.Editorial.*` |
+| Label | Typography.swift | `Typography.Label.*` |
+| Icon | Typography.swift | `Typography.Icon.*` |
+| Decorative | Typography.swift | `Typography.Decorative.*` |
+| Colors | Colors.swift | `Color("AssetName")` |
+| State Overlays | Colors.swift | `Colors.StateOverlay.*` |

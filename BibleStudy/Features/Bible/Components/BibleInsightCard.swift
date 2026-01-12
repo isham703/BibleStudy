@@ -42,7 +42,7 @@ struct BibleInsightCard: View {
     }
 
     private var cardBackground: some View {
-        Color.surfaceRaised
+        Color("AppSurface")
     }
 
     private var cardBorder: some View {
@@ -65,7 +65,7 @@ struct BibleInsightCard: View {
                         .background(
                             // swiftlint:disable:next hardcoded_rounded_rectangle
                             RoundedRectangle(cornerRadius: Theme.Radius.input)
-                                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.focusStroke), lineWidth: Theme.Stroke.hairline)
                         )
                         .padding(.horizontal)
 

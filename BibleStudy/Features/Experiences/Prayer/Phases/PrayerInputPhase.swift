@@ -2,237 +2,259 @@ import SwiftUI
 
 // MARK: - Prayer Input Phase
 // Handles input phase UI where users select category and enter their intention
-// Features illuminated header, category chips, and text input
+// Hero-style design with gradient header and large pill selection rows
 
 struct PrayerInputPhase: View {
     @Bindable var flowState: PrayerFlowState
     @FocusState.Binding var isTextFieldFocused: Bool
     let illuminationPhase: CGFloat
     let onCreatePrayer: () -> Void
+    var onViewRecentPrayers: (() -> Void)?
+    @State private var isAwakened = false
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            headerSection
+            // Hero Header
+            HeroHeader(imageName: "PrayerHero")
 
             // Main Content
             VStack(spacing: Theme.Spacing.lg) {
-                // Category Selection
+                // Title Block
+                titleBlock
+                    .padding(.top, -Theme.Spacing.lg)
+
+                // Category Selection (pill rows)
                 categorySelection
 
                 // Prayer Intention Input
                 intentionInput
+
+                // Create Button
+                createButton
+                    .padding(.top, Theme.Spacing.xs)
+
+                // Recent prayers hint
+                recentHint
             }
             .padding(.horizontal, Theme.Spacing.lg)
-
-            Spacer(minLength: 100)
-
-            // Create Button
-            createButton
         }
         .contentShape(Rectangle())
         .onTapGesture {
             isTextFieldFocused = false
         }
+        .onAppear {
+            withAnimation(Theme.Animation.settle) {
+                isAwakened = true
+            }
+        }
     }
 
-    // MARK: - Header Section
+    // MARK: - Title Block
 
-    private var headerSection: some View {
-        VStack(spacing: Theme.Spacing.xl) {
-            // Ornamental top border
-            Rectangle()
-                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
-                .frame(height: Theme.Stroke.hairline)
-                .padding(.horizontal, Theme.Spacing.md)
-                // swiftlint:disable:next hardcoded_padding_edge
-                .padding(.top, 80)  // Large header offset
+    private var titleBlock: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            Text("Begin Prayer")
+                .font(Typography.Scripture.title)
+                .foregroundStyle(Color("AppTextPrimary"))
+                .opacity(isAwakened ? 1 : 0)
+                .animation(Theme.Animation.slowFade.delay(0.15), value: isAwakened)
 
-            // Illuminated initial
-            ZStack {
-                // Glow effect
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                Color.accentBronze.opacity(Theme.Opacity.medium),
-                                Color.accentBronze.opacity(Theme.Opacity.subtle),
-                                Color.clear
-                            ],
-                            center: .center,
-                            startRadius: 20,
-                            endRadius: 60
-                        )
-                    )
-                    .frame(width: 120, height: 120)
-                    .scaleEffect(1 + illuminationPhase * 0.1)
-
-                // Inner circle
-                Circle()
-                    .fill(Color.surfaceRaised)
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        Color.decorativeGold.opacity(0.15),
-                                        Color.accentBronze,
-                                        Color.feedbackWarning
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: Theme.Stroke.control
-                            )
-                    )
-
-                // Letter P (for Prayer)
-                Text("P")
-                    .font(Typography.Scripture.display)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [Color.decorativeGold.opacity(0.15), Color.accentBronze],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            }
-
-            // Title
-            VStack(spacing: Theme.Spacing.sm) {
-                Text("PRAYER")
-                    .font(Typography.Scripture.display)
-                    .tracking(6)
-                    .foregroundColor(Color.accentBronze)
-
-                Text("from the Deep")
-                    .font(Typography.Scripture.body)
-                    .italic()
-                    .foregroundColor(Color.textPrimary)
-            }
-
-            // Subtitle
-            Text("Let the Spirit guide your words as you pour out your heart in sacred conversation")
-                .font(Typography.Scripture.body)
-                .foregroundColor(Color.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Theme.Spacing.xxl + 16)
-                // swiftlint:disable:next hardcoded_line_spacing
-                .lineSpacing(4)
-
-            Rectangle()
-                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
-                .frame(height: Theme.Stroke.hairline)
-                .padding(.horizontal, Theme.Spacing.md)
+            Text("Choose your focus")
+                .font(Typography.Command.body)
+                .foregroundStyle(Color("AppTextSecondary"))
+                .opacity(isAwakened ? 1 : 0)
+                .animation(Theme.Animation.slowFade.delay(0.2), value: isAwakened)
         }
-        .padding(.bottom, Theme.Spacing.xxl)
+        .multilineTextAlignment(.center)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Prayers from the Deep. Let the Spirit guide your words as you pour out your heart in sacred conversation")
+        .accessibilityLabel("Begin Prayer. Choose your focus")
     }
 
     // MARK: - Category Selection
 
     private var categorySelection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Section Label
-            Text("INTENTION")
-                .font(Typography.Editorial.label)
-                .tracking(Typography.Editorial.labelTracking)
-                .foregroundColor(Color.accentBronze.opacity(Theme.Opacity.pressed))
+            Text("I'm bringing...")
+                .font(Typography.Command.label)
+                .foregroundStyle(Color("AppTextSecondary"))
 
-            // Category Chips
+            // Category Chips - horizontal scroll with edge fade cue
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Theme.Spacing.md) {
+                HStack(spacing: Theme.Spacing.sm) {
                     ForEach(PrayerCategory.allCases, id: \.self) { category in
                         CategoryChip(
                             category: category,
                             isSelected: flowState.selectedCategory == category,
-                            action: { flowState.selectedCategory = category }
+                            action: {
+                                withAnimation(Theme.Animation.fade) {
+                                    flowState.selectedCategory = category
+                                }
+                            }
                         )
                     }
                 }
+                // Generous trailing padding ensures last chip is fully visible past fade
+                .padding(.trailing, 56)
+            }
+            // Edge fade overlay signals scrollable content without clipping
+            .overlay(alignment: .trailing) {
+                LinearGradient(
+                    colors: [
+                        .clear,
+                        colorScheme == .dark ? Color.warmCharcoal : Color.appBackground
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: 32)
+                .allowsHitTesting(false)
             }
             .accessibilityLabel("Prayer intention selection")
             .accessibilityHint("Swipe to browse categories, double tap to select")
         }
+        .opacity(isAwakened ? 1 : 0)
+        .offset(y: isAwakened ? 0 : 12)
+        .animation(Theme.Animation.slowFade.delay(0.25), value: isAwakened)
     }
 
     // MARK: - Intention Input
 
     private var intentionInput: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-            // Section Label
-            Text("YOUR HEART'S CRY")
-                .font(Typography.Editorial.label)
-                .tracking(Typography.Editorial.labelTracking)
-                .foregroundColor(Color.accentBronze.opacity(Theme.Opacity.pressed))
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            // Field label - sentence case for consistency with "I'm bringing..."
+            Text("Your intention")
+                .font(Typography.Command.label)
+                .foregroundStyle(Color("AppTextSecondary"))
 
-            // Input Area
+            // Input card
             ZStack(alignment: .topLeading) {
-                // Background
-                RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .fill(Color.surfaceRaised)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .stroke(
-                                Color.accentBronze.opacity(isTextFieldFocused ? Theme.Opacity.heavy : Theme.Opacity.light),
-                                lineWidth: Theme.Stroke.hairline
-                            )
-                    )
-
                 // Text Editor
                 TextEditor(text: $flowState.inputText)
                     .font(Typography.Scripture.body)
-                    .foregroundColor(Color.textPrimary)
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .scrollContentBackground(.hidden)
-                    .focused($isTextFieldFocused)
-                    .padding(Theme.Spacing.lg)
                     .frame(minHeight: 140)
+                    .focused($isTextFieldFocused)
 
-                // Placeholder
+                // Placeholder - visible but clearly placeholder
                 if flowState.inputText.isEmpty {
-                    Text("Share what weighs on your heart, what fills you with joy, or where you seek divine guidance...")
+                    Text("What's on your heart?")
                         .font(Typography.Scripture.body)
-                        .foregroundColor(Color.textSecondary.opacity(Theme.Opacity.strong))
-                        .padding(Theme.Spacing.xl)
+                        .foregroundStyle(Color("AppTextSecondary"))
                         .allowsHitTesting(false)
+                        .padding(.top, 8)
+                        .padding(.leading, 4)
                 }
             }
-            .accessibilityLabel("Your heart's cry")
-            .accessibilityHint("Enter what weighs on your heart or fills you with joy")
-            .accessibilityValue(flowState.inputText.isEmpty ? "Empty" : "\(flowState.inputText.count) characters entered")
+            .padding(Theme.Spacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color.appSurface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(
+                        isTextFieldFocused
+                            ? Color("HighlightBlue")
+                            : Color("AppTextSecondary").opacity(Theme.Opacity.disabled),
+                        lineWidth: isTextFieldFocused ? 2 : Theme.Stroke.hairline
+                    )
+            )
+            // Stronger focus feedback
+            .shadow(
+                color: isTextFieldFocused ? Color("HighlightBlue").opacity(0.2) : .clear,
+                radius: 8,
+                x: 0,
+                y: 0
+            )
         }
+        .opacity(isAwakened ? 1 : 0)
+        .offset(y: isAwakened ? 0 : 12)
+        .animation(Theme.Animation.slowFade.delay(0.3), value: isAwakened)
+        .accessibilityLabel("Prayer intention")
+        .accessibilityHint("Enter what's on your heart")
+        .accessibilityValue(flowState.inputText.isEmpty ? "Empty" : "\(flowState.inputText.count) characters entered")
     }
 
     // MARK: - Create Button
 
     private var createButton: some View {
-        Button(action: {
-            HapticService.shared.mediumTap()
-            onCreatePrayer()
-        }) {
-            HStack(spacing: Theme.Spacing.md) {
-                Image(systemName: "sparkles")
-                    .font(Typography.Icon.md)
-                Text("Create Prayer")
-                    .font(Typography.Scripture.heading)
+        VStack(spacing: Theme.Spacing.sm) {
+            Button(action: {
+                HapticService.shared.mediumTap()
+                onCreatePrayer()
+            }) {
+                HStack(spacing: Theme.Spacing.sm) {
+                    Image(systemName: "sparkles")
+                        .font(Typography.Icon.sm)
+                    Text("Generate Prayer")
+                        .font(Typography.Command.cta)
+                }
+                // Enabled: white on warm bronze (harmonizes with candlelit palette)
+                // Disabled: visible but locked (reads as "next step")
+                .foregroundStyle(
+                    flowState.canGenerate
+                        ? .white
+                        : Color("AppTextSecondary")
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.Spacing.lg)
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
+                        .fill(
+                            flowState.canGenerate
+                                ? Color("AccentBronze")
+                                : Color.appSurface
+                        )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
+                        .stroke(
+                            flowState.canGenerate ? Color.clear : Color.appDivider,
+                            lineWidth: Theme.Stroke.control
+                        )
+                )
             }
-            .foregroundColor(Color.surfaceParchment)
-            .padding(.horizontal, Theme.Spacing.xxl)
-            .padding(.vertical, Theme.Spacing.lg)
-            .background(
-                Capsule()
-                    .fill(Color.accentBronze)
-                    .shadow(color: Color.accentBronze.opacity(Theme.Opacity.disabled), radius: 12, x: 0, y: 6)
-            )
+            .disabled(!flowState.canGenerate)
+
+            // Helper text when disabled
+            if !flowState.canGenerate {
+                Text("Add your intention above to continue")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color("AppTextSecondary"))
+            }
         }
-        .disabled(!flowState.canGenerate)
-        .opacity(flowState.canGenerate ? 1 : Theme.Opacity.strong)
-        .accessibilityLabel(flowState.canGenerate ? "Create Prayer" : "Create Prayer, disabled")
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.35), value: isAwakened)
+        .accessibilityLabel(flowState.canGenerate ? "Generate Prayer" : "Generate Prayer, disabled")
         .accessibilityHint(flowState.canGenerate ? "Double tap to generate your personalized prayer" : "Enter your intention first")
-        .padding(.bottom, Theme.Spacing.xxl + 16)
+    }
+
+    // MARK: - Recent Hint
+
+    private var recentHint: some View {
+        Group {
+            if let onViewRecentPrayers = onViewRecentPrayers {
+                Button {
+                    HapticService.shared.lightTap()
+                    onViewRecentPrayers()
+                } label: {
+                    HStack(spacing: Theme.Spacing.xs) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(Typography.Icon.sm)
+                        Text("View recent prayers")
+                            .font(Typography.Command.label)
+                        Image(systemName: "chevron.right")
+                            .font(Typography.Icon.xs)
+                    }
+                    .foregroundStyle(Color("AppTextSecondary"))
+                }
+                .opacity(isAwakened ? 1 : 0)
+                .animation(Theme.Animation.slowFade.delay(0.4), value: isAwakened)
+            }
+        }
     }
 }
 
@@ -243,7 +265,7 @@ struct PrayerInputPhase: View {
     @Previewable @FocusState var focused: Bool
 
     ZStack {
-        Color.surfaceParchment.ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
         PrayerInputPhase(
             flowState: flowState,
             isTextFieldFocused: $focused,

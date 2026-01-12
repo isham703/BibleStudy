@@ -36,7 +36,7 @@ struct VerseNumberView: View {
     private var superscriptView: some View {
         Text("\(number)")
             .font(style.font)
-            .foregroundStyle(Color.verseNumber)
+            .foregroundStyle(Color("TertiaryText"))
             .baselineOffset(6)
             .accessibilityLabel("Verse \(number)")
     }
@@ -45,7 +45,7 @@ struct VerseNumberView: View {
     private var inlineView: some View {
         Text("\(number)")
             .font(style.font)
-            .foregroundStyle(Color.verseNumber)
+            .foregroundStyle(Color("TertiaryText"))
             .padding(.trailing, Theme.Spacing.xs)
             .accessibilityLabel("Verse \(number)")
     }
@@ -54,7 +54,7 @@ struct VerseNumberView: View {
     private var marginalView: some View {
         Text("\(number)")
             .font(style.font)
-            .foregroundStyle(Color.verseNumber.opacity(style.opacity))
+            .foregroundStyle(Color("TertiaryText").opacity(style.opacity))
             .frame(minWidth: 24, alignment: .trailing)
             .accessibilityLabel("Verse \(number)")
     }
@@ -65,13 +65,13 @@ struct VerseNumberView: View {
             // Subtle gold glow
             Text("\(number)")
                 .font(style.font)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground))
                 .blur(radius: 2)
 
             // Main number
             Text("\(number)")
                 .font(style.font)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
         }
         .accessibilityLabel("Verse \(number)")
     }
@@ -80,7 +80,7 @@ struct VerseNumberView: View {
     private var minimalView: some View {
         Text("\(number)")
             .font(style.font)
-            .foregroundStyle(Color.verseNumber.opacity(style.opacity))
+            .foregroundStyle(Color("TertiaryText").opacity(style.opacity))
             .accessibilityLabel("Verse \(number)")
     }
 }
@@ -115,7 +115,7 @@ struct VerseLineNumber: View {
             if style == .ornamental {
                 // Decorative dot separator
                 Circle()
-                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                    .fill(Color("AccentBronze").opacity(Theme.Opacity.disabled))
                     .frame(width: 3, height: 3)
                     .padding(.horizontal, Theme.Spacing.sm)
             } else {
@@ -159,7 +159,7 @@ struct InlineVerseText: View {
                 VerseNumberView(number: verseNumber, style: verseStyle)
                 Text(text)
                     .font(Typography.Scripture.bodyWithSize(CGFloat(fontSize.rawValue)))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
 
         case .inline:
@@ -167,10 +167,10 @@ struct InlineVerseText: View {
             HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.xs) {
                 Text("\(verseNumber)")
                     .font(verseStyle.font)
-                    .foregroundStyle(Color.verseNumber)
+                    .foregroundStyle(Color("TertiaryText"))
                 Text(text)
                     .font(Typography.Scripture.bodyWithSize(CGFloat(fontSize.rawValue)))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
 
         case .marginal:
@@ -180,7 +180,7 @@ struct InlineVerseText: View {
                     .frame(width: 24, alignment: .trailing)
                 Text(text)
                     .font(Typography.Scripture.bodyWithSize(CGFloat(fontSize.rawValue)))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
         }
     }
@@ -209,7 +209,7 @@ struct RedLetterText: View {
     var body: some View {
         Text(text)
             .font(Typography.Scripture.body)
-            .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("FeedbackError"))
     }
 }
 
@@ -261,7 +261,7 @@ struct RedLetterText: View {
     VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
         Text("Jesus said:")
             .font(Typography.Scripture.body)
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
 
         RedLetterText(
             text: "I am the way, the truth, and the life."

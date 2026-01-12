@@ -4,7 +4,7 @@ import SwiftUI
 // Expanding ring animation for success feedback and attention
 
 struct NodePulse: View {
-    var color: Color = Color.accentBronze
+    var color: Color = Color("AccentBronze")
     var maxScale: CGFloat = 2.5
     var duration: Double = 0.8
     var ringCount: Int = 1
@@ -41,7 +41,7 @@ struct NodePulse: View {
 // For ambient pulsing effects
 
 struct ContinuousPulse: View {
-    var color: Color = Color.accentBronze
+    var color: Color = Color("AccentBronze")
     var minScale: CGFloat = 0.8
     var maxScale: CGFloat = 1.2
     var duration: Double = 1.5
@@ -54,7 +54,7 @@ struct ContinuousPulse: View {
 
     var body: some View {
         Circle()
-            .fill(color.opacity(Theme.Opacity.medium))
+            .fill(color.opacity(Theme.Opacity.focusStroke))
             .scaleEffect(scale)
             .onAppear {
                 guard !respectsReducedMotion else { return }
@@ -73,7 +73,7 @@ struct ContinuousPulse: View {
 // Multiple expanding rings for celebration moments
 
 struct RippleEffect: View {
-    var color: Color = Color.accentBronze
+    var color: Color = Color("AccentBronze")
     var rippleCount: Int = 3
     var maxScale: CGFloat = 3.0
     var duration: Double = 1.2
@@ -131,7 +131,7 @@ private struct SingleRipple: View {
 // Celebratory burst effect for achievements
 
 struct SuccessBurst: View {
-    var color: Color = Color.accentBronze
+    var color: Color = Color("AccentBronze")
     var particleCount: Int = 8
 
     @State private var isAnimating = false
@@ -174,7 +174,7 @@ struct SuccessBurst: View {
 // Animated checkmark for completion states
 
 struct AnimatedCheckmark: View {
-    var color: Color = Color.feedbackSuccess
+    var color: Color = Color("FeedbackSuccess")
     var lineWidth: CGFloat = 3
     var size: CGFloat = 40
 
@@ -231,7 +231,7 @@ struct AnimatedCheckmark: View {
             NodePulse(ringCount: 3)
                 .frame(width: 40, height: 40)
             Circle()
-                .fill(Color.accentBronze)
+                .fill(Color("AccentBronze"))
                 .frame(width: 16, height: 16)
         }
         .frame(width: 120, height: 120)

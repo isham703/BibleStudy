@@ -26,7 +26,7 @@ struct InlineThemeCard: View {
                                     .fill(theme.previewText)
                                     .frame(width: 32, height: 3)
                                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                                    .fill(theme.previewText.opacity(Theme.Opacity.strong))
+                                    .fill(theme.previewText.opacity(Theme.Opacity.pressed))
                                     .frame(width: 24, height: 3)
                             }
                         )
@@ -34,12 +34,12 @@ struct InlineThemeCard: View {
                     // Selection ring
                     if isSelected {
                         RoundedRectangle(cornerRadius: Theme.Radius.input)
-                            .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.control)
+                            .stroke(Color("AppAccentAction"), lineWidth: Theme.Stroke.control)
                             .frame(width: 52, height: 36)
                     }
                 }
                 .shadow(
-                    color: isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium) : .clear,
+                    color: isSelected ? Color("AppAccentAction").opacity(Theme.Opacity.focusStroke) : .clear,
                     radius: 4
                 )
 
@@ -47,7 +47,7 @@ struct InlineThemeCard: View {
                 Text(theme.displayName)
                     .font(Typography.Command.meta)
                     .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundStyle(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.secondaryText)
+                    .foregroundStyle(isSelected ? Color("AppAccentAction") : Color("AppTextSecondary"))
             }
             .padding(.vertical, Theme.Spacing.xs)
             .padding(.horizontal, 2)

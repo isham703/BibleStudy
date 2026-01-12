@@ -24,7 +24,7 @@ The Sermon Recording feature is a **fully implemented, production-ready** system
 7. [User Journey](#7-user-journey)
 8. [Technical Specifications](#8-technical-specifications)
 9. [File Reference](#9-file-reference)
-10. [Design System (ManuscriptTheme)](#10-design-system-manuscripttheme)
+10. [Design System Integration](#10-design-system-integration)
 11. [Detailed UI Implementation](#11-detailed-ui-implementation)
 12. [Exact Code References](#12-exact-code-references)
 
@@ -1112,96 +1112,77 @@ chunkDuration: 600      // 10 minutes
 
 ---
 
-## 10. Design System (ManuscriptTheme)
+## 10. Design System Integration
 
-**File:** `Features/Experiences/Prayer/Core/ManuscriptTheme.swift`
-**Lines:** ~123
+The Sermon Recording feature uses the app's unified design system defined in `UI/Theme/`:
 
-The Sermon Recording feature uses the `ManuscriptTheme` design system, an illuminated manuscript aesthetic shared with "Prayers from the Deep."
+### 10.1 Color System (Asset Catalog)
 
-### 10.1 Color Palette
+| Usage | Color Token |
+|-------|-------------|
+| Primary accent | `Color("AccentBronze")` |
+| Background | `Color("AppBackground")` |
+| Surface | `Color("AppSurface")` |
+| Primary text | `Color.appTextPrimary` / `Color("AppTextPrimary")` |
+| Secondary text | `Color.appTextSecondary` / `Color("AppTextSecondary")` |
+| Dividers | `Color.appDivider` |
 
-```swift
-enum ManuscriptTheme {
-    // Primary Gold Colors
-    static let gold = Color.divineGold           // #D4A853 - Primary accent
-    static let goldHighlight = Color.illuminatedGold  // #E8C978 - Highlights
-    static let goldDeep = Color.ancientGold      // #8B6914 - Shadows
-    static let goldBurnished = Color.burnishedGold    // #C9943D - Borders
-
-    // Backgrounds
-    static let parchment = Color.candlelitStone  // #1A1816 - Dark parchment
-    static let surface = Color.chapelShadow      // #252220 - Elevated surfaces
-
-    // Text
-    static let textPrimary = Color.moonlitParchment   // #E8E4DC - High contrast
-    static let textSecondary = Color.fadedMoonlight   // #A8A29E - Muted
-}
-```
-
-### 10.2 Typography
+### 10.2 Typography Tokens
 
 ```swift
-enum Font {
-    /// Cinzel - Headers and emphasis (all-caps style)
-    static func cinzel(size: CGFloat, weight: Font.Weight = .regular) -> Font
-
-    /// Cormorant Garamond - Body text (elegant serif)
-    static func cormorant(size: CGFloat, weight: Font.Weight = .regular) -> Font
-}
+// Headers and labels
+Typography.Scripture.heading  // Serif heading
+Typography.Scripture.body     // Serif body text
+Typography.Command.body       // UI command text
+Typography.Command.caption    // Metadata, timestamps
 ```
 
-**Usage Patterns:**
-- Headers: `ManuscriptTheme.Font.cinzel(size: 14, weight: .medium)` with `.tracking(6)`
-- Body: `ManuscriptTheme.Font.cormorant(size: 18)`
-- Labels: `ManuscriptTheme.Font.cinzel(size: 12, weight: .medium)` with `.tracking(2)`
-
-### 10.3 Gradients
+### 10.3 Spacing & Layout Tokens
 
 ```swift
-// Gold gradient for buttons
-static let goldGradient = LinearGradient(
-    colors: [goldHighlight, gold, goldBurnished],
-    startPoint: .topLeading,
-    endPoint: .bottomTrailing
-)
+Theme.Spacing.sm   // 8pt
+Theme.Spacing.md   // 16pt
+Theme.Spacing.lg   // 24pt
+Theme.Spacing.xl   // 32pt
+Theme.Spacing.xxl  // 48pt
 
-// Focused border gradient
-static let goldBorderGradient = LinearGradient(
-    colors: [gold.opacity(0.5), goldDeep.opacity(0.3)],
-    startPoint: .topLeading,
-    endPoint: .bottomTrailing
-)
+Theme.Radius.sm    // Small corners
+Theme.Radius.md    // Standard corners
+Theme.Radius.lg    // Large corners
+
+Theme.Stroke.hairline  // Divider thickness
 ```
 
-### 10.4 Component Patterns
+### 10.4 Opacity Tokens
+
+```swift
+Theme.Opacity.textPrimary      // 0.94 - Primary text
+Theme.Opacity.textSecondary    // 0.75 - Secondary text
+Theme.Opacity.focusStroke      // 0.60 - Focus rings, glows
+Theme.Opacity.subtle           // 0.05 - Atmospheric backgrounds
+```
+
+### 10.5 Component Patterns
 
 **Primary Buttons:**
 ```swift
-.foregroundStyle(ManuscriptTheme.parchment)
-.background(LinearGradient(colors: [ManuscriptTheme.gold, ManuscriptTheme.goldHighlight], ...))
+.foregroundStyle(Color("AppBackground"))
+.background(Color("AccentBronze"))
 .clipShape(Capsule())
-.shadow(color: ManuscriptTheme.gold.opacity(0.4), radius: 12, y: 4)
-```
-
-**Secondary Buttons:**
-```swift
-.foregroundStyle(ManuscriptTheme.gold)
-.overlay(Capsule().stroke(ManuscriptTheme.gold.opacity(0.3), lineWidth: 1))
 ```
 
 **Input Fields:**
 ```swift
-.background(ManuscriptTheme.surface.opacity(0.5))
-.clipShape(RoundedRectangle(cornerRadius: 12))
-.overlay(RoundedRectangle(cornerRadius: 12).stroke(ManuscriptTheme.gold.opacity(0.3), lineWidth: 1))
+.background(Color("AppSurface").opacity(Theme.Opacity.textSecondary))
+.clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+.overlay(RoundedRectangle(cornerRadius: Theme.Radius.md)
+    .stroke(Color("AccentBronze").opacity(Theme.Opacity.focusStroke), lineWidth: 1))
 ```
 
 **Cards/Sections:**
 ```swift
-.background(ManuscriptTheme.surface.opacity(0.5))
-.clipShape(RoundedRectangle(cornerRadius: 16))
-.overlay(RoundedRectangle(cornerRadius: 16).stroke(ManuscriptTheme.gold.opacity(0.15), lineWidth: 1))
+.background(Color("AppSurface"))
+.clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg))
 ```
 
 ---
@@ -1408,9 +1389,13 @@ The Sermon Recording feature is a comprehensive, fully-implemented system that:
 
 The architecture follows established patterns in the BibleStudy app (state machines, offline-first, Observable ViewModels) and is production-ready with comprehensive error handling, resumable processing, and user-friendly progress feedback.
 
-**Design Language:** Uses the `ManuscriptTheme` illuminated manuscript aesthetic with:
-- Gold accent colors (#D4A853, #E8C978)
-- Cinzel font for headers, Cormorant Garamond for body
-- Dark parchment backgrounds with gold highlights
+**Design Language:** Uses the unified design system (`Theme.*`, `Typography.*`, Asset Catalog colors) with:
+- Bronze accent via `Color("AccentBronze")`
+- Typography tokens (`Typography.Scripture.*`, `Typography.Command.*`)
+- Adaptive backgrounds (`Color("AppBackground")`, `Color("AppSurface")`)
 - Pulsing animations and shimmer effects
 - Consistent haptic feedback patterns
+
+---
+
+*Document updated: January 10, 2026*

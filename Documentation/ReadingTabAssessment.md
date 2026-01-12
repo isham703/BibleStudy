@@ -679,7 +679,7 @@ When expanding the Reading tab, these files are essential to understand:
 4. **[UserContentService.swift](BibleStudy/Core/Services/User/UserContentService.swift)** - Highlight/note persistence
 5. **[BibleService.swift](BibleStudy/Core/Services/Bible/BibleService.swift)** - Bible data access
 6. **[BibleInsightViewModel.swift](BibleStudy/Features/Bible/ViewModels/BibleInsightViewModel.swift)** - AI integration
-7. **[AppTheme.swift](BibleStudy/UI/Theme/AppTheme.swift)** - Design system
+7. **[Theme.swift](BibleStudy/UI/Theme/Theme.swift)** & **[Typography.swift](BibleStudy/UI/Theme/Typography.swift)** - Design system tokens
 8. **[Verse.swift](BibleStudy/Core/Models/Bible/Verse.swift)** - Core data models
 
 ---
@@ -696,3 +696,7 @@ This assessment serves as a **foundational reference** for understanding the Rea
 - AI features are entitlement-gated
 - Performance is optimized via multi-layer caching
 - The codebase follows consistent naming (`Bible*` prefix) and organization patterns
+
+---
+
+*Document verified: January 10, 2026*

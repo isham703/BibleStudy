@@ -74,34 +74,32 @@ enum TimelineNodeState {
     case completed
 
     func circleColor(for colorScheme: ColorScheme) -> Color {
-        let mode = ThemeMode.current(from: colorScheme)
         switch self {
-        case .upcoming: return Color.surfaceBackground
-        case .current: return Colors.Semantic.accentAction(for: mode)
-        case .completed: return Color.success
+        case .upcoming: return Color("AppSurface")
+        case .current: return Color("AppAccentAction")
+        case .completed: return Color("FeedbackSuccess")
         }
     }
 
     func borderColor(for colorScheme: ColorScheme) -> Color {
-        let mode = ThemeMode.current(from: colorScheme)
         switch self {
-        case .upcoming: return Color.cardBorder
-        case .current: return Colors.Semantic.accentAction(for: mode)
-        case .completed: return Color.success
+        case .upcoming: return Color("AppDivider")
+        case .current: return Color("AppAccentAction")
+        case .completed: return Color("FeedbackSuccess")
         }
     }
 
     func textColor(for colorScheme: ColorScheme) -> Color {
         switch self {
-        case .upcoming: return Color.tertiaryText
-        case .current: return Color.primaryText
-        case .completed: return Color.secondaryText
+        case .upcoming: return Color("TertiaryText")
+        case .current: return Color("AppTextPrimary")
+        case .completed: return Color("AppTextSecondary")
         }
     }
 
     func iconColor(for colorScheme: ColorScheme) -> Color {
         switch self {
-        case .upcoming: return Color.tertiaryText
+        case .upcoming: return Color("TertiaryText")
         case .current: return .white
         case .completed: return .white
         }
@@ -114,7 +112,7 @@ struct TimelineConnector: View {
 
     var body: some View {
         Rectangle()
-            .fill(isCompleted ? Color.success : Color.cardBorder)
+            .fill(isCompleted ? Color("FeedbackSuccess") : Color("AppDivider"))
             .frame(width: 24, height: 2)
     }
 }

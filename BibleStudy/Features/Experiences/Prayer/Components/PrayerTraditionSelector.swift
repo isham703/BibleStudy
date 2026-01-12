@@ -27,8 +27,8 @@ struct PrayerTraditionSelector: View {
                         .tracking(2)
                         .foregroundStyle(
                             selectedTradition == tradition
-                            ? Color.surfaceBackground
-                            : Color.primaryText
+                            ? Color("AppSurface")
+                            : Color("AppTextPrimary")
                         )
                         // swiftlint:disable:next hardcoded_padding_edge
                         .padding(.horizontal, 14)
@@ -37,7 +37,7 @@ struct PrayerTraditionSelector: View {
                             Capsule()
                                 .fill(
                                     selectedTradition == tradition
-                                    ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+                                    ? Color("AppAccentAction")
                                     : Color.appBackground
                                 )
                         )
@@ -45,15 +45,15 @@ struct PrayerTraditionSelector: View {
                             Capsule()
                                 .stroke(
                                     selectedTradition == tradition
-                                    ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
-                                    : Color.tertiaryText.opacity(Theme.Opacity.heavy),
+                                    ? Color("AccentBronze")
+                                    : Color("TertiaryText").opacity(Theme.Opacity.textSecondary),
                                     lineWidth: Theme.Stroke.hairline
                                 )
                         )
                         // swiftlint:disable:next hardcoded_shadow_params
                         .shadow(
                             color: selectedTradition == tradition
-                            ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium)
+                            ? Color("AccentBronze").opacity(Theme.Opacity.focusStroke)
                             : Color.clear,
                             radius: 4
                         )

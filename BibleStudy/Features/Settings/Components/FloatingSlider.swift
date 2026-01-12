@@ -23,7 +23,7 @@ struct FloatingSlider: View {
             ZStack(alignment: .leading) {
                 // Track background
                 Capsule()
-                    .fill(Color.white.opacity(Theme.Opacity.faint))
+                    .fill(Color.white.opacity(Theme.Opacity.subtle))
                     // swiftlint:disable:next hardcoded_divider_frame
                     .frame(height: 6)
 
@@ -31,7 +31,7 @@ struct FloatingSlider: View {
                 Capsule()
                     .fill(
                         LinearGradient(
-                            colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed), Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))],
+                            colors: [Color("AppAccentAction").opacity(Theme.Opacity.pressed), Color("AppAccentAction")],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -44,7 +44,7 @@ struct FloatingSlider: View {
                     // Outer glow when dragging
                     if isDragging && !reduceMotion {
                         Circle()
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                            .fill(Color("AppAccentAction").opacity(Theme.Opacity.textSecondary))
                             // swiftlint:disable:next hardcoded_frame_size
                             .frame(width: 36, height: 36)
                             .blur(radius: 4)
@@ -54,7 +54,7 @@ struct FloatingSlider: View {
                         .fill(Color.white)
                         .frame(width: 24, height: 24)
                         // swiftlint:disable:next hardcoded_shadow_params
-                        .shadow(color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(isDragging ? Theme.Opacity.primary : Theme.Opacity.disabled), radius: isDragging ? 12 : 8)
+                        .shadow(color: Color("AppAccentAction").opacity(isDragging ? Theme.Opacity.textPrimary : Theme.Opacity.disabled), radius: isDragging ? 12 : 8)
                 }
                 // swiftlint:disable:next hardcoded_offset
                 .offset(x: thumbPosition(in: geometry.size.width) - 12)
@@ -127,20 +127,20 @@ struct FloatingSlider_Previews: PreviewProvider {
             VStack(alignment: .leading) {
                 Text("Font Size: 18")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                 FloatingSlider(value: .constant(18), range: 14...24, step: 1)
             }
 
             VStack(alignment: .leading) {
                 Text("Line Spacing: 1.5")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                 FloatingSlider(value: .constant(1.5), range: 1.0...2.0, step: 0.1)
             }
         }
         // swiftlint:disable:next hardcoded_padding_single
         .padding(24)  // Preview container padding
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 }
 #endif

@@ -56,14 +56,14 @@ struct SettingsSection: View {
                     Text("Back")
                         .font(Typography.Command.subheadline)
                 }
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
             }
 
             Spacer()
 
             Text(title)
                 .font(Typography.Scripture.body.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
 
@@ -75,7 +75,7 @@ struct SettingsSection: View {
                     // swiftlint:disable:next hardcoded_swiftui_text_style
                     .font(.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
     }
@@ -86,7 +86,7 @@ struct SettingsSection: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("APPEARANCE")
                 .editorialLabel()
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Theme.Spacing.md) {
@@ -112,12 +112,12 @@ struct SettingsSection: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("TEXT SIZE")
                 .editorialLabel()
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             HStack(spacing: Theme.Spacing.md) {
                 Text("A")
                     .font(Typography.Scripture.footnote)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
 
                 BibleFontSizeSlider(
                     selectedSize: Binding(
@@ -131,14 +131,14 @@ struct SettingsSection: View {
 
                 Text("A")
                     .font(Typography.Scripture.prompt)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.md)
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -149,7 +149,7 @@ struct SettingsSection: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("READING MODE")
                 .editorialLabel()
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             Picker("Reading Mode", selection: $usePagedReader) {
                 Text("Scroll").tag(false)
@@ -157,11 +157,11 @@ struct SettingsSection: View {
             }
             .pickerStyle(.segmented)
             .padding(Theme.Spacing.md)
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -178,11 +178,11 @@ struct SettingsSection: View {
                 HStack {
                     Image(systemName: state.showAdvanced ? "chevron.down" : "chevron.right")
                         .font(Typography.Icon.xxs.weight(.bold))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
 
                     Text("ADVANCED")
                         .editorialLabel()
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
 
                     Spacer()
                 }
@@ -214,7 +214,7 @@ struct SettingsSection: View {
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.Icon.xxs)
                             }
-                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppAccentAction"))
                         }
                     }
 
@@ -243,7 +243,7 @@ struct SettingsSection: View {
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.Icon.xxs)
                             }
-                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppAccentAction"))
                         }
                     }
 
@@ -260,23 +260,23 @@ struct SettingsSection: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Paragraph Mode")
                                 .font(Typography.Scripture.body.weight(.semibold))
-                                .foregroundStyle(Color.primaryText)
+                                .foregroundStyle(Color("AppTextPrimary"))
 
                             Text("Show verses as continuous prose")
                                 .font(Typography.Command.meta)
-                                .foregroundStyle(Color.tertiaryText)
+                                .foregroundStyle(Color("TertiaryText"))
                         }
                     }
-                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(Color("AppAccentAction"))
                     .disabled(usePagedReader)
                     .opacity(usePagedReader ? 0.5 : 1.0)
                     .padding(Theme.Spacing.md)
                 }
-                .background(Color.surfaceBackground)
+                .background(Color("AppSurface"))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.card)
-                        .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                        .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
                 )
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -285,7 +285,7 @@ struct SettingsSection: View {
 
     private var settingsDivider: some View {
         Rectangle()
-            .fill(Color.gray.opacity(Theme.Opacity.light))
+            .fill(Color.gray.opacity(Theme.Opacity.selectionBackground))
             .frame(height: Theme.Stroke.hairline)
             .padding(.horizontal, Theme.Spacing.sm)
     }
@@ -296,26 +296,26 @@ struct SettingsSection: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("PREVIEW")
                 .editorialLabel()
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.sm) {
                     Text("1")
                         .font(Typography.Command.caption.weight(.bold))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
 
                     Text("In the beginning God created the heaven and the earth.")
                         .readingVerse(size: appState.scriptureFontSize, font: appState.scriptureFont)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                 }
             }
             .padding(Theme.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
         }
     }

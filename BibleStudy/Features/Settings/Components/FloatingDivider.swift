@@ -9,7 +9,7 @@ struct FloatingDivider: View {
 
     var body: some View {
         Rectangle()
-            .fill(Color.white.opacity(Theme.Opacity.faint))
+            .fill(Color.white.opacity(Theme.Opacity.subtle))
             .frame(height: 1)
             .padding(.leading, insetLeading ? 56 : Theme.Spacing.lg)  // Icon width (32) + spacing (md=12) + alignment (12)
             .padding(.trailing, Theme.Spacing.lg)
@@ -39,7 +39,7 @@ struct FloatingDivider_Previews: PreviewProvider {
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 }
 #endif

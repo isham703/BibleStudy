@@ -30,6 +30,7 @@ enum Theme {
 
     /// Standardized spacing scale (from Stoic-Existential Renaissance plan)
     enum Spacing {
+        static let xxs: CGFloat = 2     // Micro-spacing (tight title/subtitle pairs)
         static let xs: CGFloat = 6      // Tight spacing
         static let sm: CGFloat = 10     // Small gaps
         static let md: CGFloat = 16     // Medium gaps (default)
@@ -40,33 +41,16 @@ enum Theme {
 
     // MARK: - Radius
 
-    /// Corner radius values (from Design System spec)
-    /// Consistent radii create visual harmony
+    /// Corner radius values - semantic naming by component type
     enum Radius {
-        // Small radii
-        static let xs: CGFloat = 2            // Indicator strips
-        static let small: CGFloat = 4         // Chips, badges
-        static let sm: CGFloat = 4            // Alias for small
-
-        // Medium radii
-        static let medium: CGFloat = 8        // Inputs
-        static let md: CGFloat = 8            // Alias for medium
-        static let input: CGFloat = 8         // Input fields
-        static let button: CGFloat = 10       // All buttons use 10pt radius (per plan)
-
-        // Large radii
-        static let large: CGFloat = 14        // Standard cards
-        static let lg: CGFloat = 14           // Alias for large
-        static let card: CGFloat = 14         // Cards (tighter than 22 to avoid softness - per plan)
-        static let menu: CGFloat = 14         // Floating menus
-
-        // Extra large radii
-        static let xl: CGFloat = 16           // Large cards
-        static let sheet: CGFloat = 20        // Bottom sheets
-        static let tag: CGFloat = 6           // Small badges/tags (legacy)
-
-        // NOTE: NO pill radius (999) - pill buttons are banned
-        // Pill shapes violate "no friendly rounded elements" doctrine
+        static let xs: CGFloat = 2            // Indicator strips, progress bars
+        static let tag: CGFloat = 6           // Small badges/tags
+        static let input: CGFloat = 8         // Input fields, small controls
+        static let md: CGFloat = 8            // Alias for input (context menus)
+        static let button: CGFloat = 10       // CTA buttons
+        static let card: CGFloat = 14         // Cards, floating menus
+        static let xl: CGFloat = 16           // Large cards, overlays
+        static let sheet: CGFloat = 20        // Bottom sheets, modals
     }
 
     // MARK: - Stroke
@@ -117,36 +101,76 @@ enum Theme {
 
     // MARK: - Opacity
 
-    /// Opacity values for visual hierarchy
-    /// Organized from most transparent to most opaque
+    /// Semantic opacity values for consistent visual hierarchy
+    /// Organized by purpose: Interaction, Text, Structural
     enum Opacity {
-        // Very subtle (backgrounds, atmospheric effects)
-        static let faint: Double = 0.05            // Barely visible: subtle backgrounds, atmospheric
-        static let overlay: Double = 0.10          // Overlays, hover states, subtle fills
-        static let divider: Double = 0.15          // Divider lines, borders
-        static let light: Double = 0.20            // Light fills, subtle accents
 
-        // Quarter-range (borders, secondary fills)
-        static let quarter: Double = 0.25          // Borders, secondary backgrounds
-        static let subtle: Double = 0.30           // Subtle fills, icon backgrounds
+        // MARK: - Interaction States
 
-        // Mid-range (disabled, interactive states)
-        static let disabled: Double = 0.35         // Disabled state
-        static let lightMedium: Double = 0.40      // Light-medium fills, focus rings
-        static let medium: Double = 0.50           // Medium fills, secondary content
+        /// Press feedback on buttons/controls
+        static let pressed: Double = 0.80
 
-        // Upper-range (text, active content)
-        static let tertiary: Double = 0.60         // Tertiary text, metadata
-        static let midHeavy: Double = 0.65         // Mid-heavy fills
-        static let heavy: Double = 0.70            // Heavy fills, secondary text
-        static let secondary: Double = 0.75        // Secondary text
+        /// Disabled controls and buttons
+        static let disabled: Double = 0.35
 
-        // Near-opaque (emphasis, pressed states)
-        static let pressed: Double = 0.80          // Pressed state
-        static let strong: Double = 0.85           // Strong emphasis
-        static let high: Double = 0.90             // High opacity fills
-        static let nearOpaque: Double = 0.95       // Near-opaque
-        static let primary: Double = 0.96          // Primary text
+        /// Focus ring/stroke strength
+        static let focusStroke: Double = 0.60
+
+        /// Verse/text selection background (temporary state)
+        static let selectionBackground: Double = 0.14
+
+        /// Persistent highlight background (stronger than selection to differentiate)
+        static let highlightBackground: Double = 0.24
+
+        // MARK: - Text Hierarchy
+
+        /// Primary body text
+        static let textPrimary: Double = 0.96
+
+        /// Secondary/supporting text
+        static let textSecondary: Double = 0.75
+
+        /// Metadata, captions, timestamps
+        static let textTertiary: Double = 0.60
+
+        /// Disabled text
+        static let textDisabled: Double = 0.35
+
+        // MARK: - Structural
+
+        /// Divider lines, borders
+        static let divider: Double = 0.12
+
+        /// Modal overlays, scrims
+        static let overlay: Double = 0.10
+
+        /// Atmospheric backgrounds
+        static let subtle: Double = 0.05
+
+        /// Highlight backgrounds (verse highlights)
+        static let highlight: Double = 0.40
+    }
+
+    // MARK: - Reading
+
+    /// Layout tokens for Bible reading experience
+    /// Controls measure (line length), spacing, and reading rhythm
+    enum Reading {
+        /// Maximum content width for optimal readability (~55 chars at 17pt)
+        /// Use with .frame(maxWidth:) on reading containers
+        static let maxWidth: CGFloat = 500
+
+        /// Horizontal padding for reading content
+        static let horizontalPadding: CGFloat = 20
+
+        /// Space between paragraphs
+        static let paragraphSpacing: CGFloat = 12
+
+        /// Space between major sections (chapter breaks, etc.)
+        static let sectionSpacing: CGFloat = 24
+
+        /// Extra verse spacing for meditative/slow reading mode
+        static let verseSpacingMeditative: CGFloat = 20
     }
 }
 
@@ -237,7 +261,7 @@ enum Theme {
  ```swift
  // Prefer this:
  Rectangle()
-     .stroke(Colors.Surface.divider(for: mode), lineWidth: Theme.Stroke.hairline)
+     .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
 
  // Over this:
  Rectangle()
@@ -245,40 +269,20 @@ enum Theme {
  ```
  */
 
-// MARK: - AppTheme (Legacy Compatibility)
-
-/// Legacy AppTheme namespace for backward compatibility with old code
-/// Redirects to new Theme tokens
-typealias AppTheme = Theme
-
 extension Theme {
-    /// Legacy CornerRadius namespace
-    enum CornerRadius {
-        static let small: CGFloat = 8
-        static let medium: CGFloat = 12
-        static let large: CGFloat = 16
-        static let xl: CGFloat = 20  // TODO: Replace with Theme.Radius.card in OnboardingAnimations
-        static let card: CGFloat = Radius.card  // Redirect to new Radius.card
-    }
-
-    /// Legacy Toggle namespace
+    /// Custom toggle sizing for GoldToggleStyle
     enum Toggle {
         static let trackWidth: CGFloat = 51
         static let trackHeight: CGFloat = 31
         static let thumbSize: CGFloat = 27
         static let thumbOffset: CGFloat = 10
     }
-
-    /// Legacy Spacing aliases
-    enum Spacing2 {
-        static let xxs: CGFloat = 4
-    }
 }
 
 // MARK: - StoicTheme Deleted
 // StoicTheme legacy namespace has been fully migrated and deleted.
 // All components now use proper design tokens:
-// - Colors: Color.accentBronze, Color.surfaceRaised, Color.textPrimary, etc.
+// - Colors: Color("AppBackground"), Color("AppTextPrimary"), Color("AccentBronze"), etc.
 // - Typography: Typography.Scripture.*, Typography.Command.*
 // - Spacing: Theme.Spacing.*
 // - Animation: Theme.Animation.*

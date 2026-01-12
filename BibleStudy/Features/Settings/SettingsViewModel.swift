@@ -4,7 +4,7 @@ import Auth
 
 // MARK: - Settings View Model
 // Service delegation, computed properties, and async actions for Settings.
-// Simple boolean preferences use @AppStorage directly in views (FloatingSanctuarySettings).
+// Simple boolean preferences use @AppStorage directly in views (SettingsView).
 
 @Observable
 @MainActor

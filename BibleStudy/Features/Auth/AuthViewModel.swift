@@ -12,13 +12,12 @@ enum PasswordIllumination: Int, Sendable {
     case illuminated = 4 // Very strong - fully illuminated
 
     func color(for colorScheme: ColorScheme) -> Color {
-        let mode = ThemeMode.current(from: colorScheme)
         switch self {
-        case .blank: return Colors.Surface.divider(for: mode)
-        case .rawPigment: return Colors.Semantic.error(for: mode).opacity(Theme.Opacity.overlay)
-        case .groundPigment: return Colors.Semantic.warning(for: mode)
-        case .gilded: return Colors.Semantic.accentSeal(for: mode)
-        case .illuminated: return Colors.Semantic.accentSeal(for: mode)
+        case .blank: return Color.appDivider
+        case .rawPigment: return Color("FeedbackError").opacity(Theme.Opacity.overlay)
+        case .groundPigment: return Color("FeedbackWarning")
+        case .gilded: return Color("AccentBronze")
+        case .illuminated: return Color("AccentBronze")
         }
     }
 

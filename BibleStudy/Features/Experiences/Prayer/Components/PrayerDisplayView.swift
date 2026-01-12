@@ -14,7 +14,7 @@ struct PrayerDisplayView: View {
             // Cross ornament
             Text("✝")
                 .font(Typography.Icon.xl)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.strong))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.pressed))
 
             // Prayer with drop cap
             ManuscriptPrayerText(prayer: prayer, colorScheme: colorScheme)
@@ -27,7 +27,7 @@ struct PrayerDisplayView: View {
             Text("In the tradition of \(tradition.rawValue)")
                 // swiftlint:disable:next hardcoded_font_custom
                 .font(.system(size: 13, weight: .regular, design: .serif).italic())
-                .foregroundStyle(Color.tertiaryText.opacity(Theme.Opacity.overlay))
+                .foregroundStyle(Color("TertiaryText").opacity(Theme.Opacity.textTertiary))
 
             // Amen
             Text(prayer.amen)
@@ -35,7 +35,7 @@ struct PrayerDisplayView: View {
                 .font(.system(size: 14, weight: .medium, design: .serif))
                 // swiftlint:disable:next hardcoded_tracking
                 .tracking(6)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
         }
     }
 }
@@ -58,12 +58,12 @@ private struct ManuscriptPrayerText: View {
                 .font(.system(size: 72, weight: .medium, design: .serif))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), .tertiaryText],
+                        colors: [Color("AccentBronze"), .tertiaryText],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
-                .shadow(color: .primaryText.opacity(Theme.Opacity.medium), radius: 2, x: 1, y: 2)
+                .shadow(color: Color("AppTextPrimary").opacity(Theme.Opacity.focusStroke), radius: 2, x: 1, y: 2)
                 .scaleEffect(showDropCap ? 1 : 0)
                 // swiftlint:disable:next hardcoded_animation_spring
                 .animation(Theme.Animation.settle, value: showDropCap)
@@ -72,7 +72,7 @@ private struct ManuscriptPrayerText: View {
             Text(restOfText)
                 // swiftlint:disable:next hardcoded_font_custom
                 .font(.system(size: 20, weight: .semibold, design: .serif))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 // swiftlint:disable:next hardcoded_line_spacing
                 .lineSpacing(10)
                 .multilineTextAlignment(.leading)
@@ -97,7 +97,7 @@ private struct PrayerOrnamentalDivider: View {
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [.clear, Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))],
+                        colors: [.clear, Color("AccentBronze")],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
@@ -106,14 +106,14 @@ private struct PrayerOrnamentalDivider: View {
 
             // Center ornament
             Circle()
-                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AccentBronze"))
                 .frame(width: 6, height: 6)
 
             // Right line
             Rectangle()
                 .fill(
                     LinearGradient(
-                        colors: [Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), .clear],
+                        colors: [Color("AccentBronze"), .clear],
                         startPoint: .leading,
                         endPoint: .trailing
                     )

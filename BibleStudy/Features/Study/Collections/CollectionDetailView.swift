@@ -105,7 +105,7 @@ struct CollectionDetailView: View {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color(viewModel.collection.color).opacity(Theme.Opacity.light))
+                    .fill(Color(viewModel.collection.color).opacity(Theme.Opacity.selectionBackground))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: viewModel.collection.icon)
@@ -119,13 +119,13 @@ struct CollectionDetailView: View {
                 Text(viewModel.collection.type.displayName)
             }
             .font(Typography.Command.caption)
-            .foregroundStyle(Color.secondaryText)
+            .foregroundStyle(Color("AppTextSecondary"))
 
             // Description
             if !viewModel.collection.description.isEmpty {
                 Text(viewModel.collection.description)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Theme.Spacing.xl)
             }
@@ -213,7 +213,7 @@ struct CollectionItemRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.reference)
                     .font(Typography.Command.body.weight(.semibold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 itemSubtitle
             }
@@ -229,7 +229,7 @@ struct CollectionItemRow: View {
         case .verse:
             Image(systemName: "book")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .frame(width: 24)
 
         case .highlight:
@@ -241,14 +241,14 @@ struct CollectionItemRow: View {
             } else {
                 Image(systemName: "highlighter")
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                     .frame(width: 24)
             }
 
         case .note:
             Image(systemName: note?.template.icon ?? "note.text")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .frame(width: 24)
         }
     }
@@ -259,7 +259,7 @@ struct CollectionItemRow: View {
         case .verse:
             Text("Verse")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
         case .highlight:
             if let highlight {
@@ -271,14 +271,14 @@ struct CollectionItemRow: View {
                     }
                 }
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
             }
 
         case .note:
             if let note {
                 Text(note.preview)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .lineLimit(1)
             }
         }
@@ -300,11 +300,11 @@ struct StatBadge: View {
                 Text(value)
                     .font(Typography.Command.headline.monospacedDigit())
             }
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
 
             Text(label)
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
     }
 }

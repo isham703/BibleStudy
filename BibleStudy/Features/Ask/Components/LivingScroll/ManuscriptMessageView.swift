@@ -45,7 +45,7 @@ private struct UserMessageView: View {
 
             Text(content)
                 .font(Typography.Command.body)
-                .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(.white)
                 .padding(Theme.Spacing.md)
                 .background(messageBackground)
                 .rotation3DEffect(
@@ -64,16 +64,16 @@ private struct UserMessageView: View {
 
     private var messageBackground: some View {
         RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .fill(Color("AppAccentAction"))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                     .strokeBorder(
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary + borderGlow * 0.3),
+                        Color("AppAccentAction").opacity(Theme.Opacity.textSecondary + borderGlow * 0.3),
                         lineWidth: Theme.Stroke.hairline + (borderGlow * 1)
                     )
             )
             .shadow(
-                color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(borderGlow * 0.2),
+                color: Color("AppAccentAction").opacity(borderGlow * 0.2),
                 radius: 8 * borderGlow,
                 y: 2
             )
@@ -172,8 +172,8 @@ private struct AIMessageView: View {
             .fill(
                 RadialGradient(
                     colors: [
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                        Color("AppAccentAction").opacity(Theme.Opacity.textSecondary),
+                        Color("AppAccentAction").opacity(Theme.Opacity.subtle),
                         Color.clear
                     ],
                     center: .center,
@@ -325,7 +325,7 @@ private struct SequentialGoldenThread: View {
             }
             .trim(from: 0, to: threadLength)
             .stroke(
-                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
+                Color("AppAccentAction").opacity(Theme.Opacity.textPrimary),
                 style: StrokeStyle(
                     lineWidth: Theme.Stroke.hairline,
                     lineCap: .round,
@@ -335,7 +335,7 @@ private struct SequentialGoldenThread: View {
 
             // Connection node
             Circle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AppAccentAction"))
                 .frame(width: 4, height: 4)
                 .position(x: geometry.size.width * 0.15, y: 0)
                 .opacity(threadLength > 0 ? Theme.Opacity.pressed : 0)
@@ -414,18 +414,18 @@ private struct ManuscriptCrisisBanner: View {
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "heart.fill")
-                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("FeedbackError"))
 
             Text("If you're in crisis, please reach out for help")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
         }
         .padding(Theme.Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                .fill(Color("FeedbackError").opacity(Theme.Opacity.subtle))
         )
     }
 }
@@ -440,7 +440,7 @@ struct MessageTimestamp: View {
     var body: some View {
         Text(date.formatted(date: .omitted, time: .shortened))
             .font(Typography.Command.meta)
-            .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("TertiaryText"))
     }
 }
 
@@ -449,23 +449,22 @@ struct MessageTimestamp: View {
 
 private struct ManuscriptUncertaintyBanner: View {
     let level: ManuscriptUncertaintyLevel
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: level.iconName)
-                .foregroundStyle(level.color(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(level.color)
 
             Text(level.message)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Spacer()
         }
         .padding(Theme.Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(level.color(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                .fill(level.color.opacity(Theme.Opacity.subtle))
         )
         .padding(.horizontal, Theme.Spacing.md)
     }
@@ -487,11 +486,11 @@ private enum ManuscriptUncertaintyLevel {
         }
     }
 
-    func color(for mode: ThemeMode) -> Color {
+    var color: Color {
         switch self {
-        case .low: return Colors.Semantic.success(for: mode)
-        case .medium: return Colors.Semantic.warning(for: mode)
-        case .high: return Colors.Semantic.error(for: mode)
+        case .low: return Color("FeedbackSuccess")
+        case .medium: return Color("FeedbackWarning")
+        case .high: return Color("FeedbackError")
         }
     }
 

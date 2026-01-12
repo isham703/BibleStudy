@@ -12,7 +12,7 @@ struct BibleSettingsRow<Content: View>: View {
         HStack {
             Text(title)
                 .font(Typography.Scripture.body.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
 
@@ -39,7 +39,7 @@ private struct BibleSettingsRowPreviewWrapper: View {
             BibleSettingsRow(title: "Line Spacing") {
                 Text("Normal")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
 
             Divider()
@@ -47,10 +47,10 @@ private struct BibleSettingsRowPreviewWrapper: View {
             BibleSettingsRow(title: "Content Width") {
                 Text("Standard")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
         }
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .padding()
     }
 }

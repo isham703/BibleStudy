@@ -50,7 +50,7 @@ struct BibleHomeView: View {
             .padding(.horizontal, Theme.Spacing.lg)
             .padding(.vertical, Theme.Spacing.xl)
         }
-        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+        .background(Color.appBackground)
         .onAppear {
             withAnimation(Theme.Animation.settle.delay(0.1)) {
                 isAppeared = true
@@ -75,7 +75,7 @@ struct BibleHomeView: View {
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
                 .accessibilityLabel("Bible Settings")
             }
@@ -91,7 +91,7 @@ struct BibleHomeView: View {
                 // Book shadow
                 // swiftlint:disable:next hardcoded_rounded_rectangle
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(Color.black.opacity(Theme.Opacity.light))
+                    .fill(Color.black.opacity(Theme.Opacity.selectionBackground))
                     .frame(width: 120, height: 160)
                     .offset(x: 4, y: 6)
 
@@ -100,7 +100,7 @@ struct BibleHomeView: View {
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
                     .fill(
                         LinearGradient(
-                            colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)],
+                            colors: [Color("AppAccentAction"), Color("AppAccentAction").opacity(Theme.Opacity.pressed)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -120,7 +120,7 @@ struct BibleHomeView: View {
 
                             // Decorative line
                             Rectangle()
-                                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                                .fill(Color("AccentBronze"))
                                 .frame(width: 40, height: Theme.Stroke.hairline)
                         }
                     )
@@ -143,12 +143,12 @@ struct BibleHomeView: View {
             VStack(spacing: Theme.Spacing.sm) {
                 Text(bibleService.currentTranslation?.name ?? "King James Version")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .multilineTextAlignment(.center)
 
                 Text("Deep study with AI-powered insights")
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .multilineTextAlignment(.center)
             }
             .opacity(isAppeared ? 1 : 0)
@@ -166,24 +166,24 @@ struct BibleHomeView: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
-                        .frame(width: 44, height: 44)
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
+                        .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
 
                     Image(systemName: "book.fill")
                         .font(Typography.Icon.md)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
 
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Continue Reading")
                         .font(Typography.Command.subheadline.weight(.medium))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     if let book = lastBook {
                         Text("\(book.name) Chapter \(lastChapter)")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
                 }
 
@@ -191,16 +191,16 @@ struct BibleHomeView: View {
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -217,7 +217,7 @@ struct BibleHomeView: View {
             Text("QUICK ACCESS")
                 .font(Typography.Command.meta.weight(.semibold))
                 .tracking(1.5)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             // Gospels row
             HStack(spacing: Theme.Spacing.sm) {
@@ -240,27 +240,27 @@ struct BibleHomeView: View {
             VStack(spacing: Theme.Spacing.xs) {
                 ZStack {
                     Circle()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
-                        .frame(width: 44, height: 44)
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
+                        .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
 
                     Text(String(book.name.prefix(1)))
                         .font(Typography.Scripture.body.weight(.semibold))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
 
                 Text(book.abbreviation)
                     .font(Typography.Command.caption.weight(.medium))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppAccentAction").opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -276,32 +276,32 @@ struct BibleHomeView: View {
             HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "books.vertical")
                     .font(Typography.Icon.md)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Browse All Books")
                         .font(Typography.Command.subheadline.weight(.medium))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text("66 books • Old & New Testament")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -316,32 +316,32 @@ struct BibleHomeView: View {
             HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "sparkles")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AccentBronze"))
 
                 Text("AI-Powered Study")
                     .font(Typography.Command.caption.weight(.medium))
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             Text("Long-press any verse to reveal theological insights, cross-references, original Greek analysis, and reflection prompts.")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
+                .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.pressed))
                 .lineSpacing(4)
 
             HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "hand.tap")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 Text("Tap to select • Long-press for insights")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
         .padding(Theme.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .fill(Color.surfaceBackground.opacity(Theme.Opacity.heavy))
+                .fill(Color("AppSurface").opacity(Theme.Opacity.textSecondary))
         )
         .opacity(isAppeared ? 1 : 0)
         .animation(Theme.Animation.settle.delay(0.6), value: isAppeared)

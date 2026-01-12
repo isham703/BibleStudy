@@ -6,7 +6,6 @@ import SwiftUI
 struct ReadingAppearanceSection: View {
     @Bindable var viewModel: SettingsViewModel
     @Environment(AppState.self) private var appState
-    @Environment(\.colorScheme) private var colorScheme
 
     @Binding var isExpanded: Bool
     @Binding var showAdvanced: Bool
@@ -74,18 +73,18 @@ struct ReadingAppearanceSection: View {
                 ZStack {
                     if isExpanded {
                         Circle()
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                            .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
                             .frame(width: 36, height: 36)
                             .blur(radius: 4)
                     }
 
                     Image(systemName: "paintpalette.fill")
                         .font(Typography.Icon.sm.weight(.medium))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                         .frame(width: 28, height: 28)
                         .background(
                             RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
+                                .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle + 0.02))
                         )
                 }
 
@@ -93,11 +92,11 @@ struct ReadingAppearanceSection: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Theme & Text Size")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text(isExpanded ? "Customize your reading experience" : currentThemeSummary)
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("TertiaryText"))
                         .animation(.none, value: isExpanded)
                 }
 
@@ -106,7 +105,7 @@ struct ReadingAppearanceSection: View {
                 // Rotating chevron
                 Image(systemName: "chevron.right")
                     .font(Typography.Icon.xxxs.weight(.semibold))
-                    .foregroundStyle(isExpanded ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(isExpanded ? Color("AppAccentAction") : Color("TertiaryText"))
                     .rotationEffect(.degrees(isExpanded ? 90 : 0))
             }
         }
@@ -127,7 +126,7 @@ struct ReadingAppearanceSection: View {
                 .font(Typography.Command.meta)
                 .fontWeight(.medium)
                 .tracking(1.5)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
+                .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.pressed))
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Theme.Spacing.md) {
@@ -156,12 +155,12 @@ struct ReadingAppearanceSection: View {
                 .font(Typography.Command.meta)
                 .fontWeight(.medium)
                 .tracking(1.5)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
+                .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.pressed))
 
             HStack(spacing: Theme.Spacing.md) {
                 Text("A")
                     .font(Typography.Scripture.footnote)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 FontSizeSlider(
                     selectedSize: Binding(
@@ -175,12 +174,12 @@ struct ReadingAppearanceSection: View {
 
                 Text("A")
                     .font(Typography.Scripture.prompt)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
             .padding(Theme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                    .fill(Color.appBackground.opacity(Theme.Opacity.textSecondary))
             )
         }
     }
@@ -193,7 +192,7 @@ struct ReadingAppearanceSection: View {
                 .font(Typography.Command.meta)
                 .fontWeight(.medium)
                 .tracking(1.5)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
+                .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.pressed))
 
             Picker("Reading Mode", selection: $usePagedReader) {
                 Text("Scroll").tag(false)
@@ -215,13 +214,13 @@ struct ReadingAppearanceSection: View {
                 HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: showAdvanced ? "chevron.down" : "chevron.right")
                         .font(Typography.Icon.xxs.weight(.semibold))
-                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
+                        .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.textPrimary))
 
                     Text("ADVANCED")
                         .font(Typography.Command.meta)
                         .fontWeight(.medium)
                         .tracking(1.5)
-                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
+                        .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.pressed))
 
                     Spacer()
                 }
@@ -254,10 +253,10 @@ struct ReadingAppearanceSection: View {
                         } label: {
                             HStack(spacing: 2) {
                                 Text(appState.lineSpacing.displayName)
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .foregroundStyle(Color("AppAccentAction"))
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.Icon.xxs)
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+                                    .foregroundStyle(Color("AppAccentAction").opacity(Theme.Opacity.overlay))
                             }
                         }
                     }
@@ -287,10 +286,10 @@ struct ReadingAppearanceSection: View {
                         } label: {
                             HStack(spacing: 2) {
                                 Text(appState.contentWidth.displayName)
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .foregroundStyle(Color("AppAccentAction"))
                                 Image(systemName: "chevron.up.chevron.down")
                                     .font(Typography.Icon.xxs)
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+                                    .foregroundStyle(Color("AppAccentAction").opacity(Theme.Opacity.overlay))
                             }
                         }
                     }
@@ -303,11 +302,11 @@ struct ReadingAppearanceSection: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Paragraph Mode")
                                 .font(Typography.Command.subheadline)
-                                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppTextPrimary"))
 
                             Text("Show verses as continuous prose")
                                 .font(Typography.Command.meta)
-                                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppTextSecondary"))
                         }
 
                         Spacer()
@@ -319,13 +318,13 @@ struct ReadingAppearanceSection: View {
                                 saveParagraphMode(newValue)
                             }
                         ))
-                        .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .tint(Color("AppAccentAction"))
                         .labelsHidden()
                     }
                     .padding(.vertical, Theme.Spacing.sm)
                     .padding(.horizontal, Theme.Spacing.md)
                     .disabled(usePagedReader)
-                    .opacity(usePagedReader ? Theme.Opacity.secondary : 1.0)
+                    .opacity(usePagedReader ? Theme.Opacity.textSecondary : 1.0)
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel("Paragraph Mode")
                     .accessibilityValue(appState.paragraphMode ? "On" : "Off")
@@ -333,7 +332,7 @@ struct ReadingAppearanceSection: View {
                 }
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.card)
-                        .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                        .fill(Color.appBackground.opacity(Theme.Opacity.textSecondary))
                 )
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -348,7 +347,7 @@ struct ReadingAppearanceSection: View {
         HStack {
             Text(title)
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
 
@@ -366,26 +365,26 @@ struct ReadingAppearanceSection: View {
                 .font(Typography.Command.meta)
                 .fontWeight(.medium)
                 .tracking(1.5)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
+                .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.pressed))
 
             HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.sm) {
                 Text("1")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(appState.preferredTheme.customSecondaryTextColor ?? Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Text("In the beginning God created the heaven and the earth.")
                     .font(Typography.Scripture.bodyWithSize(CGFloat(appState.scriptureFontSize.rawValue)))
                     .lineSpacing(appState.lineSpacing.value)
-                    .foregroundStyle(appState.preferredTheme.customTextColor ?? Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
             .padding(Theme.Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(appState.preferredTheme.customBackground ?? Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color.appBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.card)
-                            .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
+                            .stroke(Color.appDivider.opacity(Theme.Opacity.textSecondary), lineWidth: Theme.Stroke.hairline)
                     )
             )
         }
@@ -444,5 +443,5 @@ struct ReadingAppearanceSection: View {
         .padding()
         .environment(AppState())
     }
-    .background(Colors.Surface.background(for: .dark))
+    .background(Color.appBackground)
 }

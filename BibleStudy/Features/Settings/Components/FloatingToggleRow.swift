@@ -22,17 +22,17 @@ struct FloatingToggleRow: View {
             Image(systemName: icon)
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Icon.base)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text(subtitle)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -41,7 +41,7 @@ struct FloatingToggleRow: View {
                 // Radial pulse on activation (Phase 6 enhancement)
                 if justToggled && isOn && !reduceMotion {
                     Circle()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
                         .scaleEffect(pulseScale)
                         .opacity(1 - (pulseScale - 1) / 1.5)
                         .frame(width: 30, height: 30)
@@ -99,7 +99,7 @@ struct FloatingToggleRow_Previews: PreviewProvider {
                 isOn: .constant(false)
             )
         }
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 }
 #endif

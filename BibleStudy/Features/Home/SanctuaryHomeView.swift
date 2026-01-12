@@ -4,8 +4,8 @@ import SwiftUI
 // Main home view displaying the Roman/Stoic sanctuary experience
 // Uses SanctuaryViewModel for centralized state management
 //
-// MIGRATION NOTE: Replaced RomanSanctuaryView with ForumHomeView
-// Forum design: centered wisdom quote, 3 primary pillars, secondary feature row
+// MIGRATION NOTE: Replaced ForumHomeView with HomeView (Colonnade design)
+// Architectural layout: pillar-based navigation, clear hierarchy, multiple entry points
 
 struct SanctuaryHomeView: View {
     @State private var viewModel = SanctuaryViewModel()
@@ -15,12 +15,12 @@ struct SanctuaryHomeView: View {
 
     var body: some View {
         NavigationStack {
-            ForumHomeView()
+            HomeView()
                 .onSettingsTapped {
                     showSettings = true
                 }
                 .fullScreenCover(isPresented: $showSettings) {
-                    FloatingSanctuarySettings()
+                    SettingsView()
                 }
         }
         .environment(viewModel)

@@ -71,22 +71,22 @@ struct GenerateStorySheet: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(verseRange.reference)
                 .font(Typography.Command.headline)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             Text(verseText)
                 .font(Typography.Scripture.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .lineLimit(4)
 
             if verseText.count > 200 {
                 Text("...")
                     .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 
@@ -96,7 +96,7 @@ struct GenerateStorySheet: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text("Story Type")
                 .font(Typography.Command.headline)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Theme.Spacing.sm) {
                 ForEach(StoryType.allCases, id: \.self) { type in
@@ -117,7 +117,7 @@ struct GenerateStorySheet: View {
             HStack {
                 Text("Reading Level")
                     .font(Typography.Command.headline)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Spacer()
 
@@ -125,7 +125,7 @@ struct GenerateStorySheet: View {
                     viewModel.showLevelInfo = true
                 } label: {
                     Image(systemName: "info.circle")
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
             }
 
@@ -155,7 +155,7 @@ struct GenerateStorySheet: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .background(Color("AppAccentAction"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
         .disabled(viewModel.isGenerating)
@@ -166,15 +166,15 @@ struct GenerateStorySheet: View {
     private func errorView(_ error: Error) -> some View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(Color.feedbackError)
+                .foregroundStyle(Color("FeedbackError"))
 
             Text(error.localizedDescription)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.feedbackError)
+                .foregroundStyle(Color("FeedbackError"))
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.feedbackError.opacity(Theme.Opacity.subtle))
+        .background(Color("FeedbackError").opacity(Theme.Opacity.subtle))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
     }
 
@@ -182,7 +182,7 @@ struct GenerateStorySheet: View {
 
     private var generatingOverlay: some View {
         ZStack {
-            Color.black.opacity(Theme.Opacity.heavy)
+            Color.black.opacity(Theme.Opacity.textSecondary)
                 .ignoresSafeArea()
 
             VStack(spacing: Theme.Spacing.lg) {
@@ -223,18 +223,18 @@ struct StoryTypeOption: View {
 
                 Text(type.storyTypeDescription)
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
             }
             .padding(Theme.Spacing.md)
             .frame(maxWidth: .infinity, minHeight: 120)
-            .background(isSelected ? Color(type.color).opacity(Theme.Opacity.light) : Color.surfaceBackground)
-            .foregroundStyle(isSelected ? Color(type.color) : Color.primaryText)
+            .background(isSelected ? Color(type.color).opacity(Theme.Opacity.selectionBackground) : Color("AppSurface"))
+            .foregroundStyle(isSelected ? Color(type.color) : Color("AppTextPrimary"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(isSelected ? Color(type.color) : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? Color(type.color) : Color("AppDivider"), lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)

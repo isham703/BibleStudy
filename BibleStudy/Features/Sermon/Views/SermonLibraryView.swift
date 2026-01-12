@@ -14,7 +14,7 @@ struct SermonLibraryView: View {
         NavigationStack {
             ZStack {
                 // Background
-                Color.surfaceParchment
+                Color("AppBackground")
                     .ignoresSafeArea()
 
                 if viewModel.isLoading {
@@ -32,7 +32,7 @@ struct SermonLibraryView: View {
                     Button("Close") {
                         dismiss()
                     }
-                    .foregroundStyle(Color.accentBronze)
+                    .foregroundStyle(Color("AccentBronze"))
                 }
             }
             .searchable(text: $searchText, prompt: "Search sermons")
@@ -61,11 +61,11 @@ struct SermonLibraryView: View {
     private var loadingView: some View {
         VStack(spacing: Theme.Spacing.lg) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.accentBronze))
+                .progressViewStyle(CircularProgressViewStyle(tint: Color("AccentBronze")))
 
             Text("Loading sermons...")
                 .font(Typography.Scripture.body)
-                .foregroundStyle(Color.textSecondary)
+                .foregroundStyle(Color.appTextSecondary)
         }
     }
 
@@ -76,19 +76,19 @@ struct SermonLibraryView: View {
             Image(systemName: "waveform.circle")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Icon.display)
-                .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.heavy))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
 
             VStack(spacing: Theme.Spacing.sm) {
                 Text(searchText.isEmpty ? "No Sermons Yet" : "No Results")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.textPrimary)
+                    .foregroundStyle(Color.appTextPrimary)
 
                 Text(searchText.isEmpty
                     ? "Record or import your first sermon to get started"
                     : "Try a different search term"
                 )
                     .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.textSecondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -140,26 +140,26 @@ struct SermonLibraryCard: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(sermon.displayTitle)
                         .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.textPrimary)
+                        .foregroundStyle(Color.appTextPrimary)
                         .lineLimit(1)
 
                     HStack(spacing: Theme.Spacing.sm) {
                         if let speaker = sermon.speakerName {
                             Text(speaker)
-                                .foregroundStyle(Color.textSecondary)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
 
                         Text("•")
-                            .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.heavy))
+                            .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
 
                         Text(sermon.formattedDuration)
-                            .foregroundStyle(Color.textSecondary)
+                            .foregroundStyle(Color.appTextSecondary)
 
                         Text("•")
-                            .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.heavy))
+                            .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
 
                         Text(sermon.recordedAt.formatted(date: .abbreviated, time: .omitted))
-                            .foregroundStyle(Color.textSecondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                     .font(Typography.Scripture.body)
                     .lineLimit(1)
@@ -171,14 +171,14 @@ struct SermonLibraryCard: View {
                 Image(systemName: "chevron.right")
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Icon.sm)
-                    .foregroundStyle(Color.accentBronze.opacity(Theme.Opacity.heavy))
+                    .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
             }
             .padding(Theme.Spacing.lg)
-            .background(Color.surfaceRaised.opacity(Theme.Opacity.strong))
+            .background(Color("AppSurface").opacity(Theme.Opacity.pressed))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Color.accentBronze.opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -194,7 +194,7 @@ struct SermonLibraryCard: View {
 
             if sermon.isProcessing {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color.accentBronze))
+                    .progressViewStyle(CircularProgressViewStyle(tint: Color("AccentBronze")))
                     .scaleEffect(0.98)
             } else {
                 Image(systemName: statusIconName)
@@ -207,11 +207,11 @@ struct SermonLibraryCard: View {
 
     private var statusBackgroundColor: Color {
         if sermon.hasError {
-            return Color.red.opacity(Theme.Opacity.light)
+            return Color.red.opacity(Theme.Opacity.selectionBackground)
         } else if sermon.isComplete {
-            return Color.accentBronze.opacity(Theme.Opacity.light)
+            return Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
         } else {
-            return Color.surfaceRaised
+            return Color("AppSurface")
         }
     }
 
@@ -229,9 +229,9 @@ struct SermonLibraryCard: View {
         if sermon.hasError {
             return Color.red
         } else if sermon.isComplete {
-            return Color.accentBronze
+            return Color("AccentBronze")
         } else {
-            return Color.textSecondary
+            return Color.appTextSecondary
         }
     }
 }

@@ -34,12 +34,12 @@ struct AccountSectionView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.displayName ?? "Bible Student")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 if let email = viewModel.email {
                     Text(email)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
 
                 // Tier badge
@@ -51,7 +51,7 @@ struct AccountSectionView: View {
             // Edit profile chevron
             Image(systemName: "chevron.right")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
         .contentShape(Rectangle())
     }
@@ -60,7 +60,7 @@ struct AccountSectionView: View {
         ZStack {
             // Gold glow
             Circle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
                 .blur(radius: 4 + 1)
                 .frame(width: 56, height: 56)
 
@@ -69,8 +69,8 @@ struct AccountSectionView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
+                            Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground),
+                            Color("AppAccentAction").opacity(Theme.Opacity.subtle)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -81,16 +81,16 @@ struct AccountSectionView: View {
             // Avatar icon
             Image(systemName: "person.fill")
                 .font(Typography.Icon.xl.weight(.medium))
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             // Gold border
             Circle()
                 .stroke(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary)
+                            Color("AppAccentAction").opacity(Theme.Opacity.textPrimary),
+                            Color("AppAccentAction").opacity(Theme.Opacity.textSecondary),
+                            Color("AppAccentAction").opacity(Theme.Opacity.textPrimary)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -115,14 +115,14 @@ struct AccountSectionView: View {
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(badgeColor.opacity(Theme.Opacity.faint + 0.02))
+                .fill(badgeColor.opacity(Theme.Opacity.subtle + 0.02))
         )
     }
 
     private var badgeColor: Color {
         switch viewModel.currentTier {
-        case .free: return Color.secondaryText
-        case .premium, .scholar: return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+        case .free: return Color("AppTextSecondary")
+        case .premium, .scholar: return Color("AppAccentAction")
         }
     }
 
@@ -136,23 +136,23 @@ struct AccountSectionView: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle + 0.02))
                         .frame(width: 52, height: 52)
 
                     Image(systemName: "person.circle")
                         .font(Typography.Icon.xl.weight(.light))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
 
                 // Text content
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Sign In")
                         .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text("Sync highlights and notes across devices")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                         .lineLimit(2)
                 }
 
@@ -160,7 +160,7 @@ struct AccountSectionView: View {
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
         .buttonStyle(.plain)

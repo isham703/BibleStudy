@@ -38,14 +38,11 @@ struct RecordingConfiguration: Sendable {
     /// Maximum file size in bytes (25MB Whisper limit)
     static let maxChunkSize: Int = 25_000_000
 
-    /// Default configuration
-    /// Note: nonisolated(unsafe) allows use as default parameter in @MainActor class inits
+    // nonisolated(unsafe) allows use as default parameter in @MainActor function
     nonisolated(unsafe) static let `default` = RecordingConfiguration(
         chunkDurationSeconds: 10 * 60  // 10 minutes per chunk
     )
 
-    /// High quality configuration (for shorter sermons)
-    /// Note: nonisolated(unsafe) allows use as default parameter in @MainActor class inits
     nonisolated(unsafe) static let highQuality = RecordingConfiguration(
         chunkDurationSeconds: 5 * 60   // 5 minutes per chunk for safety
     )

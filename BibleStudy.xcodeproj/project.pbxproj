@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D65B01C62F000BD400374A39 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = D65B01C52F000BD400374A39 /* GRDB */; };
 		D65B01D42F000C2400374A39 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D65B01D52F000C2400374A39 /* Supabase */; };
+		D65B01E02F123ABC00374A39 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = D65B01DF2F123ABC00374A39 /* Starscream */; };
 		D661C0B42F035F01004F6466 /* BibleStudy_Icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = D661C0B32F035F01004F6466 /* BibleStudy_Icon.icon */; };
 		D661C38F2F03A5FC004F6466 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D661C38E2F03A5FC004F6466 /* WidgetKit.framework */; };
 		D661C3912F03A5FC004F6466 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D661C3902F03A5FC004F6466 /* SwiftUI.framework */; };
@@ -16,6 +17,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		BA49B5538EE2485BAC8507C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D65B01012EFFF9ED00374A39 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D65B01082EFFF9ED00374A39;
+			remoteInfo = BibleStudy;
+		};
 		D661C39E2F03A5FD004F6466 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D65B01012EFFF9ED00374A39 /* Project object */;
@@ -57,6 +65,7 @@
 		D661C3902F03A5FC004F6466 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		D69821A12F0CC7060011E573 /* BibleStudyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BibleStudyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6AA12C12F07E1F000071B73 /* StoriesShowcase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StoriesShowcase.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F67BB1C7368641CA8AF9E9BF /* BibleStudyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BibleStudyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -70,144 +79,35 @@
 		D6C76A762F1058EC00860883 /* Exceptions for "BibleStudy" folder in "BibleStudy" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				DevTools/Showcases/Chat/Components/ChatInputBar.swift,
-				DevTools/Showcases/Chat/Components/ChatMessageView.swift,
-				DevTools/Showcases/Chat/Components/ShowcaseChatCard.swift,
-				DevTools/Showcases/Chat/Models/ChatVariant.swift,
-				DevTools/Showcases/Chat/Theme/ChatPalette.swift,
-				DevTools/Showcases/Chat/Views/AIChatDirectoryView.swift,
-				DevTools/Showcases/Chat/Views/Variants/MinimalStudioChatView.swift,
-				DevTools/Showcases/Chat/Views/Variants/ScholarlyCompanionChatView.swift,
-				DevTools/Showcases/Chat/Views/Variants/WarmSanctuaryChatView.swift,
-				DevTools/Showcases/Home/Components/StoicShowcaseCard.swift,
-				DevTools/Showcases/Home/Models/HomePageVariant.swift,
-				DevTools/Showcases/Home/Pages/RomanSanctuaryView.swift,
-				DevTools/Showcases/Home/Pages/TheAtriumPage.swift,
-				DevTools/Showcases/Home/Pages/TheBasilicaPage.swift,
-				DevTools/Showcases/Home/Pages/TheForumPage.swift,
-				DevTools/Showcases/Home/Pages/TheMeditationChamberPage.swift,
-				DevTools/Showcases/Home/Pages/TheMonumentPage.swift,
-				DevTools/Showcases/Home/Pages/ThePorticoPage.swift,
-				DevTools/Showcases/Home/Pages/TheScriptoriumPage.swift,
-				DevTools/Showcases/Home/Pages/TheStoaPage.swift,
-				DevTools/Showcases/Home/Pages/TheThresholdPage.swift,
-				DevTools/Showcases/Home/Pages/TheTriumphPage.swift,
-				DevTools/Showcases/Home/Pages/TimeAwareSanctuaryPage.swift,
-				DevTools/Showcases/Home/Views/HomePageShowcaseDirectoryView.swift,
-				DevTools/Showcases/Onboarding/OnboardingShowcaseDirectory.swift,
-				DevTools/Showcases/Onboarding/Pages/ElegantMinimalOnboardingView.swift,
-				DevTools/Showcases/Onboarding/Pages/ImmersiveCardsOnboardingView.swift,
-				DevTools/Showcases/Onboarding/Pages/TechForwardOnboardingView.swift,
-				DevTools/Showcases/Prayer/Pages/AuroraDreamsPage.swift,
-				DevTools/Showcases/Prayer/Pages/BoldFaithPage.swift,
-				DevTools/Showcases/Prayer/Pages/CelestialTouchPage.swift,
-				DevTools/Showcases/Prayer/Pages/ContemplativeManuscriptPage.swift,
-				DevTools/Showcases/Prayer/Pages/ModernLuminousPage.swift,
-				DevTools/Showcases/Prayer/Pages/SacredMinimalPage.swift,
-				DevTools/Showcases/Prayer/PrayersFromDeepShowcaseView.swift,
-				DevTools/Showcases/Prayer/PrayerShowcaseView.swift,
-				DevTools/Showcases/Prayer/Shared/DeepPrayerBackground.swift,
-				DevTools/Showcases/Prayer/Shared/DeepPrayerColors.swift,
-				DevTools/Showcases/Prayer/Shared/VariationPreviewCard.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/BalancedPrayerView.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BalancedDisplayPhase.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BalancedGeneratingPhase.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BalancedInputPhase.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BreathingCircleAnimation.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/Components/MinimalInputCard.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/Components/MinimalPrayerDisplay.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/Components/MinimalTraditionPicker.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/MinimalPrayerView.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/Components/OrnateBorderFrame.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/Components/OrnateConversationView.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/Components/OrnateMessageBubble.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/OrnatePrayerView.swift,
-				DevTools/Showcases/Readers/Components/ShowcaseReaderCard.swift,
-				DevTools/Showcases/Readers/Models/PlaceholderScripture.swift,
-				DevTools/Showcases/Readers/Models/ReaderVariant.swift,
-				DevTools/Showcases/Readers/Views/ReaderShowcaseDirectoryView.swift,
-				DevTools/Showcases/Readers/Views/Variants/CandlelitChapelReaderView.swift,
-				DevTools/Showcases/Readers/Views/Variants/IlluminatedScriptoriumReaderView.swift,
-				DevTools/Showcases/Scripture/LivingScriptureFlowState.swift,
-				DevTools/Showcases/Scripture/LivingScriptureMockData.swift,
-				DevTools/Showcases/Scripture/LivingScriptureView.swift,
-				DevTools/Showcases/Settings/Views/SettingsShowcaseDirectoryView.swift,
-				DevTools/Showcases/Settings/Views/Variants/DivineHubSettings.swift,
-				DevTools/Showcases/Settings/Views/Variants/SacredScrollSettings.swift,
 				Features/Home/Components/RomanBackground.swift,
-				Features/Home/Models/SanctuaryTimeOfDay.swift,
-				UI/Theme/ShowcaseExtensions.swift,
 			);
 			target = D65B01082EFFF9ED00374A39 /* BibleStudy */;
 		};
 		D6C76A772F1058EC00860883 /* Exceptions for "BibleStudy" folder in "StoriesShowcase" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				DevTools/Showcases/Chat/Components/ChatInputBar.swift,
-				DevTools/Showcases/Chat/Components/ChatMessageView.swift,
-				DevTools/Showcases/Chat/Components/ShowcaseChatCard.swift,
-				DevTools/Showcases/Chat/Models/ChatVariant.swift,
-				DevTools/Showcases/Chat/Theme/ChatPalette.swift,
-				DevTools/Showcases/Chat/Views/AIChatDirectoryView.swift,
-				DevTools/Showcases/Chat/Views/Variants/MinimalStudioChatView.swift,
-				DevTools/Showcases/Chat/Views/Variants/ScholarlyCompanionChatView.swift,
-				DevTools/Showcases/Chat/Views/Variants/WarmSanctuaryChatView.swift,
-				DevTools/Showcases/Home/Components/StoicShowcaseCard.swift,
-				DevTools/Showcases/Home/Models/HomePageVariant.swift,
-				DevTools/Showcases/Home/Pages/RomanSanctuaryView.swift,
-				DevTools/Showcases/Home/Pages/TheThresholdPage.swift,
-				DevTools/Showcases/Home/Pages/TheTriumphPage.swift,
-				DevTools/Showcases/Home/Pages/TimeAwareSanctuaryPage.swift,
-				DevTools/Showcases/Home/Views/HomePageShowcaseDirectoryView.swift,
-				DevTools/Showcases/Onboarding/OnboardingShowcaseDirectory.swift,
-				DevTools/Showcases/Onboarding/Pages/ElegantMinimalOnboardingView.swift,
-				DevTools/Showcases/Onboarding/Pages/ImmersiveCardsOnboardingView.swift,
-				DevTools/Showcases/Onboarding/Pages/TechForwardOnboardingView.swift,
-				DevTools/Showcases/Prayer/Pages/AuroraDreamsPage.swift,
-				DevTools/Showcases/Prayer/Pages/BoldFaithPage.swift,
-				DevTools/Showcases/Prayer/Pages/CelestialTouchPage.swift,
-				DevTools/Showcases/Prayer/Pages/ContemplativeManuscriptPage.swift,
-				DevTools/Showcases/Prayer/Pages/ModernLuminousPage.swift,
-				DevTools/Showcases/Prayer/Pages/SacredMinimalPage.swift,
-				DevTools/Showcases/Prayer/PrayersFromDeepShowcaseView.swift,
-				DevTools/Showcases/Prayer/PrayerShowcaseView.swift,
-				DevTools/Showcases/Prayer/Shared/DeepPrayerBackground.swift,
-				DevTools/Showcases/Prayer/Shared/DeepPrayerColors.swift,
-				DevTools/Showcases/Prayer/Shared/VariationPreviewCard.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/BalancedPrayerView.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BalancedDisplayPhase.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BalancedGeneratingPhase.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BalancedInputPhase.swift,
-				DevTools/Showcases/Prayer/Variations/Balanced/Components/BreathingCircleAnimation.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/Components/MinimalInputCard.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/Components/MinimalPrayerDisplay.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/Components/MinimalTraditionPicker.swift,
-				DevTools/Showcases/Prayer/Variations/Minimal/MinimalPrayerView.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/Components/OrnateBorderFrame.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/Components/OrnateConversationView.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/Components/OrnateMessageBubble.swift,
-				DevTools/Showcases/Prayer/Variations/Ornate/OrnatePrayerView.swift,
-				DevTools/Showcases/Readers/Components/ShowcaseReaderCard.swift,
-				DevTools/Showcases/Readers/Models/PlaceholderScripture.swift,
-				DevTools/Showcases/Readers/Models/ReaderVariant.swift,
-				DevTools/Showcases/Readers/Views/ReaderShowcaseDirectoryView.swift,
-				DevTools/Showcases/Readers/Views/Variants/CandlelitChapelReaderView.swift,
-				DevTools/Showcases/Readers/Views/Variants/IlluminatedScriptoriumReaderView.swift,
-				DevTools/Showcases/Scripture/LivingScriptureFlowState.swift,
-				DevTools/Showcases/Scripture/LivingScriptureMockData.swift,
-				DevTools/Showcases/Scripture/LivingScriptureView.swift,
-				DevTools/Showcases/Settings/Views/SettingsShowcaseDirectoryView.swift,
-				DevTools/Showcases/Settings/Views/Variants/DivineHubSettings.swift,
-				DevTools/Showcases/Settings/Views/Variants/SacredScrollSettings.swift,
 				Features/Home/Components/RomanBackground.swift,
-				Features/Home/Models/SanctuaryTimeOfDay.swift,
-				UI/Theme/ShowcaseExtensions.swift,
 			);
 			target = D6AA12C02F07E1F000071B73 /* StoriesShowcase */;
+		};
+		E72909A5180346ABB5146414 /* Exceptions for "BibleStudyUITests" folder in "BibleStudyUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3FB9272B1AEE4A53996462CD /* BibleStudyUITests */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		77EC6D86286D490888E12C79 /* BibleStudyUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E72909A5180346ABB5146414 /* Exceptions for "BibleStudyUITests" folder in "BibleStudyUITests" target */,
+			);
+			path = BibleStudyUITests;
+			sourceTree = "<group>";
+		};
 		D65B010B2EFFF9ED00374A39 /* BibleStudy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -233,12 +133,20 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5BF480CC90F24DBABB8AFA70 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D65B01062EFFF9ED00374A39 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				D65B01C62F000BD400374A39 /* GRDB in Frameworks */,
 				D65B01D42F000C2400374A39 /* Supabase in Frameworks */,
+				D65B01E02F123ABC00374A39 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +183,7 @@
 				D65B010B2EFFF9ED00374A39 /* BibleStudy */,
 				D661C3922F03A5FC004F6466 /* DailyVerseWidget */,
 				D69821A22F0CC7060011E573 /* BibleStudyTests */,
+				77EC6D86286D490888E12C79 /* BibleStudyUITests */,
 				D661C38D2F03A5FC004F6466 /* Frameworks */,
 				D65B010A2EFFF9ED00374A39 /* Products */,
 				D661C0B32F035F01004F6466 /* BibleStudy_Icon.icon */,
@@ -288,6 +197,7 @@
 				D661C38C2F03A5FC004F6466 /* DailyVerseWidgetExtension.appex */,
 				D6AA12C12F07E1F000071B73 /* StoriesShowcase.app */,
 				D69821A12F0CC7060011E573 /* BibleStudyTests.xctest */,
+				F67BB1C7368641CA8AF9E9BF /* BibleStudyUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -314,6 +224,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3FB9272B1AEE4A53996462CD /* BibleStudyUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7E4DA84B324945C29A52506C /* Build configuration list for PBXNativeTarget "BibleStudyUITests" */;
+			buildPhases = (
+				9E59D72CF0E94D7482BFEBBE /* Sources */,
+				5BF480CC90F24DBABB8AFA70 /* Frameworks */,
+				A23835F002C643FBB4D04FDE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CC1D81A5C5B14A60975A3756 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				77EC6D86286D490888E12C79 /* BibleStudyUITests */,
+			);
+			name = BibleStudyUITests;
+			packageProductDependencies = (
+			);
+			productName = BibleStudyUITests;
+			productReference = F67BB1C7368641CA8AF9E9BF /* BibleStudyUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		D65B01082EFFF9ED00374A39 /* BibleStudy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D65B01162EFFF9EE00374A39 /* Build configuration list for PBXNativeTarget "BibleStudy" */;
@@ -335,6 +268,7 @@
 			packageProductDependencies = (
 				D65B01C52F000BD400374A39 /* GRDB */,
 				D65B01D52F000C2400374A39 /* Supabase */,
+				D65B01DF2F123ABC00374A39 /* Starscream */,
 			);
 			productName = BibleStudy;
 			productReference = D65B01092EFFF9ED00374A39 /* BibleStudy.app */;
@@ -414,6 +348,10 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					3FB9272B1AEE4A53996462CD = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = D65B01082EFFF9ED00374A39;
+					};
 					D65B01082EFFF9ED00374A39 = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -441,6 +379,7 @@
 			packageReferences = (
 				D65B01C42F000BD400374A39 /* XCRemoteSwiftPackageReference "GRDB" */,
 				D65B01C92F000C2400374A39 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				D65B01E12F123ABC00374A39 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D65B010A2EFFF9ED00374A39 /* Products */;
@@ -451,11 +390,19 @@
 				D661C38B2F03A5FC004F6466 /* DailyVerseWidgetExtension */,
 				D6AA12C02F07E1F000071B73 /* StoriesShowcase */,
 				D69821A02F0CC7060011E573 /* BibleStudyTests */,
+				3FB9272B1AEE4A53996462CD /* BibleStudyUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A23835F002C643FBB4D04FDE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D65B01072EFFF9ED00374A39 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -488,6 +435,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9E59D72CF0E94D7482BFEBBE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D65B01052EFFF9ED00374A39 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -519,6 +473,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		CC1D81A5C5B14A60975A3756 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D65B01082EFFF9ED00374A39 /* BibleStudy */;
+			targetProxy = BA49B5538EE2485BAC8507C0 /* PBXContainerItemProxy */;
+		};
 		D661C39F2F03A5FD004F6466 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D661C38B2F03A5FC004F6466 /* DailyVerseWidgetExtension */;
@@ -532,6 +491,48 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		A2F4D5105A2A4BEC9384BB3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G7AYV42537;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				INFOPLIST_FILE = BibleStudyUITests/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourorg.BibleStudyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BibleStudy;
+			};
+			name = Debug;
+		};
+		B4A7341D44484200863229E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = G7AYV42537;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				INFOPLIST_FILE = BibleStudyUITests/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourorg.BibleStudyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BibleStudy;
+			};
+			name = Release;
+		};
 		D65B01142EFFF9EE00374A39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D65B02002F001A0000374A39 /* Debug.xcconfig */;
@@ -896,6 +897,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		7E4DA84B324945C29A52506C /* Build configuration list for PBXNativeTarget "BibleStudyUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2F4D5105A2A4BEC9384BB3F /* Debug */,
+				B4A7341D44484200863229E7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D65B01042EFFF9ED00374A39 /* Build configuration list for PBXProject "BibleStudy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -960,6 +970,14 @@
 				minimumVersion = 2.5.1;
 			};
 		};
+		D65B01E12F123ABC00374A39 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -972,6 +990,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D65B01C92F000C2400374A39 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		D65B01DF2F123ABC00374A39 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D65B01E12F123ABC00374A39 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

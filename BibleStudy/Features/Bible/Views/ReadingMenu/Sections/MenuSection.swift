@@ -19,7 +19,7 @@ struct MenuSection: View {
             VStack(spacing: Theme.Spacing.sm) {
                 BibleMenuRow(
                     icon: "magnifyingglass",
-                    iconColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
+                    iconColor: Color("AppAccentAction"),
                     title: "Search",
                     subtitle: "Find verses and passages"
                 ) {
@@ -30,7 +30,7 @@ struct MenuSection: View {
 
                 BibleMenuRow(
                     icon: "speaker.wave.2",
-                    iconColor: Color.navyDeep,
+                    iconColor: Color("AppAccentAction"),
                     title: "Listen",
                     subtitle: "Audio playback"
                 ) {
@@ -42,7 +42,7 @@ struct MenuSection: View {
 
                 BibleMenuRow(
                     icon: "slider.horizontal.3",
-                    iconColor: Color.bibleOlive,
+                    iconColor: Color("FeedbackSuccess"),
                     title: "Display Settings",
                     subtitle: "Font, spacing, theme"
                 ) {
@@ -53,7 +53,7 @@ struct MenuSection: View {
 
                 BibleMenuRow(
                     icon: "sparkles",
-                    iconColor: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                    iconColor: Color("AccentBronze"),
                     title: "Insights",
                     subtitle: "Choose which insights to show"
                 ) {
@@ -61,11 +61,11 @@ struct MenuSection: View {
                 }
             }
             .padding(Theme.Spacing.md)
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
         }
         .padding(.horizontal, Theme.Spacing.lg)
@@ -80,11 +80,11 @@ struct MenuSection: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Reading Options")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Customize your experience")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
 
             Spacer()
@@ -97,7 +97,7 @@ struct MenuSection: View {
                     // swiftlint:disable:next hardcoded_swiftui_text_style
                     .font(.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
     }
@@ -106,7 +106,7 @@ struct MenuSection: View {
 
     private var menuDivider: some View {
         Rectangle()
-            .fill(Color.gray.opacity(Theme.Opacity.light))
+            .fill(Color.gray.opacity(Theme.Opacity.selectionBackground))
             .frame(height: Theme.Stroke.hairline)
             .padding(.horizontal, Theme.Spacing.sm)
     }

@@ -30,17 +30,17 @@ struct FloatingNavigationRow: View {
                 Image(systemName: icon)
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Icon.base)
-                    .foregroundStyle(isDestructive ? Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)) : Color.secondaryText)
+                    .foregroundStyle(isDestructive ? Color("FeedbackError") : Color("AppTextSecondary"))
                     .frame(width: 32)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(Typography.Command.body)
-                        .foregroundStyle(isDestructive ? Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)) : Color.primaryText)
+                        .foregroundStyle(isDestructive ? Color("FeedbackError") : Color("AppTextPrimary"))
 
                     Text(subtitle)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -48,7 +48,7 @@ struct FloatingNavigationRow: View {
                     Image(systemName: "chevron.right")
                         // swiftlint:disable:next hardcoded_font_system
                         .font(Typography.Icon.xs.weight(.semibold))
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
             .frame(maxWidth: .infinity)
@@ -97,7 +97,7 @@ struct FloatingNavigationRow_Previews: PreviewProvider {
                 action: {}
             )
         }
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 }
 #endif

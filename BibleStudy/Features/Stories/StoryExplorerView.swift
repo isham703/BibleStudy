@@ -186,16 +186,16 @@ struct StoryFilterChip: View {
                 Text(label)
                     .font(Typography.Command.meta)
             }
-            .foregroundStyle(isSelected ? .white : Color.primaryText)
+            .foregroundStyle(isSelected ? .white : Color("AppTextPrimary"))
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
+                    .fill(isSelected ? Color("AppAccentAction") : Color("AppSurface"))
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(isSelected ? Color.clear : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -218,33 +218,33 @@ struct FeaturedStoryCard: View {
                     VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                         Text(progress != nil ? "Continue Reading" : "Featured Story")
                             .font(Typography.Command.caption.weight(.semibold))
-                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppAccentAction"))
                             .textCase(.uppercase)
                             .tracking(1.2)
 
                         Text(story.title)
                             .font(Typography.Scripture.heading)
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
                     }
 
                     Spacer()
 
                     Image(systemName: "chevron.right.circle.fill")
                         .font(Typography.Command.title2)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
 
                 // Subtitle
                 if let subtitle = story.subtitle {
                     Text(subtitle)
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
 
                 // Description
                 Text(story.description)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .lineLimit(2)
 
                 // Progress (if started)
@@ -254,20 +254,20 @@ struct FeaturedStoryCard: View {
                         HStack {
                             Text("\(Int(percentage * 100))% complete")
                                 .font(Typography.Command.caption)
-                                .foregroundStyle(Color.secondaryText)
+                                .foregroundStyle(Color("AppTextSecondary"))
                             Spacer()
                         }
                         ProgressView(value: percentage)
-                            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .tint(Color("AppAccentAction"))
                     }
                 }
             }
             .padding(Theme.Spacing.lg)
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppAccentAction").opacity(Theme.Opacity.focusStroke), lineWidth: Theme.Stroke.hairline)
             )
         }
     }

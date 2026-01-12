@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Action Button
 // Vertical icon + label button for prayer actions (Copy, Share, Save)
-// Features gold styling with accessibility support
+// Portico-style blue accents with accessibility support
 
 struct ActionButton: View {
     let icon: String
@@ -22,23 +22,23 @@ struct ActionButton: View {
             }
             action()
         }) {
-            // swiftlint:disable:next hardcoded_stack_spacing
-            VStack(spacing: 6) {  // Tight icon/label spacing
+            VStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
-                    .font(Typography.Icon.lg)
+                    .font(Typography.Icon.md)
+                    .foregroundStyle(Color("AppTextPrimary"))
                 Text(label)
-                    .font(Typography.Editorial.label)
+                    .font(Typography.Command.caption.weight(.medium))
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
-            .foregroundColor(Color.accentBronze)
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.md)
             .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .fill(Color.surfaceRaised)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .stroke(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
-                    )
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .fill(Color.appSurface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.Radius.input)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.control)
             )
         }
         .buttonStyle(.plain)
@@ -52,7 +52,7 @@ struct ActionButton: View {
 
 #Preview("Action Buttons") {
     ZStack {
-        Color.surfaceParchment.ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
 
         HStack(spacing: Theme.Spacing.lg) {
             ActionButton(icon: "doc.on.doc", label: "Copy") {}

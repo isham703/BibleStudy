@@ -13,8 +13,6 @@ struct SettingsSlider: View {
     let iconColor: Color
     let valueFormatter: (Double) -> String
 
-    @Environment(\.colorScheme) private var colorScheme
-
     init(
         value: Binding<Double>,
         in range: ClosedRange<Double>,
@@ -22,7 +20,7 @@ struct SettingsSlider: View {
         tickMarks: [Double]? = nil,
         label: String,
         icon: String? = nil,
-        iconColor: Color = .accentIndigo,
+        iconColor: Color = Color("AppAccentAction"),
         valueFormatter: @escaping (Double) -> String = { "\(Int($0))" }
     ) {
         self._value = value
@@ -40,13 +38,13 @@ struct SettingsSlider: View {
             HStack(spacing: Theme.Spacing.md) {
                 // Icon (optional)
                 if let icon = icon {
-                    iconView(icon: icon)
+                    IconBadge.settings(icon, color: iconColor)
                 }
 
                 // Label
                 Text(label)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Spacer()
 
@@ -71,19 +69,6 @@ struct SettingsSlider: View {
             .tint(iconColor)
         }
     }
-
-    // MARK: - Icon View
-
-    private func iconView(icon: String) -> some View {
-        Image(systemName: icon)
-            .font(Typography.Icon.sm.weight(.medium))
-            .foregroundStyle(iconColor)
-            .frame(width: 28, height: 28)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.tag)
-                    .fill(iconColor.opacity(Theme.Opacity.divider))
-            )
-    }
 }
 
 // MARK: - Font Size Slider
@@ -92,8 +77,6 @@ struct SettingsSlider: View {
 struct SettingsFontSizeSlider: View {
     @Binding var fontSize: Int
     let previewText: String
-
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
@@ -113,24 +96,21 @@ struct SettingsFontSizeSlider: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Preview")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Text(previewText)
                     .font(Typography.Scripture.body)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .lineLimit(2)
                     .padding(Theme.Spacing.md)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.card)
-                            .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+                            .fill(.appBackground)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.card)
-                            .stroke(
-                                Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
-                                lineWidth: Theme.Stroke.hairline
-                            )
+                            .stroke(.appDivider, lineWidth: Theme.Stroke.hairline)
                     )
             }
         }

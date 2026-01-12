@@ -4,26 +4,23 @@ import SwiftUI
 // Displays current reading streak with flame icon and glow effect
 
 struct StreakBadge: View {
-    @Environment(\.colorScheme) private var colorScheme
     let count: Int
     @State private var isPulsing = false
 
     private var streakColor: Color {
-        let themeMode = ThemeMode.current(from: colorScheme)
         switch count {
         case 0..<7:
             return .orange
         case 7..<30:
-            return Colors.Semantic.accentSeal(for: themeMode)
+            return Color("AccentBronze")
         case 30..<100:
-            return Colors.Semantic.accentSeal(for: themeMode)
+            return Color("AccentBronze")
         default:
-            return Colors.Semantic.accentSeal(for: themeMode)
+            return Color("AccentBronze")
         }
     }
 
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
         HStack(spacing: Theme.Spacing.xs) {
             Image(systemName: "flame.fill")
                 // swiftlint:disable:next hardcoded_font_system
@@ -35,7 +32,7 @@ struct StreakBadge: View {
             Text("\(count)")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Command.caption.weight(.bold))
-                .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+                .foregroundStyle(Color("AppTextPrimary"))
         }
         // swiftlint:disable:next hardcoded_padding_edge
         .padding(.horizontal, 10)  // Tight badge padding
@@ -43,7 +40,7 @@ struct StreakBadge: View {
         .padding(.vertical, 6)  // Tight badge padding
         .background(
             Capsule()
-                .fill(streakColor.opacity(Theme.Opacity.light))
+                .fill(streakColor.opacity(Theme.Opacity.selectionBackground))
         )
         // swiftlint:disable:next hardcoded_shadow_radius
         .shadow(color: streakColor.opacity(Theme.Opacity.disabled), radius: isPulsing ? 10 : 6)
@@ -58,11 +55,8 @@ struct StreakBadge: View {
 // MARK: - Preview
 
 #Preview {
-    @Previewable @Environment(\.colorScheme) var colorScheme
-    let themeMode = ThemeMode.current(from: colorScheme)
-
     ZStack {
-        Colors.Surface.background(for: themeMode).ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
 
         VStack(spacing: Theme.Spacing.xl) {
             StreakBadge(count: 5)

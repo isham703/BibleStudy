@@ -7,7 +7,9 @@
 //
 
 import AVFoundation
+import CommonCrypto
 import Foundation
+import Starscream
 
 // MARK: - Edge TTS Service
 
@@ -103,8 +105,6 @@ actor EdgeTTSService {
     ///   - timeout: Maximum time to wait for synthesis (default 30 seconds)
     /// - Returns: Audio data in MP3 format
     func synthesize(text: String, timeout: TimeInterval = 30) async throws -> Data {
-        // Skip network check - just try directly, fail fast if no connection
-        // The WebSocket connection will fail quickly if there's no network
         print("[EdgeTTS] Starting synthesis for text: \(text.prefix(50))...")
 
         // Generate unique request ID
@@ -113,10 +113,10 @@ actor EdgeTTSService {
         // Build SSML
         let ssml = buildSSML(text: text, requestId: requestId)
 
-        // Connect and synthesize
+        // Connect and synthesize with timeout
         return try await withThrowingTaskGroup(of: Data.self) { group in
             group.addTask {
-                try await self.performSynthesis(ssml: ssml, requestId: requestId, timeout: timeout)
+                try await self.performSynthesis(ssml: ssml, requestId: requestId)
             }
 
             // Add timeout task
@@ -199,22 +199,6 @@ actor EdgeTTSService {
 
     // MARK: - Private Methods
 
-    private func isNetworkAvailable() async -> Bool {
-        // Simple connectivity check using a lightweight HEAD request
-        guard let url = URL(string: "https://speech.platform.bing.com") else { return false }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "HEAD"
-        request.timeoutInterval = 5
-
-        do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            return (response as? HTTPURLResponse)?.statusCode == 200
-        } catch {
-            return false
-        }
-    }
-
     private func buildSSML(text: String, requestId: String) -> String {
         // Escape XML special characters
         let escapedText = text
@@ -236,128 +220,61 @@ actor EdgeTTSService {
         """
     }
 
-    private func performSynthesis(ssml: String, requestId: String, timeout: TimeInterval) async throws -> Data {
+    private func performSynthesis(ssml: String, requestId: String) async throws -> Data {
         // Build WebSocket URL with required parameters
+        // Note: Sec-MS-GEC must be passed as a URL query parameter, not as HTTP header
         let trustedClientToken = "6A5AA1D4EAFF4E9FB37E23D68491D6F4"
-        let connectionId = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        let connectionId = UUID().uuidString.replacingOccurrences(of: "-", with: "").uppercased()
+
+        // Compute Sec-MS-GEC security token (required by Microsoft)
+        let secMsGec = Self.computeSecMsGec(trustedClientToken: trustedClientToken)
+        let secMsGecVersion = "1-143.0.3650.75"
+        print("[EdgeTTS] Sec-MS-GEC: \(secMsGec), Version: \(secMsGecVersion)")
 
         guard var urlComponents = URLComponents(string: wsEndpoint) else {
             throw TTSError.connectionFailed("Invalid endpoint URL")
         }
 
+        // Pass security tokens as query parameters (matching python edge-tts implementation)
         urlComponents.queryItems = [
             URLQueryItem(name: "TrustedClientToken", value: trustedClientToken),
-            URLQueryItem(name: "ConnectionId", value: connectionId)
+            URLQueryItem(name: "ConnectionId", value: connectionId),
+            URLQueryItem(name: "Sec-MS-GEC", value: secMsGec),
+            URLQueryItem(name: "Sec-MS-GEC-Version", value: secMsGecVersion)
         ]
 
         guard let url = urlComponents.url else {
             throw TTSError.connectionFailed("Failed to build URL")
         }
 
-        print("[EdgeTTS] Connecting to WebSocket: \(url.absoluteString.prefix(80))...")
-
-        // Create WebSocket connection
+        // Create URLRequest with headers (matching Chrome extension origin used by edge-tts)
         var request = URLRequest(url: url)
-        request.setValue("https://www.bing.com", forHTTPHeaderField: "Origin")
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36", forHTTPHeaderField: "User-Agent")
+        request.setValue("chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold", forHTTPHeaderField: "Origin")
+        request.setValue("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.3650.75", forHTTPHeaderField: "User-Agent")
 
-        // Capture helpers before entering callback closures
-        let extractAudio = Self.extractAudioFromBinaryMessage
-        let timestamp = Self.getTimestamp
+        // Capture immutable copy for Swift 6 concurrency safety
+        let finalRequest = request
 
+        // Use Starscream WebSocket with custom engine
+        // Must dispatch to MainActor for WebSocketDelegate conformance
         return try await withCheckedThrowingContinuation { continuation in
-            let session = URLSession(configuration: .default)
-            let webSocket = session.webSocketTask(with: request)
+            Task { @MainActor in
+                let engine = WSEngine(
+                    transport: TCPTransport(),
+                    certPinner: nil,
+                    headerValidator: FoundationSecurity()
+                )
+                let socket = WebSocket(request: finalRequest, engine: engine)
+                let handler = EdgeTTSWebSocketHandler(
+                    socket: socket,
+                    ssml: ssml,
+                    requestId: requestId,
+                    continuation: continuation
+                )
+                socket.delegate = handler
 
-            var audioData = Data()
-            var hasResumed = false
-
-            func receiveMessage() {
-                webSocket.receive { result in
-                    switch result {
-                    case .success(let message):
-                        switch message {
-                        case .string(let text):
-                            // Check for turn.end marker
-                            if text.contains("turn.end") {
-                                print("[EdgeTTS] Received turn.end, audio size: \(audioData.count) bytes")
-                                webSocket.cancel(with: .normalClosure, reason: nil)
-                                if !hasResumed {
-                                    hasResumed = true
-                                    continuation.resume(returning: audioData)
-                                }
-                            } else {
-                                receiveMessage()
-                            }
-
-                        case .data(let data):
-                            // Extract audio from binary message
-                            // Edge TTS binary format: header (variable) + audio data
-                            if let audioChunk = extractAudio(data) {
-                                audioData.append(audioChunk)
-                            }
-                            receiveMessage()
-
-                        @unknown default:
-                            receiveMessage()
-                        }
-
-                    case .failure(let error):
-                        print("[EdgeTTS] WebSocket error: \(error.localizedDescription)")
-                        webSocket.cancel(with: .abnormalClosure, reason: nil)
-                        if !hasResumed {
-                            hasResumed = true
-                            continuation.resume(throwing: TTSError.connectionFailed(error.localizedDescription))
-                        }
-                    }
-                }
-            }
-
-            // Send configuration message
-            let configMessage = """
-            X-Timestamp:\(timestamp())\r
-            Content-Type:application/json; charset=utf-8\r
-            Path:speech.config\r
-            \r
-            {"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"false"},"outputFormat":"audio-24khz-96kbitrate-mono-mp3"}}}}
-            """
-
-            // Send SSML message
-            let ssmlMessage = """
-            X-RequestId:\(requestId)\r
-            Content-Type:application/ssml+xml\r
-            X-Timestamp:\(timestamp())\r
-            Path:ssml\r
-            \r
-            \(ssml)
-            """
-
-            webSocket.resume()
-            print("[EdgeTTS] WebSocket resumed, waiting for messages...")
-            receiveMessage()
-
-            webSocket.send(.string(configMessage)) { error in
-                if let error = error {
-                    print("[EdgeTTS] Failed to send config: \(error.localizedDescription)")
-                    if !hasResumed {
-                        hasResumed = true
-                        continuation.resume(throwing: TTSError.connectionFailed(error.localizedDescription))
-                    }
-                    return
-                }
-                print("[EdgeTTS] Config message sent successfully")
-
-                webSocket.send(.string(ssmlMessage)) { error in
-                    if let error = error {
-                        print("[EdgeTTS] Failed to send SSML: \(error.localizedDescription)")
-                        if !hasResumed {
-                            hasResumed = true
-                            continuation.resume(throwing: TTSError.connectionFailed(error.localizedDescription))
-                        }
-                    } else {
-                        print("[EdgeTTS] SSML message sent successfully")
-                    }
-                }
+                print("[EdgeTTS] Connecting via Starscream WebSocket...")
+                socket.connect()
             }
         }
     }
@@ -377,12 +294,176 @@ actor EdgeTTSService {
         return data.subdata(in: (headerLength + 2)..<data.count)
     }
 
-    private static func getTimestamp() -> String {
+    nonisolated static func getTimestamp() -> String {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter.string(from: Date())
     }
+
+    /// Compute the Sec-MS-GEC security header required by Microsoft Edge TTS
+    /// This is a SHA256 hash of Windows FILETIME (rounded to 5 min) + TrustedClientToken
+    static func computeSecMsGec(trustedClientToken: String) -> String {
+        // Windows FILETIME epoch: January 1, 1601
+        // Unix epoch: January 1, 1970
+        // Difference in seconds: 11644473600
+        let windowsEpochDiff: Int64 = 11_644_473_600
+
+        // Get current Unix timestamp in seconds
+        let unixTimestamp = Int64(Date().timeIntervalSince1970)
+
+        // Convert to Windows FILETIME (100-nanosecond intervals since 1601)
+        let windowsTime = (unixTimestamp + windowsEpochDiff) * 10_000_000
+
+        // Round down to nearest 5 minutes (300 seconds = 3_000_000_000 100-ns intervals)
+        let roundedTime = windowsTime - (windowsTime % 3_000_000_000)
+
+        // Create the string to hash: "roundedTimetrustedClientToken" (no space!)
+        let stringToHash = "\(roundedTime)\(trustedClientToken)"
+
+        // Compute SHA256 hash
+        guard let data = stringToHash.data(using: .utf8) else {
+            return ""
+        }
+
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        data.withUnsafeBytes { buffer in
+            _ = CC_SHA256(buffer.baseAddress, CC_LONG(buffer.count), &hash)
+        }
+
+        // Convert to uppercase hex string
+        return hash.map { String(format: "%02X", $0) }.joined()
+    }
 }
+
+// MARK: - Starscream WebSocket Handler
+
+/// Handles Starscream WebSocket events for Edge TTS synthesis.
+/// Uses self-retention to prevent deallocation before continuation is resumed.
+/// Must be @MainActor to satisfy WebSocketDelegate protocol requirements.
+@MainActor
+private final class EdgeTTSWebSocketHandler: WebSocketDelegate {
+    private let ssml: String
+    private let requestId: String
+    private let continuation: CheckedContinuation<Data, Error>
+    private var audioData = Data()
+    private var hasResumed = false
+
+    // Strong reference to socket keeps it alive during synthesis
+    private let socket: Starscream.WebSocket
+
+    // Self-retention: prevents handler from being deallocated until completion
+    // swiftlint:disable:next identifier_name
+    private var _retainedSelf: EdgeTTSWebSocketHandler?
+
+    init(socket: Starscream.WebSocket, ssml: String, requestId: String, continuation: CheckedContinuation<Data, Error>) {
+        self.socket = socket
+        self.ssml = ssml
+        self.requestId = requestId
+        self.continuation = continuation
+
+        // Retain self until continuation is resumed
+        _retainedSelf = self
+    }
+
+    func didReceive(event: WebSocketEvent, client: any WebSocketClient) {
+        switch event {
+        case .connected:
+            print("[EdgeTTS] WebSocket connected, sending config...")
+            sendConfigAndSSML()
+
+        case .disconnected(let reason, let code):
+            print("[EdgeTTS] WebSocket disconnected: \(reason) (code: \(code))")
+            resumeWithError(EdgeTTSService.TTSError.connectionFailed("Disconnected: \(reason)"))
+
+        case .text(let text):
+            // Check for turn.end marker
+            if text.contains("turn.end") {
+                print("[EdgeTTS] Received turn.end, audio size: \(audioData.count) bytes")
+                socket.disconnect()
+                resumeWithSuccess(audioData)
+            }
+
+        case .binary(let data):
+            // Extract audio from binary message
+            if let audioChunk = extractAudioFromBinaryMessage(data) {
+                audioData.append(audioChunk)
+            }
+
+        case .error(let error):
+            print("[EdgeTTS] WebSocket error: \(error?.localizedDescription ?? "unknown")")
+            let errorMessage = error?.localizedDescription ?? "Unknown WebSocket error"
+            resumeWithError(EdgeTTSService.TTSError.connectionFailed(errorMessage))
+
+        case .cancelled:
+            print("[EdgeTTS] WebSocket cancelled")
+            resumeWithError(EdgeTTSService.TTSError.connectionFailed("Connection cancelled"))
+
+        case .viabilityChanged, .reconnectSuggested, .peerClosed, .pong, .ping:
+            break
+        }
+    }
+
+    private func resumeWithSuccess(_ data: Data) {
+        guard !hasResumed else { return }
+        hasResumed = true
+        _retainedSelf = nil  // Release self-retention
+        continuation.resume(returning: data)
+    }
+
+    private func resumeWithError(_ error: Error) {
+        guard !hasResumed else { return }
+        hasResumed = true
+        _retainedSelf = nil  // Release self-retention
+        continuation.resume(throwing: error)
+    }
+
+    private func sendConfigAndSSML() {
+        let timestamp = EdgeTTSService.getTimestamp()
+
+        // Send configuration message
+        let configMessage = """
+        X-Timestamp:\(timestamp)\r
+        Content-Type:application/json; charset=utf-8\r
+        Path:speech.config\r
+        \r
+        {"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"false"},"outputFormat":"audio-24khz-96kbitrate-mono-mp3"}}}}
+        """
+
+        socket.write(string: configMessage) {
+            print("[EdgeTTS] Config message sent")
+        }
+
+        // Send SSML message
+        let ssmlMessage = """
+        X-RequestId:\(requestId)\r
+        Content-Type:application/ssml+xml\r
+        X-Timestamp:\(timestamp)\r
+        Path:ssml\r
+        \r
+        \(ssml)
+        """
+
+        socket.write(string: ssmlMessage) {
+            print("[EdgeTTS] SSML message sent")
+        }
+    }
+
+    private func extractAudioFromBinaryMessage(_ data: Data) -> Data? {
+        // Edge TTS binary message format:
+        // - 2 bytes: header length (big endian)
+        // - N bytes: header (text)
+        // - Remaining: audio data
+
+        guard data.count > 2 else { return nil }
+
+        let headerLength = Int(data[0]) << 8 | Int(data[1])
+        guard data.count > headerLength + 2 else { return nil }
+
+        // Skip header, return audio data
+        return data.subdata(in: (headerLength + 2)..<data.count)
+    }
+}
+
 
 // MARK: - Edge TTS Voice Selection
 

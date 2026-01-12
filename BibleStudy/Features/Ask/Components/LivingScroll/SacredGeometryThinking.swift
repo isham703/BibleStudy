@@ -30,7 +30,7 @@ struct SacredGeometryThinking: View {
             // Thinking text
             Text("Contemplating...")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .onAppear {
             startAnimations()
@@ -61,7 +61,7 @@ struct SacredGeometryThinking: View {
 
     private func sacredCircle(at position: CGPoint, index: Int) -> some View {
         Circle()
-            .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.control)
+            .stroke(Color("AppAccentAction"), lineWidth: Theme.Stroke.control)
             .frame(width: circleRadius * 2, height: circleRadius * 2)
             .opacity(circleOpacities[index])
             .offset(x: position.x, y: position.y)
@@ -73,9 +73,9 @@ struct SacredGeometryThinking: View {
             let angle = (Double(index) * 60.0 + 30.0) * .pi / 180.0
             let distance = patternRadius * 0.5
             Circle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AppAccentAction"))
                 .frame(width: 3, height: 3)
-                .opacity(Theme.Opacity.primary)
+                .opacity(Theme.Opacity.textPrimary)
                 .offset(
                     x: distance * cos(angle),
                     y: distance * sin(angle)
@@ -140,7 +140,7 @@ struct CompactSacredGeometry: View {
             ForEach(0..<3, id: \.self) { index in
                 let angle = Double(index) * 120.0 * .pi / 180.0
                 Circle()
-                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppAccentAction"), lineWidth: Theme.Stroke.hairline)
                     .frame(width: 16, height: 16)
                     .offset(
                         x: 8 * cos(angle),
@@ -150,7 +150,7 @@ struct CompactSacredGeometry: View {
 
             // Center point
             Circle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AppAccentAction"))
                 .frame(width: 4, height: 4)
         }
         .frame(width: 32, height: 32)
@@ -197,9 +197,9 @@ struct DivineLightDivider: View {
             .fill(
                 LinearGradient(
                     colors: [
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(0),
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary + shimmerPosition * Theme.Opacity.lightMedium),
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(0)
+                        Color("AppAccentAction").opacity(0),
+                        Color("AppAccentAction").opacity(Theme.Opacity.textSecondary + shimmerPosition * Theme.Opacity.selectionBackground),
+                        Color("AppAccentAction").opacity(0)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
@@ -220,7 +220,7 @@ struct SacredGeometryThinking_Previews: PreviewProvider {
 
             SacredGeometryThinking()
                 .padding()
-                .background(Color.surfaceBackground)
+                .background(Color("AppSurface"))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
             Text("Compact Variant")
@@ -228,7 +228,7 @@ struct SacredGeometryThinking_Previews: PreviewProvider {
 
             CompactSacredGeometry()
                 .padding()
-                .background(Color.surfaceBackground)
+                .background(Color("AppSurface"))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
             Text("Divine Light Divider")

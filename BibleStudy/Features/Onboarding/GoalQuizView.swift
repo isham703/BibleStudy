@@ -80,7 +80,7 @@ struct GoalQuizView: View {
                             Text("Back")
                         }
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                     }
                     .padding(.bottom, Theme.Spacing.xl)
                 }
@@ -153,7 +153,7 @@ struct QuestionView: View {
         VStack(spacing: Theme.Spacing.xxl) {
             Text(question.title)
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.xl)
 
@@ -186,23 +186,23 @@ struct OptionButton: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
-                        .frame(width: 44, height: 44)
+                        .fill(isSelected ? Color("AppAccentAction") : Color("AppSurface"))
+                        .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
 
                     Image(systemName: option.icon)
                         .font(Typography.Command.headline)
-                        .foregroundStyle(isSelected ? .white : Color.secondaryText)
+                        .foregroundStyle(isSelected ? .white : Color("AppTextSecondary"))
                 }
 
                 // Text
                 VStack(alignment: .leading, spacing: 2) {
                     Text(option.title)
                         .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text(option.subtitle)
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
 
                 Spacer()
@@ -211,17 +211,17 @@ struct OptionButton: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(Typography.Command.title3)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
             }
             .padding(Theme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle) : Color.surfaceBackground)
+                    .fill(isSelected ? Color("AppAccentAction").opacity(Theme.Opacity.subtle) : Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? Color("AppAccentAction") : Color("AppDivider"), lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -248,12 +248,12 @@ struct ProgressBar: View {
                 ZStack(alignment: .leading) {
                     // Background
                     RoundedRectangle(cornerRadius: Theme.Radius.input)
-                        .fill(Color.surfaceBackground)
+                        .fill(Color("AppSurface"))
                         .frame(height: 8)
 
                     // Progress
                     RoundedRectangle(cornerRadius: Theme.Radius.input)
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("AppAccentAction"))
                         .frame(width: geometry.size.width * progress, height: 8)
                         .animation(Theme.Animation.settle, value: progress)
                 }
@@ -262,7 +262,7 @@ struct ProgressBar: View {
 
             Text("Question \(current) of \(total)")
                 .font(Typography.Command.subheadline.monospacedDigit())
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
     }
 }

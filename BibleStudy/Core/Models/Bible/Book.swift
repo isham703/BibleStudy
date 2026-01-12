@@ -48,8 +48,7 @@ struct Book: Identifiable, Codable, Hashable {
 
 // MARK: - All 66 Books
 extension Book {
-    // Note: nonisolated(unsafe) is required to allow access from nonisolated functions.
-    // The compiler warns this is "unnecessary" but removing it causes @MainActor inference.
+    // nonisolated(unsafe) prevents @MainActor inference, allowing access from nonisolated functions
     nonisolated(unsafe) static let all: [Book] = [
         // Old Testament - Pentateuch
         Book(id: 1, name: "Genesis", abbreviation: "Gen", testament: .old, category: .pentateuch, chapters: 50),

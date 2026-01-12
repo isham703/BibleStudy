@@ -135,8 +135,9 @@ private struct CelebrationCard<Content: View>: View {
             .padding(Theme.Spacing.xl)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.xl)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
+            // swiftlint:disable:next hardcoded_shadow_params
             .shadow(color: Color.black.opacity(0.25), radius: 20, x: 0, y: 8)
     }
 }
@@ -165,7 +166,7 @@ struct InlineCelebrationEffect: View {
             switch type {
             case .correctPulse:
                 if isShowing {
-                    NodePulse(color: .accentBronze, maxScale: 2, ringCount: 2)
+                    NodePulse(color: Color("AccentBronze"), maxScale: 2, ringCount: 2)
                         .frame(width: 20, height: 20)
                         .onAppear {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -183,7 +184,7 @@ struct InlineCelebrationEffect: View {
                         .font(Typography.Command.title3)
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.orange, .accentBronze],
+                                colors: [.orange, Color("AccentBronze")],
                                 startPoint: .bottom,
                                 endPoint: .top
                             )

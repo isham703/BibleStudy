@@ -15,7 +15,7 @@ struct CrisisHelpModal: View {
             Image(systemName: "heart.fill")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Icon.hero)
-                .foregroundStyle(Color.decorativeRose)
+                .foregroundStyle(Color("FeedbackError").opacity(0.8))
                 .padding(.top, Theme.Spacing.sm)
 
             // Caring message
@@ -23,12 +23,12 @@ struct CrisisHelpModal: View {
                 Text("We care about you")
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Scripture.prompt)
-                    .foregroundStyle(Color.textPrimary)
+                    .foregroundStyle(Color.appTextPrimary)
 
                 Text("If you're struggling, please reach out to someone who can help. You don't have to face this alone.")
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Command.callout)
-                    .foregroundStyle(Color.textSecondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Theme.Spacing.sm)
             }
@@ -69,12 +69,12 @@ struct CrisisHelpModal: View {
                 Text("I'm Okay")
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Command.label)
-                    .foregroundStyle(Color.textSecondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .padding(.horizontal, Theme.Spacing.xxl)
                     .padding(.vertical, Theme.Spacing.md)
                     .background(
                         Capsule()
-                            .stroke(Color.gray.opacity(0.15), lineWidth: Theme.Stroke.hairline)
+                            .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
                     )
             }
             .accessibilityLabel("I'm Okay")
@@ -82,7 +82,7 @@ struct CrisisHelpModal: View {
             .padding(.bottom, Theme.Spacing.sm)
         }
         .padding(Theme.Spacing.xxl)
-        .background(Color(hex: "1E3A8A"))
+        .background(Color("AppAccentAction"))
         .onAppear {
             HapticService.shared.warning()
         }
@@ -102,23 +102,23 @@ struct CrisisHelpModal: View {
                 Image(systemName: icon)
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Command.title3)
-                    .foregroundStyle(Color.decorativeRose)
+                    .foregroundStyle(Color("FeedbackError").opacity(0.8))
                     .frame(width: 40, height: 40)
                     .background(
                         Circle()
-                            .fill(Color.decorativeRose.opacity(0.15))
+                            .fill(Color("FeedbackError").opacity(0.8).opacity(0.15))
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         // swiftlint:disable:next hardcoded_font_system
                         .font(Typography.Command.callout.weight(.semibold))
-                        .foregroundStyle(Color.textPrimary)
+                        .foregroundStyle(Color.appTextPrimary)
 
                     Text(subtitle)
                         // swiftlint:disable:next hardcoded_font_system
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.textSecondary.opacity(Theme.Opacity.overlay))
+                        .foregroundStyle(Color.appTextSecondary.opacity(Theme.Opacity.textTertiary))
                 }
 
                 Spacer()
@@ -126,15 +126,15 @@ struct CrisisHelpModal: View {
                 Image(systemName: "chevron.right")
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Icon.sm)
-                    .foregroundStyle(Color.textSecondary.opacity(Theme.Opacity.overlay))
+                    .foregroundStyle(Color.appTextSecondary.opacity(Theme.Opacity.textTertiary))
             }
             .padding(Theme.Spacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .fill(Color.white.opacity(Theme.Opacity.faint))
+                    .fill(Color.white.opacity(Theme.Opacity.subtle))
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .stroke(Color.gray.opacity(0.15), lineWidth: Theme.Stroke.hairline)
+                            .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
                     )
             )
         }
@@ -148,5 +148,5 @@ struct CrisisHelpModal: View {
 
 #Preview("Crisis Help Modal") {
     CrisisHelpModal(onDismiss: {})
-        .background(Color(hex: "1E3A8A"))
+        .background(Color("AppAccentAction"))
 }

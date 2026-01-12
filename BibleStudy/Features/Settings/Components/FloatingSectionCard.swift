@@ -20,8 +20,7 @@ struct FloatingSectionCard<Content: View>: View {
                     .foregroundStyle(accentColor)
 
                 Text(title)
-                    // swiftlint:disable:next hardcoded_font_custom
-                    .font(.system(size: 14, weight: .medium, design: .serif))
+                    .font(Typography.Scripture.footnote.weight(.medium))
                     .foregroundStyle(accentColor)
                     .textCase(.uppercase)
                     // swiftlint:disable:next hardcoded_tracking
@@ -38,7 +37,7 @@ struct FloatingSectionCard<Content: View>: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay {
@@ -46,9 +45,9 @@ struct FloatingSectionCard<Content: View>: View {
                     .strokeBorder(
                         LinearGradient(
                             colors: [
-                                accentColor.opacity(Theme.Opacity.secondary),
-                                accentColor.opacity(Theme.Opacity.faint),
-                                accentColor.opacity(Theme.Opacity.secondary)
+                                accentColor.opacity(Theme.Opacity.textSecondary),
+                                accentColor.opacity(Theme.Opacity.subtle),
+                                accentColor.opacity(Theme.Opacity.textSecondary)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -58,7 +57,7 @@ struct FloatingSectionCard<Content: View>: View {
                     )
             }
             // swiftlint:disable:next hardcoded_shadow_params
-            .shadow(color: accentColor.opacity(Theme.Opacity.faint), radius: 20, y: 8)
+            .shadow(color: accentColor.opacity(Theme.Opacity.subtle), radius: 20, y: 8)
         }
         .frame(maxWidth: .infinity)
     }
@@ -72,7 +71,7 @@ struct FloatingSectionCard_Previews: PreviewProvider {
         FloatingSectionCard(
             title: "AI & Insights",
             icon: "sparkles",
-            accentColor: Color.accentIndigo
+            accentColor: Color("AppAccentAction")
         ) {
             Text("Sample content")
                 .padding()

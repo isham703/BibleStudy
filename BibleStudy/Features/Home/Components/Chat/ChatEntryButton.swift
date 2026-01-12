@@ -4,20 +4,18 @@ import SwiftUI
 // Floating AI chat entry point with glass styling
 
 struct ChatEntryButton: View {
-    @Environment(\.colorScheme) private var colorScheme
     @State private var floatOffset: CGFloat = 0
     @State private var isPressed = false
 
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "bubble.left.fill")
                 .font(Typography.Icon.md.weight(.medium))
-                .foregroundStyle(Colors.Semantic.accentSeal(for: themeMode))
+                .foregroundStyle(Color("AccentBronze"))
 
             Text("Ask AI anything...")
                 .font(Typography.Command.subheadline.weight(.medium))
-                .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Spacer()
         }
@@ -25,7 +23,7 @@ struct ChatEntryButton: View {
         .padding(.vertical, Theme.Spacing.md)
         .background(
             Capsule()
-                .fill(.ultraThinMaterial.opacity(Theme.Opacity.secondary))
+                .fill(.ultraThinMaterial.opacity(Theme.Opacity.textSecondary))
         )
         .background(
             Capsule()
@@ -33,8 +31,8 @@ struct ChatEntryButton: View {
                     // swiftlint:disable:next hardcoded_opacity
                     LinearGradient(
                         colors: [
-                            Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.overlay),
-                            Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.faint)
+                            Color("AppTextPrimary").opacity(Theme.Opacity.overlay),
+                            Color("AppTextPrimary").opacity(Theme.Opacity.subtle)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -44,11 +42,11 @@ struct ChatEntryButton: View {
         .overlay(
             Capsule()
                 .stroke(
-                    Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.faint),
+                    Color("AppTextPrimary").opacity(Theme.Opacity.subtle),
                     lineWidth: Theme.Stroke.hairline
                 )
         )
-        .shadow(color: .black.opacity(Theme.Opacity.lightMedium), radius: 16, y: 8)
+        .shadow(color: .black.opacity(Theme.Opacity.selectionBackground), radius: 16, y: 8)
         .offset(y: floatOffset)
         // swiftlint:disable:next hardcoded_scale_effect
         .scaleEffect(isPressed ? 0.97 : 1.0)
@@ -73,7 +71,6 @@ struct ChatEntryButton: View {
 // Glass metric pill for dashboard header
 
 struct MockMetricPill: View {
-    @Environment(\.colorScheme) private var colorScheme
     let icon: String
     let value: String
     let label: String
@@ -87,7 +84,6 @@ struct MockMetricPill: View {
     }
 
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
         VStack(spacing: Theme.Spacing.xs) {
             HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
@@ -96,34 +92,34 @@ struct MockMetricPill: View {
 
                 if let _ = numericValue, hasAnimated {
                     Text("\(displayedValue)")
-                        .font(SanctuaryTypography.Dashboard.metricNumber)
-                        .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+                        .font(Typography.Command.title3.weight(.bold))
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .contentTransition(.numericText())
                 } else {
                     Text(value)
-                        .font(SanctuaryTypography.Dashboard.metricNumber)
-                        .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+                        .font(Typography.Command.title3.weight(.bold))
+                        .foregroundStyle(Color("AppTextPrimary"))
                 }
             }
 
             Text(label)
-                .font(SanctuaryTypography.Dashboard.metricLabel)
-                .foregroundStyle(Colors.Surface.textSecondary(for: themeMode))
+                .font(Typography.Command.caption)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Theme.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(.ultraThinMaterial.opacity(Theme.Opacity.secondary))
+                .fill(.ultraThinMaterial.opacity(Theme.Opacity.textSecondary))
         )
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Surface.surface(for: themeMode).opacity(Theme.Opacity.faint))
+                .fill(Color.appSurface.opacity(Theme.Opacity.subtle))
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .stroke(
-                    Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.faint),
+                    Color("AppTextPrimary").opacity(Theme.Opacity.subtle),
                     lineWidth: Theme.Stroke.hairline
                 )
         )
@@ -144,11 +140,8 @@ struct MockMetricPill: View {
 // MARK: - Preview
 
 #Preview {
-    @Previewable @Environment(\.colorScheme) var colorScheme
-    let themeMode = ThemeMode.current(from: colorScheme)
-
     ZStack {
-        Colors.Surface.background(for: themeMode).ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
 
         // swiftlint:disable:next hardcoded_stack_spacing
         VStack(spacing: 30) {
@@ -167,14 +160,14 @@ struct MockMetricPill: View {
                     icon: "book.fill",
                     value: "Day 8",
                     label: "of John",
-                    color: Colors.Semantic.accentSeal(for: themeMode)
+                    color: Color("AccentBronze")
                 )
 
                 MockMetricPill(
                     icon: "sparkles",
                     value: "5",
                     label: "due",
-                    color: Colors.Semantic.accentAction(for: themeMode)
+                    color: Color("AppAccentAction")
                 )
             }
             .padding(.horizontal)

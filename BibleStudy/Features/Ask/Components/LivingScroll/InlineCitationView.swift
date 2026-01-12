@@ -56,7 +56,7 @@ struct InlineCitationView: View {
             }
             .trim(from: 0, to: threadLength)
             .stroke(
-                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
+                Color("AccentBronze").opacity(Theme.Opacity.textPrimary),
                 style: StrokeStyle(
                     lineWidth: Theme.Stroke.hairline,
                     lineCap: .round,
@@ -66,7 +66,7 @@ struct InlineCitationView: View {
 
             // Connection node
             Circle()
-                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AccentBronze"))
                 .frame(width: 4, height: 4)
                 .position(x: geometry.size.width * 0.15, y: 0)
                 .opacity(threadLength > 0 ? Theme.Opacity.pressed : 0)
@@ -110,20 +110,20 @@ struct CitationPill: View {
             HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "book.closed")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AccentBronze"))
 
                 Text(citation.shortReference)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AccentBronze"))
             }
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                    .fill(Color("AccentBronze").opacity(Theme.Opacity.subtle))
                     .overlay(
                         Capsule()
-                            .strokeBorder(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
+                            .strokeBorder(Color("AccentBronze").opacity(Theme.Opacity.textSecondary), lineWidth: Theme.Stroke.hairline)
                     )
             )
             .scaleEffect(isPressed ? 0.98 : 1)
@@ -219,7 +219,7 @@ struct InlineCitationView_Previews: PreviewProvider {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 Text("When Jesus saw the crowds, he went up on a mountainside and sat down. His disciples came to him, and he began to teach them.")
                     .font(.system(.body, design: .serif))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 InlineCitationView(
                     citations: [
@@ -230,7 +230,7 @@ struct InlineCitationView_Previews: PreviewProvider {
                 )
             }
             .padding()
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
 
             Text("Single Citation")

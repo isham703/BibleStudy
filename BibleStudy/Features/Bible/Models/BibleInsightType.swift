@@ -25,10 +25,10 @@ enum BibleInsightType: CaseIterable {
     /// Display color (wax seal aesthetic)
     var color: Color {
         switch self {
-        case .connection: return .connectionAmber
-        case .greek: return .greekBlue
-        case .theology: return .theologyGreen
-        case .question: return .personalRose
+        case .connection: return Color("AccentBronze")
+        case .greek: return Color("FeedbackInfo")
+        case .theology: return Color("FeedbackSuccess")
+        case .question: return Color("FeedbackError").opacity(Theme.Opacity.textSecondary)
         }
     }
 
@@ -129,8 +129,8 @@ extension Color {
     /// Bible insight palette - adaptive colors from asset catalog
     /// These automatically respond to light/dark mode
     static var bibleInsightParchment: Color { .appBackground }
-    static var bibleInsightCardBackground: Color { .surfaceBackground }
-    static var bibleInsightText: Color { .primaryText }
-    static var bibleInsightAccent: Color { Color.accentIndigo }
-    static var bibleInsightGold: Color { Color.accentBronze }
+    static var bibleInsightCardBackground: Color { Color("AppSurface") }
+    static var bibleInsightText: Color { Color("AppTextPrimary") }
+    static var bibleInsightAccent: Color { Color("AppAccentAction") }
+    static var bibleInsightGold: Color { Color("AccentBronze") }
 }

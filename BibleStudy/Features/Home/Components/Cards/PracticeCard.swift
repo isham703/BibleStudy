@@ -14,34 +14,34 @@ struct PracticeCard: View {
             HStack {
                 Text("\(practice.dueCount) verses due")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("·")
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Text("~\(practice.estimatedMinutes) min")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             // Breakdown
             HStack(spacing: Theme.Spacing.lg) {
                 HStack(spacing: Theme.Spacing.xs) {
                     Circle()
-                        .fill(Colors.Semantic.success(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("FeedbackSuccess"))
                         .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
                     Text("\(practice.learningCount) learning")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
 
                 HStack(spacing: Theme.Spacing.xs) {
                     Circle()
-                        .fill(Colors.Semantic.info(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("FeedbackInfo"))
                         .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
                     Text("\(practice.reviewingCount) reviewing")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
             }
 
@@ -51,12 +51,12 @@ struct PracticeCard: View {
 
                 Text("Start Practice")
                     .font(Typography.Command.cta)
-                    .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(.white)
                     .padding(.horizontal, Theme.Spacing.xl)
                     .padding(.vertical, Theme.Spacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .fill(Color("AppAccentAction"))
                     )
 
                 Spacer()
@@ -66,12 +66,12 @@ struct PracticeCard: View {
         .padding(Theme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color.appSurface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .stroke(
-                    Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                    Color.appDivider,
                     lineWidth: Theme.Stroke.hairline
                 )
         )
@@ -82,10 +82,9 @@ struct PracticeCard: View {
 
 #Preview("Practice Card") {
     @Previewable @Environment(\.colorScheme) var colorScheme
-    let themeMode = ThemeMode.current(from: colorScheme)
 
     ZStack {
-        Colors.Surface.background(for: themeMode).ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
 
         PracticeCard(practice: SanctuaryMockData.practiceData)
             .padding()

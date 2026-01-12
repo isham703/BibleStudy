@@ -157,9 +157,9 @@ actor HLSAudioGenerator {
         let verses = chapter.verses
         let totalVerses = verses.count
 
-        // Phase 1: Quick-start (first 8 verses for ~50-60 seconds buffer)
-        // Increased from 3 to reduce mid-playback reloads
-        let quickStartCount = min(8, totalVerses)
+        // Phase 1: Quick-start (first 3 verses for fast ~4 second startup)
+        // Remaining verses generate in background while playing
+        let quickStartCount = min(3, totalVerses)
         var segments: [HLSManifestManager.SegmentInfo] = []
         var currentStartTime: TimeInterval = 0
 
@@ -229,9 +229,9 @@ actor HLSAudioGenerator {
 
                 print("[HLS] Generated verse \(verse.number) (\(i + 1)/\(totalVerses) total)")
 
-                // Trigger progressive update every 5 verses to extend playback buffer
+                // Trigger progressive update every 3 verses to keep buffer ahead of playback
                 let versesGenerated = i + 1
-                if versesGenerated % 5 == 0 {
+                if versesGenerated % 3 == 0 {
                     let currentTimings = segments.map { seg in
                         VerseTiming(
                             verseNumber: seg.verseNumber,

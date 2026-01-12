@@ -33,7 +33,7 @@ struct StoryReaderView: View {
                     viewModel.goToSegment(index)
                 }
             )
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
 
             Divider()
 
@@ -226,10 +226,10 @@ struct AIDisclaimerBanner: View {
             Image(systemName: "info.circle")
                 .font(Typography.Command.caption)
         }
-        .foregroundStyle(Color.accentIndigo)
+        .foregroundStyle(Color("AppAccentAction"))
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.sm)
-        .background(Color.accentIndigo.opacity(Theme.Opacity.subtle))
+        .background(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
     }
 }
 
@@ -262,7 +262,7 @@ struct SegmentNavigationBar: View {
             // Progress indicator
             Text("\(currentIndex + 1) of \(totalSegments)")
                 .font(Typography.Command.caption.monospacedDigit())
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Spacer()
 
@@ -276,7 +276,7 @@ struct SegmentNavigationBar: View {
                     .font(Typography.Command.subheadline)
                     .fontWeight(.semibold)
                 }
-                .tint(.success)
+                .tint(Color("FeedbackSuccess"))
             } else {
                 Button(action: onNext) {
                     HStack(spacing: Theme.Spacing.xs) {
@@ -289,7 +289,7 @@ struct SegmentNavigationBar: View {
         }
         .padding(.horizontal, Theme.Spacing.lg)
         .padding(.vertical, Theme.Spacing.md)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .overlay(
             Divider(),
             alignment: .top
@@ -310,7 +310,7 @@ struct StoryInfoSheet: View {
                     // Description
                     Text(story.description)
                         .font(Typography.Command.body)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Divider()
 
@@ -328,7 +328,7 @@ struct StoryInfoSheet: View {
                             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                                 Text("Generation Info")
                                     .font(Typography.Scripture.heading)
-                                    .foregroundStyle(Color.primaryText)
+                                    .foregroundStyle(Color("AppTextPrimary"))
 
                                 if let modelId = story.modelId {
                                     InfoRow(label: "Model", value: modelId)
@@ -339,7 +339,7 @@ struct StoryInfoSheet: View {
 
                                 Text("This story is an AI-generated retelling based on the source scripture. Always refer to the original text for authoritative guidance.")
                                     .font(Typography.Command.caption)
-                                    .foregroundStyle(Color.secondaryText)
+                                    .foregroundStyle(Color("AppTextSecondary"))
                                     .padding(.top, Theme.Spacing.xs)
                             }
                         }
@@ -352,12 +352,12 @@ struct StoryInfoSheet: View {
                         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                             Text("Source Scripture")
                                 .font(Typography.Scripture.heading)
-                                .foregroundStyle(Color.primaryText)
+                                .foregroundStyle(Color("AppTextPrimary"))
 
                             ForEach(story.verseAnchors, id: \.id) { anchor in
                                 Text(anchor.reference)
                                     .font(Typography.Command.body)
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .foregroundStyle(Color("AppAccentAction"))
                             }
                         }
                     }
@@ -386,11 +386,11 @@ struct InfoRow: View {
         HStack {
             Text(label)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
             Spacer()
             Text(value)
                 .font(useMonospacedDigits ? Typography.Command.body.monospacedDigit() : Typography.Command.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
         }
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Bible Chapter Header
 // Living Commentary style chapter header with book category, name, and chapter number
-// Elegant typography with Cormorant font and decorative elements
+// Typography: Cormorant for book title (deliberate exception), system tokens for everything else
 
 struct BibleChapterHeader: View {
     let book: Book?
@@ -11,44 +11,45 @@ struct BibleChapterHeader: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    // Dynamic Type Support
-    @ScaledMetric(relativeTo: .title) private var chapterTitleSize: CGFloat = 52
-    @ScaledMetric(relativeTo: .footnote) private var chapterLabelSize: CGFloat = 14
-    @ScaledMetric(relativeTo: .caption) private var headerLabelSize: CGFloat = 11
+    // Dynamic Type Support with clamping
+    // Base: 52pt, Min: 40pt (small text), Max: 72pt (prevents AX5 overflow)
+    // Rationale: Long names like "1 Thessalonians" need room; huge sizes break layout
+    @ScaledMetric(relativeTo: .title) private var scaledTitleSize: CGFloat = Typography.TitlePage.bookTitleBaseSize
+
+    /// Clamped book title size - prevents runaway scaling at accessibility sizes
+    private var bookTitleSize: CGFloat {
+        min(max(scaledTitleSize, 40), 72)
+    }
 
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
         // swiftlint:disable:next hardcoded_stack_spacing
         VStack(spacing: 12) {
             // Book category label (e.g., "THE GOSPEL OF", "THE BOOK OF")
+            // Uses Editorial token: tracked uppercase, tertiary contrast
             Text(bookCategoryLabel)
-                // swiftlint:disable:next hardcoded_font_system
-                .font(.system(size: headerLabelSize, weight: .medium))
-                .tracking(3)
-                .foregroundStyle(Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.disabled))
+                .editorialSectionHeader()
+                .foregroundStyle(Color("TertiaryText"))
 
-            // Book name - large Cormorant font
+            // Book name - Cormorant Garamond (deliberate exception for title page ceremony)
+            // See Typography.TitlePage documentation for rationale
+            //
+            // Fallback hierarchy (in order of preference):
+            // 1. Single line at full size (most names)
+            // 2. Two-line wrap with controlled leading (long names at AX sizes)
+            // 3. Slight scale down to 0.85 (rare edge cases)
+            // Never shrink below 0.85 - preserves title-page gravitas + accessibility intent
             Text(book?.name ?? "")
-                // swiftlint:disable:next hardcoded_font_custom
-                .font(.custom("CormorantGaramond-SemiBold", size: chapterTitleSize))
-                .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+                .titlePageBookTitle(size: bookTitleSize)
+                .minimumScaleFactor(0.85)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(Color("AppTextPrimary"))
 
-            // Chapter with decorative lines
-            // swiftlint:disable:next hardcoded_stack_spacing
-            HStack(spacing: 16) {
-                Rectangle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
-                    .frame(width: 40, height: Theme.Stroke.hairline)
-
-                Text("Chapter \(chapter)")
-                    // swiftlint:disable:next hardcoded_font_system
-                    .font(.system(size: chapterLabelSize, weight: .semibold))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
-
-                Rectangle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
-                    .frame(width: 40, height: Theme.Stroke.hairline)
-            }
+            // Chapter label - sans metadata, medium weight (secondary tier)
+            // Keeps "Chapter" as navigation metadata, not competing with book title
+            Text("Chapter \(chapter)")
+                .commandLabel()
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .frame(maxWidth: .infinity)
         .opacity(isVisible ? 1 : 0)
@@ -90,22 +91,20 @@ struct BibleChapterHeader: View {
 
 struct BibleEditorialDivider: View {
     let isVisible: Bool
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
         Rectangle()
-            .fill(Colors.Surface.textPrimary(for: themeMode).opacity(Theme.Opacity.subtle))
+            .fill(Color("AppTextPrimary").opacity(Theme.Opacity.subtle))
             .frame(height: Theme.Stroke.hairline)
             .padding(.horizontal, Theme.Spacing.xl)
             .opacity(isVisible ? 1 : 0)
-            .animation(Theme.Animation.settle.delay(0.3), value: isVisible)
+            .animation(Theme.Animation.fade, value: isVisible)
     }
 }
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Standard Names") {
     VStack(spacing: Theme.Spacing.xl) {
         BibleChapterHeader(
             book: Book.find(byId: 43), // John
@@ -122,5 +121,48 @@ struct BibleEditorialDivider: View {
         )
     }
     .padding()
-    .background(Colors.Surface.background(for: .dark))
+    .background(Color("AppBackground"))
+}
+
+#Preview("Long Names (Edge Cases)") {
+    VStack(spacing: Theme.Spacing.xl) {
+        // Longest book names - tests 2-line wrap
+        BibleChapterHeader(
+            book: Book.find(byId: 52), // 1 Thessalonians
+            chapter: 1,
+            isVisible: true
+        )
+
+        BibleEditorialDivider(isVisible: true)
+
+        BibleChapterHeader(
+            book: Book.find(byId: 22), // Song of Solomon
+            chapter: 2,
+            isVisible: true
+        )
+    }
+    .padding()
+    .background(Color("AppBackground"))
+}
+
+#Preview("Accessibility Large (AX3)") {
+    VStack(spacing: Theme.Spacing.xl) {
+        // Tests 2-line wrap behavior at accessibility sizes
+        BibleChapterHeader(
+            book: Book.find(byId: 52), // 1 Thessalonians
+            chapter: 1,
+            isVisible: true
+        )
+
+        BibleEditorialDivider(isVisible: true)
+
+        BibleChapterHeader(
+            book: Book.find(byId: 5), // Deuteronomy (wide forms)
+            chapter: 1,
+            isVisible: true
+        )
+    }
+    .padding()
+    .background(Color("AppBackground"))
+    .environment(\.dynamicTypeSize, .accessibility3)
 }

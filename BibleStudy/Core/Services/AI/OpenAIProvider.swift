@@ -610,7 +610,7 @@ final class OpenAIProvider: AIServiceProtocol {
                 prompt: prompt,
                 systemPrompt: systemPrompt,
                 model: AppConfiguration.AI.defaultModel,
-                maxTokens: 500,
+                maxTokens: 800,  // Increased to ensure full JSON response with amen
                 useLongRunningSession: true
             )
             // Record success with circuit breaker
@@ -629,12 +629,20 @@ final class OpenAIProvider: AIServiceProtocol {
         let cleanedResponse = Self.stripMarkdownCodeFences(response)
 
         // Try to parse JSON response
-        guard let data = cleanedResponse.data(using: .utf8),
-              let output = try? JSONDecoder().decode(PrayerGenerationOutput.self, from: data) else {
+        guard let data = cleanedResponse.data(using: .utf8) else {
+            print("🙏 Prayer: Failed to convert response to data")
+            print("🙏 Prayer: Response preview: \(cleanedResponse.prefix(500))")
             throw AIServiceError.invalidResponse
         }
 
-        return output
+        do {
+            let output = try JSONDecoder().decode(PrayerGenerationOutput.self, from: data)
+            return output
+        } catch {
+            print("🙏 Prayer: JSON decode failed: \(error)")
+            print("🙏 Prayer: Response was: \(cleanedResponse.prefix(500))")
+            throw AIServiceError.invalidResponse
+        }
     }
 
     // MARK: - Sermon Study Guide Generation
@@ -837,12 +845,24 @@ final class OpenAIProvider: AIServiceProtocol {
             throw AIServiceError.invalidResponse
         }
 
+        // Log response status for debugging
+        if httpResponse.statusCode != 200 {
+            if let errorBody = String(data: data, encoding: .utf8) {
+                print("OpenAIProvider: API error \(httpResponse.statusCode): \(errorBody)")
+            }
+        }
+
         try checkResponseStatus(httpResponse)
 
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         guard let choices = json?["choices"] as? [[String: Any]],
               let message = choices.first?["message"] as? [String: Any],
               let content = message["content"] as? String else {
+            // Log what we received if parsing fails
+            if let rawResponse = String(data: data, encoding: .utf8) {
+                print("OpenAIProvider: Failed to parse response structure")
+                print("OpenAIProvider: Raw response: \(rawResponse.prefix(500))")
+            }
             throw AIServiceError.invalidResponse
         }
 

@@ -49,12 +49,12 @@ struct BibleMenuRow: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(Typography.Scripture.body.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
                     }
                 }
 
@@ -63,7 +63,7 @@ struct BibleMenuRow: View {
                 // Chevron
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption.weight(.semibold))
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(.vertical, Theme.Spacing.sm)
             .padding(.horizontal, Theme.Spacing.xs)
@@ -90,20 +90,20 @@ struct BibleMenuRow_Previews: PreviewProvider {
         VStack(spacing: 0) {
             BibleMenuRow(
                 icon: "magnifyingglass",
-                iconColor: Color.accentIndigo,
+                iconColor: Color("AppAccentAction"),
                 title: "Search",
                 subtitle: "Find verses and passages"
             ) { }
 
             BibleMenuRow(
                 icon: "speaker.wave.2",
-                iconColor: Color.greekBlue,
+                iconColor: Color("FeedbackInfo"),
                 title: "Listen",
                 subtitle: "Audio playback"
             ) { }
         }
         .padding()
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 }
 #endif

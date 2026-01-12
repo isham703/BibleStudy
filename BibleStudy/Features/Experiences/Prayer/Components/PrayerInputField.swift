@@ -17,7 +17,7 @@ struct PrayerInputField: View {
                 Text(placeholder)
                     // swiftlint:disable:next hardcoded_font_custom
                     .font(.system(size: 17, weight: .regular, design: .serif).italic())
-                    .foregroundStyle(Color.tertiaryText.opacity(Theme.Opacity.strong))
+                    .foregroundStyle(Color("TertiaryText").opacity(Theme.Opacity.pressed))
                     .padding(.horizontal, Theme.Spacing.xl)
                     .padding(.top, Theme.Spacing.lg)
             }
@@ -25,7 +25,7 @@ struct PrayerInputField: View {
             TextEditor(text: $text)
                 // swiftlint:disable:next hardcoded_font_custom
                 .font(.system(size: 17, weight: .regular, design: .serif).italic())
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, Theme.Spacing.lg)
                 .padding(.vertical, Theme.Spacing.md)
@@ -35,13 +35,13 @@ struct PrayerInputField: View {
         .frame(height: 140)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .fill(Color.appBackground.opacity(Theme.Opacity.heavy))
+                .fill(Color.appBackground.opacity(Theme.Opacity.textSecondary))
         )
         .overlay(
             ManuscriptBorder(isFocused: isFocused, colorScheme: colorScheme)
         )
         .shadow(
-            color: isFocused ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium) : Color.clear,
+            color: isFocused ? Color("AccentBronze").opacity(Theme.Opacity.selectionBackground) : Color.clear,
             // swiftlint:disable:next hardcoded_shadow_radius
             radius: 12
         )
@@ -55,7 +55,7 @@ private struct ManuscriptBorder: View {
     let colorScheme: ColorScheme
 
     private var sealColor: Color {
-        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
+        Color("AccentBronze")
     }
 
     var body: some View {

@@ -55,7 +55,7 @@ struct DiscoveryCarousel: View {
             HStack(spacing: Theme.Spacing.sm) {
                 ForEach(0..<items.count, id: \.self) { index in
                     Circle()
-                        .fill(index == currentPage ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                        .fill(index == currentPage ? Color("AccentBronze") : Color("AppTextSecondary").opacity(Theme.Opacity.textSecondary))
                         .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
                         .animation(Theme.Animation.settle, value: currentPage)
                 }
@@ -87,19 +87,19 @@ struct CompactDiscoveryCard: View {
             .padding(.vertical, 2)
             .background(
                 Capsule()
-                    .fill(badgeColor.opacity(Theme.Opacity.light))
+                    .fill(badgeColor.opacity(Theme.Opacity.selectionBackground))
             )
 
             // Title
             Text(item.title)
-                .font(SanctuaryTypography.Dashboard.cardTitle)
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .font(Typography.Command.headline)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .lineLimit(2)
 
             // Subtitle
             Text(item.subtitle)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
                 .lineLimit(1)
 
             Spacer()
@@ -107,17 +107,17 @@ struct CompactDiscoveryCard: View {
             // Duration
             Text("\(item.estimatedMinutes) min")
                 .font(Typography.Icon.xs.weight(.medium))
-                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("TertiaryText"))
         }
         .frame(width: 80, height: 80)
         .padding(Theme.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color.appSurface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(Color.white.opacity(Theme.Opacity.faint), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color.white.opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
         )
         .scaleEffect(isPressed ? 0.99 : 1.0)
         .animation(Theme.Animation.settle, value: isPressed)
@@ -129,11 +129,11 @@ struct CompactDiscoveryCard: View {
     private var badgeColor: Color {
         switch item.type {
         case .story:
-            return .lapisLazuli
+            return Color("AppAccentAction")
         case .topic:
-            return Color.accentBronze
+            return Color("AccentBronze")
         case .character:
-            return .amethyst
+            return Color("AppAccentAction")
         }
     }
 }
@@ -151,18 +151,18 @@ struct CinematicDiscoveryCard: View {
 
             // Title
             Text(item.title)
-                .font(SanctuaryTypography.Narrative.cardTitle)
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .font(Typography.Command.title3.weight(.bold))
+                .foregroundStyle(Color("AppTextPrimary"))
 
             // Subtitle
             Text(item.subtitle)
-                .font(SanctuaryTypography.Narrative.cardSubtitle)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .font(Typography.Command.subheadline)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             // Duration
             Text("\(item.estimatedMinutes) min")
                 .font(Typography.Command.caption.weight(.medium))
-                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("TertiaryText"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Theme.Spacing.xl)
@@ -171,8 +171,8 @@ struct CinematicDiscoveryCard: View {
                 // Gradient background
                 LinearGradient(
                     colors: [
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed),
-                        Colors.Surface.background(for: ThemeMode.current(from: colorScheme))
+                        Color("AppAccentAction").opacity(Theme.Opacity.pressed),
+                        Color.appBackground
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -182,7 +182,7 @@ struct CinematicDiscoveryCard: View {
             }
         )
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-        .shadow(color: .black.opacity(Theme.Opacity.secondary), radius: 12, y: 6)
+        .shadow(color: .black.opacity(Theme.Opacity.textSecondary), radius: 12, y: 6)
         .padding(.horizontal, Theme.Spacing.lg)
     }
 }
@@ -191,7 +191,7 @@ struct CinematicDiscoveryCard: View {
 
 #Preview("Compact") {
     ZStack {
-        Colors.Surface.background(for: .dark).ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
 
         DiscoveryCarousel(
             items: SanctuaryMockData.allDiscoveryItems,
@@ -202,7 +202,7 @@ struct CinematicDiscoveryCard: View {
 
 #Preview("Cinematic") {
     ZStack {
-        Colors.Surface.background(for: .dark).ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
 
         DiscoveryCarousel(
             items: SanctuaryMockData.featuredStories,

@@ -62,13 +62,13 @@ struct ScriptureReferenceDetailSheet: View {
                 }
                 .padding(Theme.Spacing.xxl)
             }
-            .background(Color.surfaceParchment)
+            .background(Color("AppBackground"))
             .navigationTitle(reference.reference)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(Color.accentBronze)
+                        .foregroundStyle(Color("AccentBronze"))
                 }
             }
         }
@@ -85,18 +85,18 @@ struct ScriptureReferenceDetailSheet: View {
         HStack(spacing: Theme.Spacing.md) {
             Image(systemName: "book.closed.fill")
                 .font(Typography.Icon.xxl)
-                .foregroundStyle(Color.accentBronze)
+                .foregroundStyle(Color("AccentBronze"))
 
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(reference.reference)
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.textPrimary)
+                    .foregroundStyle(Color.appTextPrimary)
 
                 HStack(spacing: Theme.Spacing.sm) {
                     if reference.isMentioned {
                         Label("Mentioned", systemImage: "quote.bubble")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.accentBronze)
+                            .foregroundStyle(Color("AccentBronze"))
                     } else if let status = reference.verificationStatus {
                         HStack(spacing: Theme.Spacing.xs) {
                             VerificationStatusIndicator(status: status)
@@ -111,11 +111,11 @@ struct ScriptureReferenceDetailSheet: View {
             Spacer()
         }
         .padding()
-        .background(Color.surfaceRaised)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .stroke(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -127,9 +127,9 @@ struct ScriptureReferenceDetailSheet: View {
 
             Text(rationale)
                 .font(Typography.Scripture.body)
-                .foregroundStyle(Color.textPrimary)
+                .foregroundStyle(Color.appTextPrimary)
                 .padding()
-                .background(Color.surfaceRaised)
+                .background(Color("AppSurface"))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
         }
     }
@@ -143,23 +143,23 @@ struct ScriptureReferenceDetailSheet: View {
                     HStack {
                         Image(systemName: "book.closed")
                             .font(Typography.Icon.xs)
-                            .foregroundStyle(Color(hex: "6B5844"))
+                            .foregroundStyle(Color("AccentBronze"))
 
                         Text(crossRef.displayRef)
                             .font(Typography.Scripture.body)
-                            .foregroundStyle(Color.textPrimary)
+                            .foregroundStyle(Color.appTextPrimary)
 
                         Spacer()
 
                         if let weight = crossRef.weight {
                             Text("\(weight)%")
                                 .font(Typography.Command.meta)
-                                .foregroundStyle(Color.textSecondary)
+                                .foregroundStyle(Color.appTextSecondary)
                         }
                     }
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.vertical, Theme.Spacing.sm)
-                    .background(Color.surfaceRaised.opacity(Theme.Opacity.heavy))
+                    .background(Color("AppSurface").opacity(Theme.Opacity.textSecondary))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
                 }
             }
@@ -175,17 +175,17 @@ struct ScriptureReferenceDetailSheet: View {
                     HStack {
                         Image(systemName: "text.quote")
                             .font(Typography.Icon.xs)
-                            .foregroundStyle(Color(hex: "6B5844"))
+                            .foregroundStyle(Color("AccentBronze"))
 
                         Text(insight.title)
                             .font(Typography.Scripture.body)
-                            .foregroundStyle(Color.textPrimary)
+                            .foregroundStyle(Color.appTextPrimary)
 
                         Spacer()
                     }
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.vertical, Theme.Spacing.sm)
-                    .background(Color.surfaceRaised.opacity(Theme.Opacity.heavy))
+                    .background(Color("AppSurface").opacity(Theme.Opacity.textSecondary))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
                 }
             }
@@ -201,20 +201,20 @@ struct ScriptureReferenceDetailSheet: View {
                     HStack(spacing: Theme.Spacing.sm) {
                         Image(systemName: "arrow.right")
                             .font(Typography.Icon.xxs.weight(.medium))
-                            .foregroundStyle(Color.feedbackWarning)
+                            .foregroundStyle(Color("FeedbackWarning"))
 
                         Text("Connected from \(formatCanonicalId(sourceId))")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.textSecondary)
+                            .foregroundStyle(Color.appTextSecondary)
                     }
                 }
             }
             .padding()
-            .background(Color.accentBronze.opacity(Theme.Opacity.faint / 2))
+            .background(Color("AccentBronze").opacity(Theme.Opacity.subtle / 2))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .stroke(Color.accentBronze.opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -227,12 +227,12 @@ struct ScriptureReferenceDetailSheet: View {
                 ForEach(notes, id: \.self) { note in
                     Text(note)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.textSecondary)
+                        .foregroundStyle(Color.appTextSecondary)
                         .italic()
                 }
             }
             .padding()
-            .background(Color.surfaceRaised.opacity(Theme.Opacity.heavy))
+            .background(Color("AppSurface").opacity(Theme.Opacity.textSecondary))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
         }
     }
@@ -243,11 +243,11 @@ struct ScriptureReferenceDetailSheet: View {
         HStack(spacing: Theme.Spacing.xs + 2) {
             Image(systemName: icon)
                 .font(Typography.Icon.xs)
-                .foregroundStyle(Color(hex: "6B5844"))
+                .foregroundStyle(Color("AccentBronze"))
 
             Text(title)
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.textPrimary)
+                .foregroundStyle(Color.appTextPrimary)
         }
     }
 
@@ -262,10 +262,10 @@ struct ScriptureReferenceDetailSheet: View {
 
     private func statusColor(for status: VerificationStatus) -> Color {
         switch status {
-        case .verified: return Color.accentBronze
-        case .partial: return Color(hex: "6B5844").opacity(Theme.Opacity.pressed)
-        case .unverified: return Color.textSecondary
-        case .unknown: return Color.textSecondary
+        case .verified: return Color("AccentBronze")
+        case .partial: return Color("AccentBronze").opacity(Theme.Opacity.pressed)
+        case .unverified: return Color.appTextSecondary
+        case .unknown: return Color.appTextSecondary
         }
     }
 

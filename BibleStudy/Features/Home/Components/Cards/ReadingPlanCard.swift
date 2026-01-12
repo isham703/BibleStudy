@@ -14,31 +14,31 @@ struct ReadingPlanCard: View {
             HStack {
                 Text(plan.title)
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Spacer()
 
                 Text("Day \(plan.currentDay)")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             // Reference
             Text(plan.todayReference)
                 .font(Typography.Command.body)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
 
             // Progress bar (flat, no shimmer)
             ZStack(alignment: .leading) {
                 // Track
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                    .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                    .fill(Color.appDivider.opacity(Theme.Opacity.subtle))
                     .frame(height: 8)
 
                 // Fill
                 GeometryReader { geo in
                     RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("AccentBronze"))
                         .frame(width: geo.size.width * plan.progress)
                 }
                 .frame(height: 8)
@@ -48,30 +48,30 @@ struct ReadingPlanCard: View {
             HStack {
                 Text("\(plan.progressPercentage)%")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AccentBronze"))
 
                 Spacer()
 
                 HStack(spacing: Theme.Spacing.xs) {
                     Text("Continue")
                         .font(Typography.Command.cta)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
 
                     Image(systemName: "arrow.right")
                         .font(Typography.Icon.xs)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
             }
         }
         .padding(Theme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color.appSurface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .stroke(
-                    Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                    Color.appDivider,
                     lineWidth: Theme.Stroke.hairline
                 )
         )
@@ -82,10 +82,9 @@ struct ReadingPlanCard: View {
 
 #Preview("Reading Plan Card") {
     @Previewable @Environment(\.colorScheme) var colorScheme
-    let themeMode = ThemeMode.current(from: colorScheme)
 
     ZStack {
-        Colors.Surface.background(for: themeMode).ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
 
         ReadingPlanCard(plan: SanctuaryMockData.activePlan)
             .padding()

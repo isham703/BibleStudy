@@ -1,201 +1,166 @@
 # BibleStudy Design System
 
-Centralized design tokens for consistent UI across the app. All values are enforced by SwiftLint custom rules.
+Stoic-Existential Renaissance design tokens. All values in `Theme.swift`, `Typography.swift`, and `Colors.swift`.
 
 ## Quick Reference
 
-### Spacing (`AppTheme.Spacing.*`)
+### Spacing (`Theme.Spacing.*`)
 
 | Token | Value | Use Case |
 |-------|-------|----------|
-| `.xxs` | 2pt | Micro gaps, tight layouts |
-| `.xs` | 4pt | Icon gaps, inline spacing |
-| `.sm` | 8pt | Component internal padding |
-| `.md` | 12pt | Default spacing |
-| `.lg` | 16pt | Section spacing |
-| `.xl` | 24pt | Major sections |
-| `.xxl` | 32pt | Screen margins |
-| `.xxxl` | 48pt | Hero spacing |
+| `.xs` | 6pt | Tight spacing |
+| `.sm` | 10pt | Small gaps |
+| `.md` | 16pt | Medium gaps (default) |
+| `.lg` | 24pt | Large spacing |
+| `.xl` | 32pt | Extra large |
+| `.xxl` | 48pt | Section spacing |
 
-### Corner Radius (`AppTheme.CornerRadius.*`)
+### Corner Radius (`Theme.Radius.*`)
 
 | Token | Value | Use Case |
 |-------|-------|----------|
-| `.small` / `.sm` | 4pt | Chips, small badges |
-| `.medium` / `.md` | 8pt | Buttons, inputs |
-| `.large` / `.lg` | 12pt | Cards |
-| `.xl` | 16pt | Large cards |
-| `.card` | 12pt | Standard cards |
-| `.sheet` | 20pt | Bottom sheets |
+| `.xs` | 2pt | Indicator strips, progress bars |
+| `.tag` | 6pt | Small badges/tags |
+| `.input` | 8pt | Input fields, small controls |
+| `.md` | 8pt | Context menus (alias) |
+| `.button` | 10pt | CTA buttons |
+| `.card` | 14pt | Cards, floating menus |
+| `.xl` | 16pt | Large cards, overlays |
+| `.sheet` | 20pt | Bottom sheets, modals |
+
+### Stroke (`Theme.Stroke.*`)
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `.hairline` | 1pt | Subtle dividers, card borders |
+| `.control` | 2pt | Control strokes (buttons, inputs) |
+
+### Animation (`Theme.Animation.*`)
+
+Motion is ceremonial, restrained, almost invisible. ALL cubic easing, NO spring animations.
+
+| Token | Duration | Use Case |
+|-------|----------|----------|
+| `.fade` | 220ms easeInOut | Tab switching, modal appearance |
+| `.settle` | 260ms easeOut | Content settling, card reveals |
+| `.slowFade` | 420ms easeInOut | "Begin" transitions, ritual moments |
+| `.stagger(index:)` | 260ms + delay | Sequential list reveals |
+
+**Banned:** Confetti, fireworks, spring animations, bouncy easing, shimmer gradients.
+
+### Opacity (`Theme.Opacity.*`)
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `.pressed` | 0.80 | Button press feedback |
+| `.disabled` | 0.35 | Disabled controls |
+| `.focusStroke` | 0.60 | Focus rings |
+| `.selectionBackground` | 0.15 | Verse/text selection |
+| `.textPrimary` | 0.96 | Primary body text |
+| `.textSecondary` | 0.75 | Supporting text |
+| `.textTertiary` | 0.60 | Metadata, captions |
+| `.textDisabled` | 0.35 | Disabled text |
+| `.divider` | 0.12 | Divider lines, borders |
+| `.overlay` | 0.10 | Modal overlays, scrims |
+| `.subtle` | 0.05 | Atmospheric backgrounds |
+| `.highlight` | 0.40 | Verse highlights |
+
+### Reading Layout (`Theme.Reading.*`)
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `.maxWidth` | 500pt | Reading container max width (~55 chars) |
+| `.horizontalPadding` | 20pt | Reading content margins |
+| `.paragraphSpacing` | 12pt | Between paragraphs |
+| `.sectionSpacing` | 24pt | Chapter/section breaks |
+| `.verseSpacingMeditative` | 20pt | Slow reading mode |
+
+### Size (`Theme.Size.*`)
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `.minTapTarget` | 44pt | Minimum interactive element (Apple HIG) |
+| `.iconSize` | 24pt | Standard icon size |
+| `.iconSizeLarge` | 32pt | Large icon size |
 
 ### Typography
 
-**Display Text** (`Typography.Display.*`) — Serif headlines for premium feel
-| Token | Size | Weight | Design | Use Case |
-|-------|------|--------|--------|----------|
-| `.largeTitle` | 34pt | Medium | Serif | Hero headlines |
-| `.title1` | 28pt | Medium | Serif | Onboarding titles |
-| `.title2` | 22pt | Medium | Serif | Feature headers |
-| `.title3` | 20pt | Medium | Serif | Card titles |
-| `.headline` | 17pt | Semibold | Serif | Section headers |
+**Philosophy:** "Serif for truth. Sans for command."
 
-**UI Text** (`Typography.UI.*`)
-- `.largeTitle` - Screen titles
-- `.title1`, `.title2`, `.title3` - Section headers
-- `.headline` - Emphasized text
-- `.body` - Default reading text
-- `.callout` - Secondary content
-- `.subheadline` - Supporting text
-- `.footnote` - Small annotations
-- `.caption1`, `.caption2` - Labels, metadata
-- `.buttonLabel` - Button text (Rounded design)
-- `.chipLabel` - Chip/tag text (Rounded design)
-- `.tabLabel` - Tab bar labels (Rounded design)
+**Scripture Tokens** (`Typography.Scripture.*`) — New York serif for contemplation
+| Token | Size | Use Case |
+|-------|------|----------|
+| `.display` | 34pt semibold | Hero titles |
+| `.title` | 28pt semibold | Screen titles |
+| `.heading` | 22pt semibold | Section headers |
+| `.prompt` | 24pt regular | Examination questions |
+| `.body` | 17pt regular | Scripture reading |
+| `.quote` | 17pt italic | Maxims, quotations |
+| `.footnote` | 13pt regular | Footnotes, references |
 
-**Warm Variants** (`Typography.UI.*`) — Rounded design for welcoming contexts
-| Token | Size | Weight | Use Case |
-|-------|------|--------|----------|
-| `.warmBody` | 17pt | Regular | Welcoming messages, onboarding subtitles |
-| `.warmHeadline` | 17pt | Semibold | Friendly section headers |
-| `.warmSubheadline` | 15pt | Regular | Supportive text, empty states |
+**Command Tokens** (`Typography.Command.*`) — SF Pro sans for action
+| Token | Size | Use Case |
+|-------|------|----------|
+| `.cta` | 17pt semibold | Primary buttons |
+| `.body` | 17pt regular | Short instructions |
+| `.label` | 15pt medium | Field labels, chips |
+| `.meta` | 13pt medium | Dates, tags, verse numbers |
+| `.caption` | 12pt regular | Hints, helper text |
+| `.errorTitle` | 15pt semibold | Error titles |
+| `.errorBody` | 13pt regular | Error guidance |
 
-**Scripture Text** (`Typography.Scripture.*`)
-- `.body` - Verse text
-- `.title` - Book/chapter titles
-- `.verseNumber` - Verse numbers
-- `.chapterNumber` - Chapter numbers
-- `.quote` - Block quotes
+**Editorial Tokens** (`Typography.Editorial.*`) — Tracked uppercase
+| Token | Size | Tracking | Use Case |
+|-------|------|----------|----------|
+| `.sectionHeader` | 11pt bold | 2.5px | Section headers |
+| `.label` | 10pt bold | 2.0px | Editorial labels |
 
-### Animation (`AppTheme.Animation.*`)
+**Label Tokens** (`Typography.Label.*`) — Uppercase tags
+| Token | Size | Tracking | Use Case |
+|-------|------|----------|----------|
+| `.uppercase` | 12pt medium | 2.2px | Metadata tags, small labels |
 
-| Token | Description |
-|-------|-------------|
-| `.quick` | 0.15s ease - micro interactions |
-| `.standard` | 0.25s ease - default |
-| `.slow` | 0.4s ease - emphasis |
-| `.spring` | Spring animation - bouncy |
-| `.celebrationBounce` | Bouncy celebration |
-| `.celebrationSettle` | Settle after bounce |
+**Icon Tokens** (`Typography.Icon.*`) — SF Symbol sizing
+| Token | Size | Use Case |
+|-------|------|----------|
+| `.xs` | 12pt | Tiny indicators |
+| `.sm` | 14pt | Small buttons |
+| `.md` | 16pt | Standard icons |
+| `.lg` | 24pt | Large icons |
+| `.xl` | 28pt | Feature icons |
+| `.hero` | 40pt | Hero icons |
+| `.display` | 76pt | Onboarding |
 
-**Reduced Motion Support:**
-```swift
-// Skip animation when Reduce Motion enabled
-.animation(AppTheme.Animation.reduced(.spring), value: state)
-
-// Use subtle fade as fallback
-.animation(AppTheme.Animation.accessible(.spring), value: state)
-
-// View extension
-.reducedMotionAnimation(.spring, value: state)
-.accessibleAnimation(.spring, value: state)
-```
-
-### Opacity (`AppTheme.Opacity.*`)
-
-| Token | Value | Use Case |
-|-------|-------|----------|
-| `.faint` | 0.08 | Very subtle backgrounds |
-| `.subtle` | 0.1 | Subtle backgrounds |
-| `.light` | 0.15 | Light highlights |
-| `.lightMedium` | 0.2 | Light to medium |
-| `.medium` | 0.3 | Standard opacity |
-| `.disabled` | 0.4 | Disabled states |
-| `.heavy` | 0.5 | Emphasized |
-| `.strong` | 0.6 | Strong visibility |
-| `.overlay` | 0.7 | Overlays |
-| `.pressed` | 0.8 | Pressed states |
-| `.high` | 0.9 | Very visible |
-| `.nearOpaque` | 0.95 | Almost fully visible |
-
-### Scale (`AppTheme.Scale.*`)
-
-| Token | Value | Use Case |
-|-------|-------|----------|
-| `.small` | 0.7 | Smaller scale |
-| `.reduced` | 0.8 | Reduced size |
-| `.pressed` | 0.95 | Button pressed |
-| `.subtle` | 0.98 | Subtle pressed |
-| `.enlarged` | 1.2 | Slightly enlarged |
-| `.pulse` | 1.5 | Pulse animation max |
-
-### Shadows (`AppTheme.Shadow.*`)
-
-| Token | Use Case |
-|-------|----------|
-| `.small` | Subtle elevation |
-| `.medium` | Cards, elevated surfaces |
-| `.large` | Modals, prominent elements |
-
-```swift
-// Using shadow extension
-.shadow(AppTheme.Shadow.medium)
-```
-
-### Icon Sizes (`AppTheme.IconSize.*`)
-
-| Token | Value |
-|-------|-------|
-| `.small` | 16pt |
-| `.medium` | 20pt |
-| `.large` | 24pt |
-| `.xl` | 32pt |
-| `.xxl` | 48pt |
-| `.celebration` | 36pt |
-
-### Icon Containers (`AppTheme.IconContainer.*`)
-
-| Token | Value |
-|-------|-------|
-| `.small` | 24pt |
-| `.medium` | 32pt |
-| `.large` | 44pt |
-| `.xl` | 56pt |
-
-### Border (`AppTheme.Border.*`)
-
-| Token | Value |
-|-------|-------|
-| `.hairline` | 0.5pt |
-| `.thin` | 1pt |
-| `.medium` | 1.5pt |
-| `.regular` | 2pt |
-| `.thick` | 3pt |
-| `.heavy` | 4pt |
-
-### Touch Targets (`AppTheme.TouchTarget.*`)
-
-| Token | Value |
-|-------|-------|
-| `.minimum` | 44pt (Apple HIG) |
-| `.comfortable` | 48pt |
-| `.large` | 56pt |
-
-### Component Sizes (`AppTheme.ComponentSize.*`)
-
-| Token | Value | Use Case |
-|-------|-------|----------|
-| `.dot` | 4pt | Tiny dots |
-| `.dotSmall` | 6pt | Small dots |
-| `.indicator` | 8pt | Status indicators |
-| `.badge` | 20pt | Small badges |
-| `.icon` | 24pt | Standard icons |
-| `.avatar` | 40pt | User avatars |
-| `.thumbnail` | 64pt | Thumbnails |
-| `.preview` | 120pt | Preview cards |
+**Decorative Tokens** (`Typography.Decorative.*`) — Illuminated manuscript
+| Token | Size | Use Case |
+|-------|------|----------|
+| `.dropCap` | 72pt bold serif | Large illuminated first letter |
+| `.dropCapCompact` | 52pt bold serif | Compact drop cap |
 
 ### Colors
 
-Use semantic colors from `Colors.swift`:
+All colors in Asset Catalog with automatic dark/light mode support.
 
-**Text:** `Color.primaryText`, `.secondaryText`, `.tertiaryText`
+**Backgrounds:** `Color("AppBackground")`, `Color("AppSurface")`, `Color("AppDivider")`
 
-**Backgrounds:** `Color.appBackground`, `.surfaceBackground`, `.elevatedBackground`
+**Text:** `Color("AppTextPrimary")`, `Color("AppTextSecondary")`, `Color("TertiaryText")`
 
-**Accents:** `Color.accentGold`, `.accentBlue`, `.accentRose`
+**Accents:** `Color("AppAccentAction")`, `Color("AccentBronze")`
 
-**Highlights:** `Color.highlightBlue`, `.highlightGold`, `.highlightGreen`, `.highlightPurple`, `.highlightRose`
+**Feedback:** `Color("FeedbackError")`, `Color("FeedbackWarning")`, `Color("FeedbackSuccess")`, `Color("FeedbackInfo")`
 
-**Status:** `Color.success`, `.warning`, `.error`, `.info`
+**State Overlays:** `Colors.StateOverlay.pressed(_:)`, `.selection(_:)`, `.focusStroke(_:)`, `.disabled(_:)`
+
+## View Modifiers
+
+Typography helpers for correct-by-default application:
+
+```swift
+Text("Title").scriptureHeading()
+Text("Begin").commandCTA()
+Text("LESSON").uppercaseLabel()
+Text(verse.text).readingVerse(size: fontSize, font: fontFamily)
+```
 
 ## Escape Hatch
 

@@ -1,5 +1,6 @@
 import Foundation
 import GRDB
+import SwiftUI
 
 // MARK: - Bible Insight
 // Production model for pre-generated marginalia insights
@@ -88,6 +89,26 @@ struct InsightSource: Codable, Hashable, Sendable, Identifiable {
             case .strongs: return "Strong's"
             case .commentary: return "Commentary"
             case .lexicon: return "Lexicon"
+            }
+        }
+
+        /// SF Symbol icon for this source type
+        var icon: Image {
+            switch self {
+            case .crossReference: return Image(systemName: "link")
+            case .strongs: return Image(systemName: "character.book.closed")
+            case .commentary: return Image(systemName: "text.book.closed")
+            case .lexicon: return Image(systemName: "textformat.abc")
+            }
+        }
+
+        /// Display color for this source type
+        var color: Color {
+            switch self {
+            case .crossReference: return Color("AccentBronze")
+            case .strongs: return Color("FeedbackInfo")
+            case .commentary: return Color("FeedbackSuccess")
+            case .lexicon: return Color("FeedbackInfo")
             }
         }
     }

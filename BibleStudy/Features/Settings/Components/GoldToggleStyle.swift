@@ -21,14 +21,14 @@ private struct GoldToggleStyleBody: View {
             ZStack {
                 // Track background
                 Capsule()
-                    .fill(configuration.isOn ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.white.opacity(Theme.Opacity.light))
+                    .fill(configuration.isOn ? Color("AppAccentAction") : Color.white.opacity(Theme.Opacity.selectionBackground))
                     .frame(width: Theme.Toggle.trackWidth, height: Theme.Toggle.trackHeight)
 
                 // Thumb
                 Circle()
                     .fill(Color.white)
                     .frame(width: Theme.Toggle.thumbSize, height: Theme.Toggle.thumbSize)
-                    .shadow(color: .black.opacity(Theme.Opacity.lightMedium), radius: 2, y: 1)
+                    .shadow(color: .black.opacity(Theme.Opacity.selectionBackground), radius: 2, y: 1)
                     .offset(x: configuration.isOn ? Theme.Toggle.thumbOffset : -Theme.Toggle.thumbOffset)
             }
             .onTapGesture {
@@ -53,7 +53,7 @@ struct GoldToggleStyle_Previews: PreviewProvider {
                 .toggleStyle(GoldToggleStyle())
         }
         .padding()
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 }
 #endif

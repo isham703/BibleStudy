@@ -118,7 +118,7 @@ struct LivingScrollView: View {
                     RadialGradient(
                         colors: [
                             Color.clear,
-                            Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(vignetteIntensity)
+                            Color.appBackground.opacity(vignetteIntensity)
                         ],
                         center: .center,
                         startRadius: geometry.size.width * 0.4,
@@ -142,17 +142,17 @@ struct LivingScrollView: View {
         } label: {
             ZStack {
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
-                    .frame(width: 44, height: 44)
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.overlay))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                     .overlay(
                         Circle()
                             .strokeBorder(
-                                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                                Color("AppAccentAction").opacity(Theme.Opacity.textSecondary),
                                 lineWidth: Theme.Stroke.hairline
                             )
                     )
                     .shadow(
-                        color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
+                        color: Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground),
                         radius: 8,
                         y: 2
                     )
@@ -160,7 +160,7 @@ struct LivingScrollView: View {
                 Image(systemName: "chevron.down")
                     .font(Typography.Command.body)
                     .fontWeight(.semibold)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
         }
         .padding(.bottom, Theme.Spacing.lg)
@@ -221,21 +221,21 @@ private struct LivingScrollUncertaintyBanner: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "sparkles")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             Text(level.displayText)
                 .font(Typography.Scripture.footnote)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Spacer()
         }
         .padding(Theme.Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+                .fill(Color("AppAccentAction").opacity(Theme.Opacity.overlay))
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.card)
-                        .strokeBorder(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
+                        .strokeBorder(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
                 )
         )
         .padding(.horizontal, Theme.Spacing.md)
@@ -263,11 +263,11 @@ private struct LivingScrollFollowUps: View {
             HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "arrow.turn.down.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 Text("Continue exploring")
                     .font(Typography.Scripture.footnote)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(.leading, Theme.Spacing.md)
             .opacity(headerVisible ? 1 : 0)
@@ -342,7 +342,7 @@ private struct LivingScrollFollowUpButton: View {
                 // Ripple effect layer
                 if rippleScale > 0 {
                     Capsule()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.textSecondary))
                         .scaleEffect(rippleScale)
                         .opacity(rippleOpacity)
                 }
@@ -350,7 +350,7 @@ private struct LivingScrollFollowUpButton: View {
                 // Button content
                 Text(question)
                     .font(Typography.Scripture.footnote)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.vertical, Theme.Spacing.sm)
                     .background(buttonBackground)
@@ -376,16 +376,16 @@ private struct LivingScrollFollowUpButton: View {
 
     private var buttonBackground: some View {
         Capsule()
-            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay).opacity(Double(1.0 + glowIntensity * 0.1)))
+            .fill(Color("AppAccentAction").opacity(Theme.Opacity.overlay).opacity(Double(1.0 + glowIntensity * 0.1)))
             .overlay(
                 Capsule()
                     .strokeBorder(
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light + glowIntensity * 0.3),
+                        Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground + glowIntensity * 0.3),
                         lineWidth: Theme.Stroke.hairline
                     )
             )
             .shadow(
-                color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity * 0.2),
+                color: Color("AppAccentAction").opacity(glowIntensity * 0.2),
                 radius: 6 * glowIntensity
             )
     }
@@ -448,11 +448,11 @@ private struct LivingScrollFollowUpsStaggered: View {
             HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "arrow.turn.down.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 Text("Continue exploring")
                     .font(Typography.Scripture.footnote)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(.leading, Theme.Spacing.md)
 
@@ -520,8 +520,8 @@ private struct EnhancedSacredGeometryThinking: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                            Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground),
+                            Color("AppAccentAction").opacity(Theme.Opacity.subtle),
                             Color.clear
                         ],
                         center: .center,

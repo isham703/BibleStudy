@@ -17,13 +17,13 @@ struct ThemeSelectionView: View {
                 } label: {
                     HStack {
                         Text(theme.displayName)
-                            .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppTextPrimary"))
 
                         Spacer()
 
                         if selectedTheme == theme {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppAccentAction"))
                                 .fontWeight(.semibold)
                         }
                     }

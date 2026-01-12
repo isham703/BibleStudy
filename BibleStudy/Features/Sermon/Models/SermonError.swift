@@ -7,6 +7,7 @@ enum SermonError: Error, LocalizedError, Sendable {
     case microphonePermissionDenied
     case microphonePermissionRestricted
     case recordingFailed(String)
+    case recordingTooShort(durationSeconds: Int, minimumSeconds: Int)
     case recordingInterrupted
     case audioSessionFailed(String)
 
@@ -52,6 +53,8 @@ enum SermonError: Error, LocalizedError, Sendable {
             return "Microphone access is restricted on this device."
         case .recordingFailed(let reason):
             return "Recording failed: \(reason)"
+        case .recordingTooShort(let duration, let minimum):
+            return "Recording is too short (\(duration) seconds). Minimum duration is \(minimum) seconds for quality transcription."
         case .recordingInterrupted:
             return "Recording was interrupted. Your progress has been saved."
         case .audioSessionFailed(let reason):
@@ -115,6 +118,8 @@ enum SermonError: Error, LocalizedError, Sendable {
             return "Go to Settings > Privacy > Microphone to enable access."
         case .recordingInterrupted:
             return "You can resume recording or save what was captured."
+        case .recordingTooShort(_, let minimum):
+            return "Please record or import audio that is at least \(minimum) seconds long."
         case .fileTooLarge:
             return "Try splitting the sermon into smaller parts."
         case .networkUnavailable:

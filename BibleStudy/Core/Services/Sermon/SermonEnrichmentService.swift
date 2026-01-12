@@ -19,7 +19,7 @@ protocol CrossRefBackgroundProviding: Sendable {
 /// Provides background cross-ref operations without MainActor dependency
 /// Uses DatabaseManager directly since GRDB handles thread safety internally
 struct CrossRefBackgroundProvider: CrossRefBackgroundProviding, Sendable {
-    // Note: nonisolated(unsafe) required to allow use as default parameter in actor init
+    // nonisolated(unsafe) allows use as default parameter in nonisolated init
     nonisolated(unsafe) static let shared = CrossRefBackgroundProvider()
 
     private init() {}

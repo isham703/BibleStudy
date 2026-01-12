@@ -7,6 +7,8 @@ struct DeveloperSectionView: View {
     @Bindable var viewModel: SettingsViewModel
     @State private var showOnboardingShowcase = false
     @State private var showPrayerShowcase = false
+    @State private var showHomePageShowcase = false
+    @State private var showSermonShowcase = false
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -24,7 +26,7 @@ struct DeveloperSectionView: View {
                 } label: {
                     developerRow(
                         icon: "rectangle.stack.fill",
-                        iconColor: Color.accentIndigo,
+                        iconColor: Color("AppAccentAction"),
                         title: "Sign Up / Onboarding",
                         subtitle: "3 page variations"
                     )
@@ -33,35 +35,50 @@ struct DeveloperSectionView: View {
 
                 SettingsDivider()
 
-                // Prayer Showcase (if exists)
-                // COMMENTED OUT: Files not added to target yet
-                // NavigationLink {
-                //     PrayersFromDeepShowcaseView()
-                // } label: {
-                //     developerRow(
-                //         icon: "hands.sparkles.fill",
-                //         iconColor: .thresholdRose,
-                //         title: "Prayer Experience",
-                //         subtitle: "Design variations"
-                //     )
-                // }
-                // .buttonStyle(.plain)
+                // Prayer Showcase
+                Button {
+                    showPrayerShowcase = true
+                } label: {
+                    developerRow(
+                        icon: "hands.sparkles.fill",
+                        iconColor: Color("HighlightRose"),
+                        title: "Prayer Options",
+                        subtitle: "3 page variations"
+                    )
+                }
+                .buttonStyle(.plain)
 
                 SettingsDivider()
 
                 // Home Page Showcase
-                // COMMENTED OUT: Files not added to target yet
-                // NavigationLink {
-                //     HomePageShowcaseDirectoryView()
-                // } label: {
-                //     developerRow(
-                //         icon: "building.columns.fill",
-                //         iconColor: Color.decorativeTaupe,
-                //         title: "Home Page Options",
-                //         subtitle: "12 stoic design variations"
-                //     )
-                // }
-                // .buttonStyle(.plain)
+                Button {
+                    showHomePageShowcase = true
+                } label: {
+                    developerRow(
+                        icon: "building.columns.fill",
+                        iconColor: Color("AccentBronze"),
+                        title: "Home Page Options",
+                        subtitle: "3 stoic design variations"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                SettingsDivider()
+
+                // Sermon Showcase
+                Button {
+                    showSermonShowcase = true
+                } label: {
+                    developerRow(
+                        icon: "mic.fill",
+                        iconColor: Color("FeedbackInfo"),
+                        title: "Sermon Options",
+                        subtitle: "3 page variations"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                SettingsDivider()
 
                 // Info footer
                 infoFooter
@@ -71,6 +88,15 @@ struct DeveloperSectionView: View {
         // .fullScreenCover(isPresented: $showOnboardingShowcase) {
         //     OnboardingShowcaseDirectory()
         // }
+        .fullScreenCover(isPresented: $showHomePageShowcase) {
+            HomePageShowcaseDirectory()
+        }
+        .fullScreenCover(isPresented: $showPrayerShowcase) {
+            PrayerPageShowcaseDirectory()
+        }
+        .fullScreenCover(isPresented: $showSermonShowcase) {
+            SermonShowcaseDirectory()
+        }
     }
 
     // MARK: - Showcase Header
@@ -83,28 +109,28 @@ struct DeveloperSectionView: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
-                                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay)
+                                Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground),
+                                Color("AppAccentAction").opacity(Theme.Opacity.overlay)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 44, height: 44)
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
 
                 Image(systemName: "sparkles")
                     .font(Typography.Icon.lg)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Internal Design Directory")
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Preview page variations before shipping")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             Spacer()
@@ -126,24 +152,24 @@ struct DeveloperSectionView: View {
                 .frame(width: 28, height: 28)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                        .fill(iconColor.opacity(Theme.Opacity.faint + 0.02))
+                        .fill(iconColor.opacity(Theme.Opacity.subtle + 0.02))
                 )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text(subtitle)
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
 
             Spacer()
 
             Image(systemName: "chevron.right")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
         .contentShape(Rectangle())
     }
@@ -154,11 +180,11 @@ struct DeveloperSectionView: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "info.circle")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             Text("For internal review only")
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
         .padding(.top, Theme.Spacing.md)
     }

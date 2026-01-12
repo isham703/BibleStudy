@@ -19,20 +19,20 @@ struct BibleFontSizeSlider: View {
                 // Track
                 // swiftlint:disable:next hardcoded_rounded_rectangle
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                    .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color.appDivider)
                     .frame(height: 3)
 
                 // Filled portion
                 // swiftlint:disable:next hardcoded_rounded_rectangle
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("AppAccentAction"))
                     .frame(width: stepWidth * CGFloat(currentIndex), height: 3)
 
                 // Thumb
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("AppAccentAction"))
                     .frame(width: 20, height: 20)
-                    .shadow(color: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), radius: 4)
+                    .shadow(color: Color("AppAccentAction").opacity(Theme.Opacity.focusStroke), radius: 4)
                     .offset(x: stepWidth * CGFloat(currentIndex) - 10)
                     .gesture(
                         DragGesture()
@@ -63,13 +63,13 @@ struct BibleFontSizeSlider: View {
                 HStack(spacing: Theme.Spacing.md) {
                     Text("A")
                         .font(Typography.Scripture.footnote)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
 
                     BibleFontSizeSlider(selectedSize: $size)
 
                     Text("A")
                         .font(Typography.Scripture.prompt)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
                 .padding()
 
@@ -78,7 +78,7 @@ struct BibleFontSizeSlider: View {
                     .font(.caption)
             }
             .padding()
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
         }
     }
 

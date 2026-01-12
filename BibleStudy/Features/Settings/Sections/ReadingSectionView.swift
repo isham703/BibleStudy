@@ -44,7 +44,7 @@ struct ReadingSectionView: View {
                         label: "Devotional Mode",
                         description: "Larger text with generous spacing for meditation",
                         icon: "sparkles",
-                        iconColor: Color.accentIndigo
+                        iconColor: Color("AppAccentAction")
                     )
                 }
             }
@@ -64,23 +64,23 @@ struct ReadingSectionView: View {
             // Icon
             Image(systemName: "book.closed.fill")
                 .font(Typography.Icon.sm.weight(.medium))
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .frame(width: 28, height: 28)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle + 0.02))
                 )
 
             // Label
             VStack(alignment: .leading, spacing: 2) {
                 Text("Translation")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 if !viewModel.isPremiumOrHigher {
                     Text("Upgrade to access all translations")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
 
@@ -103,7 +103,7 @@ struct ReadingSectionView: View {
             .padding(.vertical, 2)
             .background(
                 Capsule()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("AppAccentAction"))
             )
         }
         .contentShape(Rectangle())

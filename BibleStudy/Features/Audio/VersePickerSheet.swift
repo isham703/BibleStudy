@@ -27,7 +27,7 @@ struct AudioVersePickerSheet: View {
                         }
                     } else {
                         Text("No chapter loaded")
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
                 }
                 .listStyle(.plain)
@@ -47,7 +47,7 @@ struct AudioVersePickerSheet: View {
                     if let chapter = audioService.currentChapter {
                         Text("\(chapter.bookName) \(chapter.chapterNumber)")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                     }
                 }
 
@@ -79,20 +79,20 @@ private struct VerseRow: View {
                 // Verse number badge
                 ZStack {
                     Circle()
-                        .fill(isPlaying ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
+                        .fill(isPlaying ? Color("AppAccentAction") : Color("AppSurface"))
                         .frame(width: 32, height: 32)
 
                     Text("\(verse.number)")
                         .font(Typography.Command.caption)
                         .fontWeight(.semibold)
-                        .foregroundStyle(isPlaying ? .white : Color.secondaryText)
+                        .foregroundStyle(isPlaying ? .white : Color("AppTextSecondary"))
                 }
 
                 // Verse preview text
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(verse.text)
                         .font(Typography.Command.body)
-                        .foregroundStyle(isPlaying ? Color.primaryText : Color.secondaryText)
+                        .foregroundStyle(isPlaying ? Color("AppTextPrimary") : Color("AppTextSecondary"))
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
 
@@ -103,7 +103,7 @@ private struct VerseRow: View {
                             Text("Now playing")
                                 .font(Typography.Command.meta)
                         }
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -112,7 +112,7 @@ private struct VerseRow: View {
                 if isPlaying {
                     Image(systemName: "waveform")
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                         .symbolEffect(.variableColor.iterative)
                 }
             }
@@ -120,7 +120,7 @@ private struct VerseRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .listRowBackground(isPlaying ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle) : Color.clear)
+        .listRowBackground(isPlaying ? Color("AppAccentAction").opacity(Theme.Opacity.subtle) : Color.clear)
         .accessibilityLabel("Verse \(verse.number)")
         .accessibilityHint(isPlaying ? "Currently playing. Double tap to restart from beginning of verse" : "Double tap to play from this verse")
         .accessibilityAddTraits(isPlaying ? .isSelected : [])

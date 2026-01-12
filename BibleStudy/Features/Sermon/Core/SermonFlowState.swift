@@ -1,6 +1,5 @@
 import SwiftUI
 import AVFoundation
-import UniformTypeIdentifiers
 import Auth
 import Supabase
 @preconcurrency import GRDB
@@ -75,6 +74,10 @@ enum ProcessingStep: Equatable {
 @MainActor
 @Observable
 final class SermonFlowState {
+    // MARK: - Constants
+
+    static let minimumRecordingDuration: TimeInterval = 30
+
     // MARK: - Core State
 
     var phase: SermonFlowPhase = .input
@@ -116,9 +119,8 @@ final class SermonFlowState {
 
     // MARK: - Tasks
 
-    private var recordingTask: Task<Void, Never>?
     private var processingTask: Task<Void, Never>?
-    private var meteringTask: Task<Void, Never>?
+    private var durationTimerTask: Task<Void, Never>?
     private var progressStreamTask: Task<Void, Never>?
 
     // MARK: - Initialization
@@ -132,13 +134,26 @@ final class SermonFlowState {
     }
 
     var canStopRecording: Bool {
-        phase == .recording && isRecording
+        phase == .recording && isRecording && meetsMinimumDuration
     }
 
     var formattedDuration: String {
         let minutes = Int(recordingDuration) / 60
         let seconds = Int(recordingDuration) % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    var meetsMinimumDuration: Bool {
+        recordingDuration >= Self.minimumRecordingDuration
+    }
+
+    var remainingTimeToMinimum: TimeInterval {
+        max(0, Self.minimumRecordingDuration - recordingDuration)
+    }
+
+    var formattedRemainingTime: String {
+        let seconds = Int(ceil(remainingTimeToMinimum))
+        return "\(seconds)s"
     }
 
     var hasSermon: Bool {
@@ -148,6 +163,38 @@ final class SermonFlowState {
     var isProcessing: Bool {
         if case .processing = phase { return true }
         return false
+    }
+
+    // MARK: - Processing Time Estimates
+
+    /// Time when processing started (for estimate calculations)
+    private(set) var processingStartedAt: Date = Date()
+
+    /// Estimated total processing time (~3 min per 10 min of audio)
+    var estimatedProcessingTime: TimeInterval {
+        guard let sermon = currentSermon else { return 0 }
+        return (Double(sermon.durationSeconds) / 600.0) * 180.0
+    }
+
+    /// Estimated remaining processing time
+    var estimatedRemainingTime: TimeInterval {
+        let elapsed = Date().timeIntervalSince(processingStartedAt)
+        return max(0, estimatedProcessingTime - elapsed)
+    }
+
+    /// Formatted remaining time for display
+    var formattedEstimatedTime: String {
+        let minutes = Int(estimatedRemainingTime) / 60
+        if minutes < 2 {
+            return "About 1 minute"
+        }
+        return "About \(minutes) minutes"
+    }
+
+    /// Chunk progress text during recording
+    var chunkProgressText: String {
+        guard !audioChunks.isEmpty else { return "" }
+        return "Chunk \(audioChunks.count) saved"
     }
 
     // MARK: - Recording Actions
@@ -245,7 +292,16 @@ final class SermonFlowState {
 
     /// Stop recording and start processing
     func stopRecording() async {
-        guard canStopRecording else { return }
+        guard phase == .recording, isRecording else { return }
+
+        // Validate minimum duration before stopping
+        guard meetsMinimumDuration else {
+            handleError(.recordingTooShort(
+                durationSeconds: Int(recordingDuration),
+                minimumSeconds: Int(Self.minimumRecordingDuration)
+            ))
+            return
+        }
 
         stopMetering()
         let chunkURLs = recordingService.stopRecording()
@@ -316,65 +372,21 @@ final class SermonFlowState {
         phase = .importing
 
         do {
-            // Validate file
-            let resourceValues = try url.resourceValues(forKeys: [.fileSizeKey, .contentTypeKey])
-            let fileSize = resourceValues.fileSize ?? 0
-            let maxSize = 500 * 1024 * 1024 // 500 MB
-
-            guard fileSize <= maxSize else {
-                throw SermonError.fileTooLarge(maxMB: 500)
-            }
-
-            // Check audio format
-            let supportedTypes: Set<UTType> = [.mp3, .mpeg4Audio, .wav, .audio]
-            if let contentType = resourceValues.contentType,
-               !supportedTypes.contains(where: { contentType.conforms(to: $0) }) {
-                throw SermonError.unsupportedAudioFormat(contentType.identifier)
-            }
-
-            // Get audio duration
-            let asset = AVAsset(url: url)
-            let duration = try await asset.load(.duration)
-            let durationSeconds = CMTimeGetSeconds(duration)
-
-            // Create sermon record
-            let sermon = Sermon(
+            // Use SermonImportService for validation, chunking, and file handling
+            let result = try await SermonImportService.shared.importAudioFile(
+                url: url,
                 userId: userId,
-                title: title.isEmpty ? url.deletingPathExtension().lastPathComponent : title,
-                speakerName: speakerName.isEmpty ? nil : speakerName,
-                recordedAt: Date(),
-                durationSeconds: Int(durationSeconds)
+                title: title.isEmpty ? nil : title,
+                speakerName: speakerName.isEmpty ? nil : speakerName
             )
-            currentSermon = sermon
 
-            // Copy file to local storage
-            let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let sermonDir = documentsDir.appendingPathComponent("Sermons/\(sermon.id.uuidString)")
-            try FileManager.default.createDirectory(at: sermonDir, withIntermediateDirectories: true)
-
-            let localURL = sermonDir.appendingPathComponent("audio.m4a")
-
-            // If file needs conversion, handle that; otherwise just copy
-            if url.startAccessingSecurityScopedResource() {
-                defer { url.stopAccessingSecurityScopedResource() }
-                try FileManager.default.copyItem(at: url, to: localURL)
-            }
-
-            // Create chunk record
-            let chunk = SermonAudioChunk(
-                sermonId: sermon.id,
-                chunkIndex: 0,
-                startOffsetSeconds: 0,
-                durationSeconds: durationSeconds,
-                localPath: localURL.path,
-                fileSize: fileSize
-            )
-            audioChunks = [chunk]
+            currentSermon = result.sermon
+            audioChunks = result.chunks
 
             HapticService.shared.success()
 
             // Start processing
-            await processRecording(chunkURLs: [localURL])
+            await processRecording(chunkURLs: result.chunkURLs)
 
         } catch let sermonError as SermonError {
             handleError(sermonError)
@@ -390,6 +402,7 @@ final class SermonFlowState {
 
         phase = .processing(.uploading(progress: 0))
         processingProgress = 0
+        processingStartedAt = Date()
 
         processingTask = Task { @MainActor in
             do {
@@ -398,12 +411,12 @@ final class SermonFlowState {
                 var offset: Double = 0
 
                 for (index, url) in chunkURLs.enumerated() {
-                    let asset = AVAsset(url: url)
+                    let asset = AVURLAsset(url: url)
                     let duration = try await asset.load(.duration)
                     let durationSeconds = CMTimeGetSeconds(duration)
 
                     // Generate waveform samples
-                    let waveform = try await SermonRecordingService.generateWaveformSamples(
+                    let waveform = try await WaveformGenerator.generateSamples(
                         from: url,
                         sampleCount: 100
                     )
@@ -446,48 +459,24 @@ final class SermonFlowState {
                 // Enqueue for transcription and study guide
                 phase = .processing(.transcribing(progress: 0, chunk: 1, total: chunks.count))
 
-                // Subscribe to progress stream (replaces callback registration)
+                // Subscribe to progress stream - handles completion/failure internally
                 self.startProgressStream(for: sermon.id)
 
                 // Start processing
                 await processingQueue.enqueue(sermonId: sermon.id)
 
-                // Wait for completion with timeout (30 minutes max for long sermons)
-                let pollingInterval: Duration = .milliseconds(500)
-                let maxPollingIterations = 3600  // 30 minutes at 500ms intervals
-                var iterations = 0
-
-                while iterations < maxPollingIterations {
-                    try await Task.sleep(for: pollingInterval)
-                    guard !Task.isCancelled else { break }
-                    iterations += 1
-
-                    if let job = await processingQueue.getStatus(sermonId: sermon.id) {
-                        if job.isComplete {
-                            break
-                        }
-                        if job.transcriptionStatus == .failed {
-                            throw SermonError.transcriptionFailed(sermon.transcriptionError ?? "Unknown error")
-                        }
-                        if job.studyGuideStatus == .failed {
-                            throw SermonError.studyGuideGenerationFailed(sermon.studyGuideError ?? "Unknown error")
-                        }
+                // Set up timeout (30 minutes max for long sermons)
+                let timeoutTask = Task {
+                    try await Task.sleep(for: .seconds(30 * 60))
+                    await MainActor.run { [weak self] in
+                        self?.stopProgressStream()
+                        self?.handleError(.processingTimeout)
                     }
                 }
 
-                // Check if we timed out
-                if iterations >= maxPollingIterations {
-                    throw SermonError.processingTimeout
-                }
-
-                // Cancel progress stream
-                self.stopProgressStream()
-
-                // Load completed data
-                await loadSermonData(sermonId: sermon.id)
-
-                phase = .viewing
-                HapticService.shared.success()
+                // Wait for stream to complete (handles success/failure transitions)
+                await progressStreamTask?.value
+                timeoutTask.cancel()
 
             } catch let sermonError as SermonError {
                 handleError(sermonError)
@@ -552,13 +541,31 @@ final class SermonFlowState {
     // MARK: - Progress Stream Helpers
 
     /// Start listening to progress updates via AsyncStream
+    /// Handles completion/failure internally - no polling needed
     private func startProgressStream(for sermonId: UUID) {
         progressStreamTask = Task { @MainActor [weak self] in
             guard let self = self else { return }
             let stream = self.processingQueue.progressStream(for: sermonId)
+
+            var lastJob: SermonProcessingJob?
+
             for await update in stream {
                 guard !Task.isCancelled else { break }
+                lastJob = update.job
                 self.updateProcessingProgress(job: update.job, progress: update.progress)
+            }
+
+            // Stream completed - handle final state
+            guard !Task.isCancelled, let job = lastJob else { return }
+
+            if job.isComplete {
+                await self.loadSermonData(sermonId: sermonId)
+                self.phase = .viewing
+                HapticService.shared.success()
+            } else if job.transcriptionStatus == .failed {
+                self.handleError(.transcriptionFailed(self.currentSermon?.transcriptionError ?? "Unknown error"))
+            } else if job.studyGuideStatus == .failed {
+                self.handleError(.studyGuideGenerationFailed(self.currentSermon?.studyGuideError ?? "Unknown error"))
             }
         }
     }
@@ -572,24 +579,44 @@ final class SermonFlowState {
     // MARK: - Metering
 
     private func startMetering() {
-        meteringTask = Task { @MainActor in
-            recordingService.startMetering { [weak self] level in
-                Task { @MainActor [weak self] in
-                    self?.currentAudioLevel = level
-                    self?.audioLevels.append(level)
+        // Note: Callback is already dispatched to main thread by recordingService
+        // No need for nested Task - we're already MainActor-isolated
+        recordingService.startMetering { [weak self] level in
+            guard let self = self else { return }
+            self.currentAudioLevel = level
+            self.audioLevels.append(level)
 
-                    // Keep last 100 samples for waveform display
-                    if (self?.audioLevels.count ?? 0) > 100 {
-                        self?.audioLevels.removeFirst()
-                    }
+            // Keep last 100 samples for waveform display
+            if self.audioLevels.count > 100 {
+                self.audioLevels.removeFirst()
+            }
+        }
+
+        // Start duration timer
+        startDurationTimer()
+    }
+
+    private func stopMetering() {
+        recordingService.stopMetering()
+        stopDurationTimer()
+    }
+
+    private func startDurationTimer() {
+        durationTimerTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard let self = self, !Task.isCancelled else { break }
+                // Only increment if recording and not paused
+                if self.isRecording && !self.isPaused {
+                    self.recordingDuration += 1
                 }
             }
         }
     }
 
-    private func stopMetering() {
-        meteringTask?.cancel()
-        meteringTask = nil
+    private func stopDurationTimer() {
+        durationTimerTask?.cancel()
+        durationTimerTask = nil
     }
 
     // MARK: - Error Handling
@@ -611,7 +638,7 @@ final class SermonFlowState {
 
     func retry() {
         dismissError()
-        if let sermon = currentSermon, !audioChunks.isEmpty {
+        if currentSermon != nil, !audioChunks.isEmpty {
             // Retry processing
             Task {
                 await processRecording(chunkURLs: audioChunks.compactMap {
@@ -624,11 +651,17 @@ final class SermonFlowState {
     // MARK: - Reset
 
     func reset() {
-        recordingTask?.cancel()
+        // Cancel all active tasks
         processingTask?.cancel()
-        meteringTask?.cancel()
+        durationTimerTask?.cancel()
         stopProgressStream()
+        recordingService.stopMetering()
 
+        // Clear task references
+        processingTask = nil
+        durationTimerTask = nil
+
+        // Reset all state
         phase = .input
         title = ""
         speakerName = ""
@@ -652,15 +685,17 @@ final class SermonFlowState {
         currentSermon = sermon
         await loadSermonData(sermonId: sermon.id)
 
-        if currentTranscript != nil && currentStudyGuide != nil {
-            phase = .viewing
-        } else if sermon.transcriptionStatus == .running || sermon.studyGuideStatus == .running {
+        // Check if still processing
+        if sermon.transcriptionStatus == .running || sermon.studyGuideStatus == .running {
             phase = .processing(.transcribing(progress: 0.5, chunk: 1, total: 1))
 
             // Subscribe to progress stream (replaces callback registration)
             startProgressStream(for: sermon.id)
         } else if sermon.transcriptionStatus == .failed || sermon.studyGuideStatus == .failed {
             handleError(.transcriptionFailed(sermon.transcriptionError ?? "Processing failed"))
+        } else {
+            // Go to viewing phase - the UI will handle missing transcript/study guide gracefully
+            phase = .viewing
         }
     }
 }

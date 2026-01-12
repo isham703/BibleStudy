@@ -8,9 +8,9 @@ A comprehensive analysis of the Compline (Night Prayer) feature in the BibleStud
 
 **Compline** is a guided Night Prayer experience based on the ancient **Liturgy of the Hours** tradition—specifically the final prayer service of the day, historically prayed before sleep.
 
-### When It Appears
+### How to Access
 
-The app automatically presents the Compline experience between **9pm and 5am**. During these hours, when users open the app, they are greeted with the Compline-themed home screen (ComplineSanctuaryView) instead of the daytime variants.
+Compline is accessed from the **Home tab** (ForumHomeView) via the secondary features row. Users tap the "Compline" button (moon icon) to launch the guided prayer experience.
 
 ### Core Purpose
 
@@ -29,59 +29,15 @@ The feature embraces a **nocturnal, contemplative, candlelit serenity**—creati
 
 ---
 
-## 2. The Two-Part System
-
-The Compline feature consists of two interconnected views that work together to deliver the nighttime experience.
-
-### Part A: ComplineSanctuaryView (The Hub)
-
-**File**: `BibleStudy/Features/Home/Views/TimeAware/ComplineSanctuaryView.swift`
-
-This is **what users see when they open the app during nighttime hours** (9pm-5am). It serves as the nighttime "home screen" or hub.
-
-#### Visual Environment
-
-| Element | Description |
-| ------- | ----------- |
-| Background | Night sky with twinkling starfield animation |
-| Floating Element | Animated candle flame at bottom of screen |
-| Color Scheme | Dark mode with amber candlelight accents |
-| Overall Mood | Peaceful, contemplative, ready for rest |
-
-#### Content Sections (Top to Bottom)
-
-1. **Greeting Header**
-   - Personalized message: "Good evening, [User Name]"
-   - Current streak badge displayed
-   - Settings access button
-
-2. **Tonight's Verse**
-   - Psalm 119:105: *"Your word is a lamp to my feet and a light to my path"*
-   - Styled with decorative dividers
-
-3. **Primary Action Card** (Large, Prominent)
-   - Title: "Compline"
-   - Subtitle: "Begin your evening prayer"
-   - Icon: `moon.stars.fill`
-   - Tapping this card launches the guided prayer experience
-
-4. **Secondary Feature Grid** (2x2 Grid)
-   - Prayers from Deep (AI-generated prayers)
-   - Living Scripture (Immersive Bible narratives)
-   - Living Commentary (AI verse explanations)
-   - Memory Palace (Scripture memorization)
-
-#### User Action
-
-Tap the **Compline** card to begin the guided 6-phase prayer experience.
-
----
-
-### Part B: ComplineView (The Guided Prayer Experience)
+## 2. ComplineView (The Guided Prayer Experience)
 
 **File**: `BibleStudy/Features/Experiences/Compline/ComplineView.swift`
 
-This is **what users experience when they start Compline**—a structured, 6-phase guided prayer journey designed to help them close their day with intentional spiritual practice.
+The Compline feature is a structured, 6-phase guided prayer journey designed to help users close their day with intentional spiritual practice.
+
+### Access Point
+
+From `ForumHomeView`, users tap the **Compline** secondary feature button to navigate to the ComplineView via NavigationLink.
 
 ---
 
@@ -342,34 +298,34 @@ USER OPENS APP (9pm-5am)
 
 ## 5. Design & Atmosphere
 
-### Color Palette
+### Color System (Asset Catalog)
 
-| Purpose | Hex Code | Description |
-| ------- | -------- | ----------- |
-| Background | `#050510` | Deep night void—almost black with subtle blue |
-| Primary Text | `#e0e7ff` | Starlight white with indigo tint |
-| Secondary Text | White @ 40-70% opacity | Softer, less prominent |
-| Accent | `#f59e0b` | Candlelight amber—warm, inviting |
-| Buttons | `#4f46e5` | Indigo—calm, night-sky inspired |
-| Button Border | `#e0e7ff` @ 30% opacity | Subtle glow effect |
+| Purpose | Token | Description |
+| ------- | ----- | ----------- |
+| Background | `Color("AppBackground")` | Deep night background |
+| Primary Text | `.white` | High contrast for night mode |
+| Secondary Text | `.white.opacity(Theme.Opacity.textSecondary)` | Softer, less prominent |
+| Accent | `Color("AppAccentAction")` | Indigo accent for icons and highlights |
+| Disabled/Muted | `.white.opacity(Theme.Opacity.disabled)` | Time display, subtle labels |
 
-### Typography
+### Typography Tokens
 
-| Usage | Font | Style |
-| ----- | ---- | ----- |
-| Headers/Titles | Cinzel-Regular | Elegant serif with liturgical gravitas |
-| Body/Instructions | CormorantGaramond-Regular | Contemplative, highly readable serif |
-| Labels/Time | System monospaced | Functional, minimal |
+| Usage | Token | Style |
+| ----- | ----- | ----- |
+| Headers/Titles | `Typography.Scripture.title` | Elegant serif with liturgical gravitas |
+| Body/Instructions | `Typography.Scripture.footnote` | Contemplative, readable serif |
+| Labels | `Typography.Editorial.label` | Section headers with tracking |
+| Time Display | `Typography.Command.meta.monospaced()` | Functional, minimal |
+| Captions | `Typography.Command.caption` | Subtitle text |
 
-### Animations
+### Animation Tokens
 
 | Element | Behavior |
 | ------- | -------- |
-| Breathing Circle | 4-second cycle (expand/contract), synced with breathePhase state |
-| Candle Flame | Randomized flicker (0.5-second cycle), subtle vertical movement |
-| Starfield | Static stars with 5 "feature stars" that twinkle independently |
-| Phase Transitions | Spring animation with opacity fade and vertical offset |
+| Breathing Circle | `Theme.Animation.slowFade.repeatForever(autoreverses: true)` - Scale 1.0 to 1.05 |
+| Phase Transitions | `Theme.Animation.slowFade` with opacity and offset |
 | Progress Dots | Fill animation as user advances through phases |
+| Entry Animation | `Theme.Animation.slowFade` for initial visibility |
 
 ### Accessibility
 
@@ -385,69 +341,29 @@ Currently **none**—the experience is designed for silent contemplation. This i
 
 ---
 
-## 6. Time-Aware Integration
+## 6. Related Features
 
-### How the App Determines Time Period
+From the Home tab (ForumHomeView), users can access these related experiences alongside Compline:
 
-The app uses a `SanctuaryTimeOfDay` enum to categorize the current hour:
+| Feature | Description | Access |
+| ------- | ----------- | ------ |
+| Prayers from Deep | AI-generated personalized prayers | Primary feature pillar (Pray) |
+| Breathe | Guided breathing exercises | Secondary feature button |
+| Sermon | Record and transcribe sermons | Secondary feature button |
 
-| Time Period | Hours | Liturgical Reference |
-| ----------- | ----- | -------------------- |
-| Dawn | 5am-9am | Lauds / Morning Prayer |
-| Meridian | 9am-12pm | Terce / Sext |
-| Afternoon | 12pm-5pm | None / Midday |
-| Vespers | 5pm-9pm | Vespers / Evening Prayer |
-| **Compline** | **9pm-5am** | **Compline / Night Prayer** |
-
-### Routing Logic
-
-1. `SanctuaryTimeOfDay.current` computes the current hour
-2. Hours 21-23 (9pm-11pm) and 0-4 (midnight-4am) return `.compline`
-3. `TimeAwareSanctuaryPage` receives this value and routes to the appropriate view
-4. For `.compline`, it displays `ComplineSanctuaryView`
-
-### Compline-Specific Properties
-
-| Property | Value |
-| -------- | ----- |
-| liturgicalName | "Compline" |
-| timeRange | "9pm - 5am" |
-| mood | "Deep rest, sacred silence" |
-| verse | Psalm 119:105 |
-| primaryIcon | `moon.stars.fill` |
-| colorScheme | `.dark` |
-| animationDirection | `.breathing` |
-| animationSpeed | `.verySlow` (5.0 seconds) |
+These features share the contemplative design aesthetic and are accessed from the same Home screen.
 
 ---
 
-## 7. Related Features
-
-From the ComplineSanctuaryView hub, users can access these additional features:
-
-| Feature | Description | Accent Color |
-| ------- | ----------- | ------------ |
-| Prayers from Deep | AI-generated personalized prayers based on user intention | Rose Incense |
-| Living Scripture | Immersive, narrative Bible reading experiences | Gold |
-| Living Commentary | AI-powered verse explanations and insights | Indigo |
-| Memory Palace | Scripture memorization with spaced repetition | Purple |
-
-These features are presented as secondary cards in a 2x2 grid below the primary Compline card.
-
----
-
-## 8. Technical Architecture
+## 7. Technical Architecture
 
 ### Key Files
 
-| File | Lines | Purpose |
-| ---- | ----- | ------- |
-| `ComplineView.swift` | 648 | Main 6-phase guided prayer experience |
-| `ComplineSanctuaryView.swift` | 185 | Nighttime hub view (9pm-5am) |
-| `SanctuaryTimeOfDay.swift` | 360 | Time detection, routing, and design properties |
-| `SanctuaryViewModel.swift` | 126 | Shared state management (time updates, user data) |
-| `CandleFlame.swift` | 164 | Animated candle component |
-| `StarfieldBackground.swift` | 117 | Night sky background with twinkling stars |
+| File | Path | Purpose |
+| ---- | ---- | ------- |
+| ComplineView | `Features/Experiences/Compline/ComplineView.swift` | Main 6-phase guided prayer experience |
+| ComplineBreathePhase | `Features/Experiences/Compline/Components/ComplineBreathePhase.swift` | Breathing animation component |
+| AIFeature | `Features/Home/Models/AIFeature.swift` | Navigation enum (includes `.compline` case) |
 
 ### State Management (ComplineView)
 
@@ -485,8 +401,8 @@ enum ComplineSectionType {
 
 ### Navigation Flow
 
-1. User on `ComplineSanctuaryView` (hub)
-2. Taps `HomeFeatureCard` with `.compline` feature
+1. User on `ForumHomeView` (Home tab)
+2. Taps **Compline** secondary feature button
 3. `NavigationLink` pushes `ComplineView`
 4. User progresses through 6 phases via `nextSection()` function
 5. After phase 6, `isComplete = true` shows completion screen
@@ -494,7 +410,7 @@ enum ComplineSectionType {
 
 ---
 
-## 9. Expansion Opportunities
+## 8. Expansion Opportunities
 
 The following areas represent potential directions for feature expansion:
 
@@ -537,19 +453,19 @@ The following areas represent potential directions for feature expansion:
 
 ---
 
-## 10. Summary
+## 9. Summary
 
 **Compline** is a thoughtfully designed guided Night Prayer experience that:
 
-1. **Appears automatically** between 9pm-5am as part of the time-aware Sanctuary system
-2. **Creates atmosphere** through dark colors, starfields, candlelight, and contemplative typography
+1. **Accessible anytime** from the Home tab's secondary features (Compline button)
+2. **Creates atmosphere** through dark colors, indigo accents, and contemplative typography
 3. **Guides users** through 6 traditional liturgical phases: Opening, Psalm, Examination, Confession, Canticle, Blessing
 4. **Encourages reflection** through optional journaling during the Examination phase
 5. **Provides closure** with a completion screen and "Good Night" dismissal
-6. **Respects accessibility** by disabling animations when Reduce Motion is enabled
+6. **Uses design system** tokens (`Theme.*`, `Typography.*`, Asset Catalog colors) for consistency
 
 The feature balances **ancient tradition** (Liturgy of the Hours structure, traditional prayers) with **modern UX** (breathing animations, progressive disclosure, optional interactions) to create a meaningful end-of-day spiritual practice.
 
 ---
 
-*Document created for feature expansion reference. Last updated: January 2026.*
+*Document updated: January 10, 2026*

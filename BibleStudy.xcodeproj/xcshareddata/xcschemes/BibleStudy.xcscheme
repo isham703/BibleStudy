@@ -41,6 +41,17 @@
                ReferencedContainer = "container:BibleStudy.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3FB9272B1AEE4A53996462CD"
+               BuildableName = "BibleStudyUITests.xctest"
+               BlueprintName = "BibleStudyUITests"
+               ReferencedContainer = "container:BibleStudy.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

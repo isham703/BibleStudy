@@ -163,7 +163,7 @@ struct ValuePropsView: View {
                     onSkip()
                 }
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .padding()
             }
 
@@ -202,7 +202,7 @@ struct ValuePropsView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Theme.Spacing.md)
-                        .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .background(Color("AppAccentAction"))
                         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 }
                 .padding(.horizontal, Theme.Spacing.xl)
@@ -256,12 +256,12 @@ struct OnboardingPageView: View {
             VStack(spacing: Theme.Spacing.md) {
                 Text(page.title)
                     .font(Typography.Scripture.title)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .multilineTextAlignment(.center)
 
                 Text(page.subtitle)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Theme.Spacing.xl)
             }
@@ -283,7 +283,7 @@ struct OnboardingPageIndicator: View {
         HStack(spacing: Theme.Spacing.sm) {
             ForEach(0..<pageCount, id: \.self) { index in
                 Capsule()
-                    .fill(index == currentPage ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
+                    .fill(index == currentPage ? Color("AccentBronze") : Color("AccentBronze").opacity(Theme.Opacity.focusStroke))
                     .frame(width: index == currentPage ? 24 : 8, height: 8)
                     .animation(Theme.Animation.settle, value: currentPage)
             }
@@ -312,7 +312,7 @@ struct NameEntryView: View {
                     onSkip()
                 }
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .padding()
             }
 
@@ -323,24 +323,24 @@ struct NameEntryView: View {
                 // Icon
                 ZStack {
                     Circle()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
                         .frame(width: 120, height: 120)
 
                     Image(systemName: "person.fill")
                         .font(Typography.Icon.hero)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
 
                 // Title
                 VStack(spacing: Theme.Spacing.sm) {
                     Text("What should we call you?")
                         .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .multilineTextAlignment(.center)
 
                     Text("This helps personalize your experience")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                         .multilineTextAlignment(.center)
                 }
 
@@ -348,7 +348,7 @@ struct NameEntryView: View {
                 VStack(spacing: Theme.Spacing.sm) {
                     TextField("Your first name", text: $nameText)
                         .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .multilineTextAlignment(.center)
                         .textContentType(.givenName)
                         .autocorrectionDisabled()
@@ -356,12 +356,12 @@ struct NameEntryView: View {
                         .padding(Theme.Spacing.lg)
                         .background(
                             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                                .fill(Color.surfaceBackground)
+                                .fill(Color("AppSurface"))
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: Theme.Radius.card)
                                 .stroke(
-                                    isNameFieldFocused ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder,
+                                    isNameFieldFocused ? Color("AppAccentAction") : Color("AppDivider"),
                                     lineWidth: isNameFieldFocused ? 2 : 1
                                 )
                         )
@@ -383,7 +383,7 @@ struct NameEntryView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Theme.Spacing.md)
-                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .background(Color("AppAccentAction"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             }
             .padding(.horizontal, Theme.Spacing.xl)

@@ -30,7 +30,7 @@ struct NotificationsSectionView: View {
                     label: "Daily Reading Reminder",
                     description: nil,
                     icon: "bell.fill",
-                    iconColor: Color.accentIndigo
+                    iconColor: Color("AppAccentAction")
                 )
 
                 if viewModel.dailyReminderEnabled {
@@ -65,12 +65,12 @@ struct NotificationsSectionView: View {
         HStack {
             Image(systemName: "clock")
                 .font(Typography.Icon.sm)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .frame(width: 28)
 
             Text("Reminder Time")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Spacer()
 
@@ -80,7 +80,7 @@ struct NotificationsSectionView: View {
                 displayedComponents: .hourAndMinute
             )
             .labelsHidden()
-            .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .tint(Color("AppAccentAction"))
         }
         .padding(.leading, Theme.Spacing.xxl - 12) // Align with toggle content
     }
@@ -89,11 +89,11 @@ struct NotificationsSectionView: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "info.circle")
                 .font(Typography.Icon.xs)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             Text("We'll remind you at 8 PM if you haven't read today.")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
         .padding(.leading, Theme.Spacing.xxl - 12) // Align with toggle content
     }
@@ -105,23 +105,23 @@ struct NotificationsSectionView: View {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle + 0.02))
                     .frame(width: 64, height: 64)
 
                 Image(systemName: "bell.badge")
                     .font(Typography.Icon.xl.weight(.light))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
 
             // Description
             VStack(spacing: Theme.Spacing.xs) {
                 Text("Stay on Track")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Enable notifications to receive daily reading reminders and streak protection alerts.")
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .multilineTextAlignment(.center)
             }
 
@@ -136,7 +136,7 @@ struct NotificationsSectionView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Theme.Spacing.md)
-                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .background(Color("AppAccentAction"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             }
         }

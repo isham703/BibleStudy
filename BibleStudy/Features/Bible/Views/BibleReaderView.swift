@@ -8,6 +8,7 @@ import UIKit
 struct BibleReaderView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(AppState.self) private var appState
     @State private var viewModel: BibleReaderViewModel?
     @State private var isVisible = false
@@ -15,6 +16,9 @@ struct BibleReaderView: View {
     @State private var showReadingMenu = false
     @State private var showAudioPlayer = false
     @State private var scrollProxy: ScrollViewProxy?
+
+    // Chrome auto-hide state (ritual reading mode)
+    @State private var showToolbar = true
 
     // Audio state
     @State private var audioService = AudioService.shared
@@ -29,6 +33,9 @@ struct BibleReaderView: View {
     @State private var insightSheetInsights: [BibleInsight] = []
     @State private var insightSheetVerseInsightCounts: [Int: Int] = [:]
 
+    // Chapter panel state
+    @State private var showChapterPanel = false
+
     // Persist last reading position
     @AppStorage("scholarLastBookId") private var lastBookId: Int = 43
     @AppStorage("scholarLastChapter") private var lastChapter: Int = 1
@@ -39,31 +46,103 @@ struct BibleReaderView: View {
         self.initialLocation = location
     }
 
+    private var isUITestingReader: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui_testing_reader")
+    }
+
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Background with tap to dismiss
-                Colors.Surface.background(for: ThemeMode.current(from: colorScheme))
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        if let viewModel = viewModel, viewModel.showContextMenu {
-                            withAnimation(Theme.Animation.fade) {
-                                viewModel.clearSelection()
+        ZStack {
+            GeometryReader { geometry in
+                ZStack {
+                    // Background with tap to dismiss
+                    Color.appBackground
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            if let viewModel = viewModel, viewModel.showContextMenu {
+                                withAnimation(Theme.Animation.fade) {
+                                    viewModel.clearSelection()
+                                }
+                            }
+                        }
+
+                    // Main content
+                    if let viewModel = viewModel {
+                        mainContent(viewModel: viewModel, geometry: geometry)
+                    } else {
+                        loadingView
+                    }
+                }
+                .coordinateSpace(name: "scholarReader")
+            }
+
+            // Chapter panel overlay
+            if let viewModel = viewModel, let book = viewModel.book {
+                ChapterSidePanel(
+                    book: book,
+                    currentChapter: viewModel.currentLocation.chapter,
+                    isPresented: $showChapterPanel,
+                    onSelectChapter: { chapter in
+                        Task { await viewModel.goToChapter(chapter) }
+                    }
+                )
+            }
+        }
+        .simultaneousGesture(chapterPanelSwipeGesture)
+        .toolbar {
+            // Leading: Reading menu button
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    HapticService.shared.lightTap()
+                    showReadingMenu = true
+                } label: {
+                    Image(systemName: "textformat.size")
+                        .font(Typography.Icon.md.weight(.medium))
+                }
+                .accessibilityLabel("Reading settings")
+                .accessibilityIdentifier("ReaderToolbarReadingMenuButton")
+            }
+
+            // Center: Chapter selector button
+            ToolbarItem(placement: .principal) {
+                if let viewModel = viewModel {
+                    BibleChapterMenuButton(
+                        currentBook: viewModel.book,
+                        currentChapter: viewModel.currentLocation.chapter,
+                        onTap: { showBookPicker = true }
+                    )
+                }
+            }
+
+            // Trailing: Chapter panel toggle
+            ToolbarItem(placement: .topBarTrailing) {
+                if let viewModel = viewModel {
+                    Button {
+                        HapticService.shared.lightTap()
+                        withAnimation(Theme.Animation.settle) {
+                            showChapterPanel.toggle()
+                        }
+                    } label: {
+                        Group {
+                            if showChapterPanel {
+                                Image(systemName: "xmark")
+                                    .font(Typography.Icon.sm.weight(.semibold))
+                            } else {
+                                Text("\(viewModel.currentLocation.chapter)")
+                                    .font(Typography.Command.body.weight(.semibold))
                             }
                         }
                     }
-
-                // Main content
-                if let viewModel = viewModel {
-                    mainContent(viewModel: viewModel, geometry: geometry)
-                } else {
-                    loadingView
+                    .animation(Theme.Animation.fade, value: showChapterPanel)
+                    .accessibilityLabel(showChapterPanel ? "Close chapter selector" : "Chapter \(viewModel.currentLocation.chapter)")
+                    .accessibilityHint(showChapterPanel ? "Closes the chapter selector panel" : "Opens chapter selector panel")
+                    .accessibilityIdentifier("ReaderToolbarChapterButton")
                 }
             }
-            .coordinateSpace(name: "scholarReader")
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar { toolbarContent }
+        .toolbar(showToolbar ? .visible : .hidden, for: .navigationBar)
+        .toolbarBackground(Color.appBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .animation(Theme.Animation.fade, value: showToolbar)
         .sheet(isPresented: $showReadingMenu) { readingMenuSheet }
         .sheet(isPresented: $showBookPicker) { bookPickerSheet }
         .sheet(isPresented: $showAudioPlayer) { AudioPlayerSheet(audioService: audioService) }
@@ -75,6 +154,21 @@ struct BibleReaderView: View {
         .onChange(of: audioService.playbackState) { handlePlaybackStateChange($1) }
         .onChange(of: viewModel?.flashVerseId) { handleFlashVerseChange($1) }
         .onChange(of: viewModel?.currentLocation) { handleLocationChange($1) }
+    }
+
+    // MARK: - Chapter Panel Swipe Gesture
+
+    private var chapterPanelSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 50)
+            .onEnded { value in
+                // Swipe left (negative x) opens panel
+                if value.translation.width < -50 && !showChapterPanel {
+                    withAnimation(Theme.Animation.settle) {
+                        showChapterPanel = true
+                    }
+                    HapticService.shared.lightTap()
+                }
+            }
     }
 
     // MARK: - Main Content
@@ -113,41 +207,6 @@ struct BibleReaderView: View {
             }
         } else {
             loadingView
-        }
-    }
-
-    // MARK: - Toolbar
-
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            if let viewModel = viewModel {
-                BibleChapterSelector(
-                    reference: viewModel.headerReference,
-                    bookName: viewModel.book?.name ?? "",
-                    chapter: viewModel.currentLocation.chapter
-                ) {
-                    HapticService.shared.lightTap()
-                    showBookPicker = true
-                }
-            }
-        }
-
-        ToolbarItem(placement: .topBarTrailing) {
-            if let viewModel = viewModel {
-                navigationButtons(viewModel: viewModel)
-            }
-        }
-
-        ToolbarItem(placement: .topBarLeading) {
-            Button {
-                HapticService.shared.lightTap()
-                showReadingMenu = true
-            } label: {
-                Image(systemName: "textformat.size")
-                    .font(Typography.Icon.md.weight(.medium))
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
-            }
         }
     }
 
@@ -204,41 +263,15 @@ struct BibleReaderView: View {
         }
     }
 
-    // MARK: - Navigation Buttons
-
-    private func navigationButtons(viewModel: BibleReaderViewModel) -> some View {
-        let textColor = Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme))
-
-        return HStack(spacing: Theme.Spacing.sm) {
-            Button {
-                Task { await viewModel.goToPreviousChapter() }
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(Typography.Command.caption.weight(.medium))
-                    .foregroundStyle(viewModel.canGoBack ? textColor : textColor.opacity(Theme.Opacity.disabled))
-            }
-            .disabled(!viewModel.canGoBack)
-
-            Button {
-                Task { await viewModel.goToNextChapter() }
-            } label: {
-                Image(systemName: "chevron.right")
-                    .font(Typography.Command.caption.weight(.medium))
-                    .foregroundStyle(viewModel.canGoForward ? textColor : textColor.opacity(Theme.Opacity.disabled))
-            }
-            .disabled(!viewModel.canGoForward)
-        }
-    }
-
     // MARK: - Loading & Error Views
 
     private var loadingView: some View {
         VStack(spacing: Theme.Spacing.lg) {
             ProgressView()
-                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .tint(Color("AppAccentAction"))
             Text("Loading...")
                 .font(Typography.Command.body)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
         }
     }
 
@@ -246,15 +279,15 @@ struct BibleReaderView: View {
         VStack(spacing: Theme.Spacing.lg) {
             Image(systemName: "exclamationmark.triangle")
                 .font(Typography.Icon.xxl.weight(.light))
-                .foregroundStyle(Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("FeedbackError"))
 
             Text("Unable to load chapter")
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Text(error.localizedDescription)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.xl)
 
@@ -263,12 +296,12 @@ struct BibleReaderView: View {
             } label: {
                 Text("Try Again")
                     .font(Typography.Command.cta)
-                    .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(.white)
                     .padding(.horizontal, Theme.Spacing.lg)
                     .padding(.vertical, Theme.Spacing.sm)
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .fill(Color("AppAccentAction"))
                     )
             }
         }
@@ -288,31 +321,69 @@ struct BibleReaderView: View {
                         chapter: viewModel.currentLocation.chapter,
                         isVisible: isVisible
                     )
-                    .padding(.top, Theme.Spacing.xl)
+                    .padding(.top, Theme.Size.minTapTarget + Theme.Spacing.xxl)
                     .padding(.horizontal, Theme.Spacing.xl)
                     .id("chapter-top")
 
-                    // Editorial divider
-                    BibleEditorialDivider(isVisible: isVisible)
-                        .padding(.vertical, Theme.Spacing.xl)
+                    let shouldShowDivider = Layout.shouldShowEditorialDivider(
+                        isContentVisible: isVisible,
+                        isChapterPanelPresented: showChapterPanel
+                    )
+
+                    // Editorial divider - hidden when chapter panel is open to avoid visual break
+                    Group {
+                        if shouldShowDivider {
+                            BibleEditorialDivider(isVisible: true)
+                        } else {
+                            Color.clear.frame(height: Theme.Stroke.hairline)
+                        }
+                    }
+                    .padding(.vertical, Theme.Spacing.xl)
 
                     // Verses
                     versesSection(chapter: chapter, geometry: geometry, viewModel: viewModel)
 
-                    // Chapter footer
+                    // Chapter footer with optional artwork
                     BibleChapterFooter(
                         chapter: viewModel.currentLocation.chapter,
                         canGoForward: viewModel.canGoForward,
                         nextLocation: viewModel.book.flatMap { viewModel.currentLocation.next(maxChapter: $0.chapters) },
-                        onNextChapter: { Task { await viewModel.goToNextChapter() } }
+                        onNextChapter: { Task { await viewModel.goToNextChapter() } },
+                        bookName: viewModel.book?.name,
+                        bottomSafeAreaInset: geometry.safeAreaInsets.bottom
                     )
-                    .padding(.horizontal, Theme.Spacing.xl)
+                    .padding(.horizontal, viewModel.book?.name != nil ? 0 : Theme.Spacing.xl)
                 }
                 .frame(width: contentWidth)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .frame(minHeight: geometry.size.height)
             }
             .onAppear { scrollProxy = proxy }
+        }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 5)
+                .onChanged { value in
+                    handleDragChange(value.translation.height)
+                }
+        )
+    }
+
+    private func handleDragChange(_ translation: CGFloat) {
+        guard !reduceMotion else { return }
+
+        // Negative translation = scrolling down (dragging up)
+        // Positive translation = scrolling up (dragging down)
+        let hideThreshold: CGFloat = -60
+        let showThreshold: CGFloat = 30
+
+        if translation < hideThreshold && showToolbar {
+            withAnimation(Theme.Animation.fade) {
+                showToolbar = false
+            }
+        } else if translation > showThreshold && !showToolbar {
+            withAnimation(Theme.Animation.fade) {
+                showToolbar = true
+            }
         }
     }
 
@@ -409,6 +480,9 @@ struct BibleReaderView: View {
         let vm = BibleReaderViewModel(location: initialLocation)
         viewModel = vm
         await vm.loadChapter()
+        if isUITestingReader {
+            showChapterPanel = true
+        }
         // swiftlint:disable:next hardcoded_animation_spring
         withAnimation(Theme.Animation.settle) {
             isVisible = true
@@ -528,6 +602,19 @@ struct BibleReaderView: View {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootVC = windowScene.windows.first?.rootViewController {
             rootVC.present(activityVC, animated: true)
+        }
+    }
+}
+
+// MARK: - Layout Helpers
+
+extension BibleReaderView {
+    enum Layout {
+        static func shouldShowEditorialDivider(
+            isContentVisible: Bool,
+            isChapterPanelPresented: Bool
+        ) -> Bool {
+            isContentVisible && !isChapterPanelPresented
         }
     }
 }

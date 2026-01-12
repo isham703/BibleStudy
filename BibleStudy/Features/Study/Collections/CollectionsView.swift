@@ -134,7 +134,7 @@ struct CollectionsView: View {
                 Text("Pinned")
                     .font(Typography.Command.caption.weight(.semibold))
             }
-            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("AppAccentAction"))
             .padding(.horizontal, Theme.Spacing.md)
 
             ForEach(viewModel.pinnedCollections) { collection in
@@ -149,7 +149,7 @@ struct CollectionsView: View {
             if !viewModel.pinnedCollections.isEmpty && viewModel.searchText.isEmpty {
                 Text("Collections")
                     .font(Typography.Command.caption.weight(.semibold))
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .padding(.horizontal, Theme.Spacing.md)
             }
 
@@ -204,8 +204,8 @@ struct CollectionCard: View {
                 // Icon
                 ZStack {
                     RoundedRectangle(cornerRadius: Theme.Radius.input)
-                        .fill(Color(collection.color).opacity(Theme.Opacity.light))
-                        .frame(width: 44, height: 44)
+                        .fill(Color(collection.color).opacity(Theme.Opacity.selectionBackground))
+                        .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
 
                     Image(systemName: collection.icon)
                         .font(Typography.Command.title3)
@@ -217,19 +217,19 @@ struct CollectionCard: View {
                     HStack {
                         Text(collection.name)
                             .font(Typography.Command.body.weight(.semibold))
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
 
                         if collection.isPinned {
                             Image(systemName: "pin.fill")
                                 .font(Typography.Command.meta)
-                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppAccentAction"))
                         }
                     }
 
                     if !collection.description.isEmpty {
                         Text(collection.description)
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                             .lineLimit(1)
                     }
 
@@ -239,7 +239,7 @@ struct CollectionCard: View {
                         Text("\(collection.itemCount) items")
                     }
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
                 }
 
                 Spacer()
@@ -247,12 +247,12 @@ struct CollectionCard: View {
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .fill(Color.elevatedBackground)
+                    .fill(Color("AppSurface"))
             )
         }
     }
@@ -282,9 +282,9 @@ struct FilterChip: View {
             .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.elevatedBackground)
+                    .fill(isSelected ? Color("AppAccentAction") : Color("AppSurface"))
             )
-            .foregroundStyle(isSelected ? Color.appBackground : Color.primaryText)
+            .foregroundStyle(isSelected ? Color.appBackground : Color("AppTextPrimary"))
         }
     }
 }
@@ -320,22 +320,22 @@ struct NewCollectionSheet: View {
                         } label: {
                             HStack {
                                 Image(systemName: type.icon)
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .foregroundStyle(Color("AppAccentAction"))
                                     .frame(width: 24)
 
                                 VStack(alignment: .leading) {
                                     Text(type.displayName)
-                                        .foregroundStyle(Color.primaryText)
+                                        .foregroundStyle(Color("AppTextPrimary"))
                                     Text(type.description)
                                         .font(Typography.Command.caption)
-                                        .foregroundStyle(Color.secondaryText)
+                                        .foregroundStyle(Color("AppTextSecondary"))
                                 }
 
                                 Spacer()
 
                                 if selectedType == type {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                        .foregroundStyle(Color("AppAccentAction"))
                                 }
                             }
                         }

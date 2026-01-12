@@ -113,7 +113,7 @@ struct AskTabContentView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .font(Typography.Command.body.weight(.medium))
-                                .foregroundStyle(Color.secondaryText)
+                                .foregroundStyle(Color("AppTextSecondary"))
                         }
                         .accessibilityLabel("Close")
                         .accessibilityHint("Dismisses the Ask chat")
@@ -319,7 +319,7 @@ struct ChatHistorySheet: View {
                             viewModel.selectThread(thread)
                             dismiss()
                         }
-                        .listRowBackground(Color.surfaceBackground)
+                        .listRowBackground(Color("AppSurface"))
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
@@ -342,15 +342,15 @@ struct ChatHistorySheet: View {
         VStack(spacing: Theme.Spacing.lg) {
             Image(systemName: "book.closed")
                 .font(Typography.Icon.hero.weight(.light))
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
 
             Text("No Conversations Yet")
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Text("Your chat history will appear here")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.appBackground)
@@ -392,11 +392,11 @@ private struct HistorySectionHeader: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: section.icon)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
 
             Text(section.title)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .textCase(nil)
 
             // Golden divider line
@@ -404,7 +404,7 @@ private struct HistorySectionHeader: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                            Color("AccentBronze").opacity(Theme.Opacity.selectionBackground),
                             Color.clear
                         ],
                         startPoint: .leading,
@@ -431,25 +431,25 @@ private struct HistoryThreadRow: View {
                 // Golden book icon
                 ZStack {
                     Circle()
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                        .fill(Color("AccentBronze").opacity(Theme.Opacity.subtle))
                         .frame(width: 40, height: 40)
 
                     Image(systemName: "book.closed.fill")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AccentBronze"))
                 }
 
                 // Thread content
                 VStack(alignment: .leading, spacing: 2) {
                     Text(thread.displayTitle)
                         .font(Typography.Command.body.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .lineLimit(1)
 
                     if let lastMessage = thread.lastMessage {
                         Text(lastMessage.content)
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                             .lineLimit(2)
                     }
 
@@ -457,11 +457,11 @@ private struct HistoryThreadRow: View {
                     HStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: "clock")
                             .font(Typography.Command.meta)
-                            .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
+                            .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
 
                         Text(thread.updatedAt.formatted(.relative(presentation: .named)))
                             .font(Typography.Command.meta)
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
                     }
                 }
 
@@ -470,7 +470,7 @@ private struct HistoryThreadRow: View {
                 // Chevron
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(.vertical, Theme.Spacing.xs)
         }

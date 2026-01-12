@@ -5,6 +5,7 @@ xcuserdata/
 *.xccheckout
 *.xcscmblueprint
 DerivedData/
+.derivedDataUITests/
 build/
 
 # Swift Package Manager
@@ -62,3 +63,8 @@ playground.xcworkspace
 # Debug files
 *.dSYM.zip
 *.dSYM/
+
+# SQLite temporary files
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm

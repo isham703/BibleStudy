@@ -30,7 +30,7 @@ struct GreetingHeader: View {
     var body: some View {
         Text("\(greeting)\(displayName)")
             .font(Typography.Scripture.heading)
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
     }
 }
 

@@ -35,28 +35,27 @@ struct CardStyle {
     let iconSize: CGFloat
 
     // MARK: - Roman Style (Unified - Uses Surface Layer)
-    // Theme-aware style that responds to Light/Dark/Sepia/OLED reading modes
+    // Theme-aware style that responds to Light/Dark modes via Asset Catalog
     // Uses imperialPurple accent and stoic neutrals for monumental clarity
 
     static func roman(isPrimary: Bool, colorScheme: ColorScheme = .light) -> CardStyle {
         let isDark = colorScheme == .dark
-        let mode = ThemeMode.current(from: colorScheme)
 
         return CardStyle(
             // Text colors from Surface layer
-            textColor: Colors.Surface.textPrimary(for: mode),
-            secondaryTextColor: Colors.Surface.textSecondary(for: mode),
+            textColor: Color("AppTextPrimary"),
+            secondaryTextColor: Color("AppTextSecondary"),
             // Card background
-            backgroundColor: isDark ? .white : Colors.Surface.background(for: mode),
+            backgroundColor: isDark ? .white : Color.appBackground,
             backgroundOpacity: isDark ? 0.06 : 0.9,
             // Effects
             useMaterial: !isDark,
             borderGradient: isPrimary
-                ? [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(isDark ? 0.5 : 0.35),
-                   Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(isDark ? 0.3 : 0.2),
-                   Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(isDark ? 0.2 : 0.15)]
-                : [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(isDark ? 0.2 : 0.15),
-                   Color.feedbackInfo.opacity(isDark ? 0.1 : 0.08)],
+                ? [Color("AppAccentAction").opacity(isDark ? 0.5 : 0.35),
+                   Color("AccentBronze").opacity(isDark ? 0.3 : 0.2),
+                   Color("AppAccentAction").opacity(isDark ? 0.2 : 0.15)]
+                : [Color("AppAccentAction").opacity(isDark ? 0.2 : 0.15),
+                   Color("FeedbackInfo").opacity(isDark ? 0.1 : 0.08)],
             shadowOpacity: isDark ? 0.2 : 0.12,
             pressedShadowOpacity: isDark ? 0.3 : 0.18,
             brightnessOnPress: isDark ? 0.03 : 0,

@@ -1,16 +1,18 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Prayers From the Deep
-// Contemplative Manuscript design - illuminated manuscript aesthetic
+// MARK: - The Portico
+// Classical order design - clean architectural clarity
 // AI-crafted prayers using intention-based categories
 
 struct PrayersFromDeepView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) private var colorScheme
     @State private var flowState = PrayerFlowState()
     @State private var illuminationPhase: CGFloat = 0
     @State private var isSaving = false
+    @State private var showRecentPrayers = false
     @FocusState private var isTextFieldFocused: Bool
 
     private let prayerService = PrayerService.shared
@@ -19,7 +21,7 @@ struct PrayersFromDeepView: View {
 
     var body: some View {
         ZStack {
-            // Parchment Background
+            // Background
             backgroundLayer
 
             ScrollView(showsIndicators: false) {
@@ -30,13 +32,16 @@ struct PrayersFromDeepView: View {
                             flowState: flowState,
                             isTextFieldFocused: $isTextFieldFocused,
                             illuminationPhase: illuminationPhase,
-                            onCreatePrayer: createPrayer
+                            onCreatePrayer: createPrayer,
+                            onViewRecentPrayers: { showRecentPrayers = true }
                         )
+                        .ignoresSafeArea(edges: .top)
                     case .generating:
                         PrayerGeneratingPhase(
                             selectedCategory: flowState.selectedCategory,
-                            illuminationPhase: illuminationPhase,
-                            reduceMotion: reduceMotion
+                            intentionText: flowState.inputText,
+                            reduceMotion: reduceMotion,
+                            onCancel: cancelGeneration
                         )
                     case .displaying:
                         if let prayer = flowState.generatedPrayer {
@@ -46,14 +51,18 @@ struct PrayersFromDeepView: View {
                                 onCopy: { copyPrayer(prayer) },
                                 onShare: { sharePrayer(prayer) },
                                 onSave: { savePrayer(prayer) },
-                                onNewPrayer: resetPrayer
+                                onNewPrayer: resetPrayer,
+                                onRegenerate: regeneratePrayer,
+                                onEditIntention: editIntention
                             )
                         }
                     }
                 }
+                .padding(.bottom, Theme.Spacing.xxl * 2)
             }
             .scrollClipDisabled()
             .scrollDismissesKeyboard(.interactively)
+            .ignoresSafeArea(edges: .top)
 
             // Toast overlay
             if flowState.showToast {
@@ -66,11 +75,16 @@ struct PrayersFromDeepView: View {
                     .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
         }
-        .navigationTitle("Prayers from the Deep")
-        .navigationBarTitleDisplayMode(.inline)
+        .ignoresSafeArea(edges: .top)
+        .navigationBarHidden(true)
         .sheet(isPresented: $flowState.showCrisisModal) {
             CrisisHelpModal(onDismiss: { flowState.dismissCrisisModal() })
                 .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showRecentPrayers) {
+            RecentPrayersSheet(prayerService: prayerService)
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
         .onAppear {
@@ -93,42 +107,15 @@ struct PrayersFromDeepView: View {
     // MARK: - Background Layer
 
     private var backgroundLayer: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Color.surfaceParchment
-
-                // Vignette effect
-                RadialGradient(
-                    colors: [Color.clear, Color.black.opacity(Theme.Opacity.disabled)],
-                    center: .center,
-                    startRadius: geometry.size.width * 0.3,
-                    endRadius: geometry.size.width * 0.8
-                )
-
-                // Subtle texture overlay
-                Canvas { context, size in
-                    for _ in 0..<50 {
-                        let x = CGFloat.random(in: 0...size.width)
-                        let y = CGFloat.random(in: 0...size.height)
-                        let path = Circle().path(in: CGRect(x: x, y: y, width: 1, height: 1))
-                        context.fill(path, with: .color(Color.accentBronze.opacity(0.08)))
-                    }
-                }
-
-                // Animated gold shimmer at edges
-                LinearGradient(
-                    colors: [
-                        Color.accentBronze.opacity(0.20 + illuminationPhase * 0.35),
-                        Color.clear,
-                        Color.clear,
-                        Color.accentBronze.opacity(0.20 + illuminationPhase * 0.35)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
+        // Dark mode: warm charcoal for candlelit feel (matches HeroHeader curve)
+        // Light mode: standard app background
+        Group {
+            if colorScheme == .dark {
+                Color.warmCharcoal.ignoresSafeArea()
+            } else {
+                Color.appBackground.ignoresSafeArea()
             }
         }
-        .ignoresSafeArea()
     }
 
     // MARK: - Toast Overlay
@@ -139,19 +126,18 @@ struct PrayersFromDeepView: View {
 
             Text(flowState.toastMessage)
                 .font(Typography.Command.caption.weight(.medium))
-                .foregroundColor(Color.textPrimary)
+                .foregroundStyle(Color.appTextPrimary)
                 .padding(.horizontal, Theme.Spacing.xl)
                 .padding(.vertical, Theme.Spacing.md)
                 .background(
                     Capsule()
-                        .fill(Color.surfaceRaised)
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
-                        )
+                        .fill(Color.appSurface)
                 )
-                // swiftlint:disable:next hardcoded_padding_edge
-                .padding(.bottom, 100)  // Safe area offset for toast
+                .overlay(
+                    Capsule()
+                        .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
+                )
+                .padding(.bottom, Theme.Spacing.xxl * 2)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .accessibilityLabel(flowState.toastMessage)
@@ -161,57 +147,125 @@ struct PrayersFromDeepView: View {
 
     private func errorOverlay(for error: PrayerGenerationError) -> some View {
         ZStack {
-            Color.black.opacity(Theme.Opacity.strong)
+            Color.black.opacity(0.6)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    HapticService.shared.warning()
+                    // Dismiss by tapping background
+                    HapticService.shared.lightTap()
                     withAnimation(Theme.Animation.settle) {
                         flowState.clearError()
                     }
                 }
 
-            VStack(spacing: Theme.Spacing.xl) {
-                Image(systemName: "exclamationmark.triangle.fill")
+            VStack(spacing: Theme.Spacing.md) {
+                // Error icon
+                Image(systemName: errorIcon(for: error))
                     .font(Typography.Icon.xxl.weight(.regular))
-                    .foregroundStyle(Color.accentBronze)
+                    .foregroundStyle(Color("FeedbackWarning"))
 
-                Text(error.localizedDescription)
-                    .font(Typography.Command.body)
-                    .foregroundColor(Color.textPrimary)
+                // Error title
+                Text("Unable to Generate Prayer")
+                    .font(Typography.Scripture.heading)
+                    .foregroundStyle(Color.appTextPrimary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, Theme.Spacing.lg)
 
+                // Error detail - raised contrast for readability
+                Text(errorMessage(for: error))
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Color.appTextPrimary.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Theme.Spacing.sm)
+
+                // Reassurance (user's input preserved)
+                HStack(spacing: Theme.Spacing.xs) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(Typography.Icon.sm)
+                        .foregroundStyle(Color("FeedbackSuccess"))
+                    Text("Your intention is saved")
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Color("AppTextSecondary"))
+                }
+
+                // Primary action - Try Again
                 Button(action: {
-                    HapticService.shared.warning()
+                    HapticService.shared.mediumTap()
                     withAnimation(Theme.Animation.settle) {
                         flowState.clearError()
+                        // Retry generation
+                        flowState.startCategoryGeneration(duration: 3.0)
                     }
                 }) {
-                    Text("Try Again")
-                        .font(Typography.Command.subheadline.weight(.semibold))
-                        .foregroundColor(Color.surfaceParchment)
-                        .padding(.horizontal, Theme.Spacing.xxl)
-                        .padding(.vertical, Theme.Spacing.md)
-                        .background(
-                            Capsule()
-                                .fill(Color.accentBronze)
-                        )
+                    HStack(spacing: Theme.Spacing.sm) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(Typography.Icon.sm)
+                        Text("Try Again")
+                            .font(Typography.Command.cta)
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Theme.Spacing.lg)
+                    .background(
+                        RoundedRectangle(cornerRadius: Theme.Radius.button)
+                            .fill(Color("AppAccentAction"))
+                    )
                 }
-                .accessibilityLabel("Try Again")
-                .accessibilityHint("Double tap to dismiss error and try again")
+                .padding(.top, Theme.Spacing.xs)
+
+                // Secondary action - Edit request (styled as interactive link)
+                Button(action: {
+                    HapticService.shared.lightTap()
+                    withAnimation(Theme.Animation.settle) {
+                        flowState.clearError()
+                        flowState.phase = .input
+                    }
+                }) {
+                    HStack(spacing: Theme.Spacing.xs) {
+                        Text("Edit Request")
+                            .font(Typography.Command.label.weight(.medium))
+                        Image(systemName: "chevron.right")
+                            .font(Typography.Icon.xs)
+                    }
+                    .foregroundStyle(Color.appTextPrimary)
+                    .padding(.vertical, Theme.Spacing.sm)
+                }
             }
-            .padding(Theme.Spacing.xxl)
+            .padding(Theme.Spacing.xl)
+            .padding(.horizontal, Theme.Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.surfaceRaised)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Radius.card)
-                            .stroke(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
-                    )
+                    .fill(Color.appSurface)
             )
-            .padding(.horizontal, Theme.Spacing.xxl)
+            // Removed accent stroke - clean modal edge
+            .padding(.horizontal, Theme.Spacing.lg)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("Error: \(error.localizedDescription)")
+            .accessibilityLabel("Error: \(errorMessage(for: error)). Your intention is saved.")
+            .accessibilityHint("Try again to regenerate, or edit your request")
+        }
+    }
+
+    // MARK: - Error Helpers
+
+    private func errorIcon(for error: PrayerGenerationError) -> String {
+        switch error {
+        case .networkError:
+            return "wifi.slash"
+        case .rateLimited:
+            return "clock.badge.exclamationmark"
+        default:
+            return "exclamationmark.triangle.fill"
+        }
+    }
+
+    private func errorMessage(for error: PrayerGenerationError) -> String {
+        switch error {
+        case .networkError:
+            return "Unable to connect. Please check your internet and try again."
+        case .rateLimited:
+            return "Too many requests. Please wait a moment and try again."
+        case .generationFailed:
+            return "Something went wrong. Please try again."
+        default:
+            return error.localizedDescription
         }
     }
 
@@ -231,9 +285,32 @@ struct PrayersFromDeepView: View {
         HapticService.shared.success()
     }
 
+    private func cancelGeneration() {
+        HapticService.shared.warning()
+        withAnimation(Theme.Animation.settle) {
+            flowState.cancelAllTasks()
+            flowState.phase = .input
+        }
+    }
+
     private func resetPrayer() {
         withAnimation(Theme.Animation.slowFade) {
             flowState.reset()
+        }
+    }
+
+    private func regeneratePrayer() {
+        HapticService.shared.mediumTap()
+        withAnimation(Theme.Animation.slowFade) {
+            flowState.phase = .generating
+            flowState.startCategoryGeneration(duration: 3.0)
+        }
+    }
+
+    private func editIntention() {
+        HapticService.shared.lightTap()
+        withAnimation(Theme.Animation.slowFade) {
+            flowState.phase = .input
         }
     }
 

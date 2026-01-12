@@ -30,7 +30,20 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
             .count
     }
 
+    /// Display segments for UI rendering (cached for performance)
+    /// Access via MainActor for cached results, or use computeSegments() for direct computation
+    @MainActor
     var segments: [TranscriptDisplaySegment] {
+        TranscriptSegmentCache.shared.getSegments(for: self) {
+            Self.computeSegments(from: wordTimestamps, content: content)
+        }
+    }
+
+    /// Compute segments directly (O(n) - use cached version when possible)
+    static func computeSegments(
+        from wordTimestamps: [WordTimestamp],
+        content: String
+    ) -> [TranscriptDisplaySegment] {
         // Group words into display segments (~10-15 seconds each)
         guard !wordTimestamps.isEmpty else {
             return [TranscriptDisplaySegment(
@@ -121,7 +134,8 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         wordTimestamps.firstIndex { time >= $0.start && time < $0.end }
     }
 
-    /// Find the segment index containing a given timestamp
+    /// Find the segment index containing a given timestamp (uses cached segments)
+    @MainActor
     func segmentIndex(at time: Double) -> Int? {
         segments.firstIndex { time >= $0.startTime && time < $0.endTime }
     }

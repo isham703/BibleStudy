@@ -195,6 +195,25 @@ enum Typography {
         static let dropCap: Font = .system(size: 72, weight: .bold, design: .serif)
         static let dropCapCompact: Font = .system(size: 52, weight: .bold, design: .serif)
     }
+
+    // MARK: - Title Page Tokens (Cormorant Garamond - Deliberate Exception)
+
+    /// Title page tokens for ceremonial book/chapter headers
+    /// Use for: Reader header book title ONLY
+    ///
+    /// WHY CORMORANT: The reader header is the one place where "ceremony" is the product.
+    /// Cormorant creates a premium printed-book moment that system serif won't match.
+    /// This is a deliberate, documented exception - not an accident.
+    ///
+    /// SCOPE: Book title only. Everything else (kicker, chapter label, controls) stays system.
+    enum TitlePage {
+        // TP-BookTitle: Large book name in reader header ("Genesis", "Matthew")
+        // Cormorant Garamond SemiBold - deliberate luxury for title page moment
+        static let bookTitle: Font = .custom("CormorantGaramond-SemiBold", size: 52)
+
+        // Base size for Dynamic Type scaling (use with @ScaledMetric)
+        static let bookTitleBaseSize: CGFloat = 52
+    }
 }
 
 // MARK: - User Preference Types (Move to Settings/Models in future refactor)
@@ -272,6 +291,23 @@ extension View {
         self
             .font(Typography.Scripture.footnote)
             .lineSpacing(Typography.Scripture.footnoteLineSpacing)
+    }
+
+    // MARK: Title Page Helpers
+
+    /// Apply Title Page book title style (reader header book name)
+    /// Uses Cormorant Garamond - deliberate exception for ceremonial title page moment
+    /// NOTE: For Dynamic Type support, pass a @ScaledMetric size parameter
+    func titlePageBookTitle() -> some View {
+        self
+            .font(Typography.TitlePage.bookTitle)
+    }
+
+    /// Apply Title Page book title with custom size (for Dynamic Type scaling)
+    /// Use with @ScaledMetric(relativeTo: .title) for accessibility support
+    func titlePageBookTitle(size: CGFloat) -> some View {
+        self
+            .font(.custom("CormorantGaramond-SemiBold", size: size))
     }
 
     // MARK: Command Helpers

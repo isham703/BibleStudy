@@ -9,7 +9,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
     case theApprentice = "The Apprentice"
     case illuminate = "Illuminate"
     case theThread = "The Thread"
-    case prayersFromDeep = "Prayers From the Deep"
+    case prayersFromDeep = "The Portico"
     case memoryPalace = "Memory Palace"
     case compline = "Compline"
     case breathe = "Breathe"
@@ -26,7 +26,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .theApprentice: return "Your personal AI study companion that grows with you"
         case .illuminate: return "AI-generated sacred art for any verse"
         case .theThread: return "Conversations with historical figures about scripture"
-        case .prayersFromDeep: return "AI crafts prayers in the language of the Psalms"
+        case .prayersFromDeep: return "AI-crafted prayers for your intentions"
         case .memoryPalace: return "Visual journeys for scripture memorization"
         case .compline: return "AI-led evening prayer experience"
         case .breathe: return "Guided breathing exercises for peace and rest"
@@ -40,7 +40,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .theApprentice: return "bubble.left.and.bubble.right.fill"
         case .illuminate: return "paintpalette.fill"
         case .theThread: return "person.2.wave.2.fill"
-        case .prayersFromDeep: return "hands.sparkles.fill"
+        case .prayersFromDeep: return "building.columns"
         case .memoryPalace: return "building.columns.fill"
         case .compline: return "moon.stars.fill"
         case .breathe: return "wind"
@@ -50,15 +50,15 @@ enum AIFeature: String, CaseIterable, Identifiable {
 
     var gradientColors: [Color] {
         switch self {
-        case .scriptureFindsYou: return [Color.cyanAccent, Color.blueAccent]
-        case .theApprentice: return [Color.amberOrange, Color.brightRed]
-        case .illuminate: return [Color.accentBronze, Color.purpleAccent]
-        case .theThread: return [Color.greenTeal, Color.feedbackSuccess]
-        case .prayersFromDeep: return [Color.roseAccent, Color.pinkAccent]
-        case .memoryPalace: return [Color.tealAccent, Color.cyanAccent]
-        case .compline: return [Color.complineNavy, Color.indigoDeep]
-        case .breathe: return [Color.accentIndigoLight, Color.deepPurple]
-        case .sermonRecording: return [Color.accentBronze, Color.amberOrange]
+        case .scriptureFindsYou: return [Color("FeedbackInfo"), Color("FeedbackInfo")]
+        case .theApprentice: return [Color("FeedbackWarning"), Color("FeedbackError")]
+        case .illuminate: return [Color("AccentBronze"), Color("AppAccentAction")]
+        case .theThread: return [Color("FeedbackSuccess"), Color("FeedbackSuccess")]
+        case .prayersFromDeep: return [Color("HighlightBlue"), Color("HighlightBlue").opacity(0.8)]
+        case .memoryPalace: return [Color("FeedbackSuccess"), Color("FeedbackInfo")]
+        case .compline: return [Color("AppAccentAction"), Color("AppAccentAction")]
+        case .breathe: return [Color("AppAccentAction"), Color("AppAccentAction")]
+        case .sermonRecording: return [Color("AccentBronze"), Color("FeedbackWarning")]
         }
     }
 
@@ -70,7 +70,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .theApprentice: return "COMPANION"
         case .illuminate: return "ART"
         case .theThread: return "DIALOGUE"
-        case .prayersFromDeep: return "PRAYERS"
+        case .prayersFromDeep: return "PORTICO"
         case .memoryPalace: return "MEMORY"
         case .compline: return "COMPLINE"
         case .breathe: return "BREATHE"
@@ -84,7 +84,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .theApprentice: return "The Apprentice"
         case .illuminate: return "Illuminate"
         case .theThread: return "The Thread"
-        case .prayersFromDeep: return "Prayers from the Deep"
+        case .prayersFromDeep: return "The Portico"
         case .memoryPalace: return "Memory Palace"
         case .compline: return "Compline"
         case .breathe: return "Breathe"
@@ -98,7 +98,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .theApprentice: return "Your study companion"
         case .illuminate: return "Sacred visual art"
         case .theThread: return "Conversations with history"
-        case .prayersFromDeep: return "Craft a prayer"
+        case .prayersFromDeep: return "AI-crafted prayers"
         case .memoryPalace: return "Memorize Psalm 23"
         case .compline: return "Begin your evening prayer"
         case .breathe: return "Find your calm"
@@ -146,7 +146,7 @@ struct AIFeaturePlaceholderView: View {
                 Image(systemName: feature.icon)
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Icon.display)
-                    .foregroundStyle(.white.opacity(Theme.Opacity.primary))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.textPrimary))
 
                 Text(feature.title)
                     // swiftlint:disable:next hardcoded_swiftui_text_style
@@ -166,7 +166,7 @@ struct AIFeaturePlaceholderView: View {
                     // swiftlint:disable:next hardcoded_swiftui_text_style
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundStyle(.white.opacity(Theme.Opacity.primary))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.textPrimary))
                     .padding(.top, Theme.Spacing.sm)
             }
         }

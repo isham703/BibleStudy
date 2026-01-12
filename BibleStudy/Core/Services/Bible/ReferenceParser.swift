@@ -176,7 +176,7 @@ enum ReferenceParser {
     // MARK: - Alias Dictionaries
 
     /// Common informal abbreviations and aliases
-    /// Note: nonisolated(unsafe) is required to allow access from nonisolated functions.
+    // nonisolated(unsafe) prevents @MainActor inference, allowing access from nonisolated functions
     private nonisolated(unsafe) static let commonAliases: [String: Book] = {
         var aliases: [String: Book] = [:]
 

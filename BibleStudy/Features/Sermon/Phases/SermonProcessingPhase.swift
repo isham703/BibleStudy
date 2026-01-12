@@ -1,35 +1,84 @@
 import SwiftUI
 
 // MARK: - Sermon Processing Phase
-// Shows processing progress with step checklist
+// Atrium-style: Clean, spacious processing screen with step checklist
 
 struct SermonProcessingPhase: View {
     @Bindable var flowState: SermonFlowState
     @State private var pulsePhase: CGFloat = 0
     @State private var shimmerOffset: CGFloat = -200
+    @State private var isAwakened = false
+    @State private var showReassurance = false
+    @State private var reassuranceTask: Task<Void, Never>?
 
     var body: some View {
-        // swiftlint:disable:next hardcoded_stack_spacing
-        VStack(spacing: 40) {  // Large hero spacing for processing state
-            Spacer()
+        ZStack {
+            backgroundLayer
 
-            // Illuminated initial
-            illuminatedInitial
+            VStack(spacing: 0) {
+                Spacer()
 
-            // Progress bar
-            progressBar
+                // Illuminated initial
+                illuminatedInitial
+                    .padding(.bottom, Theme.Spacing.xxl)
 
-            // Status text
-            statusText
+                // Progress bar
+                progressBar
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.bottom, Theme.Spacing.xl)
 
-            // Step checklist
-            stepChecklist
+                // Status text
+                statusText
+                    .padding(.bottom, Theme.Spacing.xxl)
 
-            Spacer()
+                // Step checklist
+                stepChecklist
+                    .padding(.horizontal, Theme.Spacing.lg)
+
+                Spacer()
+            }
         }
-        .padding(.horizontal, Theme.Spacing.xxl)
         .onAppear {
             startAnimations()
+            withAnimation(Theme.Animation.settle) {
+                isAwakened = true
+            }
+        }
+        .onDisappear {
+            reassuranceTask?.cancel()
+        }
+    }
+
+    // MARK: - Background
+
+    private var backgroundLayer: some View {
+        ZStack {
+            Color("AppBackground")
+                .ignoresSafeArea()
+
+            // Soft top glow
+            RadialGradient(
+                colors: [
+                    Color("AppAccentAction").opacity(Theme.Opacity.subtle / 3),
+                    Color.clear
+                ],
+                center: .init(x: 0.5, y: 0.2),
+                startRadius: 0,
+                endRadius: 400
+            )
+            .ignoresSafeArea()
+
+            // Processing pulse glow
+            RadialGradient(
+                colors: [
+                    Color("AppAccentAction").opacity(Double(0.06 * pulsePhase)),
+                    Color.clear
+                ],
+                center: .init(x: 0.5, y: 0.3),
+                startRadius: 0,
+                endRadius: 250
+            )
+            .ignoresSafeArea()
         }
     }
 
@@ -37,43 +86,30 @@ struct SermonProcessingPhase: View {
 
     private var illuminatedInitial: some View {
         ZStack {
-            // Outer glow
+            // Outer pulse ring
             Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color.accentBronze.opacity(Theme.Opacity.medium),
-                            Color.accentBronze.opacity(Theme.Opacity.subtle),
-                            .clear
-                        ],
-                        center: .center,
-                        startRadius: 30,
-                        endRadius: 80
-                    )
-                )
-                .frame(width: 160, height: 160)
-                .scaleEffect(1 + pulsePhase * 0.1)
-
-            // Background circle
-            Circle()
-                .fill(Color.surfaceRaised)
+                .stroke(Color("AppAccentAction").opacity(0.2), lineWidth: 2)
                 .frame(width: 100, height: 100)
+                .scaleEffect(1 + pulsePhase * 0.1)
+                .opacity(Double(1 - pulsePhase * 0.3))
+
+            // Main circle
+            Circle()
+                .fill(Color("AppSurface"))
+                .frame(width: 88, height: 88)
                 .overlay(
                     Circle()
-                        .stroke(Color.accentBronze.opacity(Theme.Opacity.heavy), lineWidth: Theme.Stroke.control)
+                        .stroke(Color("AppDivider"), lineWidth: 2)
                 )
 
             // Animated "S" initial
             Text("S")
-                .font(Typography.Scripture.display)
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.accentBronze, Color.decorativeGold.opacity(0.15)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .font(.system(size: 40, weight: .light, design: .serif))
+                .foregroundStyle(Color("AppAccentAction"))
         }
+        .opacity(isAwakened ? 1 : 0)
+        .scaleEffect(isAwakened ? 1 : 0.9)
+        .animation(Theme.Animation.settle.delay(0.1), value: isAwakened)
     }
 
     // MARK: - Progress Bar
@@ -82,14 +118,21 @@ struct SermonProcessingPhase: View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 // Track
-                RoundedRectangle(cornerRadius: Theme.Spacing.xs)
-                    .fill(Color.surfaceRaised)
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color("AppSurface"))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+                    )
 
-                // Fill with shimmer
-                RoundedRectangle(cornerRadius: Theme.Spacing.xs)
+                // Fill with gradient
+                RoundedRectangle(cornerRadius: 4)
                     .fill(
                         LinearGradient(
-                            colors: [Color.accentBronze, Color.decorativeGold.opacity(0.15)],
+                            colors: [
+                                Color("AppAccentAction"),
+                                Color("AppAccentAction").opacity(0.7)
+                            ],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -98,22 +141,20 @@ struct SermonProcessingPhase: View {
                     .overlay(
                         // Shimmer effect
                         LinearGradient(
-                            colors: [.clear, .white.opacity(Theme.Opacity.medium), .clear],
+                            colors: [.clear, .white.opacity(0.3), .clear],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
-                        .frame(width: 100)
+                        .frame(width: 80)
                         .offset(x: shimmerOffset)
-                        .mask(
-                            RoundedRectangle(cornerRadius: Theme.Spacing.xs)
-                        )
+                        .mask(RoundedRectangle(cornerRadius: 4))
                     )
-                    // swiftlint:disable:next hardcoded_animation_spring
                     .animation(Theme.Animation.settle, value: flowState.processingProgress)
             }
         }
-        .frame(height: Theme.Spacing.sm)
-        .padding(.horizontal, Theme.Spacing.xl)
+        .frame(height: 8)
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.2), value: isAwakened)
     }
 
     // MARK: - Status Text
@@ -122,57 +163,86 @@ struct SermonProcessingPhase: View {
         VStack(spacing: Theme.Spacing.sm) {
             if case .processing(let step) = flowState.phase {
                 Text(step.displayName)
-                    .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.textPrimary)
+                    .font(Typography.Command.body)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("\(Int(flowState.processingProgress * 100))%")
-                    .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.accentBronze)
+                    .font(.system(size: 32, weight: .light))
+                    .foregroundStyle(Color("AppAccentAction"))
+
+                // Time estimate (appears after reassurance message)
+                if showReassurance {
+                    Text(flowState.formattedEstimatedTime)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Color("TertiaryText"))
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
             }
         }
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.25), value: isAwakened)
+        .animation(Theme.Animation.fade, value: showReassurance)
     }
 
     // MARK: - Step Checklist
 
     private var stepChecklist: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-            ProcessingStepRow(
-                title: "Upload audio",
-                isComplete: isStepComplete(.uploading(progress: 1)),
-                isActive: isStepActive(.uploading(progress: 0))
+        VStack(spacing: Theme.Spacing.md) {
+            // Step card
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                ProcessingStepRow(
+                    title: "Uploading",
+                    isComplete: isStepComplete(.uploading(progress: 1)),
+                    isActive: isStepActive(.uploading(progress: 0))
+                )
+
+                ProcessingStepRow(
+                    title: "Transcribing",
+                    isComplete: isStepComplete(.transcribing(progress: 1, chunk: 1, total: 1)),
+                    isActive: isStepActive(.transcribing(progress: 0, chunk: 1, total: 1))
+                )
+
+                ProcessingStepRow(
+                    title: "Reviewing",
+                    isComplete: isStepComplete(.moderating),
+                    isActive: isStepActive(.moderating)
+                )
+
+                ProcessingStepRow(
+                    title: "Preparing guide",
+                    isComplete: isStepComplete(.analyzing),
+                    isActive: isStepActive(.analyzing)
+                )
+
+                ProcessingStepRow(
+                    title: "Saving",
+                    isComplete: isStepComplete(.saving),
+                    isActive: isStepActive(.saving)
+                )
+            }
+            .padding(Theme.Spacing.xl)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color("AppSurface"))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
 
-            ProcessingStepRow(
-                title: "Transcribe sermon",
-                isComplete: isStepComplete(.transcribing(progress: 1, chunk: 1, total: 1)),
-                isActive: isStepActive(.transcribing(progress: 0, chunk: 1, total: 1))
-            )
+            // AI transparency indicator
+            HStack(spacing: Theme.Spacing.xs) {
+                Image(systemName: "sparkles")
+                    .font(Typography.Icon.xs)
 
-            ProcessingStepRow(
-                title: "Review content",
-                isComplete: isStepComplete(.moderating),
-                isActive: isStepActive(.moderating)
-            )
-
-            ProcessingStepRow(
-                title: "Generate study guide",
-                isComplete: isStepComplete(.analyzing),
-                isActive: isStepActive(.analyzing)
-            )
-
-            ProcessingStepRow(
-                title: "Save & sync",
-                isComplete: isStepComplete(.saving),
-                isActive: isStepActive(.saving)
-            )
+                Text("AI-generated content will be labeled for review")
+                    .font(Typography.Command.caption)
+            }
+            .foregroundStyle(Color("TertiaryText"))
         }
-        .padding(Theme.Spacing.xxl)
-        .background(Color.surfaceRaised.opacity(Theme.Opacity.heavy))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
-        )
+        .opacity(isAwakened ? 1 : 0)
+        .offset(y: isAwakened ? 0 : 10)
+        .animation(Theme.Animation.slowFade.delay(0.3), value: isAwakened)
     }
 
     // MARK: - Step State Helpers
@@ -202,15 +272,22 @@ struct SermonProcessingPhase: View {
 
     private func startAnimations() {
         // Pulse animation
-        // swiftlint:disable:next hardcoded_animation_ease
-        withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
             pulsePhase = 1
         }
 
         // Shimmer animation
-        // swiftlint:disable:next hardcoded_animation_linear
-        withAnimation(.linear(duration: 2.5).repeatForever(autoreverses: false)) {
+        withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
             shimmerOffset = 400
+        }
+
+        // Show reassurance message after 2 seconds (cancellable)
+        reassuranceTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(2.0))
+            guard !Task.isCancelled else { return }
+            withAnimation(Theme.Animation.fade) {
+                showReassurance = true
+            }
         }
     }
 }
@@ -225,56 +302,61 @@ struct ProcessingStepRow: View {
     @State private var pulsePhase: CGFloat = 0
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.lg) {
+        HStack(spacing: Theme.Spacing.md) {
             // Status icon
             ZStack {
                 if isComplete {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(Typography.Icon.lg)
-                        .foregroundStyle(Color.green)
+                    Circle()
+                        .fill(Color("FeedbackSuccess"))
+                        .frame(width: 28, height: 28)
+
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
                 } else if isActive {
                     Circle()
-                        .stroke(Color.accentBronze, lineWidth: Theme.Stroke.control)
-                        .frame(width: Theme.Spacing.xl, height: Theme.Spacing.xl)
-                        .overlay(
-                            Circle()
-                                .fill(Color.accentBronze)
-                                .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
-                                .scaleEffect(1 + pulsePhase * 0.5)
-                        )
+                        .stroke(Color("AppAccentAction"), lineWidth: 2)
+                        .frame(width: 28, height: 28)
+
+                    Circle()
+                        .fill(Color("AppAccentAction"))
+                        .frame(width: 10, height: 10)
+                        .scaleEffect(1 + pulsePhase * 0.3)
                         .onAppear {
-                            // swiftlint:disable:next hardcoded_animation_ease
                             withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
                                 pulsePhase = 1
                             }
                         }
                 } else {
                     Circle()
-                        .stroke(Color.textSecondary.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
-                        .frame(width: Theme.Spacing.xl, height: Theme.Spacing.xl)
+                        .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+                        .frame(width: 28, height: 28)
                 }
             }
-            .frame(width: Theme.Spacing.xxl)
+            .frame(width: 32)
 
             // Title
             Text(title)
-                .font(Typography.Scripture.body)
+                .font(Typography.Command.body)
                 .foregroundStyle(
-                    isActive ? Color.textPrimary :
-                    isComplete ? Color.textPrimary.opacity(Theme.Opacity.overlay) :
-                    Color.textSecondary.opacity(Theme.Opacity.heavy)
+                    isActive ? Color("AppTextPrimary") :
+                    isComplete ? Color("AppTextSecondary") :
+                    Color("TertiaryText")
                 )
+                .fontWeight(isActive ? .medium : .regular)
 
             Spacer()
         }
     }
 }
 
+// MARK: - Preview
+
 #Preview {
     SermonProcessingPhase(flowState: {
         let state = SermonFlowState()
-        state.phase = .processing(.transcribing(progress: 0.6, chunk: 2, total: 4))
-        state.processingProgress = 0.45
+        state.phase = .processing(.analyzing)
+        state.processingProgress = 0.75
         return state
     }())
     .preferredColorScheme(.dark)

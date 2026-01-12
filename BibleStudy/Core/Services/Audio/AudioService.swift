@@ -33,6 +33,7 @@ final class AudioService: NSObject {
     private var boundaryTimeObserver: Any?
     private var nextBoundaryIndex: Int = 0  // Track which boundary will fire next
     private var shouldResumeAfterReload: Bool = false
+    private var isReloadingComposition: Bool = false  // Suppress UI updates during reload
 
     // MARK: - Settings
     var playbackRate: Float = 1.0 {
@@ -497,73 +498,145 @@ final class AudioService: NSObject {
     }
 
     /// Reload composition with all segments while preserving playback position
+    /// Defers reload during active playback to avoid audio glitches
     private func reloadFullComposition(manifestURL: URL, chapter: AudioChapter, timings: [VerseTiming]) async {
         let wasPlaying = isPlaying
+        let wasFinished = playbackState == .finished  // Audio ran out but more verses available
         let savedTime = currentTime
-        let shouldResume = shouldResumeAfterReload || wasPlaying
+        // Resume if was playing, was finished (more verses available), or flag is set
+        let shouldResume = shouldResumeAfterReload || wasPlaying || wasFinished
+        // CRITICAL: Use actual loaded audio duration, not verse timings
+        let actualLoadedDuration = duration
+        let remainingBuffer = actualLoadedDuration - savedTime
 
         shouldResumeAfterReload = false
+
+        // If actively playing with plenty of buffer, defer the reload
+        // Just update timings - the full reload will happen when buffer runs low
+        // or when user pauses/seeks
+        let criticalBufferThreshold: TimeInterval = 10.0
+        if wasPlaying && remainingBuffer > criticalBufferThreshold {
+            currentChapter?.setVerseTimings(timings)
+            pendingFullReload = (manifestURL: manifestURL, chapter: chapter, timings: timings)
+            print("[AudioService] Full reload deferred - buffer OK (\(String(format: "%.1f", remainingBuffer))s), timings updated to \(timings.count) verses")
+            return
+        }
+
+        // Clear any pending reload since we're doing it now
+        pendingFullReload = nil
+
+        // Suppress UI updates during reload to prevent glitching
+        isReloadingComposition = true
 
         do {
             try await loadHLSManifest(manifestURL, chapter: chapter, timings: timings)
 
+            // Use async seek to wait for completion before allowing time updates
             if savedTime > 0 {
-                seek(to: savedTime)
+                await seekAsync(to: savedTime)
             }
+
+            // Restore currentTime explicitly after reload
+            currentTime = savedTime
+
+            // Only reset flag AFTER seek completes to prevent glitchy time updates
+            isReloadingComposition = false
 
             if shouldResume {
                 play()
+                print("[AudioService] Full composition reloaded with \(timings.count) verses, resuming playback")
+            } else {
+                print("[AudioService] Full composition reloaded with \(timings.count) verses")
             }
-
-            print("[AudioService] Full composition reloaded with \(timings.count) verses")
         } catch {
+            isReloadingComposition = false
             print("[AudioService] Failed to reload full composition: \(error.localizedDescription)")
         }
     }
 
+    /// Pending full reload to apply when safe (paused or buffer low)
+    private var pendingFullReload: (manifestURL: URL, chapter: AudioChapter, timings: [VerseTiming])?
+
+    /// Apply pending reload if exists (called when user pauses or buffer gets low)
+    private func applyPendingReloadIfNeeded() async {
+        guard let pending = pendingFullReload else { return }
+        pendingFullReload = nil
+
+        print("[AudioService] Applying deferred full reload...")
+        await reloadFullComposition(
+            manifestURL: pending.manifestURL,
+            chapter: pending.chapter,
+            timings: pending.timings
+        )
+    }
+
     /// Reload composition progressively during background generation
-    /// Only reloads when playback is approaching the end of current buffer to avoid glitches
+    /// Only reloads when buffer is critically low to avoid audio glitches
     @MainActor
     private func reloadProgressively(
         manifestURL: URL,
         chapter: AudioChapter,
         timings: [VerseTiming]
     ) async {
-        // Only reload if playback is approaching the end of current buffer
-        // This prevents unnecessary glitches from constant reloading
         let currentPosition = currentTime
-        let currentBufferEnd = currentChapter?.verseTimings.last?.endTime ?? 0
+        // CRITICAL: Use actual loaded audio duration, NOT verse timings
+        // The `duration` property reflects what's actually loaded in the AVPlayer composition
+        // Verse timings can be updated without reloading, but the player can only play what's loaded
+        let actualLoadedDuration = duration
         let newBufferEnd = timings.last?.endTime ?? 0
 
-        // Calculate remaining buffer time
-        let remainingBuffer = currentBufferEnd - currentPosition
+        // Calculate remaining buffer based on ACTUAL loaded audio, not timings
+        let remainingBuffer = actualLoadedDuration - currentPosition
 
-        // Only reload if:
-        // 1. Remaining buffer is less than 15 seconds, OR
-        // 2. We have no current buffer (first load)
-        let bufferThreshold: TimeInterval = 15.0
+        // CRITICAL: Don't reload during active playback unless buffer is nearly exhausted
+        // Reloading causes audio glitches, so we only do it when absolutely necessary:
+        // 1. Buffer is less than 8 seconds (must reload before audio stops)
+        // 2. No current buffer exists (first load)
+        // 3. Playback is paused or finished (safe to reload)
+        let criticalBufferThreshold: TimeInterval = 8.0
+        let isPausedOrFinished = playbackState == .paused || playbackState == .ready || playbackState == .finished
 
-        guard remainingBuffer < bufferThreshold || currentBufferEnd == 0 else {
-            print("[AudioService] Progressive reload skipped - buffer OK (\(String(format: "%.1f", remainingBuffer))s remaining)")
+        let shouldReload = remainingBuffer < criticalBufferThreshold || actualLoadedDuration == 0 || isPausedOrFinished
+
+        guard shouldReload else {
+            // Just update verse timings metadata without rebuilding player
+            // This allows currentVerse to update correctly without audio glitch
+            currentChapter?.setVerseTimings(timings)
+            // CRITICAL: Store as pending reload so it's applied when playback finishes or buffer runs low
+            pendingFullReload = (manifestURL: manifestURL, chapter: chapter, timings: timings)
+            print("[AudioService] Progressive update: timings updated to \(timings.count) verses, pending reload stored (actual buffer: \(String(format: "%.1f", remainingBuffer))s)")
             return
         }
 
         let wasPlaying = isPlaying
+        let wasFinished = playbackState == .finished  // Audio ran out but more verses available
         let savedTime = currentPosition
+
+        // Suppress UI updates during reload to prevent visual glitching
+        isReloadingComposition = true
 
         do {
             try await loadHLSManifest(manifestURL, chapter: chapter, timings: timings)
 
+            // Use async seek to wait for completion before allowing time updates
             if savedTime > 0 {
-                seek(to: savedTime)
+                await seekAsync(to: savedTime)
             }
 
-            if wasPlaying {
+            // Restore currentTime explicitly after reload
+            currentTime = savedTime
+
+            // Only reset flag AFTER seek completes to prevent glitchy time updates
+            isReloadingComposition = false
+
+            // Resume if was playing OR if playback finished (more verses are now available)
+            if wasPlaying || wasFinished {
                 play()
             }
 
-            print("[AudioService] Progressive reload: \(timings.count) verses, position: \(String(format: "%.1f", savedTime))s, new buffer end: \(String(format: "%.1f", newBufferEnd))s")
+            print("[AudioService] Progressive reload: \(timings.count) verses, position: \(String(format: "%.1f", savedTime))s, new buffer end: \(String(format: "%.1f", newBufferEnd))s, resumed: \(wasPlaying || wasFinished)")
         } catch {
+            isReloadingComposition = false
             print("[AudioService] Progressive reload failed: \(error.localizedDescription)")
         }
     }
@@ -641,6 +714,13 @@ final class AudioService: NSObject {
         shouldResumeAfterReload = false
         setPlaybackState(.paused)
         updateNowPlayingInfo()
+
+        // Apply any pending reload now that playback is paused (safe time)
+        if pendingFullReload != nil {
+            Task { @MainActor in
+                await applyPendingReloadIfNeeded()
+            }
+        }
     }
 
     func togglePlayPause() {
@@ -686,6 +766,7 @@ final class AudioService: NSObject {
         nextBoundaryIndex = 0
         shouldResumeAfterReload = false
         hasAttemptedPreGeneration = false
+        pendingFullReload = nil
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 
@@ -700,7 +781,27 @@ final class AudioService: NSObject {
         let cmTime = CMTime(seconds: time, preferredTimescale: 600)
         player?.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
         currentTime = time
+        updateBoundaryIndexAfterSeek(to: time)
+        updateNowPlayingInfo()
+    }
 
+    /// Async seek that waits for the seek to complete before returning
+    /// Used during composition reload to prevent time glitches
+    private func seekAsync(to time: TimeInterval) async {
+        let cmTime = CMTime(seconds: time, preferredTimescale: 600)
+        currentTime = time  // Set immediately to suppress glitchy updates
+
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            player?.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
+                continuation.resume()
+            }
+        }
+
+        updateBoundaryIndexAfterSeek(to: time)
+        updateNowPlayingInfo()
+    }
+
+    private func updateBoundaryIndexAfterSeek(to time: TimeInterval) {
         // Recalculate boundary index based on new position
         // Find the first boundary that's ahead of current time
         if let chapter = currentChapter {
@@ -718,8 +819,6 @@ final class AudioService: NSObject {
                 postVerseChanged(verseNumber: currentVerse)
             }
         }
-
-        updateNowPlayingInfo()
     }
 
     private func postVerseChanged(verseNumber: Int) {
@@ -838,9 +937,23 @@ final class AudioService: NSObject {
     }
 
     private func handleTimeUpdateWithSeconds(_ seconds: TimeInterval) {
+        // Suppress UI updates during composition reload to prevent glitching
+        guard !isReloadingComposition else { return }
+
         currentTime = seconds
         // Note: Verse updates are handled by the boundary time observer for precise transitions
         // Do NOT call updateCurrentVerse() here - it causes flickering due to race conditions
+
+        // Check if we need to apply a pending reload (buffer getting low)
+        // CRITICAL: Use `duration` (actual loaded audio), not verse timings
+        if pendingFullReload != nil {
+            let remainingBuffer = duration - seconds
+            if remainingBuffer < 5.0 {
+                Task { @MainActor in
+                    await applyPendingReloadIfNeeded()
+                }
+            }
+        }
 
         // Pre-generation trigger (at 80% playback progress)
         let progress = duration > 0 ? currentTime / duration : 0
@@ -851,6 +964,16 @@ final class AudioService: NSObject {
         // Check for end of playback
         if currentTime >= duration && duration > 0 {
             setPlaybackState(.finished)
+
+            // CRITICAL: If there's a pending reload with more verses, apply it immediately
+            // This handles the case where quick-start finished but background generation has more
+            if pendingFullReload != nil {
+                print("[AudioService] Playback finished with pending verses - triggering reload")
+                Task { @MainActor in
+                    await applyPendingReloadIfNeeded()
+                }
+                return  // Don't trigger sleep timer yet - more audio is coming
+            }
 
             // Handle end-of-chapter sleep timer
             if sleepTimerEndOfChapter {

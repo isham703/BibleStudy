@@ -22,7 +22,7 @@ struct InkFlowTextView: View {
     var body: some View {
         Text(visibleText)
             .font(Typography.Scripture.body)
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
             .lineSpacing(Typography.Scripture.bodyLineSpacing)
             .multilineTextAlignment(.leading)
             .onReceive(timer) { _ in
@@ -133,7 +133,7 @@ struct InkFlowTextView_Previews: PreviewProvider {
                 isAnimating: true
             )
             .padding()
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         }
         .padding()
@@ -153,7 +153,7 @@ struct IlluminatedInkFlowText_Previews: PreviewProvider {
                 isAnimating: true
             )
             .padding()
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         }
         .padding()

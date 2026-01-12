@@ -49,7 +49,7 @@ struct PaywallView: View {
                         dismiss()
                     }
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                 }
             }
             .onAppear {
@@ -70,25 +70,25 @@ struct PaywallView: View {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
                     .frame(width: 80, height: 80)
 
                 Image(systemName: "sparkles")
                     .font(Typography.Command.largeTitle)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
             .padding(.top, Theme.Spacing.xl)
 
             // Title based on trigger
             Text(headerTitle)
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .multilineTextAlignment(.center)
 
             // Subtitle
             Text("Get unlimited access to all features")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
         }
     }
@@ -120,7 +120,7 @@ struct PaywallView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text("What you'll get:")
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 FeatureRow(icon: "text.book.closed", text: "All Bible translations")
@@ -131,7 +131,7 @@ struct PaywallView: View {
             }
         }
         .padding(Theme.Spacing.lg)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
@@ -141,7 +141,7 @@ struct PaywallView: View {
         VStack(spacing: Theme.Spacing.md) {
             if storeManager.isLoading && storeManager.products.isEmpty {
                 ProgressView()
-                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(Color("AppAccentAction"))
                     .padding()
             } else {
                 ForEach(storeManager.products, id: \.id) { product in
@@ -166,7 +166,7 @@ struct PaywallView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, Theme.Spacing.md)
-                    .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .background(Color("AppAccentAction"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 }
                 .disabled(selectedProduct == nil || isPurchasing)
@@ -195,11 +195,11 @@ struct PaywallView: View {
             if let product = selectedProduct {
                 Text("7-day free trial, then \(product.displayPrice)/year")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Text("Cancel anytime. No commitment.")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
     }
@@ -213,24 +213,24 @@ struct PaywallView: View {
                     // Open terms URL
                 }
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
                 Button("Privacy Policy") {
                     // Open privacy URL
                 }
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
                 Button("Restore") {
                     Task { await restorePurchases() }
                 }
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
             }
 
             Text("Subscription automatically renews unless cancelled at least 24 hours before the end of the current period.")
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
                 .multilineTextAlignment(.center)
         }
         .padding(.top, Theme.Spacing.md)
@@ -288,18 +288,18 @@ private struct FeatureRow: View {
         HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
                 .font(Typography.Command.body)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .frame(width: 24)
 
             Text(text)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
 
             Image(systemName: "checkmark")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.success)
+                .foregroundStyle(Color("FeedbackSuccess"))
         }
     }
 }
@@ -320,7 +320,7 @@ private struct ProductCard: View {
                     HStack {
                         Text(product.displayName)
                             .font(Typography.Scripture.heading)
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
 
                         if isScholar {
                             Text("BEST VALUE")
@@ -329,14 +329,14 @@ private struct ProductCard: View {
                                 .foregroundStyle(.white)
                                 .padding(.horizontal, Theme.Spacing.xs)
                                 .padding(.vertical, 2)
-                                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .background(Color("AppAccentAction"))
                                 .clipShape(Capsule())
                         }
                     }
 
                     Text(product.description)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                         .lineLimit(2)
                 }
 
@@ -345,21 +345,21 @@ private struct ProductCard: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(product.displayPrice)
                         .font(Typography.Command.headline.monospacedDigit())
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text("/year")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
             .padding(Theme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle) : Color.surfaceBackground)
+                    .fill(isSelected ? Color("AppAccentAction").opacity(Theme.Opacity.subtle) : Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder, lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? Color("AppAccentAction") : Color("AppDivider"), lineWidth: isSelected ? 2 : 1)
             )
         }
         .buttonStyle(.plain)

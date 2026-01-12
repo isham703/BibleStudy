@@ -7,7 +7,7 @@ import SwiftUI
 struct ConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .accentBronze
+    var color: Color = Color("AccentBronze")
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var flowProgress: CGFloat? = nil // nil = no flow, 0-1 = flow position
@@ -60,7 +60,7 @@ struct ConnectionLine: View {
                 )
                 context.fill(
                     Circle().path(in: glowRect),
-                    with: .color(color.opacity(Theme.Opacity.strong))
+                    with: .color(color.opacity(Theme.Opacity.pressed))
                 )
             }
         }
@@ -96,7 +96,7 @@ struct ConnectionLine: View {
 struct CurvedConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .accentBronze
+    var color: Color = Color("AccentBronze")
     var lineWidth: CGFloat = 2
     var isActive: Bool = false
     var curvature: CGFloat = 0.3 // 0 = straight, 1 = very curved
@@ -153,7 +153,7 @@ struct CurvedConnectionLine: View {
 struct FlowingConnectionLine: View {
     let start: CGPoint
     let end: CGPoint
-    var color: Color = .accentBronze
+    var color: Color = Color("AccentBronze")
     var lineWidth: CGFloat = 2
     var flowSpeed: Double = 2.0 // seconds for full traversal
 
@@ -196,11 +196,11 @@ enum LineState {
 
     var color: Color {
         switch self {
-        case .idle: return .accentBronze.opacity(Theme.Opacity.medium)
-        case .active: return .accentBronze
-        case .flowing: return .accentBronze
-        case .success: return .success
-        case .dimmed: return .tertiaryText.opacity(Theme.Opacity.medium)
+        case .idle: return Color("AccentBronze").opacity(Theme.Opacity.focusStroke)
+        case .active: return Color("AccentBronze")
+        case .flowing: return Color("AccentBronze")
+        case .success: return Color("FeedbackSuccess")
+        case .dimmed: return .tertiaryText.opacity(Theme.Opacity.focusStroke)
         }
     }
 }

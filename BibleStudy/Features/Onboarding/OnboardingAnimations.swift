@@ -31,7 +31,7 @@ struct WelcomeAnimation: View {
                     CurvedConnectionLine(
                         start: CGPoint(x: 125, y: 125),
                         end: CGPoint(x: endX, y: endY),
-                        color: Color.accentBronze.opacity(Theme.Opacity.strong),
+                        color: Color("AccentBronze").opacity(Theme.Opacity.pressed),
                         lineWidth: Theme.Stroke.control,
                         isActive: true,
                         curvature: 0.05
@@ -48,7 +48,7 @@ struct WelcomeAnimation: View {
                 ZStack {
                     // Glow
                     Circle()
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium))
+                        .fill(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground))
                         .frame(width: 100, height: 100)
                         .blur(radius: 16)
 
@@ -56,7 +56,7 @@ struct WelcomeAnimation: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [Color.accentBronze, .burnishedGold],
+                                colors: [Color("AccentBronze"), Color("AccentBronze").opacity(0.7)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -123,7 +123,7 @@ struct ReadStudyAnimation: View {
                 CurvedConnectionLine(
                     start: CGPoint(x: 80, y: 125),
                     end: CGPoint(x: 180, y: 60),
-                    color: .decorativeGold,
+                    color: Color("AccentBronze"),
                     isActive: true,
                     curvature: 0.15
                 )
@@ -133,7 +133,7 @@ struct ReadStudyAnimation: View {
                 CurvedConnectionLine(
                     start: CGPoint(x: 80, y: 125),
                     end: CGPoint(x: 200, y: 125),
-                    color: .softRose,
+                    color: Color("FeedbackError").opacity(0.8),
                     isActive: true,
                     curvature: 0
                 )
@@ -143,7 +143,7 @@ struct ReadStudyAnimation: View {
                 CurvedConnectionLine(
                     start: CGPoint(x: 80, y: 125),
                     end: CGPoint(x: 180, y: 190),
-                    color: Color.accentIndigo,
+                    color: Color("AppAccentAction"),
                     isActive: true,
                     curvature: -0.15
                 )
@@ -154,7 +154,7 @@ struct ReadStudyAnimation: View {
                 VStack(spacing: Theme.Spacing.xs) {
                     ZStack {
                         Circle()
-                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                            .fill(Color("AccentBronze"))
                             .frame(width: 40, height: 40)
 
                         Image(systemName: "text.book.closed")
@@ -163,7 +163,7 @@ struct ReadStudyAnimation: View {
                     }
                     Text("Verse")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
                 .position(x: 80, y: 125)
             }
@@ -175,7 +175,7 @@ struct ReadStudyAnimation: View {
                     StatefulConnectionNode(size: 16, state: activeConnections.contains("highlight") ? .active : .idle)
                     Text("Highlight")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
                 .position(x: 180, y: 60)
 
@@ -184,7 +184,7 @@ struct ReadStudyAnimation: View {
                     StatefulConnectionNode(size: 16, state: activeConnections.contains("note") ? .active : .idle)
                     Text("Note")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
                 .position(x: 200, y: 125)
 
@@ -193,7 +193,7 @@ struct ReadStudyAnimation: View {
                     StatefulConnectionNode(size: 16, state: activeConnections.contains("crossref") ? .active : .idle)
                     Text("Cross-Ref")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
                 .position(x: 180, y: 190)
             }
@@ -257,7 +257,7 @@ struct MemorizeAnimation: View {
                     ConnectionLine(
                         start: CGPoint(x: 30 + CGFloat(i) * 50, y: 125),
                         end: CGPoint(x: 80 + CGFloat(i) * 50, y: 125),
-                        color: Color.accentBronze,
+                        color: Color("AccentBronze"),
                         lineWidth: Theme.Stroke.control + nodeStrengths[i] * Theme.Stroke.control,
                         isActive: nodeStrengths[i] > 0.5
                     )
@@ -273,13 +273,13 @@ struct MemorizeAnimation: View {
                     // Glow based on strength
                     if strength > 0.5 {
                         Circle()
-                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium * strength))
+                            .fill(Color("AccentBronze").opacity(Theme.Opacity.focusStroke * strength))
                             .frame(width: 30 * strength, height: 30 * strength)
                             .blur(radius: 4)
                     }
 
                     Circle()
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled + strength * Theme.Opacity.strong))
+                        .fill(Color("AccentBronze").opacity(Theme.Opacity.disabled + strength * Theme.Opacity.pressed))
                         .frame(width: 12 + strength * 8, height: 12 + strength * 8)
                 }
                 .position(x: x, y: 125)
@@ -293,7 +293,7 @@ struct MemorizeAnimation: View {
                 Text("Mastered")
                     .font(Typography.Command.meta)
             }
-            .foregroundStyle(Color.tertiaryText)
+            .foregroundStyle(Color("TertiaryText"))
             .padding(.horizontal, Theme.Spacing.xl)
             .offset(y: 50)
         }
@@ -351,7 +351,7 @@ struct AskAIAnimation: View {
                     FlowingConnectionLine(
                         start: CGPoint(x: 50, y: 125),
                         end: CGPoint(x: 140, y: midY),
-                        color: Color.accentBronze,
+                        color: Color("AccentBronze"),
                         flowSpeed: 1.5
                     )
                 }
@@ -370,7 +370,7 @@ struct AskAIAnimation: View {
                     CurvedConnectionLine(
                         start: CGPoint(x: 140, y: 125 + yOffset),
                         end: CGPoint(x: 210, y: 125),
-                        color: Color.accentBronze,
+                        color: Color("AccentBronze"),
                         isActive: true,
                         curvature: CGFloat(i - 1) * 0.1
                     )
@@ -382,7 +382,7 @@ struct AskAIAnimation: View {
                 VStack(spacing: Theme.Spacing.xs) {
                     ZStack {
                         Circle()
-                            .fill(Color.accentIndigo)
+                            .fill(Color("AppAccentAction"))
                             .frame(width: 36, height: 36)
 
                         Text("?")
@@ -392,7 +392,7 @@ struct AskAIAnimation: View {
                     }
                     Text("Question")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
                 .position(x: 50, y: 125)
             }
@@ -403,12 +403,12 @@ struct AskAIAnimation: View {
                     ZStack {
                         // Glow
                         Circle()
-                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
+                            .fill(Color("AccentBronze").opacity(Theme.Opacity.focusStroke))
                             .frame(width: 50, height: 50)
                             .blur(radius: 8)
 
                         Circle()
-                            .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                            .fill(Color("AccentBronze"))
                             .frame(width: 36, height: 36)
 
                         Image(systemName: "sparkles")
@@ -417,7 +417,7 @@ struct AskAIAnimation: View {
                     }
                     Text("Answer")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
                 .position(x: 210, y: 125)
                 .transition(.scale.combined(with: .opacity))
@@ -469,22 +469,22 @@ struct OnboardingAnimations_Previews: PreviewProvider {
             VStack(spacing: Theme.Spacing.xxl) {
                 Text("Welcome").font(Typography.Command.headline)
                 WelcomeAnimation()
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
 
                 Text("Read & Study").font(Typography.Command.headline)
                 ReadStudyAnimation()
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
 
                 Text("Memorize").font(Typography.Command.headline)
                 MemorizeAnimation()
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
 
                 Text("Ask AI").font(Typography.Command.headline)
                 AskAIAnimation()
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.xl))
             }
             .padding()

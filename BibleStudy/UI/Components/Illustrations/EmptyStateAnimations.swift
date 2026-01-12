@@ -54,11 +54,11 @@ private struct HighlightShapeIndicator: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: Theme.Radius.input)
-            .fill(Color.decorativeGold.opacity(Theme.Opacity.medium))
+            .fill(Color("AccentBronze").opacity(Theme.Opacity.focusStroke))
             .frame(width: 60, height: 20)
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AccentBronze").opacity(Theme.Opacity.textSecondary), lineWidth: Theme.Stroke.hairline)
             )
     }
 }
@@ -113,7 +113,7 @@ private struct PenStrokeLines: View {
 
             context.stroke(
                 trimmed,
-                with: .color(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled)),
+                with: .color(Color("AccentBronze").opacity(Theme.Opacity.disabled)),
                 style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round)
             )
         }
@@ -163,7 +163,7 @@ struct NoTopicsAnimation: View {
             Image(systemName: "magnifyingglass")
                 .font(Typography.Command.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
         }
     }
 }
@@ -203,12 +203,12 @@ private struct CalendarIndicator: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: Theme.Radius.input)
-            .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled), lineWidth: Theme.Stroke.hairline)
+            .stroke(Color("AccentBronze").opacity(Theme.Opacity.disabled), lineWidth: Theme.Stroke.hairline)
             .frame(width: 30, height: 26)
             .overlay(
                 VStack(spacing: 2) {
                     Rectangle()
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                        .fill(Color("AccentBronze").opacity(Theme.Opacity.disabled))
                         .frame(height: Theme.Stroke.control)
                     Spacer()
                 }
@@ -271,14 +271,14 @@ struct AllCaughtUpAnimation: View {
                     NetworkNode(id: "c", x: 0.75, y: 0.3, size: 10, state: .success),
                 ],
                 connections: [
-                    NetworkConnection(from: "a", to: "b", color: .success, isActive: true),
-                    NetworkConnection(from: "b", to: "c", color: .success, isActive: true),
+                    NetworkConnection(from: "a", to: "b", color: Color("FeedbackSuccess"), isActive: true),
+                    NetworkConnection(from: "b", to: "c", color: Color("FeedbackSuccess"), isActive: true),
                 ]
             )
 
             // Animated checkmark overlay
             if showCheckmark {
-                AnimatedCheckmark(color: .success, size: 50)
+                AnimatedCheckmark(color: Color("FeedbackSuccess"), size: 50)
                     .offset(y: -5)
             }
         }
@@ -323,7 +323,7 @@ struct NoVersesToMemorizeAnimation: View {
             // Brain/memory indicator
             Image(systemName: "brain.head.profile")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
                 .offset(x: 0, y: -5)
         }
     }
@@ -357,7 +357,7 @@ struct NoSearchResultsAnimation: View {
             // Pulsing search icon in center
             Image(systemName: "magnifyingglass")
                 .font(Typography.Command.title2)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
                 .scaleEffect(searchPulse ? 1.1 : 1.0)
                 .opacity(searchPulse ? 0.6 : 1.0)
         }
@@ -398,7 +398,7 @@ struct NoBookmarksAnimation: View {
             // Bookmark indicator in center
             Image(systemName: "bookmark")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
         }
     }
 }
@@ -431,7 +431,7 @@ struct NoHistoryAnimation: View {
             // Clock indicator
             Image(systemName: "clock.arrow.circlepath")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.disabled))
                 .offset(y: -35)
         }
     }

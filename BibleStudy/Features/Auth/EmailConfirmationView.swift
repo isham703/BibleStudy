@@ -26,17 +26,17 @@ struct EmailConfirmationView: View {
             // Title
             Text("Check Your Email")
                 .font(Typography.Scripture.title)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             // Email display (masked)
             VStack(spacing: Theme.Spacing.sm) {
                 Text("We've sent a confirmation link to:")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Text(maskedEmail)
                     .font(Typography.Command.body.weight(.semibold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
 
             // Guidance card
@@ -53,7 +53,7 @@ struct EmailConfirmationView: View {
                 Button(action: onChangeEmail) {
                     Text("Use a different email")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
                 .accessibilityLabel("Change email")
                 .accessibilityHint("Go back to enter a different email address")
@@ -61,7 +61,7 @@ struct EmailConfirmationView: View {
             .padding(.bottom, Theme.Spacing.xl)
         }
         .padding(Theme.Spacing.lg)
-        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+        .background(Color.appBackground)
         .onAppear {
             // Start initial cooldown (user just signed up)
             startCooldown()
@@ -76,13 +76,13 @@ struct EmailConfirmationView: View {
         ZStack {
             // Outer glow ring - simplified
             Circle()
-                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                .fill(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground))
                 .frame(width: 120, height: 120)
                 .blur(radius: 16)
 
             // Icon circle - simplified to single color
             Circle()
-                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AccentBronze"))
                 .frame(width: 80, height: 80)
 
             // Mail icon
@@ -109,11 +109,11 @@ struct EmailConfirmationView: View {
             )
         }
         .padding(Theme.Spacing.lg)
-        .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+        .background(Color.appSurface)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -127,7 +127,7 @@ struct EmailConfirmationView: View {
             HStack(spacing: Theme.Spacing.md) {
                 if isResending {
                     ProgressView()
-                        .tint(secondsRemaining > 0 ? Color.tertiaryText : .white)
+                        .tint(secondsRemaining > 0 ? Color("TertiaryText") : .white)
                 } else if secondsRemaining > 0 {
                     // Vespers Hourglass Timer
                     VespersTimerRing(
@@ -137,7 +137,7 @@ struct EmailConfirmationView: View {
                 } else if showResendSuccess {
                     Image(systemName: "checkmark.circle.fill")
                         .font(Typography.Icon.lg)
-                        .foregroundStyle(Colors.Semantic.success(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("FeedbackSuccess"))
                 } else {
                     Image(systemName: "arrow.clockwise")
                         .font(Typography.Icon.md.weight(.medium))
@@ -148,13 +148,13 @@ struct EmailConfirmationView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(Theme.Spacing.md)
-            .background(secondsRemaining > 0 ? Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
-            .foregroundStyle(secondsRemaining > 0 ? Color.tertiaryText : .white)
+            .background(secondsRemaining > 0 ? Color.appSurface : Color("AppAccentAction"))
+            .foregroundStyle(secondsRemaining > 0 ? Color("TertiaryText") : .white)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
                     .stroke(
-                        secondsRemaining > 0 ? Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)) : Color.clear,
+                        secondsRemaining > 0 ? Color.appDivider : Color.clear,
                         lineWidth: Theme.Stroke.hairline
                     )
             )
@@ -240,13 +240,13 @@ struct VespersTimerRing: View {
         ZStack {
             // Background ring - subtle divider color
             Circle()
-                .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.control)
+                .stroke(Color.appDivider, lineWidth: Theme.Stroke.control)
 
             // Active ring - simplified to single accent color
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
-                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
+                    Color("AccentBronze"),
                     style: StrokeStyle(lineWidth: Theme.Stroke.control, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
@@ -255,7 +255,7 @@ struct VespersTimerRing: View {
             // Inner number using Cinzel-style
             Text("\(secondsRemaining)")
                 .font(Typography.Command.caption.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .monospacedDigit()
         }
         .frame(width: 36, height: 36)
@@ -277,12 +277,12 @@ struct GuidanceRow: View {
         HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
                 .font(Typography.Icon.md.weight(.medium))
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
                 .frame(width: 24)
 
             Text(text)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Spacer()
         }

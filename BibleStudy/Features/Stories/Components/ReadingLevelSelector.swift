@@ -69,16 +69,16 @@ struct StoryReadingLevelButton: View {
                 Text(label)
                     .font(Typography.Command.meta)
             }
-            .foregroundStyle(isSelected ? .white : Color.primaryText)
+            .foregroundStyle(isSelected ? .white : Color("AppTextPrimary"))
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.surfaceBackground)
+                    .fill(isSelected ? Color("AppAccentAction") : Color("AppSurface"))
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(isSelected ? Color.clear : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -97,28 +97,28 @@ struct StoryReadingLevelInfoSheet: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     Text("Reading levels help tailor stories to different audiences. All stories maintain biblical accuracy while adjusting language complexity and thematic depth.")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
 
                     ForEach(StoryReadingLevel.allCases, id: \.self) { level in
                         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                             HStack(spacing: Theme.Spacing.sm) {
                                 Image(systemName: level.icon)
                                     .font(Typography.Command.title3)
-                                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                    .foregroundStyle(Color("AppAccentAction"))
                                     .frame(width: 32)
 
                                 Text(level.displayName)
                                     .font(Typography.Scripture.heading)
-                                    .foregroundStyle(Color.primaryText)
+                                    .foregroundStyle(Color("AppTextPrimary"))
                             }
 
                             Text(level.levelDescription)
                                 .font(Typography.Command.body)
-                                .foregroundStyle(Color.secondaryText)
+                                .foregroundStyle(Color("AppTextSecondary"))
                         }
                         .padding(Theme.Spacing.md)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.surfaceBackground)
+                        .background(Color("AppSurface"))
                         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                     }
                 }

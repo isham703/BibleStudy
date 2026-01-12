@@ -2,35 +2,48 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - Sermon Input Phase
-// Initial screen for starting a sermon recording or importing audio
+// Hero-style landing screen with curved header image
+// Title is auto-generated from study guide after processing
 
 struct SermonInputPhase: View {
     @Bindable var flowState: SermonFlowState
+    var onShowLibrary: (() -> Void)?
     @State private var showFilePicker = false
-    @State private var illuminationPhase: CGFloat = 0
-    @FocusState private var titleFocused: Bool
+    @State private var isAwakened = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: Theme.Spacing.xxl) {
-                // Header with illuminated microphone
-                headerSection
+        ZStack(alignment: .topTrailing) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // Hero header with curved bottom
+                    HeroHeader(imageName: "SermonHero")
 
-                // Divider
-                SermonDivider()
+                // Main content
+                VStack(spacing: Theme.Spacing.lg) {
+                    // Title block - negative padding pulls content up to hero curve
+                    titleBlock
+                        .padding(.top, -Theme.Spacing.lg)
 
-                // Input fields
-                inputFieldsSection
+                    // Action buttons
+                    actionSection
 
-                // Action buttons
-                actionButtonsSection
-
-                Spacer(minLength: 24)
+                    // Footer hint
+                    footerHint
+                        .padding(.top, Theme.Spacing.sm)
+                }
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.bottom, Theme.Spacing.xxl * 2)
             }
-            .padding(.horizontal, Theme.Spacing.xxl)
-            .padding(.top, Theme.Spacing.xl)
+            }
+
+            // Library button overlay
+            if let onShowLibrary = onShowLibrary {
+                libraryButton(action: onShowLibrary)
+            }
         }
-        .scrollDismissesKeyboard(.interactively)
+        .ignoresSafeArea(edges: .top)
+        .background(colorScheme == .dark ? Color.warmCharcoal : Color.appBackground)
         .fileImporter(
             isPresented: $showFilePicker,
             allowedContentTypes: [.audio, .mp3, .mpeg4Audio, .wav],
@@ -48,234 +61,195 @@ struct SermonInputPhase: View {
             }
         }
         .onAppear {
-            startIlluminationAnimation()
-        }
-    }
-
-    // MARK: - Header Section
-
-    private var headerSection: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            // Illuminated microphone icon
-            ZStack {
-                // Outer glow (pulsing)
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                Color.accentBronze.opacity(Theme.Opacity.medium),
-                                Color.accentBronze.opacity(Theme.Opacity.subtle),
-                                .clear
-                            ],
-                            center: .center,
-                            startRadius: 24,
-                            endRadius: 80
-                        )
-                    )
-                    .frame(width: 120, height: 120)
-                    .scaleEffect(1 + illuminationPhase * 0.05)
-
-                // Inner circle
-                Circle()
-                    .fill(Color.surfaceRaised)
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                LinearGradient(
-                                    colors: [Color.accentBronze, Color.decorativeGold.opacity(0.15)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: Theme.Stroke.control
-                            )
-                    )
-                    .shadow(color: Color.accentBronze.opacity(Theme.Opacity.medium), radius: 20)
-
-                // Microphone icon
-                Image(systemName: "waveform.circle.fill")
-                    .font(Typography.Icon.xxl)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [Color.accentBronze, Color.decorativeGold.opacity(0.15)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-            }
-
-            // Title
-            VStack(spacing: Theme.Spacing.xs) {
-                Text("SERMON")
-                    .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.accentBronze)
-                    .tracking(2.0)
-
-                Text("from Your Voice")
-                    .font(Typography.Scripture.body)
-                    .italic()
-                    .foregroundStyle(Color.textPrimary)
-            }
-
-            // Subtitle
-            Text("Capture the Word as it speaks")
-                .font(Typography.Scripture.body)
-                .foregroundStyle(Color.textSecondary)
-        }
-    }
-
-    // MARK: - Input Fields Section
-
-    private var inputFieldsSection: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            // Title input
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                Text("Title")
-                    .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.textSecondary)
-                    .tracking(1.5)
-
-                TextField("Optional sermon title", text: $flowState.title)
-                    .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.textPrimary)
-                    .padding(Theme.Spacing.lg)
-                    .background(Color.surfaceRaised.opacity(Theme.Opacity.heavy))
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
-                    )
-                    .focused($titleFocused)
-            }
-
-            // Speaker input
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                Text("Speaker")
-                    .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.textSecondary)
-                    .tracking(1.5)
-
-                TextField("Optional speaker name", text: $flowState.speakerName)
-                    .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.textPrimary)
-                    .padding(Theme.Spacing.lg)
-                    .background(Color.surfaceRaised.opacity(Theme.Opacity.heavy))
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
-                    )
+            withAnimation(Theme.Animation.settle) {
+                isAwakened = true
             }
         }
     }
 
-    // MARK: - Action Buttons Section
+    // MARK: - Title Block
 
-    private var actionButtonsSection: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            // Record button (primary)
+    private var titleBlock: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            Text("NEW SERMON")
+                .font(Typography.Command.meta)
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(Color("TertiaryText"))
+
+            Text("Capture & Study")
+                .font(Typography.Scripture.title)
+                .foregroundStyle(Color("AppTextPrimary"))
+
+            Text("Record live or import an audio file")
+                .font(Typography.Command.body)
+                .foregroundStyle(Color("AppTextSecondary"))
+                .padding(.top, Theme.Spacing.xs)
+        }
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.2), value: isAwakened)
+    }
+
+    // MARK: - Action Section
+
+    private var actionSection: some View {
+        VStack(spacing: Theme.Spacing.md) {
+            // Primary: Record button
             Button {
+                HapticService.shared.mediumTap()
                 Task {
                     await flowState.startRecording()
                 }
             } label: {
                 HStack(spacing: Theme.Spacing.md) {
-                    Image(systemName: "mic.fill")
-                        .font(Typography.Icon.md.weight(.medium))
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 36, height: 36)
+
+                        Image(systemName: "mic.fill")
+                            .font(Typography.Icon.md)
+                            .foregroundStyle(.white)
+                    }
 
                     Text("Begin Recording")
-                        .font(Typography.Scripture.heading)
+                        .font(Typography.Command.cta)
+                        .foregroundStyle(.white)
                 }
-                .foregroundStyle(Color.surfaceParchment)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Theme.Spacing.lg + 2)
+                .padding(.vertical, Theme.Spacing.lg)
                 .background(
                     LinearGradient(
-                        colors: [Color.accentBronze, Color.decorativeGold.opacity(0.15)],
+                        colors: [
+                            Color("AppAccentAction"),
+                            Color("AppAccentAction").opacity(0.9)
+                        ],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .clipShape(Capsule())
-                .shadow(color: Color.accentBronze.opacity(Theme.Opacity.disabled), radius: 12, y: 4)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+                // Subtle ink-like shadow rather than material drop shadow
+                .shadow(color: Color("AppAccentAction").opacity(0.15), radius: 6, y: 2)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(SermonPressButtonStyle())
+            .accessibilityLabel("Begin recording sermon")
+            .accessibilityHint("Double tap to start recording with your microphone")
+            .opacity(isAwakened ? 1 : 0)
+            .offset(y: isAwakened ? 0 : 10)
+            .animation(Theme.Animation.slowFade.delay(0.3), value: isAwakened)
 
-            // Import button (secondary)
+            // Divider with "or" - shortened lines for intentional appearance
+            HStack(spacing: Theme.Spacing.lg) {
+                Rectangle()
+                    .fill(Color("AppTextSecondary").opacity(0.3))
+                    .frame(width: 60, height: 1)
+
+                Text("or")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color("AppTextSecondary"))
+
+                Rectangle()
+                    .fill(Color("AppTextSecondary").opacity(0.3))
+                    .frame(width: 60, height: 1)
+            }
+            .padding(.vertical, Theme.Spacing.sm)
+            .opacity(isAwakened ? 1 : 0)
+            .animation(Theme.Animation.slowFade.delay(0.35), value: isAwakened)
+
+            // Secondary: Import button - more intentional surface treatment
             Button {
+                HapticService.shared.lightTap()
                 showFilePicker = true
             } label: {
                 HStack(spacing: Theme.Spacing.md) {
-                    Image(systemName: "doc.badge.plus")
-                        .font(Typography.Icon.md.weight(.medium))
+                    Image(systemName: "square.and.arrow.down")
+                        .font(Typography.Icon.md)
+                        .foregroundStyle(Color("AppAccentAction"))
 
-                    Text("Import Audio")
-                        .font(Typography.Scripture.heading)
+                    Text("Import Audio File")
+                        .font(Typography.Command.body.weight(.medium))
+                        .foregroundStyle(Color("AppTextPrimary"))
                 }
-                .foregroundStyle(Color.accentBronze)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Theme.Spacing.lg + 2)
-                .background(Color.clear)
-                .clipShape(Capsule())
+                .padding(.vertical, Theme.Spacing.lg)
+                .background(Color("AppSurface"))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 .overlay(
-                    Capsule()
-                        .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
+                        .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.control)
                 )
             }
-            .buttonStyle(.plain)
-
-            // Supported formats note
-            Text("Supports MP3, M4A, WAV • Max 500MB")
-                .font(Typography.Scripture.body)
-                .foregroundStyle(Color.textSecondary.opacity(Theme.Opacity.overlay))
+            .buttonStyle(SermonPressButtonStyle())
+            .accessibilityLabel("Import audio file")
+            .accessibilityHint("Double tap to select an audio file from your device")
+            .opacity(isAwakened ? 1 : 0)
+            .offset(y: isAwakened ? 0 : 10)
+            .animation(Theme.Animation.slowFade.delay(0.4), value: isAwakened)
         }
     }
 
-    // MARK: - Animation
+    // MARK: - Footer Hint
 
-    private func startIlluminationAnimation() {
-        withAnimation(Theme.Animation.slowFade) {
-            illuminationPhase = 1
+    private var footerHint: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            HStack(spacing: Theme.Spacing.xs) {
+                Image(systemName: "checkmark.circle")
+                    .font(Typography.Icon.xs)
+                Text("MP3, M4A, WAV")
+            }
+            .font(Typography.Command.caption)
+            .foregroundStyle(Color("AppTextSecondary"))
+
+            HStack(spacing: Theme.Spacing.xs) {
+                Image(systemName: "arrow.up.circle")
+                    .font(Typography.Icon.xs)
+                Text("Up to 500MB per file")
+            }
+            .font(Typography.Command.caption)
+            .foregroundStyle(Color("AppTextSecondary"))
         }
+        .opacity(isAwakened ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.45), value: isAwakened)
+    }
+
+    // MARK: - Library Button
+
+    private func libraryButton(action: @escaping () -> Void) -> some View {
+        Button {
+            HapticService.shared.lightTap()
+            action()
+        } label: {
+            Image(systemName: "list.bullet")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .background(
+                    Circle()
+                        .fill(.black.opacity(0.3))
+                )
+        }
+        .padding(.trailing, Theme.Spacing.md)
+        .padding(.top, 59 + Theme.Spacing.xs) // Match HeroHeader's safe area offset
+        .accessibilityLabel("Sermon Library")
     }
 }
 
-// MARK: - Sermon Divider
+// MARK: - Button Style
 
-struct SermonDivider: View {
-    var body: some View {
-        HStack(spacing: Theme.Spacing.lg) {
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [.clear, Color.accentBronze.opacity(Theme.Opacity.heavy)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .frame(height: Theme.Stroke.hairline)
-
-            // Diamond ornament
-            Image(systemName: "diamond.fill")
-                .font(Typography.Icon.xxs)
-                .foregroundStyle(Color.accentBronze)
-
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [Color.accentBronze.opacity(Theme.Opacity.heavy), .clear],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .frame(height: Theme.Stroke.hairline)
-        }
-        .padding(.horizontal, Theme.Spacing.xl)
+private struct SermonPressButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(Theme.Animation.fade, value: configuration.isPressed)
     }
 }
 
+// MARK: - Preview
 
 #Preview {
-    SermonInputPhase(flowState: SermonFlowState())
-        .preferredColorScheme(.dark)
+    NavigationStack {
+        SermonInputPhase(flowState: SermonFlowState())
+    }
+    .preferredColorScheme(.dark)
 }

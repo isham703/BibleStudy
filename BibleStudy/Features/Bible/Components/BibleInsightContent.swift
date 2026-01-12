@@ -90,7 +90,7 @@ struct BibleInsightContent: View {
         Rectangle()
             .fill(
                 LinearGradient(
-                    colors: [Color.decorativeGold, Color.accentBronze],
+                    colors: [Color("AccentBronze"), Color("AccentBronze")],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -111,11 +111,11 @@ struct BibleInsightContent: View {
             HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "sparkle")
                     .font(Typography.Command.caption.weight(.semibold))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 Text("SCHOLARLY INSIGHT")
                     .editorialLabel()
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
 
             Spacer()
@@ -131,9 +131,9 @@ struct BibleInsightContent: View {
             } label: {
                 Image(systemName: "xmark")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
                     .frame(width: 28, height: 28)
-                    .background(Color.surfaceBackground)
+                    .background(Color("AppSurface"))
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -149,11 +149,11 @@ struct BibleInsightContent: View {
                 ProgressView()
                     // swiftlint:disable:next hardcoded_scale_effect
                     .scaleEffect(0.8)
-                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(Color("AppAccentAction"))
 
                 Text("Analyzing passage...")
                     .insightItalic()
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, Theme.Spacing.sm)
@@ -170,7 +170,7 @@ struct BibleInsightContent: View {
         } else {
             Text("Tap to explore this passage")
                 .insightItalic()
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
     }
 
@@ -179,16 +179,16 @@ struct BibleInsightContent: View {
             HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "lock.circle.fill")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Daily Limit Reached")
                         .font(Typography.Command.label.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text("Upgrade for unlimited insights")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
 
@@ -213,7 +213,7 @@ struct BibleInsightContent: View {
                 .padding(.vertical, Theme.Spacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.input)
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("AppAccentAction"))
                 )
             }
             .buttonStyle(.plain)
@@ -272,7 +272,7 @@ struct BibleInsightContent: View {
                 ForEach(Array(structured.keyPoints.enumerated()), id: \.offset) { _, point in
                     HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                         Circle()
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .fill(Color("AppAccentAction"))
                             // swiftlint:disable:next hardcoded_indicator_size
                             .frame(width: 5, height: 5)
                             // swiftlint:disable:next hardcoded_padding_edge
@@ -280,14 +280,14 @@ struct BibleInsightContent: View {
 
                         Text(point)
                             .insightBody()
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
                     }
                 }
             }
         } else {
             Text("Key points will appear here")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
     }
 
@@ -308,7 +308,7 @@ struct BibleInsightContent: View {
         } else {
             Text("Context information unavailable")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
     }
 
@@ -316,11 +316,11 @@ struct BibleInsightContent: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             Text(title)
                 .editorialLabel()
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             Text(text)
                 .insightBody()
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .lineLimit(3)
         }
     }
@@ -336,32 +336,32 @@ struct BibleInsightContent: View {
                     HStack(spacing: Theme.Spacing.sm) {
                         Text(token.surface)
                             .font(Typography.Command.body.weight(.medium))
-                            .foregroundStyle(Color.navyDeep)
+                            .foregroundStyle(Color("AppAccentAction"))
 
                         Text("(\(token.transliteration))")
                             .font(Typography.Command.caption)
                             .italic()
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
 
                         Text("—")
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
 
                         Text(token.gloss)
                             .font(Typography.Command.caption.weight(.medium))
-                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppAccentAction"))
                     }
                 }
 
                 if viewModel.languageTokens.count > 3 {
                     Text("+ \(viewModel.languageTokens.count - 3) more words")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
         } else {
             Text("No language data available")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
     }
 
@@ -375,17 +375,17 @@ struct BibleInsightContent: View {
                 ForEach(Array(viewModel.crossRefs.prefix(3)), id: \.id) { crossRef in
                     HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                         Rectangle()
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.strong))
+                            .fill(Color("AppAccentAction").opacity(Theme.Opacity.pressed))
                             .frame(width: Theme.Stroke.control)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(crossRef.reference)
                                 .font(Typography.Command.caption.weight(.semibold))
-                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppAccentAction"))
 
                             Text(crossRef.preview)
                                 .insightBody()
-                                .foregroundStyle(Color.primaryText)
+                                .foregroundStyle(Color("AppTextPrimary"))
                                 .lineLimit(2)
                         }
                     }
@@ -394,13 +394,13 @@ struct BibleInsightContent: View {
                 if viewModel.crossRefs.count > 3 {
                     Text("+ \(viewModel.crossRefs.count - 3) more references")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
         } else {
             Text("No cross-references found")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
     }
 
@@ -421,16 +421,16 @@ struct BibleInsightContent: View {
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
             }
-            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("AppAccentAction"))
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm + 2)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -467,9 +467,9 @@ struct BibleInsightContent: View {
         } label: {
             Image(systemName: icon)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
                 .frame(width: 36, height: 36)
-                .background(Color.surfaceBackground)
+                .background(Color("AppSurface"))
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
@@ -537,17 +537,17 @@ private struct BibleChip: View {
                         .font(Typography.Command.caption)
                 }
             }
-            .foregroundStyle(isSelected ? Color.white : Color.tertiaryText)
+            .foregroundStyle(isSelected ? Color.white : Color("TertiaryText"))
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.accentBronze : Color.gray.opacity(Theme.Opacity.light))
+                    .fill(isSelected ? Color("AccentBronze") : Color.gray.opacity(Theme.Opacity.selectionBackground))
             )
             .overlay(
                 Capsule()
                     .stroke(
-                        isSelected ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium) : Color.clear,
+                        isSelected ? Color("AppAccentAction").opacity(Theme.Opacity.focusStroke) : Color.clear,
                         lineWidth: Theme.Stroke.hairline
                     )
             )

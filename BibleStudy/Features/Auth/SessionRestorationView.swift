@@ -11,7 +11,7 @@ struct SessionRestorationView: View {
     var body: some View {
         ZStack {
             // Background
-            Colors.Surface.background(for: ThemeMode.current(from: colorScheme))
+            Color.appBackground
                 .ignoresSafeArea()
 
             VStack(spacing: Theme.Spacing.xxl) {
@@ -30,7 +30,7 @@ struct SessionRestorationView: View {
                 // Subtle message
                 Text("Preparing your space...")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
                     .opacity(phase)
 
                 Spacer()
@@ -51,8 +51,8 @@ struct SessionRestorationView: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle),
+                            Color("AccentBronze").opacity(Theme.Opacity.focusStroke),
+                            Color("AccentBronze").opacity(Theme.Opacity.subtle),
                             .clear
                         ],
                         center: .center,
@@ -62,12 +62,12 @@ struct SessionRestorationView: View {
                 )
                 .frame(width: 120, height: 120)
                 .scaleEffect(1 + phase * 0.1)
-                .opacity(Theme.Opacity.strong + phase * 0.4)
+                .opacity(Theme.Opacity.pressed + phase * 0.4)
 
             // Icon - simplified to single accent color
             Image(systemName: "book.closed.fill")
                 .font(Typography.Icon.hero)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
                 .opacity(Theme.Opacity.overlay + phase * 0.3)
         }
     }
@@ -85,8 +85,8 @@ struct InkSpreadLine: View {
             .fill(
                 LinearGradient(
                     stops: [
-                        .init(color: Color.surfaceRaised.opacity(Theme.Opacity.medium), location: 0),
-                        .init(color: Color.surfaceRaised.opacity(Theme.Opacity.subtle), location: spread),
+                        .init(color: Color("AppSurface").opacity(Theme.Opacity.focusStroke), location: 0),
+                        .init(color: Color("AppSurface").opacity(Theme.Opacity.subtle), location: spread),
                         .init(color: .clear, location: min(1, spread + 0.1))
                     ],
                     startPoint: .leading,

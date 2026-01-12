@@ -15,7 +15,7 @@ struct MiniPlayerView: View {
             // Play/Pause button OR Loading indicator
             if audioService.isLoading {
                 IlluminatedLoadingIndicator(progress: audioService.generationProgress)
-                    .frame(width: 44, height: 44)
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
             } else {
                 Button(action: {
                     HapticService.shared.lightTap()
@@ -23,8 +23,8 @@ struct MiniPlayerView: View {
                 }) {
                     Image(systemName: audioService.isPlaying ? "pause.fill" : "play.fill")
                         .font(Typography.Command.title3.weight(.semibold))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
-                        .frame(width: 44, height: 44)
+                        .foregroundStyle(Color("AppAccentAction"))
+                        .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                 }
                 .accessibilityLabel(audioService.isPlaying ? "Pause" : "Play")
                 .accessibilityHint("Double tap to toggle playback")
@@ -36,7 +36,7 @@ struct MiniPlayerView: View {
                     Text("\(chapter.bookName) \(chapter.chapterNumber)")
                         .font(Typography.Command.caption)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .lineLimit(1)
 
                     if audioService.isLoading {
@@ -44,43 +44,31 @@ struct MiniPlayerView: View {
                         HStack(spacing: Theme.Spacing.xs) {
                             Text("Preparing scripture")
                                 .font(Typography.Command.meta)
-                                .foregroundStyle(Color.secondaryText)
+                                .foregroundStyle(Color("AppTextSecondary"))
 
                             Text("•")
                                 .font(Typography.Command.meta)
-                                .foregroundStyle(Color.tertiaryText)
+                                .foregroundStyle(Color("TertiaryText"))
                                 .accessibilityHidden(true)
 
                             Text("\(Int(audioService.generationProgress * 100))%")
                                 .font(Typography.Command.meta.monospacedDigit())
-                                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppAccentAction"))
                                 .accessibilityAddTraits(.updatesFrequently)
                         }
+                        .lineLimit(1)
                     } else {
-                        HStack(spacing: Theme.Spacing.xs) {
-                            if let verse = audioService.currentVerse {
-                                Text("Verse \(verse)")
-                                    .font(Typography.Command.meta.monospacedDigit())
-                                    .foregroundStyle(Color.secondaryText)
-                                    .accessibilityAddTraits(.updatesFrequently)
-                            }
-
-                            Text("•")
-                                .font(Typography.Command.meta)
-                                .foregroundStyle(Color.tertiaryText)
-                                .accessibilityHidden(true)
-
-                            Text("\(audioService.formattedCurrentTime) / \(audioService.formattedDuration)")
-                                .font(Typography.Command.meta.monospacedDigit())
-                                .foregroundStyle(Color.tertiaryText)
-                                .accessibilityAddTraits(.updatesFrequently)
-                                .accessibilityLabel("Time: \(audioService.formattedCurrentTime) of \(audioService.formattedDuration)")
-                        }
+                        Text("\(audioService.formattedCurrentTime) / \(audioService.formattedDuration)")
+                            .font(Typography.Command.meta.monospacedDigit())
+                            .foregroundStyle(Color("TertiaryText"))
+                            .lineLimit(1)
+                            .accessibilityAddTraits(.updatesFrequently)
+                            .accessibilityLabel("Time: \(audioService.formattedCurrentTime) of \(audioService.formattedDuration)")
                     }
                 } else {
                     Text("Loading...")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -97,8 +85,8 @@ struct MiniPlayerView: View {
             }) {
                 Image(systemName: "gobackward.15")
                     .font(Typography.Command.callout)
-                    .foregroundStyle(Color.secondaryText)
-                    .frame(width: 44, height: 44)
+                    .foregroundStyle(Color("AppTextSecondary"))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
             }
             .accessibilityLabel("Skip backward 15 seconds")
 
@@ -109,8 +97,8 @@ struct MiniPlayerView: View {
             }) {
                 Image(systemName: "goforward.15")
                     .font(Typography.Command.callout)
-                    .foregroundStyle(Color.secondaryText)
-                    .frame(width: 44, height: 44)
+                    .foregroundStyle(Color("AppTextSecondary"))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
             }
             .accessibilityLabel("Skip forward 15 seconds")
 
@@ -121,8 +109,8 @@ struct MiniPlayerView: View {
             }) {
                 Image(systemName: "xmark")
                     .font(Typography.Command.caption.weight(.medium))
-                    .foregroundStyle(Color.tertiaryText)
-                    .frame(width: 44, height: 44)
+                    .foregroundStyle(Color("TertiaryText"))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
             }
             .accessibilityLabel("Close audio player")
             .accessibilityHint("Stops playback and hides the player")
@@ -131,14 +119,14 @@ struct MiniPlayerView: View {
         .padding(.vertical, Theme.Spacing.sm)
         .background {
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Color.elevatedBackground)
-                .shadow(color: .black.opacity(Theme.Opacity.light), radius: 8, y: -2)
+                .fill(Color("AppSurface"))
+                .shadow(color: .black.opacity(Theme.Opacity.selectionBackground), radius: 8, y: -2)
         }
         .overlay(alignment: .bottom) {
             // Progress bar
             GeometryReader { geometry in
                 Rectangle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("AppAccentAction"))
                     .frame(width: geometry.size.width * audioService.progress, height: 2)
             }
             .frame(height: 2)
@@ -152,12 +140,7 @@ struct MiniPlayerView: View {
 
     private var chapterAccessibilityLabel: String {
         if let chapter = audioService.currentChapter {
-            var label = "\(chapter.bookName) Chapter \(chapter.chapterNumber)"
-            if let verse = audioService.currentVerse {
-                label += ", Verse \(verse)"
-            }
-            label += ", \(audioService.formattedCurrentTime) of \(audioService.formattedDuration)"
-            return label
+            return "\(chapter.bookName) Chapter \(chapter.chapterNumber), \(audioService.formattedCurrentTime) of \(audioService.formattedDuration)"
         }
         return "Loading audio"
     }
@@ -229,9 +212,9 @@ private struct IlluminatedLoadingIndicator: View {
                 .stroke(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium)
+                            Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground),
+                            Color("AppAccentAction").opacity(Theme.Opacity.disabled),
+                            Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -250,7 +233,7 @@ private struct IlluminatedLoadingIndicator: View {
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
-                    Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
+                    Color("AppAccentAction"),
                     style: StrokeStyle(lineWidth: Theme.Stroke.control + 0.5, lineCap: .round)
                 )
                 .frame(width: 40, height: 40)
@@ -262,8 +245,8 @@ private struct IlluminatedLoadingIndicator: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle),
+                            Color("AppAccentAction").opacity(Theme.Opacity.focusStroke),
+                            Color("AppAccentAction").opacity(Theme.Opacity.subtle),
                             Color.clear
                         ],
                         center: .center,
@@ -285,8 +268,8 @@ private struct IlluminatedLoadingIndicator: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
-                            Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay)
+                            Color("AppAccentAction"),
+                            Color("AppAccentAction").opacity(Theme.Opacity.overlay)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -297,7 +280,7 @@ private struct IlluminatedLoadingIndicator: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            Color.white.opacity(Theme.Opacity.medium),
+                            Color.white.opacity(Theme.Opacity.focusStroke),
                             Color.clear
                         ],
                         startPoint: .leading,
@@ -319,11 +302,11 @@ private struct IlluminatedLoadingIndicator: View {
             // Ornamental details - progress indicators
             ForEach(0..<4, id: \.self) { index in
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.disabled))
                     .frame(width: 2, height: 2)
                     .offset(y: -20)
                     .rotationEffect(.degrees(Double(index) * 90))
-                    .opacity(progress > Double(index) / 4.0 ? 1 : Theme.Opacity.lightMedium)
+                    .opacity(progress > Double(index) / 4.0 ? 1 : Theme.Opacity.selectionBackground)
                     .animation(Theme.Animation.slowFade.delay(Double(index) * 0.1), value: progress)
             }
         }
@@ -357,5 +340,5 @@ private struct IlluminatedLoadingIndicator: View {
         IlluminatedLoadingIndicator(progress: 1.0)
     }
     .padding()
-    .background(Color.elevatedBackground)
+    .background(Color("AppSurface"))
 }

@@ -14,7 +14,6 @@ struct UsageRow: View {
     @State private var animatedProgress: Double = 0
     @State private var isPulsing = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.colorScheme) private var colorScheme
 
     private var progress: Double {
         guard total > 0 else { return 0 }
@@ -34,7 +33,7 @@ struct UsageRow: View {
         used: Int,
         total: Int,
         icon: String,
-        iconColor: Color = .accentIndigo,
+        iconColor: Color = Color("AppAccentAction"),
         onTap: (() -> Void)? = nil
     ) {
         self.label = label
@@ -56,7 +55,7 @@ struct UsageRow: View {
                     HStack {
                         Text(label)
                             .font(Typography.Command.subheadline)
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
 
                         Spacer()
 
@@ -97,16 +96,16 @@ struct UsageRow: View {
     private var iconView: some View {
         Image(systemName: icon)
             .font(Typography.Icon.xs.weight(.medium))
-            .foregroundStyle(isExhausted ? Color.feedbackError : iconColor)
+            .foregroundStyle(isExhausted ? Color("FeedbackError") : iconColor)
             .frame(width: 24, height: 24)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input + 1)
-                    .fill((isExhausted ? Color.feedbackError : iconColor).opacity(Theme.Opacity.subtle + 0.02))
+                    .fill((isExhausted ? Color("FeedbackError") : iconColor).opacity(Theme.Opacity.subtle + 0.02))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input + 1)
                     .stroke(
-                        (isExhausted ? Color.feedbackError : iconColor).opacity(isPulsing ? Theme.Opacity.heavy : 0),
+                        (isExhausted ? Color("FeedbackError") : iconColor).opacity(isPulsing ? Theme.Opacity.textSecondary : 0),
                         lineWidth: Theme.Stroke.control
                     )
                     .blur(radius: isPulsing ? 4 : 0)
@@ -124,12 +123,12 @@ struct UsageRow: View {
             if isExhausted {
                 Image(systemName: "exclamationmark.circle.fill")
                     .font(Typography.Icon.xxs)
-                    .foregroundStyle(Color.feedbackError)
+                    .foregroundStyle(Color("FeedbackError"))
             }
 
             Text(isExhausted ? "Limit reached" : "\(remaining) remaining")
                 .font(Typography.Command.meta.monospacedDigit())
-                .foregroundStyle(isExhausted ? Color.feedbackError : Color.secondaryText)
+                .foregroundStyle(isExhausted ? Color("FeedbackError") : Color("AppTextSecondary"))
         }
     }
 
@@ -140,7 +139,7 @@ struct UsageRow: View {
             ZStack(alignment: .leading) {
                 // Background track
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                    .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium))
+                    .fill(Color.appDivider.opacity(Theme.Opacity.focusStroke))
 
                 // Filled portion
                 RoundedRectangle(cornerRadius: Theme.Radius.xs)
@@ -154,13 +153,13 @@ struct UsageRow: View {
     private var progressGradient: LinearGradient {
         if isExhausted {
             return LinearGradient(
-                colors: [Color.feedbackError.opacity(Theme.Opacity.pressed), Color.feedbackError],
+                colors: [Color("FeedbackError").opacity(Theme.Opacity.pressed), Color("FeedbackError")],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         } else if progress > 0.66 {
             return LinearGradient(
-                colors: [Color.warning.opacity(Theme.Opacity.pressed), Color.warning],
+                colors: [Color("FeedbackWarning").opacity(Theme.Opacity.pressed), Color("FeedbackWarning")],
                 startPoint: .leading,
                 endPoint: .trailing
             )
@@ -184,7 +183,6 @@ struct UsageRow: View {
 // Groups multiple usage rows with a header and reset countdown
 
 struct UsageStatisticsView: View {
-    @Environment(\.colorScheme) private var colorScheme
     let aiInsightsUsed: Int
     let aiInsightsTotal: Int
     let highlightsUsed: Int
@@ -199,7 +197,7 @@ struct UsageStatisticsView: View {
             HStack {
                 Text("Today's Usage")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Spacer()
 
@@ -214,7 +212,7 @@ struct UsageStatisticsView: View {
                     used: aiInsightsUsed,
                     total: aiInsightsTotal,
                     icon: "sparkles",
-                    iconColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
+                    iconColor: Color("AppAccentAction"),
                     onTap: { if aiInsightsUsed >= aiInsightsTotal { onUpgrade() } }
                 )
 
@@ -226,7 +224,7 @@ struct UsageStatisticsView: View {
                     used: notesUsed,
                     total: notesTotal,
                     icon: "note.text",
-                    iconColor: Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
+                    iconColor: Color("AppAccentAction"),
                     onTap: { if notesUsed >= notesTotal { onUpgrade() } }
                 )
             }
@@ -248,7 +246,7 @@ struct UsageStatisticsView: View {
             Text("Resets \(resetTimeText)")
                 .font(Typography.Command.meta)
         }
-        .foregroundStyle(Color.tertiaryText)
+        .foregroundStyle(Color("TertiaryText"))
     }
 
     private var resetTimeText: String {
@@ -325,7 +323,7 @@ struct UsageRow_Previews: PreviewProvider {
             UsageRow(label: "AI Insights", used: 3, total: 3, icon: "sparkles")
         }
         .padding()
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .previewDisplayName("Usage Row States")
     }
 }

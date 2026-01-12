@@ -57,15 +57,15 @@ struct AIConsentView: View {
         VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "sparkles")
                 .font(Typography.Command.largeTitle)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             Text("Before You Begin")
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Text("To provide AI-powered Bible study assistance, we need your permission to process your questions.")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -84,11 +84,11 @@ struct AIConsentView: View {
 
             Text("We never send your personal information, notes, or highlights.")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
                 .padding(.leading, Theme.Spacing.xl)
         }
         .padding(Theme.Spacing.md)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
@@ -100,11 +100,11 @@ struct AIConsentView: View {
 
             Text("Your questions are sent to OpenAI's servers to generate responses. OpenAI processes this data according to their **API Data Usage Policy**, which states that API data is not used to train their models.")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
-                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
+                .tint(Color("AppAccentAction"))
         }
         .padding(Theme.Spacing.md)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
@@ -119,7 +119,7 @@ struct AIConsentView: View {
             bulletPoint("Your conversation history stays on your device")
         }
         .padding(Theme.Spacing.md)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 
@@ -128,12 +128,12 @@ struct AIConsentView: View {
     private var privacyLinkSection: some View {
         HStack {
             Image(systemName: "lock.shield")
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             Text("Read our full **Privacy Policy**")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
-                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("TertiaryText"))
+                .tint(Color("AppAccentAction"))
 
             Spacer()
         }
@@ -158,7 +158,7 @@ struct AIConsentView: View {
             } label: {
                 Text("Not Now")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
         }
         .padding(Theme.Spacing.lg)
@@ -170,23 +170,23 @@ struct AIConsentView: View {
     private func sectionHeader(icon: String, title: String) -> some View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: icon)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
             Text(title)
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
         }
     }
 
     private func bulletPoint(_ text: String) -> some View {
         HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Circle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color("AppAccentAction"))
                 .frame(width: 24, height: 24)
                 .padding(.top, Theme.Spacing.sm)
 
             Text(text)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .padding(.leading, Theme.Spacing.sm)
     }

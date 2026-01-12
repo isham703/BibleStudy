@@ -7,7 +7,7 @@ import SwiftUI
 struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction: View>: View {
     var highlightWhenEmpty: Bool = true
     var hint: String
-    var tint: Color = Colors.Semantic.accentSeal(for: .dark)  // Same in both modes
+    var tint: Color = Color("AccentBronze")  // Same in both modes
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
     @ViewBuilder var leadingAction: () -> LeadingAction
@@ -41,7 +41,7 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
                     // Text Field
                     TextField(hint, text: $text, axis: .vertical)
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .lineLimit(isFocused ? 5 : 1)
                         .focused(_isFocused)
                         .mask {
@@ -84,13 +84,13 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
                         shape
                             .fill(.bar)
                             .shadow(
-                                color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                                color: Color("AccentBronze").opacity(Theme.Opacity.subtle),
                                 radius: 4,
                                 x: 0,
                                 y: 4
                             )
                             .shadow(
-                                color: .black.opacity(Theme.Opacity.faint),
+                                color: .black.opacity(Theme.Opacity.subtle),
                                 radius: 16,
                                 x: 0,
                                 y: -4
@@ -100,19 +100,19 @@ struct AnimatedAskInputBar<LeadingAction: View, TrailingAction: View, MainAction
 
                 // Main Action Button (slides off when focused)
                 mainAction()
-                    .frame(width: 44, height: 44)
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                     .clipShape(.circle)
                     .background {
                         Circle()
                             .fill(.bar)
                             .shadow(
-                                color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                                color: Color("AccentBronze").opacity(Theme.Opacity.subtle),
                                 radius: 4,
                                 x: 0,
                                 y: 4
                             )
                             .shadow(
-                                color: .black.opacity(Theme.Opacity.faint),
+                                color: .black.opacity(Theme.Opacity.subtle),
                                 radius: 16,
                                 x: 0,
                                 y: -4
@@ -196,7 +196,7 @@ struct AskAnimatedInputBar: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let fillColor = Color.gray.opacity(Theme.Opacity.light)
+    private let fillColor = Color.gray.opacity(Theme.Opacity.selectionBackground)
 
     private var respectsReducedMotion: Bool {
         reduceMotion
@@ -246,12 +246,12 @@ struct AskAnimatedInputBar: View {
             // Bookmark icon
             Image(systemName: "bookmark.fill")
                 .font(Typography.Command.meta)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
 
             // Reference text
             Text(anchor.shortReference)
                 .font(Typography.Command.caption.weight(.medium))
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextPrimary"))
 
             // Tap to change indicator
             Button {
@@ -260,7 +260,7 @@ struct AskAnimatedInputBar: View {
             } label: {
                 Image(systemName: "chevron.down")
                     .font(Typography.Icon.xxxs)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .accessibilityLabel("Change passage")
             .accessibilityHint("Opens verse picker to change anchored passage")
@@ -274,7 +274,7 @@ struct AskAnimatedInputBar: View {
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .accessibilityLabel("Clear anchor")
             .accessibilityHint("Removes the verse anchor and returns to general mode")
@@ -285,13 +285,13 @@ struct AskAnimatedInputBar: View {
             Capsule()
                 .fill(.bar)
                 .shadow(
-                    color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                    color: Color("AccentBronze").opacity(Theme.Opacity.subtle),
                     radius: 4,
                     x: 0,
                     y: 2
                 )
                 .shadow(
-                    color: .black.opacity(Theme.Opacity.faint),
+                    color: .black.opacity(Theme.Opacity.subtle),
                     radius: 8,
                     x: 0,
                     y: 4
@@ -299,7 +299,7 @@ struct AskAnimatedInputBar: View {
         }
         .overlay {
             Capsule()
-                .strokeBorder(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
+                .strokeBorder(Color("AccentBronze").opacity(Theme.Opacity.textSecondary), lineWidth: Theme.Stroke.hairline)
         }
     }
 
@@ -314,7 +314,7 @@ struct AskAnimatedInputBar: View {
         } label: {
             Image(systemName: "book.closed")
                 .fontWeight(.medium)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(fillColor, in: .circle)
         }
@@ -327,7 +327,7 @@ struct AskAnimatedInputBar: View {
             onSearch()
         } label: {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextPrimary"))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(fillColor, in: .circle)
         }
@@ -353,14 +353,14 @@ struct AskAnimatedInputBar: View {
                 // Checkmark (shown when focused)
                 Image(systemName: "checkmark")
                     .fontWeight(.medium)
-                    .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).gradient, in: .circle)
+                    .background(Color("AccentBronze").gradient, in: .circle)
                     .blurFade(isFocused.wrappedValue)
 
                 // Mic (shown when not focused)
                 Image(systemName: "mic.fill")
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(fillColor, in: .circle)
                     .blurFade(!isFocused.wrappedValue)
@@ -381,14 +381,14 @@ struct AskAnimatedInputBar: View {
             ZStack {
                 if isLoading {
                     ProgressView()
-                        .tint(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .tint(Color("AccentBronze"))
                 } else {
                     Image(systemName: "sparkles")
                         .font(Typography.Command.body)
                         .foregroundStyle(
                             text.isEmpty
-                                ? Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme))
-                                : Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
+                                ? Color("TertiaryText")
+                                : Color("AccentBronze")
                         )
                 }
             }
@@ -419,7 +419,7 @@ struct AskAnimatedInputBar: View {
                     onClearAnchor: {}
                 )
             }
-            .background(Colors.Surface.background(for: .dark))
+            .background(Color("AppBackground"))
         }
     }
     return PreviewWrapper()
@@ -442,7 +442,7 @@ struct AskAnimatedInputBar: View {
                     onClearAnchor: {}
                 )
             }
-            .background(Colors.Surface.background(for: .dark))
+            .background(Color("AppBackground"))
             .onAppear {
                 isFocused = true
             }
@@ -470,7 +470,7 @@ struct AskAnimatedInputBar: View {
                     onClearAnchor: { anchor = nil }
                 )
             }
-            .background(Colors.Surface.background(for: .dark))
+            .background(Color("AppBackground"))
         }
     }
     return PreviewWrapper()

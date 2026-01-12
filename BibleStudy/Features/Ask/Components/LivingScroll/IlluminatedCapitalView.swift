@@ -9,7 +9,7 @@ struct IlluminatedCapitalView: View {
     let isVisible: Bool
 
     @Environment(\.colorScheme) private var colorScheme
-    @State private var glowIntensity: Double = Theme.Opacity.secondary
+    @State private var glowIntensity: Double = Theme.Opacity.textSecondary
 
     private var respectsReducedMotion: Bool {
         UIAccessibility.isReduceMotionEnabled
@@ -25,14 +25,14 @@ struct IlluminatedCapitalView: View {
             // Outer glow layer
             Text(letter.uppercased())
                 .font(illuminatedFont)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
                 .blur(radius: 8)
-                .opacity(glowIntensity * Theme.Opacity.primary)
+                .opacity(glowIntensity * Theme.Opacity.textPrimary)
 
             // Inner glow layer
             Text(letter.uppercased())
                 .font(illuminatedFont)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
                 .blur(radius: 4)
                 .opacity(glowIntensity * Theme.Opacity.pressed)
 
@@ -42,16 +42,16 @@ struct IlluminatedCapitalView: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary)
+                            Color("AccentBronze"),
+                            Color("AccentBronze").opacity(Theme.Opacity.textPrimary),
+                            Color("AccentBronze").opacity(Theme.Opacity.textPrimary)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
                 .shadow(
-                    color: Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled),
+                    color: Color("AccentBronze").opacity(Theme.Opacity.disabled),
                     radius: 4,
                     x: 0,
                     y: 2
@@ -69,7 +69,7 @@ struct IlluminatedCapitalView: View {
 
     private func startBreathingAnimation() {
         guard !respectsReducedMotion else {
-            glowIntensity = Theme.Opacity.secondary
+            glowIntensity = Theme.Opacity.textSecondary
             return
         }
 
@@ -80,7 +80,7 @@ struct IlluminatedCapitalView: View {
                 .repeatForever(autoreverses: true)
                 .speed(0.1) // Slow down to ~4 seconds
         ) {
-            glowIntensity = Theme.Opacity.secondary
+            glowIntensity = Theme.Opacity.textSecondary
         }
     }
 }
@@ -108,14 +108,14 @@ struct CompactIlluminatedCapital: View {
             // Glow layer
             Text(letter.uppercased())
                 .font(compactFont)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
                 .blur(radius: 4)
-                .opacity(glowIntensity * Theme.Opacity.secondary)
+                .opacity(glowIntensity * Theme.Opacity.textSecondary)
 
             // Main letter
             Text(letter.uppercased())
                 .font(compactFont)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
         }
         .frame(width: 40, height: 40)
         .onAppear {
@@ -126,7 +126,7 @@ struct CompactIlluminatedCapital: View {
                     .repeatForever(autoreverses: true)
                     .speed(0.1)
             ) {
-                glowIntensity = Theme.Opacity.primary
+                glowIntensity = Theme.Opacity.textPrimary
             }
         }
     }
@@ -148,9 +148,9 @@ struct IlluminatedBorder: View {
             .strokeBorder(
                 LinearGradient(
                     colors: [
-                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
-                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary),
-                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary)
+                        Color("AccentBronze").opacity(Theme.Opacity.textSecondary),
+                        Color("AccentBronze").opacity(Theme.Opacity.textPrimary),
+                        Color("AccentBronze").opacity(Theme.Opacity.textSecondary)
                     ],
                     startPoint: UnitPoint(x: shimmerOffset, y: 0),
                     endPoint: UnitPoint(x: shimmerOffset + 0.5, y: 1)

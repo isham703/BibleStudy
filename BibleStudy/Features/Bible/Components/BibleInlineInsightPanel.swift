@@ -22,7 +22,7 @@ struct BibleInlineInsightPanel: View {
 
             HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                 Rectangle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium + 0.05))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.focusStroke + 0.05))
                     .frame(width: Theme.Stroke.control)
 
                 BibleInsightContent(

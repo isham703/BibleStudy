@@ -44,7 +44,7 @@ struct WarmAskLandingView: View {
             // Warm subtitle
             Text("What's on your mind today?")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .opacity(greetingOpacity)
                 .offset(y: contentOffset * 0.5)
 
@@ -61,7 +61,7 @@ struct WarmAskLandingView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 Text("Try asking...")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
 
                 if useVerticalChipLayout {
                     // Vertical stack for large Dynamic Type
@@ -177,23 +177,23 @@ private struct ReadingContextCard: View {
                 // Book icon with accent circle
                 ZStack {
                     Circle()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
-                        .frame(width: 44, height: 44)
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.overlay))
+                        .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
 
                     Image(systemName: "book.fill")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 }
 
                 // Context text
                 VStack(alignment: .leading, spacing: 2) {
                     Text(context.displayText)
                         .font(Typography.Command.body.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text("Have a question about this passage?")
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
 
                 Spacer()
@@ -201,17 +201,17 @@ private struct ReadingContextCard: View {
                 // Chevron
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
                     .strokeBorder(
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                        Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground),
                         lineWidth: Theme.Stroke.hairline
                     )
             )
@@ -244,21 +244,21 @@ private struct ContextualQuestionChip: View {
                 // Sparkle icon
                 Image(systemName: "sparkle")
                     .font(Typography.Icon.xxs)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 Text(question)
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .lineLimit(2)
             }
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm + 2)
             .background(
                 Capsule()
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
                     .overlay(
                         Capsule()
-                            .strokeBorder(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                            .strokeBorder(Color.appDivider, lineWidth: Theme.Stroke.hairline)
                     )
             )
             .opacity(isEnabled ? 1.0 : Theme.Opacity.disabled)
@@ -290,8 +290,8 @@ private struct WarmAccentGlow: View {
             .fill(
                 RadialGradient(
                     colors: [
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity * 0.15),
-                        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity * 0.08),
+                        Color("AppAccentAction").opacity(glowIntensity * 0.15),
+                        Color("AppAccentAction").opacity(glowIntensity * 0.08),
                         Color.clear
                     ],
                     center: .center,

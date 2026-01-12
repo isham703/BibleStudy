@@ -49,7 +49,7 @@ struct PulsingCore: View {
                 // swiftlint:disable:next hardcoded_frame_size
                 .frame(width: 60, height: 60)
                 // swiftlint:disable:next hardcoded_shadow_radius
-                .shadow(color: color.opacity(Theme.Opacity.strong), radius: 20)
+                .shadow(color: color.opacity(Theme.Opacity.pressed), radius: 20)
 
             // Phase icon
             Image(systemName: phaseIcon)
@@ -94,7 +94,7 @@ struct ComplinePulsingCore: View {
     var body: some View {
         PulsingCore(
             isActive: isActive,
-            color: Color.indigoTint,
+            color: Color("AppAccentAction").opacity(0.2),
             phase: phase,
             iconStyle: .compline
         )
@@ -118,11 +118,11 @@ struct ComplinePulsingCore: View {
 
 #Preview("Pulsing Core - Compline") {
     ZStack {
-        Color.slateDeep.ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
 
         PulsingCore(
             isActive: true,
-            color: Color.indigoTint,
+            color: Color("AppAccentAction").opacity(0.2),
             phase: .exhale,
             iconStyle: .compline
         )

@@ -369,25 +369,25 @@ struct NotificationPermissionView: View {
             // Icon
             ZStack {
                 Circle()
-                    .fill(Color.accentIndigo.opacity(Theme.Opacity.lightMedium))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "bell.badge.fill")
                     // swiftlint:disable:next hardcoded_font_system
                     .font(Typography.Icon.hero)
-                    .foregroundStyle(Color.accentIndigo)
+                    .foregroundStyle(Color("AppAccentAction"))
             }
 
             // Title
             Text("Stay on Track")
                 .font(Typography.Command.title2)
                 .fontWeight(.bold)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             // Description
             Text("Get gentle reminders to help you build a consistent Bible reading habit.")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.xl)
 
@@ -418,7 +418,7 @@ struct NotificationPermissionView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Theme.Spacing.md)
-                        .background(Color.accentIndigo)
+                        .background(Color("AppAccentAction"))
                         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 }
 
@@ -426,7 +426,7 @@ struct NotificationPermissionView: View {
                     onComplete()
                 }
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
             }
             .padding(.horizontal, Theme.Spacing.lg)
             .padding(.bottom, Theme.Spacing.xl)
@@ -450,12 +450,12 @@ private struct NotificationFeatureRow: View {
         HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.accentIndigo)
+                .foregroundStyle(Color("AppAccentAction"))
                 .frame(width: 24)
 
             Text(text)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
         }
     }
 }
@@ -496,7 +496,7 @@ struct NotificationSettingsView: View {
                             Spacer()
                             Image(systemName: "arrow.up.forward")
                                 .font(Typography.Command.caption)
-                                .foregroundStyle(Color.tertiaryText)
+                                .foregroundStyle(Color("TertiaryText"))
                         }
                     }
                 }

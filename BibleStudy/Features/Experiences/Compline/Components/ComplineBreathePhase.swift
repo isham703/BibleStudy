@@ -8,7 +8,7 @@ struct ComplineBreathePhase: View {
     @State private var state = ComplineBreathingState()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let starlightColor = Color.indigoTint
+    private let starlightColor = Color("AppAccentAction").opacity(0.2)
 
     var body: some View {
         VStack(spacing: Theme.Spacing.xxl) {
@@ -27,7 +27,7 @@ struct ComplineBreathePhase: View {
                     BreathingAuroraBackground.compline(isActive: state.isActive)
                         .frame(width: 300, height: 300)
                         .clipShape(Circle())
-                        .opacity(Theme.Opacity.medium)
+                        .opacity(Theme.Opacity.focusStroke)
                 }
 
                 // Breathing visualization
@@ -58,12 +58,12 @@ struct ComplineBreathePhase: View {
                     Text("4 seconds in • 7 seconds hold • 8 seconds out")
                         // swiftlint:disable:next hardcoded_font_custom
                         .font(.system(size: 14, weight: .regular, design: .serif))
-                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.strong))
+                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.pressed))
                 } else {
                     Text("Tap to begin the 4-7-8 breath")
                         // swiftlint:disable:next hardcoded_font_custom
                         .font(.system(size: 14, weight: .regular, design: .serif))
-                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.strong))
+                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.pressed))
                 }
 
                 Text("Match your breath to the rhythm")
@@ -86,7 +86,7 @@ struct ComplineBreathePhaseWithBinding: View {
     @State private var state = ComplineBreathingState()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let starlightColor = Color.indigoTint
+    private let starlightColor = Color("AppAccentAction").opacity(0.2)
 
     var body: some View {
         VStack(spacing: Theme.Spacing.xxl) {
@@ -104,7 +104,7 @@ struct ComplineBreathePhaseWithBinding: View {
                     BreathingAuroraBackground.compline(isActive: state.isActive)
                         .frame(width: 300, height: 300)
                         .clipShape(Circle())
-                        .opacity(Theme.Opacity.medium)
+                        .opacity(Theme.Opacity.focusStroke)
                 }
 
                 ComplineBreathingVisualization(
@@ -137,12 +137,12 @@ struct ComplineBreathePhaseWithBinding: View {
                     Text("4 seconds in • 7 seconds hold • 8 seconds out")
                         // swiftlint:disable:next hardcoded_font_custom
                         .font(.system(size: 14, weight: .regular, design: .serif))
-                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.strong))
+                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.pressed))
                 } else {
                     Text("Tap to begin the 4-7-8 breath")
                         // swiftlint:disable:next hardcoded_font_custom
                         .font(.system(size: 14, weight: .regular, design: .serif))
-                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.strong))
+                        .foregroundStyle(starlightColor.opacity(Theme.Opacity.pressed))
                 }
 
                 Text("Match your breath to the rhythm")
@@ -166,7 +166,7 @@ struct ComplineBreathePhaseWithBinding: View {
 
 #Preview("Compline Breathe Phase") {
     ZStack {
-        Color.slateDeep.ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
 
         ComplineBreathePhase()
     }
@@ -178,13 +178,13 @@ struct ComplineBreathePhaseWithBinding: View {
 
         var body: some View {
             ZStack {
-                Color.slateDeep.ignoresSafeArea()
+                Color("AppBackground").ignoresSafeArea()
 
                 VStack {
                     ComplineBreathePhaseWithBinding(hasStartedBreathing: $hasStarted)
 
                     Text(hasStarted ? "User has engaged" : "Waiting...")
-                        .foregroundStyle(.white.opacity(Theme.Opacity.heavy))
+                        .foregroundStyle(.white.opacity(Theme.Opacity.textSecondary))
                         .padding(.top, Theme.Spacing.xl)
                 }
             }

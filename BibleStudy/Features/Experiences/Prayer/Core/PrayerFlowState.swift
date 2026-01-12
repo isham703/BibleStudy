@@ -203,7 +203,7 @@ final class PrayerFlowState {
                     throw PrayerGenerationError.contentFlagged
                 }
 
-                print("🙏 Prayer: Starting generation for category=\(selectedCategory.rawValue)...")
+                print("🙏 Prayer: Starting generation for category=\(selectedCategory.rawValue), input=\"\(trimmedInput.prefix(50))\"...")
 
                 // 3. Generate prayer WITH RETRY for transient failures
                 var lastError: Error?

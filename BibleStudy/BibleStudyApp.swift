@@ -25,6 +25,10 @@ struct BibleStudyApp: App {
     @State private var authErrorMessage: String?
     @State private var showAuthErrorAlert = false
 
+    private var isUITestingReader: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui_testing_reader")
+    }
+
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -34,7 +38,6 @@ struct BibleStudyApp: App {
                     MainTabView()
                         .environment(bibleService)
                         .environment(appState)
-                        .withAllCelebrations()
                         .withPaywall()
                         .opacity(isInitialized && !isCheckingSession ? 1 : 0)
                 } else if hasCompletedOnboarding && !appState.isAuthenticated {
@@ -70,6 +73,10 @@ struct BibleStudyApp: App {
             .animation(Theme.Animation.settle, value: hasCompletedOnboarding)
             .animation(Theme.Animation.settle, value: appState.isAuthenticated)
             .task {
+                if isUITestingReader {
+                    hasCompletedOnboarding = true
+                    appState.isAuthenticated = true
+                }
                 await initializeApp()
             }
             .onOpenURL { url in
@@ -452,16 +459,12 @@ enum AppThemeMode: String, CaseIterable {
     case system
     case light
     case dark
-    case sepia
-    case oled
 
     var displayName: String {
         switch self {
         case .system: return "System"
         case .light: return "Light"
         case .dark: return "Dark"
-        case .sepia: return "Sepia"
-        case .oled: return "OLED Black"
         }
     }
 
@@ -470,8 +473,6 @@ enum AppThemeMode: String, CaseIterable {
         case .system: return "circle.lefthalf.filled"
         case .light: return "sun.max.fill"
         case .dark: return "moon.fill"
-        case .sepia: return "book.fill"
-        case .oled: return "moon.stars.fill"
         }
     }
 
@@ -481,17 +482,15 @@ enum AppThemeMode: String, CaseIterable {
         case .system: return "Follows your device settings"
         case .light: return "Bright and clear"
         case .dark: return "Easy on the eyes"
-        case .sepia: return "Warm parchment tone"
-        case .oled: return "True black, saves battery"
         }
     }
 
-    /// The underlying color scheme (sepia uses light, OLED uses dark)
+    /// The underlying color scheme
     var baseColorScheme: ColorScheme? {
         switch self {
         case .system: return nil
-        case .light, .sepia: return .light
-        case .dark, .oled: return .dark
+        case .light: return .light
+        case .dark: return .dark
         }
     }
 
@@ -499,10 +498,8 @@ enum AppThemeMode: String, CaseIterable {
     var previewBackground: Color {
         switch self {
         case .system: return Color(.systemBackground)
-        case .light: return Color.lightBackground
-        case .dark: return Color.darkBackground
-        case .sepia: return Color.sepiaBackground
-        case .oled: return Color.oledBackground
+        case .light: return Color("AppBackground")
+        case .dark: return Color("AppBackground")
         }
     }
 
@@ -510,60 +507,14 @@ enum AppThemeMode: String, CaseIterable {
     var previewText: Color {
         switch self {
         case .system: return Color.primary
-        case .light: return Color.monasteryBlack
-        case .dark: return Color.moonlitParchment
-        case .sepia: return Color.sepiaText
-        case .oled: return Color.oledText
-        }
-    }
-
-    /// Whether this theme uses custom background colors
-    var usesCustomBackground: Bool {
-        switch self {
-        case .system, .light, .dark: return false
-        case .sepia, .oled: return true
-        }
-    }
-
-    /// Custom background color for the theme (nil if using system colors)
-    var customBackground: Color? {
-        switch self {
-        case .sepia: return .sepiaBackground
-        case .oled: return .oledBackground
-        default: return nil
-        }
-    }
-
-    /// Custom surface color for the theme (nil if using system colors)
-    var customSurface: Color? {
-        switch self {
-        case .sepia: return .sepiaSurface
-        case .oled: return .oledSurface
-        default: return nil
-        }
-    }
-
-    /// Custom text color for the theme (nil if using system colors)
-    var customTextColor: Color? {
-        switch self {
-        case .sepia: return .sepiaText
-        case .oled: return .oledText
-        default: return nil
-        }
-    }
-
-    /// Custom secondary text color for the theme (nil if using system colors)
-    var customSecondaryTextColor: Color? {
-        switch self {
-        case .sepia: return .sepiaSecondaryText
-        case .oled: return .oledSecondaryText
-        default: return nil
+        case .light: return Color("AppBackground")
+        case .dark: return Color("AppSurface")
         }
     }
 
     /// Accent color for the theme
     var accentColor: Color {
-        Color.accentBronze
+        Color("AccentBronze")
     }
 }
 

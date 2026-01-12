@@ -14,17 +14,17 @@ struct AIInsightCard: View {
             HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "sparkles")
                     .font(Typography.Icon.md)
-                    .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AccentBronze"))
 
                 Text(insight.title)
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
 
             // Summary
             Text(insight.summary)
                 .font(Typography.Scripture.body)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
                 .lineSpacing(6)
 
             // Explore button
@@ -33,13 +33,13 @@ struct AIInsightCard: View {
 
                 Text("Explore")
                     .font(Typography.Command.cta)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                     .padding(.horizontal, Theme.Spacing.lg)
                     .padding(.vertical, Theme.Spacing.sm)
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
                             .stroke(
-                                Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)),
+                                Color("AppAccentAction"),
                                 lineWidth: Theme.Stroke.control
                             )
                     )
@@ -48,12 +48,12 @@ struct AIInsightCard: View {
         .padding(Theme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color.appSurface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .stroke(
-                    Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                    Color.appDivider,
                     lineWidth: Theme.Stroke.hairline
                 )
         )
@@ -64,10 +64,9 @@ struct AIInsightCard: View {
 
 #Preview {
     @Previewable @Environment(\.colorScheme) var colorScheme
-    let themeMode = ThemeMode.current(from: colorScheme)
 
     ZStack {
-        Colors.Surface.background(for: themeMode).ignoresSafeArea()
+        Color.appBackground.ignoresSafeArea()
 
         VStack(spacing: Theme.Spacing.xl) {
             AIInsightCard(insight: SanctuaryMockData.currentInsight)

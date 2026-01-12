@@ -35,7 +35,7 @@ struct SessionStats: View {
         .padding(.horizontal, Theme.Spacing.xxl)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.xl, style: .continuous)
-                .fill(.ultraThinMaterial.opacity(Theme.Opacity.heavy))
+                .fill(.ultraThinMaterial.opacity(Theme.Opacity.textSecondary))
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.xl, style: .continuous)
                         .stroke(.white.opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
@@ -72,7 +72,7 @@ struct StatItem: View {
 
             Text(label)
                 .font(Typography.Command.meta)
-                .foregroundStyle(.white.opacity(Theme.Opacity.heavy))
+                .foregroundStyle(.white.opacity(Theme.Opacity.textSecondary))
         }
         .frame(maxWidth: .infinity)
     }
@@ -84,13 +84,13 @@ struct StatItem: View {
 struct CycleCounter: View {
     let cyclesCompleted: Int
     var targetCycles: Int = 3
-    var color: Color = .complineStarlight
+    var color: Color = Color("AccentBronze").opacity(0.3)
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
             ForEach(0..<targetCycles, id: \.self) { index in
                 Circle()
-                    .fill(index < cyclesCompleted ? color : color.opacity(Theme.Opacity.lightMedium))
+                    .fill(index < cyclesCompleted ? color : color.opacity(Theme.Opacity.selectionBackground))
                     .frame(width: Theme.Spacing.sm, height: Theme.Spacing.sm)
             }
         }
@@ -115,7 +115,7 @@ struct CycleCounter: View {
 
 #Preview("Cycle Counter") {
     ZStack {
-        Color.nightVoid.ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
 
         CycleCounter(cyclesCompleted: 2, targetCycles: 3)
     }

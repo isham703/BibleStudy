@@ -21,13 +21,13 @@ struct BiometricOptInView: View {
             // Title
             Text("Enable Quick Sign In?")
                 .font(Typography.Scripture.title)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .multilineTextAlignment(.center)
 
             // Description
             Text("Use \(biometricType.displayName) to sign in instantly next time. Your data stays secure.")
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.lg)
 
@@ -46,10 +46,10 @@ struct BiometricOptInView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(Theme.Spacing.md)
-                    .background(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .background(Color("AccentBronze"))
                     .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
-                    .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                    .shadow(color: Color.black.opacity(Theme.Opacity.selectionBackground), radius: 8, x: 0, y: 4)
                 }
                 .accessibilityLabel("Enable \(biometricType.displayName)")
                 .accessibilityHint("Secure biometric authentication for quick sign-in")
@@ -58,7 +58,7 @@ struct BiometricOptInView: View {
                 Button(action: onSkip) {
                     Text("Maybe Later")
                         .font(Typography.Command.body)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                 }
                 .padding(.vertical, Theme.Spacing.sm)
                 .accessibilityLabel("Skip biometric setup")
@@ -67,7 +67,7 @@ struct BiometricOptInView: View {
             .padding(.horizontal, Theme.Spacing.lg)
             .padding(.bottom, Theme.Spacing.xl)
         }
-        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+        .background(Color.appBackground)
         .onAppear {
             withAnimation(Theme.Animation.slowFade) {
                 isAnimating = true
@@ -80,27 +80,27 @@ struct BiometricOptInView: View {
         ZStack {
             // Outer decorative ring
             Circle()
-                .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.control)
+                .stroke(Color("AccentBronze"), lineWidth: Theme.Stroke.control)
                 .frame(width: 100, height: 100)
                 .scaleEffect(isAnimating ? 1 : 0.9)
                 .opacity(isAnimating ? 1 : 0.5)
 
             // Glow ring
             Circle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                 .frame(width: 90, height: 90)
                 .blur(radius: 16)
                 .scaleEffect(isAnimating ? 1.1 : 0.9)
 
             // Inner background
             Circle()
-                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                .fill(Color.appSurface)
                 .frame(width: 80, height: 80)
 
             // Biometric icon
             Image(systemName: biometricType.systemImage)
                 .font(Typography.Icon.hero)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AccentBronze"))
                 .scaleEffect(isAnimating ? 1 : 0.8)
                 .opacity(isAnimating ? 1 : 0)
         }

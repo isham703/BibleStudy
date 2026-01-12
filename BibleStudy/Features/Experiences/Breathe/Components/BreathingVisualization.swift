@@ -44,8 +44,8 @@ struct BreathingVisualization: View {
                 RadialGradient(
                     colors: [
                         color.opacity(Theme.Opacity.disabled),
-                        color.opacity(Theme.Opacity.lightMedium),
-                        color.opacity(Theme.Opacity.faint)
+                        color.opacity(Theme.Opacity.selectionBackground),
+                        color.opacity(Theme.Opacity.subtle)
                     ],
                     center: .center,
                     startRadius: 0,
@@ -54,7 +54,7 @@ struct BreathingVisualization: View {
             )
             .frame(width: circleSize, height: circleSize)
             .scaleEffect(scale)
-            .shadow(color: color.opacity(Theme.Opacity.medium), radius: 24)
+            .shadow(color: color.opacity(Theme.Opacity.focusStroke), radius: 24)
     }
 }
 
@@ -66,7 +66,7 @@ struct ComplineBreathingVisualization: View {
     let isActive: Bool
     let phase: BreathingPhase
 
-    private let starlightColor = Color.complineStarlight
+    private let starlightColor = Color("AccentBronze").opacity(0.3)
 
     var body: some View {
         BreathingVisualization(
@@ -99,7 +99,7 @@ struct ComplineBreathingVisualization: View {
 
 #Preview("Breathing Visualization - Compline") {
     ZStack {
-        Color.nightVoid.ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
 
         ComplineBreathingVisualization(
             scale: 0.7,

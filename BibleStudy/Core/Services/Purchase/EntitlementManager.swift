@@ -385,11 +385,11 @@ struct PremiumFeatureLock: View {
         VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "lock.fill")
                 .font(Typography.Command.title2)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             Text("\(feature) requires Premium")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Button("Upgrade") {
                 EntitlementManager.shared.showPaywall()
@@ -398,12 +398,12 @@ struct PremiumFeatureLock: View {
             .foregroundStyle(.white)
             .padding(.horizontal, Theme.Spacing.lg)
             .padding(.vertical, Theme.Spacing.sm)
-            .background(Color.accentIndigo)
+            .background(Color("AppAccentAction"))
             .clipShape(Capsule())
         }
         .frame(maxWidth: .infinity)
         .padding(Theme.Spacing.xl)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
     }
 }
@@ -423,12 +423,12 @@ struct UsageBadge: View {
                 .font(Typography.Command.meta)
                 .fontWeight(.medium)
         }
-        .foregroundStyle(remaining > 0 ? Color.accentIndigo : Color.feedbackError)
+        .foregroundStyle(remaining > 0 ? Color("AppAccentAction") : Color("FeedbackError"))
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(remaining > 0 ? Color.accentIndigo.opacity(Theme.Opacity.subtle) : Color.feedbackError.opacity(Theme.Opacity.subtle))
+                .fill(remaining > 0 ? Color("AppAccentAction").opacity(Theme.Opacity.subtle) : Color("FeedbackError").opacity(Theme.Opacity.subtle))
         )
     }
 }

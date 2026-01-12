@@ -17,7 +17,7 @@ struct BreatheView: View {
                     .ignoresSafeArea()
 
                 // Dark overlay for contrast
-                Color.black.opacity(Theme.Opacity.medium)
+                Color.black.opacity(Theme.Opacity.focusStroke)
                     .ignoresSafeArea()
 
                 VStack(spacing: Theme.Spacing.xxl + 6) {
@@ -98,7 +98,7 @@ struct BreatheView: View {
 
             Text(state.selectedPattern.description)
                 .font(Typography.Command.caption.weight(.medium))
-                .foregroundStyle(.white.opacity(Theme.Opacity.strong))
+                .foregroundStyle(.white.opacity(Theme.Opacity.pressed))
                 .multilineTextAlignment(.center)
         }
         .scaleEffect(state.isActive ? 0.7 : 1.0)
@@ -120,7 +120,7 @@ struct BreatheView: View {
                 Text(state.phaseTimeRemaining)
                     // swiftlint:disable:next hardcoded_font_system
                     .font(.system(size: 16, weight: .medium, design: .monospaced))
-                    .foregroundStyle(.white.opacity(Theme.Opacity.strong))
+                    .foregroundStyle(.white.opacity(Theme.Opacity.pressed))
             }
         }
     }

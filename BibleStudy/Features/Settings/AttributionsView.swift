@@ -13,7 +13,7 @@ struct AttributionsView: View {
             Section {
                 Text("This app uses the following open-source data and resources. We are grateful to the organizations and individuals who make this data freely available.")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             // Bible Text
@@ -73,7 +73,7 @@ struct AttributionsView: View {
                             Spacer()
                             Image(systemName: "arrow.up.right")
                                 .font(Typography.Command.caption)
-                                .foregroundStyle(Color.tertiaryText)
+                                .foregroundStyle(Color("TertiaryText"))
                         }
                     }
                 }
@@ -129,18 +129,18 @@ struct AttributionRow: View {
 
                 Text(license)
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                     .padding(.horizontal, Theme.Spacing.sm)
                     .padding(.vertical, 2)
                     .background(
                         Capsule()
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                            .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
                     )
             }
 
             Text(description)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             if let url = sourceUrl {
                 Link(destination: url) {
@@ -150,7 +150,7 @@ struct AttributionRow: View {
                         Image(systemName: "arrow.up.right")
                             .font(Typography.Command.meta)
                     }
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                 }
                 .padding(.top, 2)
             }
@@ -171,7 +171,7 @@ struct LicenseInfoRow: View {
 
             Text(description)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .padding(.vertical, Theme.Spacing.xs)
     }

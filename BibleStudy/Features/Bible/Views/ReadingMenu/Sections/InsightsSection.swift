@@ -20,7 +20,7 @@ struct InsightsSection: View {
             VStack(spacing: 0) {
                 insightToggleRow(
                     icon: "person.2.fill",
-                    color: .theologyGreen,
+                    color: Color("FeedbackSuccess"),
                     title: "Theology",
                     subtitle: "Doctrinal concepts and themes",
                     isEnabled: Binding(
@@ -33,7 +33,7 @@ struct InsightsSection: View {
 
                 insightToggleRow(
                     icon: "questionmark.circle.fill",
-                    color: .personalRose,
+                    color: Color("FeedbackError").opacity(Theme.Opacity.textSecondary),
                     title: "Reflection",
                     subtitle: "Personal application prompts",
                     isEnabled: Binding(
@@ -46,7 +46,7 @@ struct InsightsSection: View {
 
                 insightToggleRow(
                     icon: "link",
-                    color: .connectionAmber,
+                    color: Color("AccentBronze"),
                     title: "Connections",
                     subtitle: "Cross-references to other Scripture",
                     isEnabled: Binding(
@@ -59,7 +59,7 @@ struct InsightsSection: View {
 
                 insightToggleRow(
                     icon: "textformat.abc",
-                    color: .greekBlue,
+                    color: Color("FeedbackInfo"),
                     title: "Greek",
                     subtitle: "Original language notes",
                     isEnabled: Binding(
@@ -69,11 +69,11 @@ struct InsightsSection: View {
                 )
             }
             .padding(Theme.Spacing.md)
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
             )
 
             // Quick actions
@@ -85,7 +85,7 @@ struct InsightsSection: View {
                         .font(Typography.Command.caption.weight(.medium))
                 }
                 .buttonStyle(.bordered)
-                .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .tint(Color("AppAccentAction"))
 
                 Button {
                     scholarSettings.disableAll()
@@ -94,7 +94,7 @@ struct InsightsSection: View {
                         .font(Typography.Command.caption.weight(.medium))
                 }
                 .buttonStyle(.bordered)
-                .tint(Color.secondaryText)
+                .tint(Color("AppTextSecondary"))
 
                 Spacer()
             }
@@ -118,14 +118,14 @@ struct InsightsSection: View {
                     Text("Back")
                         .font(Typography.Command.subheadline)
                 }
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
             }
 
             Spacer()
 
             Text(title)
                 .font(Typography.Scripture.body.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
 
@@ -137,7 +137,7 @@ struct InsightsSection: View {
                     // swiftlint:disable:next hardcoded_swiftui_text_style
                     .font(.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
     }
@@ -167,11 +167,11 @@ struct InsightsSection: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(Typography.Scripture.body.weight(.semibold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text(subtitle)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
 
             Spacer()
@@ -189,7 +189,7 @@ struct InsightsSection: View {
 
     private var insightDivider: some View {
         Rectangle()
-            .fill(Color.gray.opacity(Theme.Opacity.light))
+            .fill(Color.gray.opacity(Theme.Opacity.selectionBackground))
             .frame(height: Theme.Stroke.hairline)
             .padding(.horizontal, Theme.Spacing.sm)
     }

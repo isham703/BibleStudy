@@ -17,7 +17,7 @@ struct BreathingRing: View {
                     colors: [
                         color.opacity(Theme.Opacity.pressed),
                         color.opacity(Theme.Opacity.disabled),
-                        color.opacity(Theme.Opacity.lightMedium),
+                        color.opacity(Theme.Opacity.selectionBackground),
                         color.opacity(Theme.Opacity.disabled),
                         color.opacity(Theme.Opacity.pressed)
                     ],

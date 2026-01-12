@@ -6,61 +6,52 @@ import SwiftUI
 
 struct GoodExamplesView: View {
     @State private var isSelected = false
-    
+
     var body: some View {
-        // MARK: - Spacing (using tokens)
-        VStack(spacing: AppTheme.Spacing.md) {
-            HStack(spacing: AppTheme.Spacing.sm) {
+        // MARK: - Spacing (using Theme.Spacing tokens)
+        VStack(spacing: Theme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Text("Hello")
-                    .padding(AppTheme.Spacing.lg)
-                    .padding(.horizontal, AppTheme.Spacing.xl)
+                    .padding(Theme.Spacing.lg)
+                    .padding(.horizontal, Theme.Spacing.xl)
             }
         }
-        
-        // MARK: - Typography (using tokens)
+
+        // MARK: - Typography (using Typography tokens)
         Text("Title")
-            .font(Typography.UI.title1)
-        
+            .font(Typography.Scripture.title)
+
         Text("Body text")
-            .font(Typography.UI.body)
-        
+            .font(Typography.Command.body)
+
         Text("Scripture")
             .font(Typography.Scripture.body)
-        
-        // MARK: - Colors (using semantic colors)
+
+        // MARK: - Colors (using Asset Catalog colors)
         Text("Colored")
-            .foregroundStyle(Color.primaryText)
-            .background(Color.surfaceBackground)
-        
-        // MARK: - Corner Radius (using tokens)
-        RoundedRectangle(cornerRadius: AppTheme.CornerRadius.card)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.CornerRadius.medium))
-        
-        // MARK: - Animation (using tokens)
+            .foregroundStyle(Color("AppTextPrimary"))
+            .background(Color("AppSurface"))
+
+        // MARK: - Corner Radius (using Theme.Radius tokens)
+        RoundedRectangle(cornerRadius: Theme.Radius.card)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
+
+        // MARK: - Animation (using Theme.Animation tokens)
         Rectangle()
-            .animation(AppTheme.Animation.standard, value: isSelected)
-            .animation(AppTheme.Animation.spring, value: isSelected)
-        
-        // MARK: - Opacity (using tokens)
-        Color.accentGold.opacity(AppTheme.Opacity.light)
-        Color.accentBlue.opacity(AppTheme.Opacity.disabled)
-        
-        // MARK: - Scale (using tokens)
-        Image(systemName: "star")
-            .scaleEffect(AppTheme.Scale.pressed)
-            .scaleEffect(AppTheme.Scale.enlarged)
-        
-        // MARK: - Shadows (using tokens)
+            .animation(Theme.Animation.fade, value: isSelected)
+            .animation(Theme.Animation.settle, value: isSelected)
+
+        // MARK: - Opacity (using Theme.Opacity tokens)
+        Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground)
+        Color("AppAccentAction").opacity(Theme.Opacity.disabled)
+
+        // MARK: - Stroke (using Theme.Stroke tokens)
         Rectangle()
-            .shadow(AppTheme.Shadow.medium)
-        
-        // MARK: - Icon containers (using tokens)
-        Image(systemName: "star")
-            .frame(width: AppTheme.IconContainer.small)
-        
-        // MARK: - Reduced motion support
-        Rectangle()
-            .animation(AppTheme.Animation.reduced(.spring), value: isSelected)
-            .reducedMotionAnimation(.spring, value: isSelected)
+            .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+
+        // MARK: - Reading layout (using Theme.Reading tokens)
+        Text("Scripture passage")
+            .frame(maxWidth: Theme.Reading.maxWidth)
+            .padding(.horizontal, Theme.Reading.horizontalPadding)
     }
 }

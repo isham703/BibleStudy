@@ -47,7 +47,7 @@ struct MemorizeView: View {
                 Button("Skip") {
                     onSkip()
                 }
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
             }
         }
     }
@@ -59,7 +59,7 @@ struct MemorizeView: View {
             // Reference
             Text(item.reference)
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             // Mastery badge
             HStack(spacing: Theme.Spacing.xs) {
@@ -72,7 +72,7 @@ struct MemorizeView: View {
             .padding(.vertical, 2)
             .background(
                 Capsule()
-                    .fill(masteryColor.opacity(Theme.Opacity.light))
+                    .fill(masteryColor.opacity(Theme.Opacity.selectionBackground))
             )
 
             // Stats row
@@ -89,18 +89,18 @@ struct MemorizeView: View {
         VStack(spacing: 2) {
             Text(value)
                 .font(Typography.Command.headline.monospacedDigit())
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
             Text(label)
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
     }
 
     private var masteryColor: Color {
         switch item.masteryLevel {
-        case .learning: return Color.accentIndigo
-        case .reviewing: return Color.accentIndigo
-        case .mastered: return .success
+        case .learning: return Color("AppAccentAction")
+        case .reviewing: return Color("AppAccentAction")
+        case .mastered: return Color("FeedbackSuccess")
         }
     }
 
@@ -122,13 +122,13 @@ struct MemorizeView: View {
                     // Show full text
                     Text(item.verseText)
                         .font(Typography.Scripture.body)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .lineSpacing(6)
                 } else {
                     // Show hint based on level
                     Text(currentHint)
                         .font(Typography.Scripture.body)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
                         .lineSpacing(6)
                 }
             }
@@ -136,11 +136,11 @@ struct MemorizeView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.elevatedBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(showingAnswer ? Color.success.opacity(Theme.Opacity.heavy) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(showingAnswer ? Color("FeedbackSuccess").opacity(Theme.Opacity.textSecondary) : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
 
             // Hint level controls
@@ -154,13 +154,13 @@ struct MemorizeView: View {
                         }
                     } label: {
                         Image(systemName: "minus.circle")
-                            .foregroundStyle(hintLevel > 0 ? Color.primaryText : Color.tertiaryText)
+                            .foregroundStyle(hintLevel > 0 ? Color("AppTextPrimary") : Color("TertiaryText"))
                     }
                     .disabled(hintLevel == 0)
 
                     Text("Hint Level \(hintLevel + 1)/\(maxHintLevels)")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
                         .frame(width: 100)
 
                     Button {
@@ -171,7 +171,7 @@ struct MemorizeView: View {
                         }
                     } label: {
                         Image(systemName: "plus.circle")
-                            .foregroundStyle(hintLevel < maxHintLevels - 1 ? Color.primaryText : Color.tertiaryText)
+                            .foregroundStyle(hintLevel < maxHintLevels - 1 ? Color("AppTextPrimary") : Color("TertiaryText"))
                     }
                     .disabled(hintLevel >= maxHintLevels - 1)
                 }
@@ -190,7 +190,7 @@ struct MemorizeView: View {
         HStack(spacing: Theme.Spacing.xs) {
             ForEach(0..<maxHintLevels, id: \.self) { level in
                 Circle()
-                    .fill(level <= hintLevel ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.cardBorder)
+                    .fill(level <= hintLevel ? Color("AppAccentAction") : Color("AppDivider"))
                     .frame(width: 8, height: 8)
             }
         }
@@ -205,11 +205,11 @@ struct MemorizeView: View {
                 .font(Typography.Scripture.body)
                 .lineLimit(5...10)
                 .padding()
-                .background(Color.surfaceBackground)
+                .background(Color("AppSurface"))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
                 .overlay(
                     RoundedRectangle(cornerRadius: Theme.Radius.button)
-                        .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                        .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
                 )
                 .focused($isInputFocused)
 
@@ -255,12 +255,12 @@ struct MemorizeView: View {
             Text(result.feedbackMessage)
         }
         .font(Typography.Command.subheadline)
-        .foregroundStyle(result.isCorrect ? Color.success : Color.feedbackError)
+        .foregroundStyle(result.isCorrect ? Color("FeedbackSuccess") : Color("FeedbackError"))
         .padding()
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .fill((result.isCorrect ? Color.success : Color.feedbackError).opacity(Theme.Opacity.subtle))
+                .fill((result.isCorrect ? Color("FeedbackSuccess") : Color("FeedbackError")).opacity(Theme.Opacity.subtle))
         )
     }
 
@@ -278,7 +278,7 @@ struct MemorizeView: View {
             } else {
                 Text("How well did you remember?")
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 qualityButtons
             }
@@ -288,14 +288,14 @@ struct MemorizeView: View {
     private var qualityButtons: some View {
         VStack(spacing: Theme.Spacing.sm) {
             HStack(spacing: Theme.Spacing.sm) {
-                qualityButton(.completeBlackout, color: .error)
-                qualityButton(.incorrectButRemembered, color: .warning)
-                qualityButton(.correctDifficult, color: .info)
+                qualityButton(.completeBlackout, color: Color("FeedbackError"))
+                qualityButton(.incorrectButRemembered, color: Color("FeedbackWarning"))
+                qualityButton(.correctDifficult, color: Color("FeedbackInfo"))
             }
 
             HStack(spacing: Theme.Spacing.sm) {
-                qualityButton(.correctWithHesitation, color: Color.accentIndigo)
-                qualityButton(.perfectRecall, color: .success)
+                qualityButton(.correctWithHesitation, color: Color("AppAccentAction"))
+                qualityButton(.perfectRecall, color: Color("FeedbackSuccess"))
             }
         }
     }
@@ -319,7 +319,7 @@ struct MemorizeView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(color.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                    .stroke(color.opacity(Theme.Opacity.focusStroke), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)

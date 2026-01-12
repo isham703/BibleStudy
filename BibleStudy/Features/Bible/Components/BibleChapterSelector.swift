@@ -11,7 +11,6 @@ struct BibleChapterSelector: View {
     let chapter: Int
     let onTap: () -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
@@ -20,23 +19,26 @@ struct BibleChapterSelector: View {
                 // Book icon
                 Image(systemName: "book.closed.fill")
                     .font(Typography.Icon.xs)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 // Reference text
                 Text(reference)
                     .font(Typography.Command.meta.weight(.semibold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 // Dropdown chevron - the key affordance
                 Image(systemName: "chevron.down")
                     .font(Typography.Icon.xxs.weight(.bold))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
-            .background(selectorBackground)
+            .background(Color("ChapterSelectorBackground"))
             .clipShape(Capsule())
-            .overlay(selectorBorder)
+            .overlay(
+                Capsule()
+                    .stroke(Color("ChapterSelectorBorder"), lineWidth: Theme.Stroke.hairline)
+            )
             // swiftlint:disable:next hardcoded_scale_effect
             .scaleEffect(isPressed ? 0.96 : 1)
         }
@@ -50,19 +52,6 @@ struct BibleChapterSelector: View {
         .accessibilityHint("Currently reading \(bookName) chapter \(chapter). Double tap to change book or chapter.")
         .accessibilityAddTraits(.isButton)
     }
-
-    // MARK: - Background
-
-    private var selectorBackground: some View {
-        Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
-    }
-
-    // MARK: - Border
-
-    private var selectorBorder: some View {
-        Capsule()
-            .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.tertiary), lineWidth: Theme.Stroke.hairline)
-    }
 }
 
 // MARK: - Alternative Compact Style
@@ -72,7 +61,6 @@ struct BibleChapterSelectorCompact: View {
     let reference: String
     let onTap: () -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
 
     var body: some View {
@@ -80,16 +68,20 @@ struct BibleChapterSelectorCompact: View {
             HStack(spacing: 2) {
                 Text(reference)
                     .font(Typography.Command.caption.weight(.semibold))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Image(systemName: "chevron.down")
                     .font(Typography.Icon.xxxs.weight(.bold))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, Theme.Spacing.xs)
-            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+            .background(Color("ChapterSelectorBackground"))
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color("ChapterSelectorBorder"), lineWidth: Theme.Stroke.hairline)
+            )
             // swiftlint:disable:next hardcoded_scale_effect
             .scaleEffect(isPressed ? 0.96 : 1)
         }

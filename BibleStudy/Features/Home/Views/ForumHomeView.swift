@@ -27,24 +27,20 @@ struct ForumHomeView: View {
                 VStack(spacing: 0) {
                     // Spacer for visual breathing room
                     Spacer()
-                        // swiftlint:disable:next hardcoded_frame_size
-                        .frame(height: 60)
+                        .frame(height: Theme.Spacing.xxl + Theme.Spacing.sm)
 
                     // Greeting section with settings button
                     greetingSection
-                        // swiftlint:disable:next hardcoded_padding_edge
-                        .padding(.bottom, 48)
+                        .padding(.bottom, Theme.Spacing.xxl)
 
                     // Central wisdom quote (hero)
                     wisdomQuoteSection
                         .padding(.horizontal, Theme.Spacing.xl)
-                        // swiftlint:disable:next hardcoded_padding_edge
-                        .padding(.bottom, 56)
+                        .padding(.bottom, Theme.Spacing.xxl + Theme.Spacing.sm)
 
                     // Ornamental divider
                     forumDivider
-                        // swiftlint:disable:next hardcoded_padding_edge
-                        .padding(.bottom, 48)
+                        .padding(.bottom, Theme.Spacing.xxl)
 
                     // Feature pillars (primary)
                     featurePillars
@@ -54,14 +50,12 @@ struct ForumHomeView: View {
                     // Secondary features row
                     secondaryFeatures
                         .padding(.horizontal, Theme.Spacing.lg)
-                        // swiftlint:disable:next hardcoded_padding_edge
-                        .padding(.bottom, 48)
+                        .padding(.bottom, Theme.Spacing.xxl)
 
                     // Bottom navigation prompt
                     continueReadingPrompt
                         .padding(.horizontal, Theme.Spacing.xl)
-                        // swiftlint:disable:next hardcoded_padding_edge
-                        .padding(.bottom, 100)
+                        .padding(.bottom, Theme.Spacing.xxl * 2)
                 }
             }
         }
@@ -101,13 +95,13 @@ struct ForumHomeView: View {
     private var backgroundLayer: some View {
         ZStack {
             // Base color
-            Colors.Surface.background(for: ThemeMode.current(from: colorScheme))
+            Color.appBackground
                 .ignoresSafeArea()
 
             // Subtle radial glow from center
             RadialGradient(
                 colors: [
-                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint / 2),
+                    Color("AccentBronze").opacity(Theme.Opacity.subtle / 2),
                     Color.clear
                 ],
                 center: .center,
@@ -119,9 +113,9 @@ struct ForumHomeView: View {
             // Top vignette (theme-aware)
             LinearGradient(
                 colors: [
-                    Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(colorScheme == .dark ? Theme.Opacity.disabled : 0.08),
+                    Color("AppTextPrimary").opacity(colorScheme == .dark ? Theme.Opacity.disabled : 0.08),
                     Color.clear,
-                    Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(colorScheme == .dark ? Theme.Opacity.lightMedium : 0.05)
+                    Color("AppTextPrimary").opacity(colorScheme == .dark ? Theme.Opacity.selectionBackground : 0.05)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -138,15 +132,13 @@ struct ForumHomeView: View {
                 // Date
                 Text(formattedDate.uppercased())
                     .font(Typography.Command.meta.weight(.medium))
-                    // swiftlint:disable:next hardcoded_tracking
-                    .tracking(3)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .tracking(Typography.Editorial.sectionTracking)
+                    .foregroundStyle(Color("TertiaryText"))
 
                 // Greeting
                 Text(greeting)
-                    // swiftlint:disable:next hardcoded_font_custom
-                    .font(.system(size: 24, weight: .regular, design: .serif))
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .font(Typography.Scripture.prompt)
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
 
             Spacer()
@@ -157,7 +149,7 @@ struct ForumHomeView: View {
             } label: {
                 Image(systemName: "gearshape")
                     .font(Typography.Icon.lg.weight(.light))
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .frame(width: 40, height: 40)
             }
         }
@@ -174,39 +166,34 @@ struct ForumHomeView: View {
         VStack(spacing: Theme.Spacing.xl) {
             // Opening quotation mark
             Text("\u{201C}")
-                // swiftlint:disable:next hardcoded_font_custom
-                .font(.system(size: 72, weight: .regular, design: .serif))
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary))
-                // swiftlint:disable:next hardcoded_frame_size
-                .frame(height: 40)
+                .font(Typography.Decorative.dropCap)
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
+                .frame(height: Theme.Spacing.xl + Theme.Spacing.sm)
 
             // The quote
             Text(dailyVerse.text)
-                // swiftlint:disable:next hardcoded_font_custom
-                .font(.system(size: 28, weight: .regular, design: .serif))
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .font(Typography.Scripture.title)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .multilineTextAlignment(.center)
-                // swiftlint:disable:next hardcoded_line_spacing
-                .lineSpacing(8)
+                .lineSpacing(Typography.Scripture.bodyLineSpacing)
                 .fixedSize(horizontal: false, vertical: true)
 
             // Reference
             Text(dailyVerse.reference.uppercased())
                 .font(Typography.Command.caption.weight(.medium))
-                // swiftlint:disable:next hardcoded_tracking
-                .tracking(3)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(Color("AccentBronze"))
         }
         .padding(.vertical, Theme.Spacing.xxl)
         .padding(.horizontal, Theme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.input)
-                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(colorScheme == .dark ? Theme.Opacity.faint : 0.5))
+                .fill(Color.appSurface.opacity(colorScheme == .dark ? Theme.Opacity.subtle : 0.5))
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.input)
                 .strokeBorder(
-                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(colorScheme == .dark ? Theme.Opacity.lightMedium : 0.3),
+                    Color("AccentBronze").opacity(colorScheme == .dark ? Theme.Opacity.selectionBackground : 0.3),
                     lineWidth: Theme.Stroke.hairline
                 )
         )
@@ -220,19 +207,17 @@ struct ForumHomeView: View {
     private var forumDivider: some View {
         HStack(spacing: Theme.Spacing.lg) {
             Rectangle()
-                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
-                // swiftlint:disable:next hardcoded_frame_size
-                .frame(width: 60, height: Theme.Stroke.hairline)
+                .fill(Color.appDivider)
+                .frame(width: Theme.Spacing.xxl + Theme.Spacing.sm, height: Theme.Stroke.hairline)
 
             // Column icon
             Image(systemName: "building.columns")
                 .font(Typography.Icon.sm.weight(.ultraLight))
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.disabled))
 
             Rectangle()
-                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
-                // swiftlint:disable:next hardcoded_frame_size
-                .frame(width: 60, height: Theme.Stroke.hairline)
+                .fill(Color.appDivider)
+                .frame(width: Theme.Spacing.xxl + Theme.Spacing.sm, height: Theme.Stroke.hairline)
         }
         .opacity(isAwakened ? 1 : 0)
         .animation(Theme.Animation.slowFade.delay(0.4), value: isAwakened)
@@ -312,29 +297,27 @@ struct ForumHomeView: View {
             VStack(spacing: Theme.Spacing.sm) {
                 Text("CONTINUE YOUR JOURNEY")
                     .font(Typography.Command.meta.weight(.medium))
-                    // swiftlint:disable:next hardcoded_tracking
-                    .tracking(2)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .tracking(Typography.Editorial.labelTracking)
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Text("Gospel of John")
-                    // swiftlint:disable:next hardcoded_font_custom
-                    .font(.system(size: 20, weight: .semibold, design: .serif))
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .font(Typography.Command.title3)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Day 7 of 21")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color.appDivider)
                         .frame(height: Theme.Stroke.control)
 
                     Rectangle()
-                        .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("AccentBronze"))
                         .frame(width: geometry.size.width * 0.33, height: Theme.Stroke.control)
                 }
             }
@@ -352,10 +335,10 @@ struct ForumHomeView: View {
                     Image(systemName: "arrow.right")
                         .font(Typography.Command.caption.weight(.medium))
                 }
-                .foregroundStyle(Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(.white)
                 .padding(.horizontal, Theme.Spacing.xl)
                 .padding(.vertical, Theme.Spacing.md)
-                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .background(Color("AppAccentAction"))
                 .clipShape(Capsule())
             }
         }
@@ -384,23 +367,22 @@ private struct ForumPillar<Destination: View>: View {
                 // Icon
                 Image(systemName: icon)
                     .font(Typography.Icon.xl.weight(.light))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                     .frame(width: 48, height: 48)
                     .background(
                         Circle()
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+                            .fill(Color("AppAccentAction").opacity(Theme.Opacity.overlay))
                     )
                     .overlay(
                         Circle()
-                            .strokeBorder(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
+                            .strokeBorder(Color("AppAccentAction").opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
                     )
 
                 // Label
                 Text(label.uppercased())
                     .font(Typography.Command.meta.weight(.medium))
-                    // swiftlint:disable:next hardcoded_tracking
-                    .tracking(1.5)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .tracking(Typography.Editorial.referenceTracking)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
         }
         .buttonStyle(.plain)
@@ -430,24 +412,22 @@ private struct SecondaryFeatureButton<Destination: View>: View {
                 // Smaller icon
                 Image(systemName: icon)
                     .font(Typography.Icon.md.weight(.light))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy))
-                    .frame(width: 32 + 8, height: 32 + 8)
+                    .foregroundStyle(Color("AppAccentAction").opacity(Theme.Opacity.textSecondary))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                     .background(
                         Circle()
-                            .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                            .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                     )
                     .overlay(
                         Circle()
-                            // swiftlint:disable:next hardcoded_line_width
-                            .strokeBorder(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: 0.5)
+                            .strokeBorder(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
                     )
 
                 // Smaller label
                 Text(label.uppercased())
                     .font(Typography.Icon.xxs.weight(.medium))
-                    // swiftlint:disable:next hardcoded_tracking
-                    .tracking(1)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .tracking(Typography.Editorial.referenceTracking)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
         .buttonStyle(.plain)

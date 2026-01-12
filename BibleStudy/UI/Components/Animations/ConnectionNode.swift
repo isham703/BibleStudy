@@ -6,7 +6,7 @@ import SwiftUI
 
 struct ConnectionNode: View {
     let size: CGFloat
-    var color: Color = .accentBronze
+    var color: Color = Color("AccentBronze")
     var isActive: Bool = false
     var isPulsing: Bool = false
     var glowIntensity: CGFloat = 0.5
@@ -23,7 +23,7 @@ struct ConnectionNode: View {
             // Outer glow ring (when active)
             if isActive && !respectsReducedMotion {
                 Circle()
-                    .fill(color.opacity(Theme.Opacity.lightMedium * glowIntensity))
+                    .fill(color.opacity(Theme.Opacity.selectionBackground * glowIntensity))
                     .frame(width: size * 2, height: size * 2)
                     .opacity(glowOpacity)
             }
@@ -31,7 +31,7 @@ struct ConnectionNode: View {
             // Middle pulse ring
             if isPulsing && !respectsReducedMotion {
                 Circle()
-                    .stroke(color.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.control)
+                    .stroke(color.opacity(Theme.Opacity.focusStroke), lineWidth: Theme.Stroke.control)
                     .frame(width: size * 1.5, height: size * 1.5)
                     .scaleEffect(pulseScale)
                     .opacity(2 - pulseScale)
@@ -119,10 +119,10 @@ enum NodeState {
 
     var color: Color {
         switch self {
-        case .idle: return .accentBronze.opacity(Theme.Opacity.heavy)
-        case .active: return .accentBronze
-        case .pulsing: return .accentBronze
-        case .success: return .success
+        case .idle: return Color("AccentBronze").opacity(Theme.Opacity.textSecondary)
+        case .active: return Color("AccentBronze")
+        case .pulsing: return Color("AccentBronze")
+        case .success: return Color("FeedbackSuccess")
         case .dimmed: return .tertiaryText
         }
     }

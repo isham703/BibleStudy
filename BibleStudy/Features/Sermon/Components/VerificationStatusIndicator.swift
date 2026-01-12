@@ -15,9 +15,9 @@ struct VerificationStatusIndicator: View {
             Image(systemName: "checkmark.seal.fill")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Icon.xxs)
-                .foregroundStyle(Color.accentBronze)
+                .foregroundStyle(Color("AccentBronze"))
                 // swiftlint:disable:next hardcoded_shadow_radius
-                .shadow(color: Color.accentBronze.opacity(Theme.Opacity.disabled), radius: 2)
+                .shadow(color: Color("AccentBronze").opacity(Theme.Opacity.disabled), radius: 2)
                 .accessibilityLabel("Verified cross-reference")
 
         case .partial:
@@ -25,7 +25,7 @@ struct VerificationStatusIndicator: View {
             Image(systemName: "checkmark.seal")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Icon.xxs)
-                .foregroundStyle(Color(hex: "6B5844").opacity(Theme.Opacity.overlay))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.overlay))
                 .accessibilityLabel("Partially verified reference")
 
         case .unverified:
@@ -34,7 +34,7 @@ struct VerificationStatusIndicator: View {
             Image(systemName: "sparkle")
                 // swiftlint:disable:next hardcoded_font_system
                 .font(Typography.Icon.xxxs)
-                .foregroundStyle(Color.textSecondary.opacity(Theme.Opacity.strong))
+                .foregroundStyle(Color.appTextSecondary.opacity(Theme.Opacity.pressed))
                 // swiftlint:disable:next hardcoded_opacity
                 .opacity(reduceMotion ? 0.7 : (0.6 + Darwin.sin(shimmerPhase) * 0.2))
                 .onAppear {
@@ -84,5 +84,5 @@ struct VerificationStatusIndicator: View {
         }
     }
     .padding()
-    .background(Color.surfaceParchment)
+    .background(Color("AppBackground"))
 }

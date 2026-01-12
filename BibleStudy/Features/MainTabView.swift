@@ -22,8 +22,11 @@ struct MainTabView: View {
         UIAccessibility.isReduceMotionEnabled
     }
 
+    private var isUITestingReader: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui_testing_reader")
+    }
+
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
         // Tab content (fills available space, tab bar floats over it)
         ZStack {
             SanctuaryHomeView()
@@ -41,12 +44,17 @@ struct MainTabView: View {
             // Golden flash overlay for tab switches
             if !respectsReducedMotion {
                 Rectangle()
-                    .fill(Colors.Semantic.accentSeal(for: themeMode).opacity(tabSwitchFlash ? Theme.Opacity.light : 0))
+                    .fill(Color("AccentBronze").opacity(tabSwitchFlash ? Theme.Opacity.selectionBackground : 0))
                     .allowsHitTesting(false)
                     .ignoresSafeArea()
             }
         }
         .animation(Theme.Animation.slowFade, value: selectedTab)
+        .onAppear {
+            if isUITestingReader {
+                selectedTab = .bible
+            }
+        }
         // Floating glass tab bar overlays content at bottom (hidden when in child views)
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {

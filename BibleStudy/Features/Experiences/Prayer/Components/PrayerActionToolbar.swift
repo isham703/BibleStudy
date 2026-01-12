@@ -37,16 +37,16 @@ private struct ManuscriptActionButton: View {
                 ZStack {
                     Circle()
                         // swiftlint:disable:next hardcoded_line_width
-                        .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: 1.5)
+                        .stroke(Color("AccentBronze"), lineWidth: 1.5)
                         .frame(width: 32, height: 32)
 
                     Image(systemName: icon)
                         .font(Typography.Icon.xl)
-                        .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AccentBronze"))
                 }
                 .scaleEffect(isPressed ? 0.98 : 1.0)
                 .shadow(
-                    color: isPressed ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled) : Color.clear,
+                    color: isPressed ? Color("AccentBronze").opacity(Theme.Opacity.disabled) : Color.clear,
                     // swiftlint:disable:next hardcoded_shadow_radius
                     radius: 8
                 )
@@ -55,7 +55,7 @@ private struct ManuscriptActionButton: View {
                     // swiftlint:disable:next hardcoded_font_custom
                     .font(.system(size: 10, weight: .medium, design: .serif))
                     .tracking(1)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
         .buttonStyle(.plain)
@@ -76,14 +76,14 @@ struct PrayerToast: View {
         Text(message)
             // swiftlint:disable:next hardcoded_font_system
             .font(Typography.Icon.sm)
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
             .padding(.horizontal, Theme.Spacing.xl)
             .padding(.vertical, Theme.Spacing.md)
             .background(
                 Capsule()
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
                     // swiftlint:disable:next hardcoded_shadow_radius
-                    .shadow(color: .black.opacity(Theme.Opacity.lightMedium), radius: 10, y: 4)
+                    .shadow(color: .black.opacity(Theme.Opacity.selectionBackground), radius: 10, y: 4)
             )
     }
 }

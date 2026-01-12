@@ -34,7 +34,7 @@ struct AskModalView: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(goldenLightOpacity),
+                                Color("AccentBronze").opacity(goldenLightOpacity),
                                 Color.clear
                             ],
                             startPoint: .top,
@@ -45,7 +45,7 @@ struct AskModalView: View {
                     .ignoresSafeArea()
             }
         }
-        .background(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)))
+        .background(Color.appBackground)
         .interactiveDismissDisabled(viewModel.isLoading)
         .onAppear {
             startEntranceAnimation()

@@ -48,7 +48,7 @@ struct HighlightLibraryView: View {
             // Search field
             HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "magnifyingglass")
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
 
                 TextField("Search highlights...", text: $viewModel.searchQuery)
                     .font(Typography.Command.body)
@@ -58,13 +58,13 @@ struct HighlightLibraryView: View {
                         viewModel.searchQuery = ""
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color.tertiaryText)
+                            .foregroundStyle(Color("TertiaryText"))
                     }
                 }
             }
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
-            .background(Color.surfaceBackground)
+            .background(Color("AppSurface"))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
 
             // Color filter chips
@@ -105,12 +105,12 @@ struct HighlightLibraryView: View {
                             Text("Sort")
                         }
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                         .padding(.horizontal, Theme.Spacing.sm)
                         .padding(.vertical, Theme.Spacing.xs)
                         .background(
                             Capsule()
-                                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.focusStroke), lineWidth: Theme.Stroke.hairline)
                         )
                     }
                 }
@@ -140,7 +140,7 @@ struct HighlightLibraryView: View {
                 HStack {
                     Text("\(viewModel.filteredHighlights.count) of \(viewModel.allHighlights.count) highlights")
                         .font(Typography.Command.caption.monospacedDigit())
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
 
                     Spacer()
 
@@ -148,13 +148,13 @@ struct HighlightLibraryView: View {
                         viewModel.clearFilters()
                     }
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                 }
                 .padding(.horizontal, Theme.Spacing.md)
             }
         }
         .padding(.vertical, Theme.Spacing.sm)
-        .background(Color.elevatedBackground)
+        .background(Color("AppSurface"))
     }
 
     private var hasUsedCategories: Bool {
@@ -224,19 +224,19 @@ struct HighlightFilterChip: View {
                 if count > 0 {
                     Text("\(count)")
                         .font(Typography.Command.meta.monospacedDigit())
-                        .foregroundStyle(isSelected ? Color.primaryText : Color.tertiaryText)
+                        .foregroundStyle(isSelected ? Color("AppTextPrimary") : Color("TertiaryText"))
                 }
             }
-            .foregroundStyle(isSelected ? Color.primaryText : Color.secondaryText)
+            .foregroundStyle(isSelected ? Color("AppTextPrimary") : Color("AppTextSecondary"))
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? (color?.color.opacity(Theme.Opacity.lightMedium) ?? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium)) : Color.surfaceBackground)
+                    .fill(isSelected ? (color?.color.opacity(Theme.Opacity.selectionBackground) ?? Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground)) : Color("AppSurface"))
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? (color?.color ?? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(isSelected ? (color?.color ?? Color("AppAccentAction")) : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -259,18 +259,18 @@ struct CategoryHighlightFilterChip: View {
                     .font(Typography.Command.caption)
                 Text("\(count)")
                     .font(Typography.Command.meta.monospacedDigit())
-                    .foregroundStyle(isSelected ? Color.primaryText : Color.tertiaryText)
+                    .foregroundStyle(isSelected ? Color("AppTextPrimary") : Color("TertiaryText"))
             }
-            .foregroundStyle(isSelected ? category.suggestedColor.color : Color.secondaryText)
+            .foregroundStyle(isSelected ? category.suggestedColor.color : Color("AppTextSecondary"))
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
-                    .fill(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.light) : Color.surfaceBackground)
+                    .fill(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.selectionBackground) : Color("AppSurface"))
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.heavy) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.textSecondary) : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -313,11 +313,11 @@ struct GroupHeader: View {
             Text(title)
                 .font(Typography.Command.subheadline)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Text("(\(count))")
                 .font(Typography.Command.caption.monospacedDigit())
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             Spacer()
         }
@@ -367,7 +367,7 @@ struct HighlightListCard: View {
                         Text(highlight.reference)
                             .font(Typography.Command.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
 
                         if highlight.category != .none {
                             HStack(spacing: 2) {
@@ -392,7 +392,7 @@ struct HighlightListCard: View {
                         } label: {
                             Image(systemName: "trash")
                                 .font(Typography.Command.caption)
-                                .foregroundStyle(Color.tertiaryText)
+                                .foregroundStyle(Color("TertiaryText"))
                         }
                     }
 
@@ -400,24 +400,24 @@ struct HighlightListCard: View {
                     if !verseText.isEmpty {
                         Text(verseText)
                             .font(Typography.Scripture.footnote)
-                            .foregroundStyle(Color.secondaryText)
+                            .foregroundStyle(Color("AppTextSecondary"))
                             .lineLimit(2)
                     }
 
                     // Date
                     Text(highlight.createdAt.formatted(.dateTime.month(.abbreviated).day()))
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.elevatedBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -485,10 +485,10 @@ struct SortOptionsSheet: View {
                                 Spacer()
                                 if sortOption == option {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                        .foregroundStyle(Color("AppAccentAction"))
                                 }
                             }
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
                         }
                     }
                 }
@@ -505,10 +505,10 @@ struct SortOptionsSheet: View {
                                 Spacer()
                                 if groupOption == option {
                                     Image(systemName: "checkmark")
-                                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                        .foregroundStyle(Color("AppAccentAction"))
                                 }
                             }
-                            .foregroundStyle(Color.primaryText)
+                            .foregroundStyle(Color("AppTextPrimary"))
                         }
                     }
                 }

@@ -20,6 +20,7 @@ struct SermonView: View {
                 .transition(.opacity.combined(with: .scale(scale: 0.96)))
         }
         .animation(Theme.Animation.slowFade, value: flowState.phase)
+        .navigationBarHidden(flowState.phase == .input)
         .navigationBarBackButtonHidden(flowState.phase != .input)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -29,19 +30,7 @@ struct SermonView: View {
                     } label: {
                         Image(systemName: "chevron.left")
                             .font(Typography.Icon.md)
-                            .foregroundStyle(Color.accentBronze)
-                    }
-                }
-            }
-
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if flowState.phase == .input {
-                    Button {
-                        showLibrary = true
-                    } label: {
-                        Image(systemName: "list.bullet")
-                            .font(Typography.Icon.md)
-                            .foregroundStyle(Color.accentBronze)
+                            .foregroundStyle(Color("AccentBronze"))
                     }
                 }
             }
@@ -86,8 +75,8 @@ struct SermonView: View {
             // Base gradient
             LinearGradient(
                 colors: [
-                    Color.surfaceParchment,
-                    Color.surfaceParchment.opacity(Theme.Opacity.high),
+                    Color("AppBackground"),
+                    Color("AppBackground").opacity(Theme.Opacity.textPrimary),
                     // swiftlint:disable:next hardcoded_color_rgb
                     Color(red: 0.08, green: 0.07, blue: 0.07)
                 ],
@@ -99,7 +88,7 @@ struct SermonView: View {
             // Subtle radial glow
             RadialGradient(
                 colors: [
-                    Color.accentBronze.opacity(Theme.Opacity.faint),
+                    Color("AccentBronze").opacity(Theme.Opacity.subtle),
                     .clear
                 ],
                 center: .top,
@@ -116,7 +105,9 @@ struct SermonView: View {
     private var phaseContent: some View {
         switch flowState.phase {
         case .input:
-            SermonInputPhase(flowState: flowState)
+            SermonInputPhase(flowState: flowState) {
+                showLibrary = true
+            }
 
         case .recording:
             SermonRecordingPhase(flowState: flowState)
@@ -140,13 +131,13 @@ struct SermonView: View {
     private var importingView: some View {
         VStack(spacing: Theme.Spacing.xxl) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.accentBronze))
+                .progressViewStyle(CircularProgressViewStyle(tint: Color("AccentBronze")))
                 // swiftlint:disable:next hardcoded_scale_effect
                 .scaleEffect(1.5)
 
             Text("Importing audio...")
                 .font(Typography.Scripture.body)
-                .foregroundStyle(Color.textSecondary)
+                .foregroundStyle(Color.appTextSecondary)
         }
     }
 
@@ -156,12 +147,12 @@ struct SermonView: View {
         VStack(spacing: Theme.Spacing.xxl) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(Typography.Icon.xxl)
-                .foregroundStyle(Color.accentBronze)
+                .foregroundStyle(Color("AccentBronze"))
 
             if let error = flowState.error {
                 Text(error.localizedDescription)
                     .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.textPrimary)
+                    .foregroundStyle(Color.appTextPrimary)
                     .multilineTextAlignment(.center)
                     // swiftlint:disable:next hardcoded_padding_edge
                     .padding(.horizontal, 40)  // Error message spacing
@@ -172,13 +163,13 @@ struct SermonView: View {
             } label: {
                 Text("Try Again")
                     .font(Typography.Command.cta)
-                    .foregroundStyle(Color.accentBronze)
+                    .foregroundStyle(Color("AccentBronze"))
                     .padding(.horizontal, Theme.Spacing.xxl)
                     // swiftlint:disable:next hardcoded_padding_edge
                     .padding(.vertical, 14)  // Button padding
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.button)
-                            .stroke(Color.accentBronze.opacity(Theme.Opacity.heavy), lineWidth: Theme.Stroke.hairline)
+                            .stroke(Color("AccentBronze").opacity(Theme.Opacity.textSecondary), lineWidth: Theme.Stroke.hairline)
                     )
             }
         }

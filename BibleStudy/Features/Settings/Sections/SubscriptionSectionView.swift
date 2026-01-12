@@ -34,7 +34,7 @@ struct SubscriptionSectionView: View {
                 // Glow effect for premium tiers
                 if viewModel.isPremiumOrHigher {
                     Circle()
-                        .fill(tierColor.opacity(Theme.Opacity.lightMedium))
+                        .fill(tierColor.opacity(Theme.Opacity.selectionBackground))
                         .blur(radius: 8)
                         .frame(width: 48, height: 48)
                 }
@@ -42,10 +42,10 @@ struct SubscriptionSectionView: View {
                 Image(systemName: viewModel.tierIcon)
                     .font(Typography.Icon.xl.weight(.medium))
                     .foregroundStyle(tierColor)
-                    .frame(width: 44, height: 44)
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                     .background(
                         Circle()
-                            .fill(tierColor.opacity(Theme.Opacity.faint + 0.02))
+                            .fill(tierColor.opacity(Theme.Opacity.subtle + 0.02))
                     )
             }
 
@@ -53,7 +53,7 @@ struct SubscriptionSectionView: View {
                 HStack(spacing: Theme.Spacing.sm) {
                     Text(viewModel.tierDisplayName)
                         .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     if viewModel.isScholar {
                         Text("BEST VALUE")
@@ -61,13 +61,13 @@ struct SubscriptionSectionView: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, Theme.Spacing.sm - 2)
                             .padding(.vertical, 2)
-                            .background(Capsule().fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))))
+                            .background(Capsule().fill(Color("AppAccentAction")))
                     }
                 }
 
                 Text(viewModel.tierDescription)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             Spacer()
@@ -83,7 +83,7 @@ struct SubscriptionSectionView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(tierColor.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
+                .stroke(tierColor.opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -97,7 +97,7 @@ struct SubscriptionSectionView: View {
                 .padding(.vertical, Theme.Spacing.xs)
                 .background(
                     Capsule()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color("AppAccentAction"))
                 )
         }
     }
@@ -129,7 +129,7 @@ struct SubscriptionSectionView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Unlock with Premium:")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 featureRow(icon: "text.book.closed", text: "All Bible translations")
@@ -145,12 +145,12 @@ struct SubscriptionSectionView: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: icon)
                 .font(Typography.Icon.xs)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .frame(width: 20)
 
             Text(text)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
         }
     }
 
@@ -168,11 +168,11 @@ struct SubscriptionSectionView: View {
                 HStack {
                     Image(systemName: "calendar")
                         .font(Typography.Icon.sm)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
 
                     Text("Renews \(renewalDate)")
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
 
                     Spacer()
                 }
@@ -190,7 +190,7 @@ struct SubscriptionSectionView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
             Text("Your benefits:")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Theme.Spacing.xs) {
                 featureBadge(icon: "checkmark.circle.fill", text: "All translations")
@@ -207,11 +207,11 @@ struct SubscriptionSectionView: View {
         HStack(spacing: 2) {
             Image(systemName: icon)
                 .font(Typography.Icon.xxs)
-                .foregroundStyle(Color.success)
+                .foregroundStyle(Color("FeedbackSuccess"))
 
             Text(text)
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
         }
     }
 
@@ -225,12 +225,12 @@ struct SubscriptionSectionView: View {
                 Text("Manage Subscription")
                     .font(Typography.Command.subheadline)
             }
-            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("AppAccentAction"))
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppAccentAction").opacity(Theme.Opacity.textSecondary), lineWidth: Theme.Stroke.hairline)
             )
         }
     }
@@ -243,7 +243,7 @@ struct SubscriptionSectionView: View {
                 if viewModel.isRestoringPurchases {
                     ProgressView()
                         .scaleEffect(0.95)
-                        .tint(Color.tertiaryText)
+                        .tint(Color("TertiaryText"))
                 } else {
                     Image(systemName: "arrow.counterclockwise")
                         .font(Typography.Icon.xs)
@@ -251,7 +251,7 @@ struct SubscriptionSectionView: View {
                 Text("Restore Purchases")
                     .font(Typography.Command.caption)
             }
-            .foregroundStyle(Color.tertiaryText)
+            .foregroundStyle(Color("TertiaryText"))
         }
         .disabled(viewModel.isRestoringPurchases)
     }
@@ -260,9 +260,9 @@ struct SubscriptionSectionView: View {
 
     private var tierColor: Color {
         switch viewModel.currentTier {
-        case .free: return Color.secondaryText
-        case .premium: return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
-        case .scholar: return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+        case .free: return Color("AppTextSecondary")
+        case .premium: return Color("AppAccentAction")
+        case .scholar: return Color("AppAccentAction")
         }
     }
 
@@ -271,7 +271,7 @@ struct SubscriptionSectionView: View {
             // Scholar tier: Subtle gold hint without heavy layering
             return LinearGradient(
                 colors: [
-                    Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint - 0.04),
+                    Color("AppAccentAction").opacity(Theme.Opacity.subtle - 0.04),
                     Color.clear
                 ],
                 startPoint: .topLeading,
@@ -281,7 +281,7 @@ struct SubscriptionSectionView: View {
             // Premium tier: Very subtle warmth
             return LinearGradient(
                 colors: [
-                    Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint - 0.05),
+                    Color("AppAccentAction").opacity(Theme.Opacity.subtle - 0.05),
                     Color.clear
                 ],
                 startPoint: .topLeading,

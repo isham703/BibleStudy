@@ -9,7 +9,7 @@ import Security
 @Observable
 final class BiometricService: BiometricServiceProtocol {
     // MARK: - Singleton
-    // nonisolated(unsafe) allows access as default parameter values in @MainActor class inits
+    // nonisolated(unsafe) allows use as default parameter in @MainActor inits
     nonisolated(unsafe) static let shared = BiometricService()
 
     // MARK: - Properties

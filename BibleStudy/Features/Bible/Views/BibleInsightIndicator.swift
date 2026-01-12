@@ -45,8 +45,7 @@ struct BibleInsightIndicator: View {
     // MARK: - Body
 
     var body: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
-        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+        let accentSeal = Color("AccentBronze")
 
         Button(action: {
             HapticService.shared.lightTap()
@@ -181,53 +180,49 @@ struct BibleInsightIndicator: View {
     // MARK: - Dot Color
 
     private var dotColor: Color {
-        let themeMode = ThemeMode.current(from: colorScheme)
-        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+        let accentSeal = Color("AccentBronze")
 
         if isExpanded {
             return accentSeal
         } else if isPressed {
-            return accentSeal.opacity(Theme.Opacity.high)
+            return accentSeal.opacity(Theme.Opacity.textPrimary)
         } else {
-            return accentSeal.opacity(hasAppeared ? Theme.Opacity.strong : Theme.Opacity.medium)
+            return accentSeal.opacity(hasAppeared ? Theme.Opacity.pressed : Theme.Opacity.focusStroke)
         }
     }
 
     // MARK: - Count Badge
 
     private var countBadge: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
-        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+        let accentSeal = Color("AccentBronze")
 
         return Text("\(count)")
-            // swiftlint:disable:next hardcoded_font_custom
-            .font(.system(size: 10, weight: .semibold, design: .serif))
+            .font(Typography.Editorial.label)
             .foregroundStyle(accentSeal)
             .padding(.horizontal, Theme.Spacing.xs)
             // swiftlint:disable:next hardcoded_padding_edge
             .padding(.vertical, 1)  // Minimal badge padding
             .background(
                 Capsule()
-                    .fill(accentSeal.opacity(Theme.Opacity.light))
+                    .fill(accentSeal.opacity(Theme.Opacity.selectionBackground))
             )
     }
 
     // MARK: - Insight Tooltip
 
     private var insightTooltip: some View {
-        let themeMode = ThemeMode.current(from: colorScheme)
-        let accentSeal = Colors.Semantic.accentSeal(for: themeMode)
+        let accentSeal = Color("AccentBronze")
 
         return Text("\(count) insight\(count == 1 ? "" : "s")")
             // swiftlint:disable:next hardcoded_font_system
             .font(Typography.Icon.xxs)
-            .foregroundStyle(Colors.Surface.textPrimary(for: themeMode))
+            .foregroundStyle(Color("AppTextPrimary"))
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, Theme.Spacing.xs)
             .background(
                 Capsule()
                     .fill(accentSeal)
-                    .shadow(color: Color.black.opacity(Theme.Opacity.light), radius: 4, y: 2)
+                    .shadow(color: Color.black.opacity(Theme.Opacity.selectionBackground), radius: 4, y: 2)
             )
             .fixedSize()
     }
@@ -309,8 +304,7 @@ struct BibleInsightIndicator: View {
     VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
         HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Text("In the beginning was the Word, and the Word was with God, and the Word was God.")
-                // swiftlint:disable:next hardcoded_font_custom
-                .font(.system(size: 22, weight: .regular, design: .serif))
+                .font(Typography.Scripture.bodyWithSize(22))
                 .foregroundStyle(Color.bibleInsightText)
 
             BibleInsightIndicator(count: 3, isExpanded: false, onTap: {})
@@ -318,8 +312,7 @@ struct BibleInsightIndicator: View {
 
         HStack(alignment: .top, spacing: Theme.Spacing.sm) {
             Text("The same was in the beginning with God.")
-                // swiftlint:disable:next hardcoded_font_custom
-                .font(.system(size: 22, weight: .regular, design: .serif))
+                .font(Typography.Scripture.bodyWithSize(22))
                 .foregroundStyle(Color.bibleInsightText)
 
             BibleInsightIndicator(count: 1, isExpanded: true, onTap: {})

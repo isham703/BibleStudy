@@ -80,7 +80,7 @@ struct BreathingPattern: Identifiable, Equatable {
         icon: "moon.stars.fill",
         inhale: 4, hold1: 7, exhale: 8, hold2: 0,
         description: "Calming breath for peaceful rest",
-        color: Color.indigoTint // Compline starlight
+        color: Color("AppAccentAction").opacity(0.2) // Compline starlight
     )
 }
 

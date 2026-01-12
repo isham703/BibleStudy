@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-BibleStudy is a contemplative iOS scripture reading and spiritual formation app built with SwiftUI. It combines traditional Bible study features (reading, highlighting, notes) with AI-powered spiritual experiences (prayer generation, insights, Q&A). The app follows an **illuminated manuscript aesthetic** with time-aware interfaces that adapt to liturgical hours.
+BibleStudy is a contemplative iOS scripture reading and spiritual formation app built with SwiftUI. It combines traditional Bible study features (reading, highlighting, notes) with AI-powered spiritual experiences (prayer generation, insights, Q&A). The app follows a **Stoic-Existential Renaissance aesthetic** inspired by Roman architecture and illuminated manuscripts.
 
 **Core Stack:**
 - SwiftUI + iOS 17+ Observable macro
@@ -74,7 +74,7 @@ BibleStudy/
 │   └── Study/                       # Highlights, notes, collections
 ├── UI/
 │   ├── Components/                  # Reusable views
-│   └── Theme/                       # Design system (AppTheme)
+│   └── Theme/                       # Design system (Theme.swift, Typography.swift, Colors.swift)
 └── Resources/                       # Assets, bundled databases
 ```
 
@@ -321,15 +321,13 @@ BibleTabView
 **Home Tab:**
 ```
 SanctuaryHomeView
-├── TimeAwareSanctuaryPage (Liturgical Hours variant)
-│   ├── DawnSanctuaryView (5am-9am)
-│   ├── MeridianSanctuaryView (9am-12pm)
-│   ├── AfternoonSanctuaryView (12pm-5pm)
-│   ├── VespersSanctuaryView (5pm-9pm)
-│   └── ComplineSanctuaryView (9pm-5am)
-├── CandlelitSanctuaryPage (nocturnal variant)
-├── ScholarsAtriumPage (daytime study variant)
-└── SacredThresholdPage (architectural variant)
+└── ForumHomeView (Roman Forum design)
+    ├── greetingSection (time-based greeting)
+    ├── wisdomQuoteSection (hero daily verse)
+    ├── forumDivider
+    ├── featurePillars (Scripture, Reflect, Pray)
+    ├── secondaryFeatures (Sermon, Compline, Breathe)
+    └── continueReadingPrompt
 ```
 
 ### 5.3 Deep Linking
@@ -389,27 +387,28 @@ Handles:
 **Prayer Categories:**
 - Gratitude, Guidance, Healing, Peace, Strength, Wisdom
 
-### 6.3 Sanctuary (Home)
+### 6.3 Home (Forum Design)
 
 **Files:**
 - `Features/Home/SanctuaryHomeView.swift`
-- `Features/Home/Views/TimeAware/*.swift`
+- `Features/Home/Views/ForumHomeView.swift`
 
-**Variants:**
-1. **Liturgical Hours** - Automatically switches based on time of day
-2. **Candlelit Sanctuary** - Nocturnal devotional design
-3. **Scholar's Atrium** - Light-mode intellectual study
-4. **Sacred Threshold** - Architectural room-based navigation
+**Design:** Roman Forum-inspired layout with centered wisdom quote and feature pillars.
 
-**AI Feature Cards:**
-- Prayers From the Deep
-- Living Scripture
-- Scripture Finds You
-- The Apprentice
-- Illuminate
-- The Thread
-- Living Commentary
-- Memory Palace
+**Layout:**
+- Greeting section with time-based message
+- Central wisdom quote (hero daily verse)
+- 3 primary feature pillars (Scripture, Reflect, Pray)
+- 3 secondary features (Sermon, Compline, Breathe)
+- Continue reading prompt with progress
+
+**Navigation Destinations:**
+- Scripture → BibleReaderView
+- Reflect → AskTabView
+- Pray → PrayersFromDeepView
+- Sermon → SermonView
+- Compline → ComplineView
+- Breathe → BreatheView
 
 ### 6.4 Ask (AI Q&A)
 
@@ -492,21 +491,23 @@ final class AppState {
 
 ### 8.1 Aesthetic
 
-**Illuminated Manuscript Theme:**
-- Gold accents (`Color.scholarAccent`)
-- Parchment backgrounds
-- Ornate typography
-- Sacred motion (subtle animations)
+**Stoic-Existential Renaissance Theme:**
+- Bronze accents (`Color("AccentBronze")`)
+- Parchment backgrounds (`Color("AppBackground")`, `Color("AppSurface")`)
+- Ornate typography (New York, Charter fonts)
+- Sacred motion (subtle, respectful animations)
 
 ### 8.2 Theme Configuration
 
-**File:** `UI/Theme/AppTheme.swift`
+**Files:** `UI/Theme/Theme.swift`, `UI/Theme/Typography.swift`, `UI/Theme/Colors.swift`
 
-- Light/Dark/System modes
+- Light/Dark/System modes (Asset Catalog adaptive colors)
 - Scripture font families (New York, Charter, Iowan, etc.)
-- Font size scales
-- Line spacing options
-- Content width settings
+- Typography tokens: `Typography.Scripture.*`, `Typography.Command.*`, `Typography.Body.*`
+- Spacing tokens: `Theme.Spacing.*` (xs, sm, md, lg, xl, xxl)
+- Radius tokens: `Theme.Radius.*`
+- Animation tokens: `Theme.Animation.*`
+- Opacity tokens: `Theme.Opacity.*`
 
 ### 8.3 Haptic Feedback
 
@@ -622,7 +623,9 @@ Comprehensive haptic patterns:
 - `Features/Ask/AskTabView.swift` - AI Q&A
 
 ### Theme & Components
-- `UI/Theme/AppTheme.swift` - Design system
+- `UI/Theme/Theme.swift` - Design system (spacing, radius, animation, opacity tokens)
+- `UI/Theme/Typography.swift` - Typography tokens (Scripture, Command, Body, Icon)
+- `UI/Theme/Colors.swift` - Color utilities (StateOverlay, HighlightColor)
 - `UI/Components/` - Reusable UI components
 
 ---
@@ -1212,11 +1215,21 @@ struct BibleVerseRow: View {
 ### 17.3 Theme Integration
 
 ```swift
-// Usage pattern
+// Usage pattern - Design system tokens
 Text("Hello")
-    .font(AppTheme.Typography.body)
-    .foregroundColor(AppTheme.Colors.primaryText)
-    .padding(AppTheme.Spacing.md)
+    .font(Typography.Body.regular)
+    .foregroundColor(Color("AppTextPrimary"))
+    .padding(Theme.Spacing.md)
+
+// Scripture text
+Text(verseText)
+    .font(Typography.Scripture.body)
+    .foregroundColor(Color("AppTextPrimary"))
+
+// Command/UI text
+Text("Continue Reading")
+    .font(Typography.Command.body)
+    .foregroundColor(Color("AccentBronze"))
 ```
 
 ---
@@ -1229,7 +1242,7 @@ BibleStudy is a mature SwiftUI application with:
 - **Modern Swift patterns** (@Observable, async/await, MainActor)
 - **Multi-layer persistence** (GRDB local, Supabase remote)
 - **Rich AI integration** (insights, prayer, Q&A)
-- **Contemplative UX** (liturgical awareness, illuminated manuscript aesthetic)
+- **Contemplative UX** (illuminated manuscript aesthetic, Stoic-Roman design)
 
 **For Feature Expansion:**
 1. **New Feature**: Create ViewModel → Service → Repository (if data-backed)
@@ -1239,3 +1252,7 @@ BibleStudy is a mature SwiftUI application with:
 5. **Navigation**: Use NotificationCenter for cross-feature routing
 
 The architecture supports extension through its modular feature structure and protocol-based service layer.
+
+---
+
+*Document updated: January 10, 2026*

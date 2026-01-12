@@ -43,7 +43,7 @@ struct ChatBubble: View {
     private var bubbleContent: some View {
         Text(message.content)
             .font(Typography.Command.body)
-            .foregroundStyle(message.isUser ? Colors.Semantic.onAccentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(message.isUser ? .white : Color("AppTextPrimary"))
             .padding(Theme.Spacing.md)
             .background(bubbleBackground)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
@@ -78,7 +78,7 @@ struct ChatBubble: View {
     }
 
     private var bubbleBackground: Color {
-        message.isUser ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
+        message.isUser ? Color("AppAccentAction") : Color.appSurface
     }
 
     // MARK: - Citations
@@ -112,10 +112,10 @@ struct CitationButton: View {
                 Text(citation.shortReference)
                     .font(Typography.Command.meta)
             }
-            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("AppAccentAction"))
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, Theme.Spacing.xs)
-            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay))
+            .background(Color("AppAccentAction").opacity(Theme.Opacity.overlay))
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -153,7 +153,7 @@ struct TypingIndicator: View {
         HStack(spacing: 2) {
             ForEach(0..<3, id: \.self) { index in
                 Circle()
-                    .fill(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("TertiaryText"))
                     .frame(
                         width: 8,
                         height: 8
@@ -162,7 +162,7 @@ struct TypingIndicator: View {
             }
         }
         .padding(Theme.Spacing.md)
-        .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+        .background(Color.appSurface)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         .onAppear(perform: startAnimation)
     }
@@ -234,12 +234,12 @@ struct ChatInputBar: View {
         ZStack {
             // Base fill
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
+                .fill(Color.appBackground.opacity(Theme.Opacity.textPrimary))
 
             // Ambient gold glow when focused
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .strokeBorder(
-                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(glowIntensity),
+                    Color("AccentBronze").opacity(glowIntensity),
                     lineWidth: Theme.Stroke.control
                 )
         }
@@ -262,11 +262,11 @@ struct ChatInputBar: View {
 
     private var textFieldBackground: some View {
         RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-            .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+            .fill(Color.appSurface)
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                     .strokeBorder(
-                        Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(isFocused.wrappedValue ? Theme.Opacity.secondary : Theme.Opacity.faint),
+                        Color("AccentBronze").opacity(isFocused.wrappedValue ? Theme.Opacity.textSecondary : Theme.Opacity.subtle),
                         lineWidth: Theme.Stroke.hairline
                     )
             )
@@ -280,14 +280,14 @@ struct ChatInputBar: View {
                 if isLoading {
                     // Sacred geometry loading indicator
                     ProgressView()
-                        .tint(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .tint(Color("AccentBronze"))
                         .scaleEffect(0.95)
                 } else {
                     // Quill send icon
                     quillIcon
                 }
             }
-            .frame(width: 44, height: 44)
+            .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
             .background(sendButtonBackground)
             .clipShape(Circle())
             .scaleEffect(sendButtonScale)
@@ -302,8 +302,8 @@ struct ChatInputBar: View {
             .font(Typography.Command.headline)
             .foregroundStyle(
                 text.isEmpty
-                    ? Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme))
-                    : Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme))
+                    ? Color("TertiaryText")
+                    : Color("AccentBronze")
             )
             .rotationEffect(.degrees(-45))
     }
@@ -312,14 +312,14 @@ struct ChatInputBar: View {
         Group {
             if text.isEmpty {
                 Circle()
-                    .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color.appSurface)
             } else {
                 Circle()
-                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                    .fill(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground))
                     .overlay(
                         Circle()
                             .strokeBorder(
-                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary),
+                                Color("AccentBronze").opacity(Theme.Opacity.textSecondary),
                                 lineWidth: Theme.Stroke.hairline
                             )
                     )
@@ -461,18 +461,18 @@ struct UncertaintyBanner: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "exclamationmark.triangle")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.warning(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("FeedbackWarning"))
 
             Text(level.displayText)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
 
             Spacer()
         }
         .padding(Theme.Spacing.sm)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.input, style: .continuous)
-                .fill(Colors.Semantic.warning(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                .fill(Color("FeedbackWarning").opacity(Theme.Opacity.subtle))
         )
         .padding(.horizontal, Theme.Spacing.md)
     }
@@ -490,7 +490,7 @@ struct SuggestedFollowUpsView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("Follow-up questions")
                 .font(Typography.Command.meta)
-                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("TertiaryText"))
                 .padding(.leading, Theme.Spacing.sm)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -521,12 +521,12 @@ struct FollowUpButton: View {
         Button(action: action) {
             Text(question)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.vertical, Theme.Spacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                        .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), lineWidth: Theme.Stroke.hairline)
+                        .stroke(Color("AppAccentAction").opacity(Theme.Opacity.textSecondary), lineWidth: Theme.Stroke.hairline)
                 )
         }
         .buttonStyle(.plain)
@@ -546,25 +546,25 @@ struct AnchorHeader: View {
         Button(action: onTap) {
             HStack {
                 Image(systemName: "book.closed.fill")
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Anchored to:")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("TertiaryText"))
                     Text(anchor.reference)
                         .font(Typography.Command.body.weight(.semibold))
-                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextPrimary"))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.md)
-            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+            .background(Color.appSurface)
         }
         .buttonStyle(.plain)
     }
@@ -581,21 +581,21 @@ struct ConsentRequiredBar: View {
         Button(action: onTap) {
             HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "exclamationmark.shield")
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
 
                 Text("Tap to enable AI assistant")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextSecondary"))
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(.horizontal, Theme.Spacing.lg)
             .padding(.vertical, Theme.Spacing.md)
-            .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
+            .background(Color.appSurface)
         }
         .buttonStyle(.plain)
     }
@@ -654,7 +654,7 @@ struct CompactAskHeader: View {
         .padding(2)
         .background(
             Capsule()
-                .fill(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
+                .fill(Color.appSurface.opacity(Theme.Opacity.textPrimary))
         )
     }
 
@@ -669,26 +669,26 @@ struct CompactAskHeader: View {
                     Image(systemName: "bookmark.fill")
                         .font(Typography.Command.meta)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AccentBronze"))
 
                     Text(anchor.shortReference)
                         .font(Typography.Command.meta)
                         .fontWeight(.medium)
-                        .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppTextPrimary"))
                 } else {
                     // Prompt to select
                     Image(systemName: "bookmark")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("TertiaryText"))
 
                     Text("Select verse")
                         .font(Typography.Command.meta)
-                        .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("TertiaryText"))
                 }
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Icon.xxxs)
-                    .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, 2)
@@ -702,15 +702,15 @@ struct CompactAskHeader: View {
         Capsule()
             .fill(
                 anchorRange != nil
-                    ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
-                    : Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
+                    ? Color("AccentBronze").opacity(Theme.Opacity.subtle)
+                    : Color.appSurface.opacity(Theme.Opacity.pressed)
             )
             .overlay(
                 Capsule()
                     .strokeBorder(
                         anchorRange != nil
-                            ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
-                            : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                            ? Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
+                            : Color.appDivider,
                         lineWidth: Theme.Stroke.hairline
                     )
             )
@@ -720,7 +720,7 @@ struct CompactAskHeader: View {
 
     private var headerBackground: some View {
         Rectangle()
-            .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
+            .fill(Color.appBackground.opacity(Theme.Opacity.textPrimary))
             .overlay(alignment: .bottom) {
                 // Subtle golden divider
                 Rectangle()
@@ -728,7 +728,7 @@ struct CompactAskHeader: View {
                         LinearGradient(
                             colors: [
                                 Color.clear,
-                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                                Color("AccentBronze").opacity(Theme.Opacity.selectionBackground),
                                 Color.clear
                             ],
                             startPoint: .leading,
@@ -756,7 +756,7 @@ private struct CompactModePill: View {
             Text(mode.displayName)
                 .font(Typography.Command.caption)
                 .fontWeight(isSelected ? .semibold : .regular)
-                .foregroundStyle(isSelected ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)) : Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(isSelected ? Color("AccentBronze") : Color("AppTextSecondary"))
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.vertical, Theme.Spacing.xs)
                 .background(selectionBackground)
@@ -776,11 +776,11 @@ private struct CompactModePill: View {
     private var selectionBackground: some View {
         if isSelected {
             Capsule()
-                .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                .fill(Color("AccentBronze").opacity(Theme.Opacity.subtle))
                 .overlay(
                     Capsule()
                         .strokeBorder(
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                            Color("AccentBronze").opacity(Theme.Opacity.selectionBackground),
                             lineWidth: Theme.Stroke.hairline
                         )
                 )
@@ -805,7 +805,7 @@ private struct CompactModePill: View {
 
                 Spacer()
             }
-            .background(Colors.Surface.background(for: .dark))
+            .background(Color("AppBackground"))
         }
     }
     return PreviewWrapper()
@@ -825,7 +825,7 @@ private struct CompactModePill: View {
 
                 Spacer()
             }
-            .background(Colors.Surface.background(for: .dark))
+            .background(Color("AppBackground"))
         }
     }
     return PreviewWrapper()
@@ -862,7 +862,7 @@ struct AskModeTitleMenu: View {
                             Image(systemName: "checkmark")
                                 .font(Typography.Command.caption)
                                 .fontWeight(.semibold)
-                                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AccentBronze"))
                         }
                     }
                 }
@@ -893,12 +893,12 @@ struct AskModeTitleMenu: View {
             // Mode title with premium serif typography
             Text(mode.displayName)
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextPrimary"))
 
             // Subtle chevron indicator
             Image(systemName: "chevron.down")
                 .font(Typography.Icon.xxs)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
+                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textPrimary))
         }
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, 2)
@@ -910,7 +910,7 @@ struct AskModeTitleMenu: View {
 
     private var titleBackground: some View {
         Capsule()
-            .fill(isPressed ? Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed) : Color.clear)
+            .fill(isPressed ? Color.appSurface.opacity(Theme.Opacity.pressed) : Color.clear)
     }
 }
 
@@ -947,29 +947,29 @@ struct AnchorBadgeHeader: View {
                             Image(systemName: "bookmark.fill")
                                 .font(Typography.Command.meta)
                                 .fontWeight(.semibold)
-                                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AccentBronze"))
 
                             Text(anchor.shortReference)
                                 .font(Typography.Command.caption)
                                 .fontWeight(.medium)
-                                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("AppTextPrimary"))
 
                             Image(systemName: "chevron.right")
                                 .font(Typography.Icon.xxxs)
-                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("TertiaryText"))
                         } else {
                             // Prompt to select
                             Image(systemName: "bookmark")
                                 .font(Typography.Command.meta)
-                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("TertiaryText"))
 
                             Text("Select a passage")
                                 .font(Typography.Command.caption)
-                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("TertiaryText"))
 
                             Image(systemName: "chevron.right")
                                 .font(Typography.Icon.xxxs)
-                                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                                .foregroundStyle(Color("TertiaryText"))
                         }
                     }
                 }
@@ -979,7 +979,7 @@ struct AnchorBadgeHeader: View {
                 if anchorRange != nil, let onClear = onClearAnchor {
                     // Divider
                     Rectangle()
-                        .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
+                        .fill(Color.appDivider)
                         .frame(width: Theme.Stroke.hairline, height: 14)
                         .padding(.horizontal, Theme.Spacing.sm)
 
@@ -990,7 +990,7 @@ struct AnchorBadgeHeader: View {
                         Image(systemName: "xmark")
                             .font(Typography.Command.meta)
                             .fontWeight(.medium)
-                            .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("TertiaryText"))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Clear anchor")
@@ -1035,8 +1035,8 @@ struct AnchorBadgeHeader: View {
     private var pulseOverlay: some View {
         if !respectsReducedMotion {
             Capsule()
-                .stroke(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)), lineWidth: Theme.Stroke.hairline)
-                .opacity(pulseGold ? Theme.Opacity.secondary : 0)
+                .stroke(Color("AccentBronze"), lineWidth: Theme.Stroke.hairline)
+                .opacity(pulseGold ? Theme.Opacity.textSecondary : 0)
                 .scaleEffect(pulseGold ? 1.1 : 1.0)
         }
     }
@@ -1045,15 +1045,15 @@ struct AnchorBadgeHeader: View {
         Capsule()
             .fill(
                 anchorRange != nil
-                    ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
-                    : Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
+                    ? Color("AccentBronze").opacity(Theme.Opacity.subtle)
+                    : Color.appSurface.opacity(Theme.Opacity.pressed)
             )
             .overlay(
                 Capsule()
                     .strokeBorder(
                         anchorRange != nil
-                            ? Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light)
-                            : Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)),
+                            ? Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
+                            : Color.appDivider,
                         lineWidth: Theme.Stroke.hairline
                     )
             )
@@ -1061,14 +1061,14 @@ struct AnchorBadgeHeader: View {
 
     private var headerBackground: some View {
         Rectangle()
-            .fill(Colors.Surface.background(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary))
+            .fill(Color.appBackground.opacity(Theme.Opacity.textPrimary))
             .overlay(alignment: .bottom) {
                 Rectangle()
                     .fill(
                         LinearGradient(
                             colors: [
                                 Color.clear,
-                                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                                Color("AccentBronze").opacity(Theme.Opacity.subtle),
                                 Color.clear
                             ],
                             startPoint: .leading,
@@ -1088,7 +1088,7 @@ struct AnchorBadgeHeader: View {
 
         var body: some View {
             NavigationStack {
-                Colors.Surface.background(for: .dark)
+                Color("AppBackground")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
@@ -1114,7 +1114,7 @@ struct AnchorBadgeHeader: View {
                     )
                     Spacer()
                 }
-                .background(Colors.Surface.background(for: .dark))
+                .background(Color("AppBackground"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
@@ -1125,31 +1125,6 @@ struct AnchorBadgeHeader: View {
         }
     }
     return PreviewWrapper()
-}
-
-// MARK: - Ask Disclaimer Banner (Legacy - kept for reference)
-
-/// Shows AI usage disclaimer for the Ask feature
-/// NOTE: Replaced by CompactAskHeader - keeping for backwards compatibility
-struct AskDisclaimerBanner: View {
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            Image(systemName: "sparkles")
-                .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
-
-            Text("AI study tool. Always verify with Scripture.")
-                .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
-
-            Spacer()
-        }
-        .padding(.horizontal, Theme.Spacing.lg)
-        .padding(.vertical, Theme.Spacing.xs)
-        .background(Colors.Surface.surface(for: ThemeMode.current(from: colorScheme)))
-    }
 }
 
 // MARK: - Crisis Support Banner
@@ -1175,12 +1150,12 @@ struct CrisisSupportBanner: View {
 
                 Text("You're Not Alone")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
 
             Text("If you're in crisis, please reach out for help:")
                 .font(Typography.Command.body)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
 
             // 988 Hotline (US) - warm styling
@@ -1196,25 +1171,25 @@ struct CrisisSupportBanner: View {
                 .background(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)),
-                            Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.primary - 0.05)
+                            Color("FeedbackError"),
+                            Color("FeedbackError").opacity(Theme.Opacity.textPrimary - 0.05)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-                .shadow(color: Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.secondary), radius: 8, y: 4)
+                .shadow(color: Color("FeedbackError").opacity(Theme.Opacity.textSecondary), radius: 8, y: 4)
             }
 
             Text("988 Suicide & Crisis Lifeline (US)")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("TertiaryText"))
 
             // International disclaimer
             Text("If you're outside the US, please contact your local emergency services or a crisis helpline in your country.")
                 .font(Typography.Command.meta)
-                .foregroundStyle(Colors.Surface.textTertiary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("TertiaryText"))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.md)
 
@@ -1224,7 +1199,7 @@ struct CrisisSupportBanner: View {
                     LinearGradient(
                         colors: [
                             Color.clear,
-                            Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium),
+                            Color("FeedbackError").opacity(Theme.Opacity.selectionBackground),
                             Color.clear
                         ],
                         startPoint: .leading,
@@ -1236,7 +1211,7 @@ struct CrisisSupportBanner: View {
 
             Text("You matter. Please reach out to someone you trust.")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Colors.Surface.textSecondary(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
         }
         .padding(Theme.Spacing.lg)
@@ -1245,7 +1220,7 @@ struct CrisisSupportBanner: View {
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .strokeBorder(
-                    Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light),
+                    Color("FeedbackError").opacity(Theme.Opacity.selectionBackground),
                     lineWidth: Theme.Stroke.hairline
                 )
         )
@@ -1265,8 +1240,8 @@ struct CrisisSupportBanner: View {
             .foregroundStyle(
                 LinearGradient(
                     colors: [
-                        Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)),
-                        Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed)
+                        Color("FeedbackError"),
+                        Color("FeedbackError").opacity(Theme.Opacity.pressed)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -1274,7 +1249,7 @@ struct CrisisSupportBanner: View {
             )
             .scaleEffect(heartScale)
             .opacity(heartOpacity)
-            .shadow(color: Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled), radius: 8)
+            .shadow(color: Color("FeedbackError").opacity(Theme.Opacity.disabled), radius: 8)
     }
 
     // MARK: - Warm Gradient Background
@@ -1282,9 +1257,9 @@ struct CrisisSupportBanner: View {
     private var crisisBannerBackground: some View {
         LinearGradient(
             colors: [
-                Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
-                Colors.Semantic.error(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02),
-                Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint - 0.03)
+                Color("FeedbackError").opacity(Theme.Opacity.subtle),
+                Color("FeedbackError").opacity(Theme.Opacity.subtle + 0.02),
+                Color("AccentBronze").opacity(Theme.Opacity.subtle - 0.03)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -1325,7 +1300,7 @@ struct CrisisSupportBanner: View {
             Theme.Animation.fade
         ) {
             heartScale = 1.08
-            heartOpacity = Theme.Opacity.primary
+            heartOpacity = Theme.Opacity.textPrimary
         }
     }
 }
@@ -1345,7 +1320,7 @@ struct InkSplashParticles: View {
         ZStack {
             ForEach(particles) { particle in
                 Circle()
-                    .fill(Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("AccentBronze"))
                     .frame(width: particle.size, height: particle.size)
                     .offset(x: particle.offset.x, y: particle.offset.y)
                     .opacity(particle.opacity)

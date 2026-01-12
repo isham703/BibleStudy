@@ -46,8 +46,8 @@ struct IlluminateTransition: ViewModifier {
                     .fill(
                         RadialGradient(
                             colors: [
-                                Color.accentBronze.opacity(Theme.Opacity.disabled),
-                                Color.accentBronze.opacity(Theme.Opacity.subtle),
+                                Color("AccentBronze").opacity(Theme.Opacity.disabled),
+                                Color("AccentBronze").opacity(Theme.Opacity.subtle),
                                 Color.clear
                             ],
                             center: .center,
@@ -101,7 +101,7 @@ struct ManuscriptTransition: ViewModifier {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.accentBronze.opacity(isActive ? 0 : 0.85),
+                                Color("AccentBronze").opacity(isActive ? 0 : 0.85),
                                 Color.clear
                             ],
                             startPoint: direction == .leading ? .trailing : .leading,
@@ -377,7 +377,7 @@ extension View {
                     VStack {
                         Image(systemName: "star.fill")
                             .font(Typography.Icon.display)
-                            .foregroundStyle(Color.accentBronze)
+                            .foregroundStyle(Color("AccentBronze"))
 
                         Text("Achievement!")
                             .font(Typography.Scripture.heading)

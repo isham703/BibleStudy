@@ -547,6 +547,19 @@ struct PrayerGenerationInput {
 struct PrayerGenerationOutput: Codable {
     let content: String   // The prayer text (multiple lines/stanzas)
     let amen: String      // Tradition-appropriate closing
+
+    // Custom decoder to handle missing "amen" field gracefully
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        content = try container.decode(String.self, forKey: .content)
+        // Default to "Amen." if the field is missing (truncated response)
+        amen = try container.decodeIfPresent(String.self, forKey: .amen) ?? "Amen."
+    }
+
+    init(content: String, amen: String) {
+        self.content = content
+        self.amen = amen
+    }
 }
 
 // MARK: - Sermon Study Guide Input/Output

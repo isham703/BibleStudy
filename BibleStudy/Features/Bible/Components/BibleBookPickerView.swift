@@ -95,7 +95,7 @@ private struct BibleBookSelectionPhase: View {
                 Button("Cancel") {
                     onDismiss()
                 }
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
             }
         }
     }
@@ -106,11 +106,11 @@ private struct BibleBookSelectionPhase: View {
         HStack(spacing: Theme.Spacing.sm) {
             Image(systemName: "magnifyingglass")
                 .font(Typography.Icon.sm)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             TextField("Search books...", text: $searchText)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .autocorrectionDisabled()
 
             if !searchText.isEmpty {
@@ -121,7 +121,7 @@ private struct BibleBookSelectionPhase: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(Typography.Icon.sm)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
         }
@@ -129,11 +129,11 @@ private struct BibleBookSelectionPhase: View {
         .padding(.vertical, Theme.Spacing.sm + 2)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.input)
-                .fill(Color.surfaceBackground)
+                .fill(Color("AppSurface"))
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.input)
-                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -153,7 +153,7 @@ private struct BibleBookSelectionPhase: View {
                         .foregroundStyle(
                             selectedTestament == testament
                                 ? Color.white
-                                : Color.tertiaryText
+                                : Color("TertiaryText")
                         )
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Theme.Spacing.sm + 2)
@@ -161,7 +161,7 @@ private struct BibleBookSelectionPhase: View {
                             Group {
                                 if selectedTestament == testament {
                                     RoundedRectangle(cornerRadius: Theme.Radius.input - 2)
-                                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                        .fill(Color("AppAccentAction"))
                                 }
                             }
                         )
@@ -172,11 +172,11 @@ private struct BibleBookSelectionPhase: View {
         .padding(Theme.Spacing.xs)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.input)
-                .fill(Color.surfaceBackground)
+                .fill(Color("AppSurface"))
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.input)
-                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -243,15 +243,15 @@ private struct BibleBookSelectionPhase: View {
         VStack(spacing: Theme.Spacing.md) {
             Image(systemName: "text.book.closed")
                 .font(Typography.Icon.xxl.weight(.light))
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             Text("No books found")
                 .font(Typography.Command.callout.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Text("Try a different search term")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Theme.Spacing.xxl)
@@ -336,34 +336,34 @@ private struct BibleChapterSelectionPhase: View {
             // Book icon/initial
             ZStack {
                 Circle()
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                    .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                     .frame(width: 64, height: 64)
 
                 Text(String(book.name.prefix(1)))
                     .font(Typography.Scripture.title)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
             .matchedGeometryEffect(id: "book-\(book.id)", in: namespace)
 
             VStack(spacing: Theme.Spacing.xs) {
                 Text(book.name)
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("\(book.chapters) chapters")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Theme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Color.surfaceBackground)
+                .fill(Color("AppSurface"))
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -406,7 +406,7 @@ private struct BibleChapterSelectionPhase: View {
             .padding(.vertical, Theme.Spacing.md + 2)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .fill(Color("AppAccentAction"))
             )
         }
         .buttonStyle(.plain)
@@ -414,7 +414,8 @@ private struct BibleChapterSelectionPhase: View {
         .padding(.vertical, Theme.Spacing.md)
         .background(
             Color.appBackground
-                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: -4)
+                // swiftlint:disable:next hardcoded_shadow_params
+                .shadow(color: Color.black.opacity(Theme.Opacity.subtle), radius: 8, x: 0, y: -4)
         )
     }
 }
@@ -430,7 +431,7 @@ private struct BibleCategoryHeader: View {
         HStack {
             Text(category.rawValue)
                 .editorialLabel()
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             Spacer()
         }
@@ -457,31 +458,31 @@ private struct BibleBookGridItem: View {
                 // Book initial circle
                 ZStack {
                     Circle()
-                        .fill(isCurrent ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
-                        .frame(width: 44, height: 44)
+                        .fill(isCurrent ? Color("AppAccentAction") : Color("AppAccentAction").opacity(Theme.Opacity.subtle))
+                        .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
 
                     Text(String(book.name.prefix(1)))
                         .font(Typography.Scripture.body.weight(.semibold))
-                        .foregroundStyle(isCurrent ? .white : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(isCurrent ? .white : Color("AppAccentAction"))
                 }
                 .matchedGeometryEffect(id: "book-\(book.id)", in: namespace)
 
                 // Book name
                 Text(book.abbreviation)
                     .font(Typography.Command.caption.weight(.medium))
-                    .foregroundStyle(isCurrent ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.primaryText)
+                    .foregroundStyle(isCurrent ? Color("AppAccentAction") : Color("AppTextPrimary"))
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
                     .stroke(
-                        isCurrent ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium) : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                        isCurrent ? Color("AppAccentAction").opacity(Theme.Opacity.focusStroke) : Color("AppAccentAction").opacity(Theme.Opacity.subtle),
                         lineWidth: Theme.Stroke.hairline
                     )
             )
@@ -516,22 +517,22 @@ private struct BibleSearchResultRow: View {
                 // Book initial
                 ZStack {
                     Circle()
-                        .fill(isCurrent ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                        .fill(isCurrent ? Color("AppAccentAction") : Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                         .frame(width: 36, height: 36)
 
                     Text(String(book.name.prefix(1)))
                         .font(Typography.Scripture.body.weight(.semibold))
-                        .foregroundStyle(isCurrent ? .white : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(isCurrent ? .white : Color("AppAccentAction"))
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(book.name)
                         .font(Typography.Command.body.weight(.medium))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text("\(book.chapters) chapters")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
 
                 Spacer()
@@ -539,27 +540,27 @@ private struct BibleSearchResultRow: View {
                 if isCurrent {
                     Text("Current")
                         .font(Typography.Command.meta.weight(.medium))
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                         .padding(.horizontal, Theme.Spacing.sm)
                         .padding(.vertical, Theme.Spacing.xs)
                         .background(
                             Capsule()
-                                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                                .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                         )
                 }
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption.weight(.medium))
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .padding(Theme.Spacing.md)
             .background(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .fill(Color.surfaceBackground)
+                    .fill(Color("AppSurface"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.input)
-                    .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint), lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppAccentAction").opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -607,19 +608,19 @@ private struct BibleChapterCell: View {
         if isSelected {
             return .white
         } else if isCurrent {
-            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+            return Color("AppAccentAction")
         } else {
-            return Color.primaryText
+            return Color("AppTextPrimary")
         }
     }
 
     private var backgroundColor: Color {
         if isSelected {
-            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme))
+            return Color("AppAccentAction")
         } else if isCurrent {
-            return Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle)
+            return Color("AppAccentAction").opacity(Theme.Opacity.subtle)
         } else {
-            return Color.surfaceBackground
+            return Color("AppSurface")
         }
     }
 
@@ -627,7 +628,7 @@ private struct BibleChapterCell: View {
     private var borderOverlay: some View {
         RoundedRectangle(cornerRadius: Theme.Radius.input)
             .stroke(
-                isSelected ? Color.clear : (isCurrent ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium) : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)),
+                isSelected ? Color.clear : (isCurrent ? Color("AppAccentAction").opacity(Theme.Opacity.focusStroke) : Color("AppAccentAction").opacity(Theme.Opacity.subtle)),
                 lineWidth: Theme.Stroke.hairline
             )
     }

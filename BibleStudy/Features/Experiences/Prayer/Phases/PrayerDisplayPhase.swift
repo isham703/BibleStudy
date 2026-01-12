@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Prayer Display Phase
 // Shows the generated prayer with actions (Copy, Share, Save)
-// Features drop cap styling and category attribution
+// Portico-style prayer card with blue accents
 
 struct PrayerDisplayPhase: View {
     let prayer: Prayer
@@ -11,125 +11,171 @@ struct PrayerDisplayPhase: View {
     let onShare: () -> Void
     let onSave: () -> Void
     let onNewPrayer: () -> Void
-    @Environment(\.colorScheme) private var colorScheme
+    var onRegenerate: (() -> Void)?
+    var onEditIntention: (() -> Void)?
+    @State private var isRevealed = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Compact header
-            compactHeader
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: Theme.Spacing.xl) {
+                // Success indicator - account for Dynamic Island safe area
+                successHeader
+                    .padding(.top, 59 + Theme.Spacing.xl)
 
-            // Generated Prayer Section
-            generatedPrayerSection
+                // Prayer card
+                prayerCard
 
-            Spacer(minLength: 100)
+                // Quick actions
+                quickActions
 
-            // New Prayer Button
-            newPrayerButton
+                // Secondary actions
+                secondaryActions
+
+                // New prayer button
+                newPrayerButton
+
+                // Bottom breathing room
+                Spacer()
+                    .frame(height: Theme.Spacing.xxl)
+            }
+            .padding(.horizontal, Theme.Spacing.lg)
+        }
+        .onAppear {
+            withAnimation(Theme.Animation.slowFade) {
+                isRevealed = true
+            }
         }
     }
 
-    // MARK: - Compact Header
+    // MARK: - Success Header
 
-    private var compactHeader: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            Rectangle()
-                .fill(Colors.Surface.divider(for: ThemeMode.current(from: colorScheme)))
-                .frame(height: Theme.Stroke.hairline)
-                .padding(.horizontal, Theme.Spacing.md)
-                .padding(.top, Theme.Spacing.xxl + Theme.Spacing.md)
+    private var successHeader: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(Typography.Icon.lg)
+                .foregroundStyle(Color("FeedbackSuccess"))
 
-            Text("YOUR PRAYER")
-                .font(Typography.Editorial.label)
-                .tracking(Typography.Editorial.labelTracking)
-                .foregroundColor(Color.accentBronze.opacity(Theme.Opacity.pressed))
+            Text("Prayer Generated")
+                .font(Typography.Scripture.heading)
+                .foregroundStyle(Color("AppTextPrimary"))
         }
-        .padding(.bottom, Theme.Spacing.lg)
+        .opacity(isRevealed ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.1), value: isRevealed)
     }
 
-    // MARK: - Generated Prayer Section
+    // MARK: - Prayer Card
 
-    private var generatedPrayerSection: some View {
-        VStack(spacing: Theme.Spacing.xl) {
-            // Prayer Card
-            VStack(spacing: Theme.Spacing.lg) {
-                // Drop cap and text
-                HStack(alignment: .top, spacing: Theme.Spacing.md) {
-                    // Get first letter for drop cap
-                    let firstLetter = String(prayer.content.prefix(1))
-                    let remainingText = String(prayer.content.dropFirst())
+    private var prayerCard: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            // Category badge
+            HStack(spacing: Theme.Spacing.xs) {
+                Image(systemName: selectedCategory.icon)
+                    .font(Typography.Icon.xs)
+                    .foregroundStyle(Color("HighlightBlue"))
 
-                    Text(firstLetter)
-                        .font(Typography.Scripture.heading)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [Color.decorativeGold.opacity(0.15), Color.accentBronze],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .frame(width: 48)
+                Text(selectedCategory.rawValue)
+                    .font(Typography.Editorial.label)
+                    .tracking(Typography.Editorial.labelTracking)
+                    .foregroundStyle(Color("TertiaryText"))
+            }
 
-                    Text(remainingText)
-                        .font(Typography.Scripture.body)
-                        .foregroundColor(Color.textPrimary)
-                        .lineSpacing(8)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+            // Prayer content
+            Text(prayer.content)
+                .font(Typography.Scripture.body)
+                .foregroundStyle(Color("AppTextPrimary"))
+                .lineSpacing(Typography.Scripture.bodyLineSpacing)
 
-                // Amen
-                HStack {
-                    Spacer()
-                    Text(prayer.amen)
-                        .font(Typography.Scripture.body)
-                        .italic()
-                        .foregroundColor(Color.accentBronze)
-                }
+            // Closing
+            Text(prayer.amen)
+                .font(Typography.Scripture.body)
+                .foregroundStyle(Color("AppTextPrimary"))
+                .fontWeight(.medium)
+        }
+        .padding(Theme.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Color.appSurface)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color("HighlightBlue").opacity(0.25),
+                            Color.appDivider
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: Theme.Stroke.hairline
+                )
+        )
+        .opacity(isRevealed ? 1 : 0)
+        .offset(y: isRevealed ? 0 : 20)
+        .animation(Theme.Animation.slowFade.delay(0.15), value: isRevealed)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Your generated prayer: \(prayer.content). \(prayer.amen)")
+        .accessibilityHint("Use the buttons below to copy, share, or save this prayer")
+    }
 
-                // Category indicator
-                HStack {
-                    Spacer()
-                    HStack(spacing: Theme.Spacing.xs + 2) {
-                        Text("—")
-                        Text("A prayer for \(selectedCategory.rawValue.lowercased())")
+    // MARK: - Quick Actions
+
+    private var quickActions: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            ActionButton(icon: "doc.on.doc", label: "Copy", action: onCopy)
+            ActionButton(icon: "square.and.arrow.up", label: "Share", action: onShare)
+            ActionButton(icon: "bookmark", label: "Save", isSuccessAction: true, action: onSave)
+        }
+        .opacity(isRevealed ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.25), value: isRevealed)
+    }
+
+    // MARK: - Secondary Actions
+
+    private var secondaryActions: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            if let onRegenerate = onRegenerate {
+                Button {
+                    onRegenerate()
+                } label: {
+                    HStack(spacing: Theme.Spacing.xs) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .font(Typography.Icon.sm)
+                        Text("Regenerate")
+                            .font(Typography.Command.label.weight(.medium))
                     }
-                    .font(Typography.Scripture.body)
-                    .italic()
-                    .foregroundColor(Color.accentBronze.opacity(Theme.Opacity.pressed))
+                    .foregroundStyle(Color("AppTextPrimary"))
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .background(
+                        Capsule()
+                            .stroke(Color.appDivider, lineWidth: Theme.Stroke.control)
+                    )
                 }
             }
-            .padding(Theme.Spacing.xxl)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color.surfaceRaised.opacity(Theme.Opacity.pressed))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Radius.card)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        Color.accentBronze.opacity(Theme.Opacity.medium),
-                                        Color.feedbackWarning.opacity(Theme.Opacity.light)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: Theme.Stroke.hairline
-                            )
-                    )
-            )
-            .padding(.horizontal, Theme.Spacing.lg)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Your generated prayer: \(prayer.content). \(prayer.amen)")
-            .accessibilityHint("Use the buttons below to copy, share, or save this prayer")
 
-            // Action Buttons
-            HStack(spacing: Theme.Spacing.lg) {
-                ActionButton(icon: "doc.on.doc", label: "Copy", action: onCopy)
-                ActionButton(icon: "square.and.arrow.up", label: "Share", action: onShare)
-                ActionButton(icon: "bookmark", label: "Save", isSuccessAction: true) { onSave() }
+            if let onEditIntention = onEditIntention {
+                Button {
+                    onEditIntention()
+                } label: {
+                    HStack(spacing: Theme.Spacing.xs) {
+                        Image(systemName: "pencil")
+                            .font(Typography.Icon.sm)
+                        Text("Edit Intention")
+                            .font(Typography.Command.label.weight(.medium))
+                    }
+                    .foregroundStyle(Color("AppTextPrimary"))
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .background(
+                        Capsule()
+                            .stroke(Color.appDivider, lineWidth: Theme.Stroke.control)
+                    )
+                }
             }
-            .padding(.horizontal, Theme.Spacing.lg)
         }
-        .transition(.opacity.combined(with: .move(edge: .bottom)))
+        .opacity(isRevealed ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.3), value: isRevealed)
     }
 
     // MARK: - New Prayer Button
@@ -139,28 +185,24 @@ struct PrayerDisplayPhase: View {
             HapticService.shared.lightTap()
             onNewPrayer()
         }) {
-            HStack(spacing: Theme.Spacing.md) {
+            HStack(spacing: Theme.Spacing.sm) {
                 Image(systemName: "plus")
-                    // swiftlint:disable:next hardcoded_font_system
-                    .font(Typography.Command.callout)
+                    .font(Typography.Icon.sm)
                 Text("New Prayer")
-                    .font(Typography.Scripture.heading)
+                    .font(Typography.Command.cta)
             }
-            .foregroundColor(Color.accentBronze)
-            .padding(.horizontal, Theme.Spacing.xxl)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.lg)
             .background(
-                Capsule()
-                    .fill(Color.surfaceRaised)
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.accentBronze.opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
-                    )
+                RoundedRectangle(cornerRadius: Theme.Radius.button)
+                    .fill(Color("AppAccentAction"))
             )
         }
+        .opacity(isRevealed ? 1 : 0)
+        .animation(Theme.Animation.slowFade.delay(0.35), value: isRevealed)
         .accessibilityLabel("Create new prayer")
         .accessibilityHint("Double tap to start over with a new prayer")
-        .padding(.bottom, Theme.Spacing.xxl + Theme.Spacing.sm)
     }
 }
 
@@ -168,7 +210,7 @@ struct PrayerDisplayPhase: View {
 
 #Preview("Display Phase") {
     ZStack {
-        Color.surfaceParchment.ignoresSafeArea()
+        Color("AppBackground").ignoresSafeArea()
         PrayerDisplayPhase(
             prayer: Prayer(
                 category: .gratitude,
@@ -180,7 +222,9 @@ struct PrayerDisplayPhase: View {
             onCopy: {},
             onShare: {},
             onSave: {},
-            onNewPrayer: {}
+            onNewPrayer: {},
+            onRegenerate: {},
+            onEditIntention: {}
         )
     }
 }

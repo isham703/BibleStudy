@@ -8,37 +8,37 @@ struct VerificationLegend: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             legendItem(
                 icon: "checkmark.seal.fill",
-                color: Color.accentBronze,
+                color: Color("AccentBronze"),
                 title: "Verified",
                 description: "Cross-reference found in our curated database"
             )
 
             Divider()
-                .background(Color.textSecondary.opacity(Theme.Opacity.lightMedium))
+                .background(Color.appTextSecondary.opacity(Theme.Opacity.selectionBackground))
 
             legendItem(
                 icon: "checkmark.seal",
-                color: Color(hex: "6B5844").opacity(Theme.Opacity.overlay),
+                color: Color("AccentBronze").opacity(Theme.Opacity.overlay),
                 title: "Valid Reference",
                 description: "Valid verse, but connection not in database"
             )
 
             Divider()
-                .background(Color.textSecondary.opacity(Theme.Opacity.lightMedium))
+                .background(Color.appTextSecondary.opacity(Theme.Opacity.selectionBackground))
 
             legendItem(
                 icon: "sparkle",
-                color: Color.textSecondary.opacity(Theme.Opacity.strong),
+                color: Color.appTextSecondary.opacity(Theme.Opacity.pressed),
                 title: "AI-Suggested",
                 description: "Suggested by AI, not verified by database"
             )
         }
         .padding(Theme.Spacing.lg)
-        .background(Color.surfaceRaised)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .stroke(Color.accentBronze.opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -57,11 +57,11 @@ struct VerificationLegend: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.textPrimary)
+                    .foregroundStyle(Color.appTextPrimary)
 
                 Text(description)
                     .font(.caption)
-                    .foregroundStyle(Color.textSecondary)
+                    .foregroundStyle(Color.appTextSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -80,7 +80,7 @@ struct VerificationLegendButton: View {
         } label: {
             Image(systemName: "questionmark.circle")
                 .font(Typography.Icon.sm)
-                .foregroundStyle(Color.textSecondary)
+                .foregroundStyle(Color.appTextSecondary)
         }
         .popover(isPresented: $showLegend) {
             VerificationLegend()
@@ -98,5 +98,5 @@ struct VerificationLegendButton: View {
         VerificationLegendButton()
     }
     .padding()
-    .background(Color.surfaceParchment)
+    .background(Color("AppBackground"))
 }

@@ -51,7 +51,7 @@ struct MemorizationQueueView: View {
                             .fontWeight(.semibold)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(Color.accentIndigo)
+                        .tint(Color("AppAccentAction"))
                     }
                 }
             }
@@ -90,25 +90,25 @@ struct MemorizationQueueView: View {
                 icon: "flame.fill",
                 value: "\(memorizationService.dueCount)",
                 label: "Due Today",
-                color: memorizationService.dueCount > 0 ? Color.accentIndigo : .secondaryText
+                color: memorizationService.dueCount > 0 ? Color("AppAccentAction") : Color("AppTextSecondary")
             )
 
             statCard(
                 icon: "checkmark.seal.fill",
                 value: "\(memorizationService.masteredCount)",
                 label: "Mastered",
-                color: .success
+                color: Color("FeedbackSuccess")
             )
 
             statCard(
                 icon: "book.pages.fill",
                 value: "\(memorizationService.totalItems)",
                 label: "Total",
-                color: Color.accentIndigo
+                color: Color("AppAccentAction")
             )
         }
         .padding()
-        .background(Color.elevatedBackground)
+        .background(Color("AppSurface"))
     }
 
     private func statCard(icon: String, value: String, label: String, color: Color) -> some View {
@@ -119,11 +119,11 @@ struct MemorizationQueueView: View {
 
             Text(value)
                 .font(Typography.Command.headline.monospacedDigit())
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Text(label)
                 .font(Typography.Command.meta)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
         .frame(maxWidth: .infinity)
     }
@@ -140,7 +140,7 @@ struct MemorizationQueueView: View {
             .padding(.horizontal)
             .padding(.vertical, Theme.Spacing.sm)
         }
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
     }
 
     private func filterTab(_ filter: MasteryFilter) -> some View {
@@ -160,21 +160,21 @@ struct MemorizationQueueView: View {
                         .padding(.vertical, 2)
                         .background(
                             Capsule()
-                                .fill(selectedFilter == filter ? Color.white.opacity(Theme.Opacity.medium) : Color.tertiaryText.opacity(Theme.Opacity.lightMedium))
+                                .fill(selectedFilter == filter ? Color.white.opacity(Theme.Opacity.focusStroke) : Color("TertiaryText").opacity(Theme.Opacity.selectionBackground))
                         )
                 }
             }
             .font(Typography.Command.subheadline)
-            .foregroundStyle(selectedFilter == filter ? .white : Color.secondaryText)
+            .foregroundStyle(selectedFilter == filter ? .white : Color("AppTextSecondary"))
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
             .background(
                 Capsule()
-                    .fill(selectedFilter == filter ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.clear)
+                    .fill(selectedFilter == filter ? Color("AppAccentAction") : Color.clear)
             )
             .overlay(
                 Capsule()
-                    .stroke(selectedFilter == filter ? Color.clear : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(selectedFilter == filter ? Color.clear : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
@@ -206,7 +206,7 @@ struct MemorizationQueueView: View {
         List {
             ForEach(filteredItems) { item in
                 MemorizationItemRow(item: item)
-                    .listRowBackground(Color.surfaceBackground)
+                    .listRowBackground(Color("AppSurface"))
                     .listRowSeparator(.hidden)
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -286,7 +286,7 @@ struct MemorizationQueueView: View {
                 .scaleEffect(1.05)
             Text("Loading...")
                 .font(Typography.Command.subheadline)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .padding(.top)
             Spacer()
         }
@@ -419,7 +419,7 @@ struct MemorizationItemRow: View {
             HStack {
                 Text(item.reference)
                     .font(Typography.Command.headline)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Spacer()
 
@@ -429,7 +429,7 @@ struct MemorizationItemRow: View {
             // Verse preview
             Text(item.verseText)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .lineLimit(2)
 
             // Footer with due date and stats
@@ -441,7 +441,7 @@ struct MemorizationItemRow: View {
                     Text(dueDateText)
                         .font(Typography.Command.caption)
                 }
-                .foregroundStyle(item.isDueForReview ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)) : Color.tertiaryText)
+                .foregroundStyle(item.isDueForReview ? Color("AppAccentAction") : Color("TertiaryText"))
 
                 Spacer()
 
@@ -455,11 +455,11 @@ struct MemorizationItemRow: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .fill(Color.elevatedBackground)
+                .fill(Color("AppSurface"))
         )
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(item.isDueForReview ? Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.heavy) : Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                .stroke(item.isDueForReview ? Color("AppAccentAction").opacity(Theme.Opacity.textSecondary) : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
         )
         .padding(.horizontal)
         .padding(.vertical, Theme.Spacing.xs)
@@ -476,15 +476,15 @@ struct MemorizationItemRow: View {
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(masteryColor.opacity(Theme.Opacity.light))
+                .fill(masteryColor.opacity(Theme.Opacity.selectionBackground))
         )
     }
 
     private var masteryColor: Color {
         switch item.masteryLevel {
-        case .learning: return Color.accentIndigo
-        case .reviewing: return Color.accentIndigo
-        case .mastered: return .success
+        case .learning: return Color("AppAccentAction")
+        case .reviewing: return Color("AppAccentAction")
+        case .mastered: return Color("FeedbackSuccess")
         }
     }
 
@@ -505,7 +505,7 @@ struct MemorizationItemRow: View {
             Text(value)
                 .font(Typography.Command.meta.monospacedDigit())
         }
-        .foregroundStyle(Color.tertiaryText)
+        .foregroundStyle(Color("TertiaryText"))
     }
 }
 

@@ -64,7 +64,7 @@ struct LensContainer: View {
                 // Content area (if lens selected)
                 if selectedLens != nil && !selectedInsights.isEmpty {
                     Divider()
-                        .background(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                        .background(Color("AppTextPrimary").opacity(Theme.Opacity.subtle))
 
                     insightContent
                         .opacity(contentOpacity)
@@ -92,9 +92,9 @@ struct LensContainer: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium),
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)),
-                            Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium)
+                            Color("AccentBronze").opacity(Theme.Opacity.focusStroke),
+                            Color("AccentBronze"),
+                            Color("AccentBronze").opacity(Theme.Opacity.focusStroke)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -111,13 +111,13 @@ struct LensContainer: View {
     private var containerBackground: some View {
         ZStack {
             // Base parchment color
-            Colors.Surface.surface(for: ThemeMode.current(from: colorScheme))
+            Color.appSurface
 
             // Subtle inner glow from top-left (like light on manuscript)
             // swiftlint:disable:next hardcoded_opacity
             RadialGradient(
                 colors: [
-                    Colors.Semantic.accentSeal(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                    Color("AccentBronze").opacity(Theme.Opacity.subtle),
                     Color.clear
                 ],
                 center: .topLeading,
@@ -129,9 +129,9 @@ struct LensContainer: View {
             // swiftlint:disable:next hardcoded_opacity
             LinearGradient(
                 colors: [
-                    Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint),
+                    Color("AppTextPrimary").opacity(Theme.Opacity.subtle),
                     Color.clear,
-                    Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint)
+                    Color("AppTextPrimary").opacity(Theme.Opacity.subtle)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -143,7 +143,7 @@ struct LensContainer: View {
 
     private var containerBorder: some View {
         RoundedRectangle(cornerRadius: Theme.Radius.button)
-            .stroke(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint), lineWidth: Theme.Stroke.hairline)
+            .stroke(Color("AppTextPrimary").opacity(Theme.Opacity.subtle), lineWidth: Theme.Stroke.hairline)
     }
 
     // MARK: - Insight Content
@@ -270,8 +270,7 @@ struct LensPill: View {
                 // Lens name (only when selected - reduces visual weight)
                 if isSelected {
                     Text(lens.label)
-                        // swiftlint:disable:next hardcoded_font_custom
-                        .font(.system(size: 12, weight: .semibold, design: .serif))
+                        .font(Typography.Command.caption.weight(.semibold))
                         .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 }
             }
@@ -304,7 +303,7 @@ struct LensPill: View {
             if isSelected {
                 lens.color
             } else {
-                lens.color.opacity(Theme.Opacity.faint)
+                lens.color.opacity(Theme.Opacity.subtle)
             }
         }
     }
@@ -312,7 +311,7 @@ struct LensPill: View {
     private var pillBorder: some View {
         Capsule()
             .stroke(
-                isSelected ? Color.clear : lens.color.opacity(Theme.Opacity.lightMedium + 0.05),
+                isSelected ? Color.clear : lens.color.opacity(Theme.Opacity.selectionBackground + 0.05),
                 lineWidth: Theme.Stroke.hairline
             )
     }
@@ -341,20 +340,18 @@ struct InsightContentCard: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             // Title
             Text(insight.title)
-                // swiftlint:disable:next hardcoded_font_custom
-                .font(.system(size: 14, weight: .medium, design: .serif))
-                .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)))
+                .font(Typography.Scripture.footnote.weight(.medium))
+                .foregroundStyle(Color("AppTextPrimary"))
                 // swiftlint:disable:next hardcoded_tracking
                 .tracking(0.3)
 
             // Content (height-capped in Reading Mode)
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text(insight.content)
-                    // swiftlint:disable:next hardcoded_font_custom
-                    .font(.system(size: 15, weight: .regular, design: .serif))
+                    .font(Typography.Scripture.bodyWithSize(15))
                     // swiftlint:disable:next hardcoded_line_spacing
                     .lineSpacing(6)
-                    .foregroundStyle(Colors.Surface.textPrimary(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.high))
+                    .foregroundStyle(Color("AppTextPrimary").opacity(Theme.Opacity.textPrimary))
                     .lineLimit(isExpanded ? nil : collapsedLineLimit)
 
                 // "Read more" if truncated
@@ -370,7 +367,7 @@ struct InsightContentCard: View {
                     } label: {
                         Text("Read more")
                             .font(Typography.Command.caption.weight(.medium))
-                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppAccentAction"))
                     }
                     .buttonStyle(.plain)
                 }
@@ -396,12 +393,12 @@ struct InsightContentCard: View {
             Text("Interpretive")
                 .font(Typography.Command.meta.weight(.medium))
         }
-        .foregroundStyle(Color.info)
+        .foregroundStyle(Color("FeedbackInfo"))
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Color.info.opacity(Theme.Opacity.subtle + 0.02))
+                .fill(Color("FeedbackInfo").opacity(Theme.Opacity.subtle + 0.02))
         )
     }
 
@@ -425,7 +422,7 @@ struct InsightContentCard: View {
 
                     Spacer()
                 }
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -453,12 +450,12 @@ struct InsightContentCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(source.reference)
                     .font(Typography.Icon.xs.weight(.medium))
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 if let description = source.description {
                     Text(description)
                         .font(Typography.Icon.xxs)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
         }
@@ -475,10 +472,10 @@ struct InsightContentCard: View {
 
     private func sourceColor(for type: InsightSource.SourceType) -> Color {
         switch type {
-        case .crossReference: return .connectionAmber
-        case .strongs: return .greekBlue
-        case .commentary: return .theologyGreen
-        case .lexicon: return .greekBlue
+        case .crossReference: return Color("AccentBronze")
+        case .strongs: return Color("FeedbackInfo")
+        case .commentary: return Color("FeedbackSuccess")
+        case .lexicon: return Color("FeedbackInfo")
         }
     }
 }
@@ -542,8 +539,7 @@ struct InsightContentCard: View {
         var body: some View {
             VStack(spacing: Theme.Spacing.xl) {
                 Text("Lens Container Preview")
-                    // swiftlint:disable:next hardcoded_swiftui_text_style
-                    .font(.headline)
+                    .font(Typography.Command.headline)
 
                 LensContainer(
                     insights: sampleInsights,
@@ -561,7 +557,7 @@ struct InsightContentCard: View {
             }
             // swiftlint:disable:next hardcoded_padding
             .padding(Theme.Spacing.xxl + 4)
-            .background(Colors.Surface.background(for: .dark))
+            .background(Color("AppBackground"))
         }
     }
 
@@ -585,5 +581,5 @@ struct InsightContentCard: View {
         }
     }
     .padding()
-    .background(Colors.Surface.background(for: .dark))
+    .background(Color("AppBackground"))
 }

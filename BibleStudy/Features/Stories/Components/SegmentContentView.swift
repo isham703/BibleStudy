@@ -68,7 +68,7 @@ struct SegmentContentView: View {
             if let label = segment.timelineLabel {
                 Text(label)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                     .textCase(.uppercase)
                     .tracking(1)
             }
@@ -83,7 +83,7 @@ struct SegmentContentView: View {
 
                 Text(segment.title)
                     .font(Typography.Scripture.title)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
             }
         }
     }
@@ -92,7 +92,7 @@ struct SegmentContentView: View {
     private var narrativeContent: some View {
         Text(segment.content)
             .font(Typography.Scripture.body)
-            .foregroundStyle(Color.primaryText)
+            .foregroundStyle(Color("AppTextPrimary"))
             .lineSpacing(8)
             .textSelection(.enabled)
     }
@@ -109,12 +109,12 @@ struct LocationBadge: View {
             Text(location)
                 .font(Typography.Command.caption)
         }
-        .foregroundStyle(Color.secondaryText)
+        .foregroundStyle(Color("AppTextSecondary"))
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, Theme.Spacing.xs)
         .background(
             Capsule()
-                .fill(Color.surfaceBackground)
+                .fill(Color("AppSurface"))
         )
     }
 }
@@ -130,22 +130,22 @@ struct KeyTermCard: View {
             HStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: "character.book.closed")
                     .font(Typography.Command.subheadline)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                 Text("Key Term")
                     .font(Typography.Command.caption.weight(.semibold))
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             HStack(alignment: .top, spacing: Theme.Spacing.md) {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(keyTerm.term)
                         .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     if let original = keyTerm.originalWord {
                         Text(original)
                             .font(.system(size: 15, weight: .regular, design: .serif).italic())
-                            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                            .foregroundStyle(Color("AppAccentAction"))
                     }
                 }
 
@@ -153,16 +153,16 @@ struct KeyTermCard: View {
 
                 Text(keyTerm.briefMeaning)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
                     .multilineTextAlignment(.trailing)
             }
         }
         .padding(Theme.Spacing.md)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.button)
-                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.medium), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.focusStroke), lineWidth: Theme.Stroke.hairline)
         )
     }
 }
@@ -188,9 +188,9 @@ struct VerseAnchorButton: View {
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption)
             }
-            .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+            .foregroundStyle(Color("AppAccentAction"))
             .padding(Theme.Spacing.md)
-            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+            .background(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
         .buttonStyle(.plain)
@@ -216,23 +216,23 @@ struct ReflectionCard: View {
                 HStack {
                     Image(systemName: "heart.fill")
                         .font(Typography.Command.subheadline)
-                        .foregroundStyle(Color.roseAccent)
+                        .foregroundStyle(Color("FeedbackError"))
 
                     Text("Reflection")
                         .font(Typography.Command.caption.weight(.semibold))
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundStyle(Color("AppTextSecondary"))
 
                     if !reflectionText.isEmpty {
                         Image(systemName: "checkmark.circle.fill")
                             .font(Typography.Command.caption)
-                            .foregroundStyle(Color.success)
+                            .foregroundStyle(Color("FeedbackSuccess"))
                     }
 
                     Spacer()
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
             .buttonStyle(.plain)
@@ -240,7 +240,7 @@ struct ReflectionCard: View {
             if isExpanded {
                 Text(question)
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
                     .italic()
                     .padding(.top, Theme.Spacing.xs)
 
@@ -271,7 +271,7 @@ struct ReflectionCard: View {
                             .foregroundStyle(.white)
                             .padding(.horizontal, Theme.Spacing.md)
                             .padding(.vertical, Theme.Spacing.sm)
-                            .background(Color.roseAccent)
+                            .background(Color("FeedbackError"))
                             .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
@@ -280,7 +280,7 @@ struct ReflectionCard: View {
             }
         }
         .padding(Theme.Spacing.md)
-        .background(Color.roseAccent.opacity(Theme.Opacity.faint))
+        .background(Color("FeedbackError").opacity(Theme.Opacity.subtle))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
     }
 }

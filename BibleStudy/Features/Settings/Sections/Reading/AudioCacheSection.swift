@@ -43,22 +43,22 @@ struct AudioCacheSection: View {
             // Icon
             Image(systemName: "internaldrive.fill")
                 .font(Typography.Icon.sm.weight(.medium))
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .frame(width: 28, height: 28)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint + 0.02))
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle + 0.02))
                 )
 
             // Label
             VStack(alignment: .leading, spacing: 2) {
                 Text("Cache Limit")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Maximum storage for cached audio")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
 
             Spacer()
@@ -82,17 +82,17 @@ struct AudioCacheSection: View {
                     Text(viewModel.audioCacheSizeOptions.first { $0.mb == viewModel.audioCacheLimitMB }?.label ?? "\(viewModel.audioCacheLimitMB) MB")
                         .font(Typography.Command.caption)
                         .fontWeight(.semibold)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
 
                     Image(systemName: "chevron.up.chevron.down")
                         .font(Typography.Icon.xxxs)
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.pressed))
+                        .foregroundStyle(Color("AppAccentAction").opacity(Theme.Opacity.pressed))
                 }
                 .padding(.horizontal, Theme.Spacing.sm)
                 .padding(.vertical, 2)
                 .background(
                     Capsule()
-                        .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+                        .fill(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                 )
             }
         }
@@ -105,22 +105,22 @@ struct AudioCacheSection: View {
             // Icon
             Image(systemName: "chart.pie.fill")
                 .font(Typography.Icon.sm.weight(.medium))
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .frame(width: 28, height: 28)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                        .fill(Color.secondaryText.opacity(Theme.Opacity.faint + 0.02))
+                        .fill(Color("AppTextSecondary").opacity(Theme.Opacity.subtle + 0.02))
                 )
 
             // Label
             VStack(alignment: .leading, spacing: 2) {
                 Text("Current Usage")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Audio files are cached for 30 days")
                     .font(Typography.Command.meta)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
 
             Spacer()
@@ -129,7 +129,7 @@ struct AudioCacheSection: View {
             Text(viewModel.audioCacheSize)
                 .font(Typography.Command.caption.monospacedDigit())
                 .fontWeight(.medium)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
         }
     }
 
@@ -143,23 +143,23 @@ struct AudioCacheSection: View {
                 // Icon
                 Image(systemName: "trash.fill")
                     .font(Typography.Icon.sm.weight(.medium))
-                    .foregroundStyle(Color.feedbackError)
+                    .foregroundStyle(Color("FeedbackError"))
                     .frame(width: 28, height: 28)
                     .background(
                         RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                            .fill(Color.feedbackError.opacity(Theme.Opacity.faint + 0.02))
+                            .fill(Color("FeedbackError").opacity(Theme.Opacity.subtle + 0.02))
                     )
 
                 // Label
                 Text("Clear Audio Cache")
                     .font(Typography.Command.body)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Icon.xxxs)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
         .buttonStyle(.plain)

@@ -41,14 +41,14 @@ struct SearchSection: View {
                     Text("Back")
                         .font(Typography.Command.subheadline)
                 }
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
             }
 
             Spacer()
 
             Text(title)
                 .font(Typography.Scripture.body.weight(.semibold))
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
 
@@ -59,7 +59,7 @@ struct SearchSection: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(Typography.Command.title2)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
         }
     }
@@ -69,7 +69,7 @@ struct SearchSection: View {
     private var searchBar: some View {
         HStack(spacing: Theme.Spacing.md) {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
 
             TextField("John 3:16 or search words...", text: $state.query)
                 .font(Typography.Scripture.body)
@@ -90,17 +90,17 @@ struct SearchSection: View {
                     state.results = []
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
         }
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.md)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.lightMedium), lineWidth: Theme.Stroke.hairline)
+                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
         )
     }
 
@@ -112,10 +112,10 @@ struct SearchSection: View {
             // Loading
             HStack(spacing: Theme.Spacing.sm) {
                 ProgressView()
-                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(Color("AppAccentAction"))
                 Text("Searching...")
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
             }
             .frame(height: 200)
         } else if state.query.isEmpty {
@@ -131,7 +131,7 @@ struct SearchSection: View {
             // No results
             Text("No results for \"\(state.query)\"")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
                 .frame(height: 200)
         }
     }
@@ -142,7 +142,7 @@ struct SearchSection: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text("QUICK EXAMPLES")
                 .editorialLabel()
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
 
             HStack(spacing: Theme.Spacing.sm) {
                 hintChip("John 3:16")
@@ -160,10 +160,10 @@ struct SearchSection: View {
         } label: {
             Text(text)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                .foregroundStyle(Color("AppAccentAction"))
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.vertical, Theme.Spacing.xs)
-                .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.subtle))
+                .background(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
                 .clipShape(Capsule())
         }
     }
@@ -184,26 +184,26 @@ struct SearchSection: View {
             HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: "arrow.right.circle.fill")
                     .font(Typography.Icon.xl)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Go to \(ref.displayText)")
                         .font(Typography.Scripture.body.weight(.semibold))
-                        .foregroundStyle(Color.primaryText)
+                        .foregroundStyle(Color("AppTextPrimary"))
 
                     Text("Jump to this reference")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(Typography.Command.caption.weight(.semibold))
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
             }
             .padding(Theme.Spacing.md)
-            .background(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.faint))
+            .background(Color("AppAccentAction").opacity(Theme.Opacity.subtle))
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         }
         .buttonStyle(.plain)
@@ -221,24 +221,24 @@ struct SearchSection: View {
                     } label: {
                         HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                             RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                                .fill(result.verse.bookId <= 39 ? Color.navyDeep : Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                                .fill(result.verse.bookId <= 39 ? Color("AppAccentAction") : Color("AppAccentAction"))
                                 .frame(width: Theme.Stroke.control)
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(result.verse.reference)
                                     .font(Typography.Scripture.footnote.weight(.semibold))
-                                    .foregroundStyle(Color.primaryText)
+                                    .foregroundStyle(Color("AppTextPrimary"))
 
                                 Text(result.highlightedSnippet)
                                     .font(Typography.Command.caption)
-                                    .foregroundStyle(Color.primaryText)
+                                    .foregroundStyle(Color("AppTextPrimary"))
                                     .lineLimit(2)
                             }
 
                             Spacer()
                         }
                         .padding(Theme.Spacing.sm)
-                        .background(Color.surfaceBackground)
+                        .background(Color("AppSurface"))
                         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
                     }
                     .buttonStyle(.plain)
@@ -247,7 +247,7 @@ struct SearchSection: View {
                 if state.results.count > 5 {
                     Text("+ \(state.results.count - 5) more results")
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color.tertiaryText)
+                        .foregroundStyle(Color("TertiaryText"))
                 }
             }
         }

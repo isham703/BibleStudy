@@ -22,7 +22,7 @@ struct AboutSectionView: View {
                 } label: {
                     aboutRow(
                         icon: "doc.text.fill",
-                        iconColor: .lapisLazuli,
+                        iconColor: Color("AppAccentAction"),
                         title: "Attributions & Licenses"
                     )
                 }
@@ -46,7 +46,7 @@ struct AboutSectionView: View {
                 Link(destination: URL(string: "https://example.com/terms")!) {
                     aboutRow(
                         icon: "doc.plaintext.fill",
-                        iconColor: .amethyst,
+                        iconColor: Color("AppAccentAction"),
                         title: "Terms of Service",
                         isExternal: true
                     )
@@ -66,12 +66,12 @@ struct AboutSectionView: View {
             RoundedRectangle(cornerRadius: Theme.Radius.card + 2)
                 .fill(
                     LinearGradient(
-                        colors: [Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)), Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.overlay)],
+                        colors: [Color("AppAccentAction"), Color("AppAccentAction").opacity(Theme.Opacity.overlay)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 44, height: 44)
+                .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
                 .overlay(
                     Image(systemName: "book.closed.fill")
                         .font(Typography.Icon.lg)
@@ -81,11 +81,11 @@ struct AboutSectionView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("BibleStudy")
                     .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.primaryText)
+                    .foregroundStyle(Color("AppTextPrimary"))
 
                 Text("Version \(AppConfiguration.App.version) (\(AppConfiguration.App.build))")
                     .font(Typography.Command.caption.monospacedDigit())
-                    .foregroundStyle(Color.secondaryText)
+                    .foregroundStyle(Color("AppTextSecondary"))
             }
 
             Spacer()
@@ -107,18 +107,18 @@ struct AboutSectionView: View {
                 .frame(width: 28, height: 28)
                 .background(
                     RoundedRectangle(cornerRadius: Theme.Radius.input + 2)
-                        .fill(iconColor.opacity(Theme.Opacity.faint + 0.02))
+                        .fill(iconColor.opacity(Theme.Opacity.subtle + 0.02))
                 )
 
             Text(title)
                 .font(Typography.Command.body)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
 
             Spacer()
 
             Image(systemName: isExternal ? "arrow.up.right" : "chevron.right")
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.tertiaryText)
+                .foregroundStyle(Color("TertiaryText"))
         }
         .contentShape(Rectangle())
     }
@@ -128,18 +128,18 @@ struct AboutSectionView: View {
     private var colophonFooter: some View {
         VStack(spacing: Theme.Spacing.md) {
             Rectangle()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                .fill(Color("AppAccentAction").opacity(Theme.Opacity.disabled))
                 .frame(height: Theme.Stroke.hairline)
 
             VStack(spacing: Theme.Spacing.xs) {
                 Text("Made with care for Scripture study")
                     .font(Typography.Scripture.footnote.italic())
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
 
                 // Small decorative cross or ornament
                 Image(systemName: "cross.fill")
                     .font(Typography.Icon.xxxs)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.disabled))
+                    .foregroundStyle(Color("AppAccentAction").opacity(Theme.Opacity.disabled))
             }
         }
         .padding(.top, Theme.Spacing.lg)

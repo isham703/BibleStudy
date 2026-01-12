@@ -42,7 +42,7 @@ struct InsightSummary: Sendable, Identifiable, Hashable {
 // MARK: - Null Implementation
 /// Default implementation that returns no insights (for when service is unavailable)
 final class NullInsightProvider: InsightProviding, Sendable {
-    // Note: nonisolated(unsafe) required to allow use as default parameter in actor init
+    // nonisolated(unsafe) allows use as default parameter in nonisolated init
     nonisolated(unsafe) static let shared = NullInsightProvider()
 
     var hasCommentaryData: Bool { false }

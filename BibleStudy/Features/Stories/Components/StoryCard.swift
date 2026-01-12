@@ -36,7 +36,7 @@ struct StoryCard: View {
             // Title
             Text(story.title)
                 .font(Typography.Scripture.heading)
-                .foregroundStyle(Color.primaryText)
+                .foregroundStyle(Color("AppTextPrimary"))
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
@@ -44,14 +44,14 @@ struct StoryCard: View {
             if let subtitle = story.subtitle {
                 Text(subtitle)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .foregroundStyle(Color("AppAccentAction"))
                     .lineLimit(1)
             }
 
             // Description
             Text(story.description)
                 .font(Typography.Command.caption)
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(Color("AppTextSecondary"))
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
 
@@ -64,7 +64,7 @@ struct StoryCard: View {
                     let percent = Int(progress.progressPercentage(totalSegments: story.segments.count) * 100)
                     Text("\(percent)% complete")
                         .font(Typography.Command.meta.monospacedDigit())
-                        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                        .foregroundStyle(Color("AppAccentAction"))
                 } else {
                     HStack(spacing: Theme.Spacing.xs) {
                         Image(systemName: "clock")
@@ -72,7 +72,7 @@ struct StoryCard: View {
                         Text("\(story.estimatedMinutes) min")
                             .font(Typography.Command.meta.monospacedDigit())
                     }
-                    .foregroundStyle(Color.tertiaryText)
+                    .foregroundStyle(Color("TertiaryText"))
                 }
 
                 Spacer()
@@ -84,17 +84,17 @@ struct StoryCard: View {
             // Progress bar (if in progress)
             if let progress = progress, isInProgress, !story.segments.isEmpty {
                 ProgressView(value: progress.progressPercentage(totalSegments: story.segments.count))
-                    .tint(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+                    .tint(Color("AppAccentAction"))
                     .frame(height: 3)
             }
         }
         .padding(Theme.Spacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.surfaceBackground)
+        .background(Color("AppSurface"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         .overlay(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
-                .stroke(isCompleted ? Color.success.opacity(Theme.Opacity.heavy) : Color.clear, lineWidth: Theme.Stroke.control)
+                .stroke(isCompleted ? Color("FeedbackSuccess").opacity(Theme.Opacity.textSecondary) : Color.clear, lineWidth: Theme.Stroke.control)
         )
         .shadow(color: .black.opacity(Theme.Opacity.overlay), radius: 4, x: 0, y: 2)
     }
@@ -111,12 +111,12 @@ struct ContinueBadge: View {
             Text("Continue")
                 .font(Typography.Command.meta)
         }
-        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+        .foregroundStyle(Color("AppAccentAction"))
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
         )
     }
 }
@@ -130,12 +130,12 @@ struct CompletedBadge: View {
             Text("Done")
                 .font(Typography.Command.meta)
         }
-        .foregroundStyle(Color.success)
+        .foregroundStyle(Color("FeedbackSuccess"))
         .padding(.horizontal, Theme.Spacing.sm)
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Color.success.opacity(Theme.Opacity.light))
+                .fill(Color("FeedbackSuccess").opacity(Theme.Opacity.selectionBackground))
         )
     }
 }
@@ -156,7 +156,7 @@ struct StoryTypeBadge: View {
         .padding(.vertical, Theme.Spacing.xs)
         .background(
             Capsule()
-                .fill(type.storyColor.opacity(Theme.Opacity.light))
+                .fill(type.storyColor.opacity(Theme.Opacity.selectionBackground))
         )
     }
 }
@@ -168,12 +168,12 @@ struct ReadingLevelBadge: View {
     var body: some View {
         Text(level.shortLabel)
             .font(Typography.Command.meta)
-            .foregroundStyle(Color.secondaryText)
+            .foregroundStyle(Color("AppTextSecondary"))
             .padding(.horizontal, Theme.Spacing.sm)
             .padding(.vertical, 2)
             .background(
                 Capsule()
-                    .stroke(Color.cardBorder, lineWidth: Theme.Stroke.hairline)
+                    .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
     }
 }
@@ -189,12 +189,12 @@ struct AIGeneratedBadge: View {
             Text("AI")
                 .font(Typography.Command.meta)
         }
-        .foregroundStyle(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)))
+        .foregroundStyle(Color("AppAccentAction"))
         .padding(.horizontal, Theme.Spacing.xs)
         .padding(.vertical, 2)
         .background(
             Capsule()
-                .fill(Colors.Semantic.accentAction(for: ThemeMode.current(from: colorScheme)).opacity(Theme.Opacity.light))
+                .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
         )
     }
 }
