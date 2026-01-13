@@ -14,7 +14,7 @@ final class ReadingAnalyticsService {
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     var currentSession: ReadingSession?
     var todaysSessions: [ReadingSession] = []

@@ -24,7 +24,7 @@ struct ComplineBreathePhase: View {
             ZStack {
                 // Aurora background (subtle for Compline)
                 if !reduceMotion {
-                    BreathingAuroraBackground.compline(isActive: state.isActive)
+                    BreathingAppBackgroundView.compline(isActive: state.isActive)
                         .frame(width: 300, height: 300)
                         .clipShape(Circle())
                         .opacity(Theme.Opacity.focusStroke)
@@ -101,7 +101,7 @@ struct ComplineBreathePhaseWithBinding: View {
             // Main breathing visualization
             ZStack {
                 if !reduceMotion {
-                    BreathingAuroraBackground.compline(isActive: state.isActive)
+                    BreathingAppBackgroundView.compline(isActive: state.isActive)
                         .frame(width: 300, height: 300)
                         .clipShape(Circle())
                         .opacity(Theme.Opacity.focusStroke)

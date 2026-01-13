@@ -7,7 +7,7 @@ import SwiftUI
 
 struct ForumHomeView: View {
     @State private var isAwakened = false
-    @Environment(SanctuaryViewModel.self) private var viewModel
+    @Environment(HomeTabViewModel.self) private var viewModel
     @Environment(\.settingsAction) private var settingsAction
     @Environment(\.colorScheme) private var colorScheme
 
@@ -444,5 +444,5 @@ private struct SecondaryFeatureButton<Destination: View>: View {
     NavigationStack {
         ForumHomeView()
     }
-    .environment(SanctuaryViewModel())
+    .environment(HomeTabViewModel())
 }

@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Insight Indicator
 // Sacred trefoil design - three gold dots arranged in triangular pattern
 // Indicates available insights for a verse with tap-to-reveal interaction
-// Design: Illuminated manuscript aesthetic with subtle animations
+// Design: Stoic-Roman aesthetic with subtle animations
 
 struct BibleInsightIndicator: View {
     // MARK: - Properties

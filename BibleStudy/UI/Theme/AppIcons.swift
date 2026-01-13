@@ -6,7 +6,7 @@ import SwiftUI
 //
 // Usage:
 //   Image(systemName: AppIcons.TabBar.home)
-//   SanctuaryIcon(systemName: AppIcons.Study.notes, size: 20)
+//   AppIconView(systemName: AppIcons.Study.notes, size: 20)
 
 enum AppIcons {
 

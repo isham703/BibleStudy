@@ -13,7 +13,7 @@ struct BreatheView: View {
         GeometryReader { geometry in
             ZStack {
                 // Aurora background
-                BreathingAuroraBackground.forPattern(state.selectedPattern, isActive: state.isActive)
+                BreathingAppBackgroundView.forPattern(state.selectedPattern, isActive: state.isActive)
                     .ignoresSafeArea()
 
                 // Dark overlay for contrast

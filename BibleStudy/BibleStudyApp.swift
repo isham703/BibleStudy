@@ -266,7 +266,7 @@ final class AppState {
     // Paragraph Mode (continuous prose vs verse-per-line)
     var paragraphMode: Bool = false
 
-    // MARK: - Typography Preferences (Illuminated Manuscript)
+    // MARK: - Typography Preferences (Stoic-Roman)
 
     /// Scripture body font family
     var scriptureFont: ScriptureFont = .newYork {

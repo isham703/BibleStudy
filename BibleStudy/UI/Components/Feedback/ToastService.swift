@@ -6,8 +6,8 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class ToastManager {
-    static let shared = ToastManager()
+final class ToastService {
+    static let shared = ToastService()
 
     // MARK: - Toast State
 
@@ -190,21 +190,21 @@ enum ToastType: Equatable {
 
 // MARK: - Environment Key
 
-private struct ToastManagerKey: EnvironmentKey {
-    static let defaultValue = ToastManager.shared
+private struct ToastServiceKey: EnvironmentKey {
+    static let defaultValue = ToastService.shared
 }
 
 extension EnvironmentValues {
-    var toastManager: ToastManager {
-        get { self[ToastManagerKey.self] }
-        set { self[ToastManagerKey.self] = newValue }
+    var toastManager: ToastService {
+        get { self[ToastServiceKey.self] }
+        set { self[ToastServiceKey.self] = newValue }
     }
 }
 
 // MARK: - View Extension
 
 extension View {
-    /// Presents toasts from the shared ToastManager
+    /// Presents toasts from the shared ToastService
     func toastPresenter() -> some View {
         self.modifier(ToastPresenterModifier())
     }
@@ -213,13 +213,13 @@ extension View {
 // MARK: - Toast Presenter Modifier
 
 struct ToastPresenterModifier: ViewModifier {
-    @State private var toastManager = ToastManager.shared
+    @State private var toastManager = ToastService.shared
 
     func body(content: Content) -> some View {
         content
             .overlay(alignment: .bottom) {
                 if let toast = toastManager.currentToast {
-                    VellumScrollToast(
+                    AppToastView(
                         toast: toast,
                         onDismiss: { toastManager.dismiss() },
                         onUndo: { toastManager.triggerUndo() }

@@ -60,7 +60,7 @@ actor HLSAudioGenerator {
 
     private let edgeTTS: EdgeTTSService
     private let cache: AudioCache
-    private let manifestManager: HLSManifestManager
+    private let manifestManager: HLSManifestService
 
     /// Track active generation to support cancellation
     private var activeGeneration: Task<GenerationResult, Error>?
@@ -75,7 +75,7 @@ actor HLSAudioGenerator {
 
     // MARK: - Initialization
 
-    init(edgeTTS: EdgeTTSService, cache: AudioCache, manifestManager: HLSManifestManager) {
+    init(edgeTTS: EdgeTTSService, cache: AudioCache, manifestManager: HLSManifestService) {
         self.edgeTTS = edgeTTS
         self.cache = cache
         self.manifestManager = manifestManager
@@ -160,7 +160,7 @@ actor HLSAudioGenerator {
         // Phase 1: Quick-start (first 3 verses for fast ~4 second startup)
         // Remaining verses generate in background while playing
         let quickStartCount = min(3, totalVerses)
-        var segments: [HLSManifestManager.SegmentInfo] = []
+        var segments: [HLSManifestService.SegmentInfo] = []
         var currentStartTime: TimeInterval = 0
 
         print("[HLS] Starting quick-start generation for \(chapter.bookName) \(chapter.chapterNumber) (verses 1-\(quickStartCount))")
@@ -272,7 +272,7 @@ actor HLSAudioGenerator {
         onProgress: (@Sendable (Double) async -> Void)?
     ) async throws -> GenerationResult {
         let verses = chapter.verses
-        var segments: [HLSManifestManager.SegmentInfo] = []
+        var segments: [HLSManifestService.SegmentInfo] = []
         var currentStartTime: TimeInterval = 0
 
         print("[HLS] Starting complete generation for \(chapter.bookName) \(chapter.chapterNumber) (\(verses.count) verses)")
@@ -324,7 +324,7 @@ actor HLSAudioGenerator {
         verse: AudioVerse,
         chapter: AudioChapter,
         startTime: TimeInterval
-    ) async throws -> HLSManifestManager.SegmentInfo {
+    ) async throws -> HLSManifestService.SegmentInfo {
         // Try Edge TTS first
         do {
             currentSource = .edge
@@ -340,7 +340,7 @@ actor HLSAudioGenerator {
 
             try verseAudio.data.write(to: segmentURL)
 
-            return HLSManifestManager.SegmentInfo(
+            return HLSManifestService.SegmentInfo(
                 url: segmentURL,
                 verseNumber: verse.number,
                 duration: verseAudio.duration,
@@ -362,7 +362,7 @@ actor HLSAudioGenerator {
         verse: AudioVerse,
         chapter: AudioChapter,
         startTime: TimeInterval
-    ) async throws -> HLSManifestManager.SegmentInfo {
+    ) async throws -> HLSManifestService.SegmentInfo {
         currentSource = .local
 
         // Use AVSpeechSynthesizer for local TTS
@@ -396,7 +396,7 @@ actor HLSAudioGenerator {
 
         try FileManager.default.moveItem(at: tempURL, to: segmentURL)
 
-        return HLSManifestManager.SegmentInfo(
+        return HLSManifestService.SegmentInfo(
             url: segmentURL,
             verseNumber: verse.number,
             duration: duration,

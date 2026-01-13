@@ -86,7 +86,7 @@ struct ReadingPlanCard: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        ReadingPlanCard(plan: SanctuaryMockData.activePlan)
+        ReadingPlanCard(plan: HomeMockData.activePlan)
             .padding()
     }
 }

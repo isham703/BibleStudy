@@ -13,7 +13,7 @@ final class PrayerService {
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     var savedPrayers: [SavedPrayer] = []
     var isLoading: Bool = false

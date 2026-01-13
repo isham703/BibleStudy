@@ -109,8 +109,8 @@ struct PrayerPageShowcaseDirectory: View {
             } label: {
                 PrayerVariationCard(
                     title: "The Scriptorium",
-                    subtitle: "Illuminated Manuscript",
-                    description: "AI prayer generation with mood-based guidance. Drop caps, warm typography, and Scripture anchoring for a manuscript feel.",
+                    subtitle: "Stoic-Roman Style",
+                    description: "AI prayer generation with mood-based guidance. Drop caps, warm typography, and Scripture anchoring for a classical feel.",
                     icon: "text.book.closed.fill",
                     accentColor: Color("HighlightAmber"),
                     index: 1,

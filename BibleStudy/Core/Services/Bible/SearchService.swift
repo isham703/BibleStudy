@@ -12,7 +12,7 @@ final class SearchService {
     static let shared = SearchService()
 
     // MARK: - Dependencies
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     // MARK: - Initialization
     private init() {}

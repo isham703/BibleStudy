@@ -4,7 +4,7 @@ import SwiftUI
 // Scripture citations displayed below message text
 // Connected with golden thread visual
 
-struct InlineCitationView: View {
+struct CitationPillsView: View {
     let citations: [VerseRange]
     let onCitationTap: (VerseRange) -> Void
 
@@ -198,7 +198,7 @@ struct CitationGroup: View {
         if citations.isEmpty {
             EmptyView()
         } else {
-            InlineCitationView(
+            CitationPillsView(
                 citations: citations,
                 onCitationTap: onCitationTap
             )
@@ -210,7 +210,7 @@ struct CitationGroup: View {
 // MARK: - Preview
 
 #if DEBUG
-struct InlineCitationView_Previews: PreviewProvider {
+struct CitationPillsView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: Theme.Spacing.xxl) {
             Text("Inline Citations")
@@ -221,7 +221,7 @@ struct InlineCitationView_Previews: PreviewProvider {
                     .font(.system(.body, design: .serif))
                     .foregroundStyle(Color("AppTextPrimary"))
 
-                InlineCitationView(
+                CitationPillsView(
                     citations: [
                         VerseRange(bookId: 40, chapter: 5, verseStart: 1, verseEnd: 2),
                         VerseRange(bookId: 42, chapter: 6, verse: 20)

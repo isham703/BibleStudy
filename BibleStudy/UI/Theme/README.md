@@ -131,10 +131,10 @@ Motion is ceremonial, restrained, almost invisible. ALL cubic easing, NO spring 
 | `.hero` | 40pt | Hero icons |
 | `.display` | 76pt | Onboarding |
 
-**Decorative Tokens** (`Typography.Decorative.*`) — Illuminated manuscript
+**Decorative Tokens** (`Typography.Decorative.*`) — Stoic-Roman aesthetic
 | Token | Size | Use Case |
 |-------|------|----------|
-| `.dropCap` | 72pt bold serif | Large illuminated first letter |
+| `.dropCap` | 72pt bold serif | Large decorative first letter |
 | `.dropCapCompact` | 52pt bold serif | Compact drop cap |
 
 ### Colors

@@ -11,7 +11,7 @@ final class AchievementService {
     static let shared = AchievementService()
 
     // MARK: - Properties
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     // All achievements with their current state
     private(set) var achievements: [Achievement] = []

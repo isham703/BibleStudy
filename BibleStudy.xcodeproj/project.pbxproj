@@ -76,20 +76,6 @@
 			);
 			target = D661C38B2F03A5FC004F6466 /* DailyVerseWidgetExtension */;
 		};
-		D6C76A762F1058EC00860883 /* Exceptions for "BibleStudy" folder in "BibleStudy" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Features/Home/Components/RomanBackground.swift,
-			);
-			target = D65B01082EFFF9ED00374A39 /* BibleStudy */;
-		};
-		D6C76A772F1058EC00860883 /* Exceptions for "BibleStudy" folder in "StoriesShowcase" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Features/Home/Components/RomanBackground.swift,
-			);
-			target = D6AA12C02F07E1F000071B73 /* StoriesShowcase */;
-		};
 		E72909A5180346ABB5146414 /* Exceptions for "BibleStudyUITests" folder in "BibleStudyUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -110,10 +96,6 @@
 		};
 		D65B010B2EFFF9ED00374A39 /* BibleStudy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D6C76A762F1058EC00860883 /* Exceptions for "BibleStudy" folder in "BibleStudy" target */,
-				D6C76A772F1058EC00860883 /* Exceptions for "BibleStudy" folder in "StoriesShowcase" target */,
-			);
 			path = BibleStudy;
 			sourceTree = "<group>";
 		};

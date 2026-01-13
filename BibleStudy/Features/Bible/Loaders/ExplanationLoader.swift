@@ -53,18 +53,18 @@ final class ExplanationLoader {
 
     private let aiService: AIServiceProtocol
     private let cache: AIResponseCacheProtocol
-    private let entitlementManager: EntitlementManagerProtocol
+    private let entitlementManager: EntitlementServiceProtocol
 
     // MARK: - Initialization
 
     init(
         aiService: AIServiceProtocol? = nil,
         cache: AIResponseCacheProtocol? = nil,
-        entitlementManager: EntitlementManagerProtocol? = nil
+        entitlementManager: EntitlementServiceProtocol? = nil
     ) {
         self.aiService = aiService ?? OpenAIProvider.shared
         self.cache = cache ?? AIResponseCache.shared
-        self.entitlementManager = entitlementManager ?? EntitlementManager.shared
+        self.entitlementManager = entitlementManager ?? EntitlementService.shared
     }
 
     // MARK: - Load Explanation

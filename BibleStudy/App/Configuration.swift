@@ -154,7 +154,7 @@ enum AppConfiguration {
         // Home Page Variant
         static let homeVariant = "homeVariant"
 
-        // Typography Preferences (Illuminated Manuscript)
+        // Typography Preferences (Stoic-Roman)
         static let scriptureFont = "scriptureFont"
         static let displayFont = "displayFont"
         static let verseNumberStyle = "verseNumberStyle"

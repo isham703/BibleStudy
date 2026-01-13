@@ -69,7 +69,7 @@ struct AIInsightCard: View {
         Color.appBackground.ignoresSafeArea()
 
         VStack(spacing: Theme.Spacing.xl) {
-            AIInsightCard(insight: SanctuaryMockData.currentInsight)
+            AIInsightCard(insight: HomeMockData.currentInsight)
         }
         .padding()
     }

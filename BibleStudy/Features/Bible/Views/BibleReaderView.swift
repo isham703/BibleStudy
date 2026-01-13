@@ -321,7 +321,7 @@ struct BibleReaderView: View {
                         chapter: viewModel.currentLocation.chapter,
                         isVisible: isVisible
                     )
-                    .padding(.top, Theme.Size.minTapTarget + Theme.Spacing.xxl)
+                    .padding(.top, Theme.Size.minTapTarget + Theme.Spacing.xl)
                     .padding(.horizontal, Theme.Spacing.xl)
                     .id("chapter-top")
 

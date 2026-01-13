@@ -6,12 +6,12 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class EntitlementManager {
+final class EntitlementService {
     // MARK: - Singleton
-    static let shared = EntitlementManager()
+    static let shared = EntitlementService()
 
     // MARK: - Dependencies
-    private let storeManager = StoreManager.shared
+    private let storeManager = PurchaseService.shared
 
     // MARK: - Usage Tracking (resets daily)
     private(set) var aiInsightsUsedToday: Int = 0
@@ -349,7 +349,7 @@ enum EntitlementError: LocalizedError {
 // MARK: - View Modifier for Paywall
 
 struct PaywallModifier: ViewModifier {
-    @State private var entitlementManager = EntitlementManager.shared
+    @State private var entitlementManager = EntitlementService.shared
 
     func body(content: Content) -> some View {
         content
@@ -392,7 +392,7 @@ struct PremiumFeatureLock: View {
                 .foregroundStyle(Color("AppTextSecondary"))
 
             Button("Upgrade") {
-                EntitlementManager.shared.showPaywall()
+                EntitlementService.shared.showPaywall()
             }
             .font(Typography.Command.cta)
             .foregroundStyle(.white)

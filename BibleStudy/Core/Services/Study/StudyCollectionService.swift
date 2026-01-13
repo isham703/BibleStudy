@@ -13,7 +13,7 @@ final class StudyCollectionService {
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     var collections: [StudyCollection] = []
     var pinnedCollections: [StudyCollection] = []

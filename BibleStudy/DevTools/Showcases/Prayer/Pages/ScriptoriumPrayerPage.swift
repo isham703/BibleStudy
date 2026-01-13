@@ -2,7 +2,7 @@
 // BibleStudy
 //
 // "The Scriptorium" - Scholarly Reflection
-// AI-powered prayer generation with illuminated manuscript aesthetic
+// AI-powered prayer generation with Stoic-Roman aesthetic
 // Warm typography, drop caps, and contemplative pacing
 
 import SwiftUI

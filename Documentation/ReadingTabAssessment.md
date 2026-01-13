@@ -458,7 +458,7 @@ Toast displays for 4 seconds with undo button. Tapping undo calls `undoLastHighl
 BibleReaderViewModel.openInlineInsight()
     → Create BibleInsightViewModel(verseRange:)
     → loadExplanation()
-        → EntitlementManager.canUseAIInsights
+        → EntitlementService.canUseAIInsights
         → AIResponseCache check
         → OpenAIProvider.generateExplanation(input:)
         → Parse structured ExplanationOutput
@@ -569,7 +569,7 @@ User navigates to chapter
 ```text
 Highlight created
     → UserContentService.createHighlight()
-        → EntitlementManager.recordHighlightUsage()
+        → EntitlementService.recordHighlightUsage()
         → Create Highlight with needsSync=true
         → saveHighlightToDB() via GRDB
         → Add to in-memory array
@@ -639,7 +639,7 @@ BibleStudy/Features/Bible/
 
 ### Entitlement System
 
-- AI insights gated by `EntitlementManager.canUseAIInsights`
+- AI insights gated by `EntitlementService.canUseAIInsights`
 - Some translations require premium
 - Usage tracked with `recordAIInsightUsage()`
 

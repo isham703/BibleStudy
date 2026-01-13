@@ -1,10 +1,10 @@
 import SwiftUI
 
-// MARK: - Vellum Scroll Toast
-// Premium undo toast with illuminated manuscript aesthetics
-// Feels like a scroll of vellum unfurling from the bottom of the screen
+// MARK: - App Toast View
+// Premium undo toast with app-wide styling
+// Displays feedback messages with undo capability
 
-struct VellumScrollToast: View {
+struct AppToastView: View {
     let toast: ToastItem
     let onDismiss: () -> Void
     let onUndo: () -> Void
@@ -242,7 +242,7 @@ struct VellumScrollToast: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VellumScrollToast(
+        AppToastView(
             toast: ToastItem(
                 id: UUID(),
                 type: .highlight(color: .amber, reference: "Ephesians 2:10"),
@@ -260,7 +260,7 @@ struct VellumScrollToast: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        VellumScrollToast(
+        AppToastView(
             toast: ToastItem(
                 id: UUID(),
                 type: .success(message: "Copied to clipboard"),
@@ -278,7 +278,7 @@ struct VellumScrollToast: View {
     ZStack {
         Color("AppBackground").ignoresSafeArea()
 
-        VellumScrollToast(
+        AppToastView(
             toast: ToastItem(
                 id: UUID(),
                 type: .highlight(color: .blue, reference: "John 3:16"),

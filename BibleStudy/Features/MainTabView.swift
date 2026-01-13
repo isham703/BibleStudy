@@ -29,7 +29,7 @@ struct MainTabView: View {
     var body: some View {
         // Tab content (fills available space, tab bar floats over it)
         ZStack {
-            SanctuaryHomeView()
+            HomeTabView()
                 .opacity(selectedTab == .home ? 1 : 0)
                 .blur(radius: selectedTab == .home ? 0 : 4)
                 .allowsHitTesting(selectedTab == .home)

@@ -86,7 +86,7 @@ struct PracticeCard: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        PracticeCard(practice: SanctuaryMockData.practiceData)
+        PracticeCard(practice: HomeMockData.practiceData)
             .padding()
     }
 }

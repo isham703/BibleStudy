@@ -12,8 +12,8 @@ final class SettingsViewModel {
     // MARK: - Dependencies
     private let authService: AuthService
     private let notificationService: NotificationService
-    private let storeManager: StoreManager
-    private let entitlementManager: EntitlementManager
+    private let storeManager: PurchaseService
+    private let entitlementManager: EntitlementService
     private let biometricService: BiometricService
 
     // MARK: - Audio Cache Properties
@@ -191,8 +191,8 @@ final class SettingsViewModel {
     init(
         authService: AuthService? = nil,
         notificationService: NotificationService? = nil,
-        storeManager: StoreManager? = nil,
-        entitlementManager: EntitlementManager? = nil,
+        storeManager: PurchaseService? = nil,
+        entitlementManager: EntitlementService? = nil,
         biometricService: BiometricService? = nil
     ) {
         // Use provided services or fall back to shared instances

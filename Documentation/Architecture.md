@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-BibleStudy is a contemplative iOS scripture reading and spiritual formation app built with SwiftUI. It combines traditional Bible study features (reading, highlighting, notes) with AI-powered spiritual experiences (prayer generation, insights, Q&A). The app follows a **Stoic-Existential Renaissance aesthetic** inspired by Roman architecture and illuminated manuscripts.
+BibleStudy is a contemplative iOS scripture reading and spiritual formation app built with SwiftUI. It combines traditional Bible study features (reading, highlighting, notes) with AI-powered spiritual experiences (prayer generation, insights, Q&A). The app follows a **Stoic-Existential Renaissance aesthetic** inspired by Roman architecture and classical design.
 
 **Core Stack:**
 - SwiftUI + iOS 17+ Observable macro
@@ -54,7 +54,7 @@ BibleStudy/
 │   └── Configuration.swift          # Centralized config
 ├── Core/
 │   ├── Database/
-│   │   └── DatabaseManager.swift    # GRDB SQLite management
+│   │   └── DatabaseStore.swift    # GRDB SQLite management
 │   ├── Models/                      # Data models (Verse, Book, Highlight, etc.)
 │   ├── Services/                    # Business logic layer (16+ services)
 │   │   ├── Bible/                   # Scripture access
@@ -107,7 +107,7 @@ final class BibleReaderViewModel {
 - `BibleReaderViewModel` - Scripture reading state
 - `BibleInsightViewModel` - AI insights for verses
 - `AuthViewModel` - Authentication flow
-- `SanctuaryViewModel` - Home screen state
+- `HomeTabViewModel` - Home screen state
 - `SettingsViewModel` - Preferences management
 
 ### 2.2 Singleton Services
@@ -176,7 +176,7 @@ BibleTabView()
 
 ### 3.2 Database Manager
 
-**File:** `Core/Database/DatabaseManager.swift`
+**File:** `Core/Database/DatabaseStore.swift`
 
 - Manages SQLite via GRDB
 - Bundled `BibleData.sqlite` copied to Documents on first launch
@@ -296,7 +296,7 @@ Centralized prompt engineering with:
 
 ```
 MainTabView
-├── Home Tab → SanctuaryHomeView
+├── Home Tab → HomeTabView
 ├── Bible Tab → BibleTabView
 ├── Ask FAB → AskModalView (full-screen)
 ├── Mini Player → AudioPlayerView (above tab bar)
@@ -320,7 +320,7 @@ BibleTabView
 
 **Home Tab:**
 ```
-SanctuaryHomeView
+HomeTabView
 └── ForumHomeView (Roman Forum design)
     ├── greetingSection (time-based greeting)
     ├── wisdomQuoteSection (hero daily verse)
@@ -390,7 +390,7 @@ Handles:
 ### 6.3 Home (Forum Design)
 
 **Files:**
-- `Features/Home/SanctuaryHomeView.swift`
+- `Features/Home/HomeTabView.swift`
 - `Features/Home/Views/ForumHomeView.swift`
 
 **Design:** Roman Forum-inspired layout with centered wisdom quote and feature pillars.
@@ -599,7 +599,7 @@ Comprehensive haptic patterns:
 ### Core Infrastructure
 - `BibleStudyApp.swift` - Entry point, AppState
 - `App/Configuration.swift` - Centralized config
-- `Core/Database/DatabaseManager.swift` - GRDB management
+- `Core/Database/DatabaseStore.swift` - GRDB management
 
 ### Services
 - `Core/Services/Bible/BibleService.swift` - Scripture access
@@ -616,7 +616,7 @@ Comprehensive haptic patterns:
 - `Features/MainTabView.swift` - Root navigation
 - `Features/Bible/Views/BibleReaderView.swift` - Scripture reader
 - `Features/Bible/ViewModels/BibleReaderViewModel.swift` - Reader state
-- `Features/Home/SanctuaryHomeView.swift` - Home screen
+- `Features/Home/HomeTabView.swift` - Home screen
 - `Features/Experiences/Prayer/PrayersFromDeepView.swift` - Prayer generation
 - `Features/Auth/AuthView.swift` - Authentication UI
 - `Features/Settings/FloatingSanctuarySettings.swift` - Settings UI
@@ -694,7 +694,7 @@ App Launch
 5. Repository → Database
    File: BibleRepository.swift (line 35-44)
 
-   DatabaseManager.read { db in
+   DatabaseStore.read { db in
      Verse.filter(translationId == "kjv")
           .filter(bookId == location.bookId)
           .filter(chapter == location.chapter)
@@ -737,7 +737,7 @@ BibleService (Singleton, @Observable, @MainActor)
   ↓ manages cache, delegates to
 BibleRepository (Singleton, Database Operations)
   ↓ executes GRDB queries on
-DatabaseManager (Singleton, DatabaseQueue)
+DatabaseStore (Singleton, DatabaseQueue)
   ↓ reads from
 SQLite Database (Documents/BibleStudy.sqlite)
 ```
@@ -875,14 +875,14 @@ final class BibleRepository: @unchecked Sendable {
 ```swift
 BibleService.shared
 BibleRepository.shared
-DatabaseManager.shared
+DatabaseStore.shared
 SupabaseManager.shared
 AuthService.shared
 UserContentService.shared
 AudioService.shared
 OpenAIProvider.shared
 HapticService.shared
-ToastManager.shared
+ToastService.shared
 ```
 
 **Pattern:**
@@ -942,9 +942,9 @@ init(aiService: AIServiceProtocol? = nil) {
 ```
 App Launch
   ↓
-DatabaseManager (foundational)
+DatabaseStore (foundational)
   ↓
-BibleRepository (depends on DatabaseManager)
+BibleRepository (depends on DatabaseStore)
   ↓
 BibleService (depends on BibleRepository)
   ↓
@@ -955,7 +955,7 @@ Views (depend on ViewModels)
 Parallel Initialization:
 - SupabaseManager (independent)
 - AuthService (depends on SupabaseManager)
-- UserContentService (depends on SupabaseManager + DatabaseManager)
+- UserContentService (depends on SupabaseManager + DatabaseStore)
 - AudioService (independent)
 - OpenAIProvider (independent)
 ```
@@ -967,8 +967,8 @@ Parallel Initialization:
 User taps color →
 BibleReaderViewModel.createHighlight(color:) →
   UserContentService.createHighlight(for:color:) →
-    EntitlementManager.recordHighlightUsage() [paywall check] →
-    DatabaseManager.write { ... } [local cache] →
+    EntitlementService.recordHighlightUsage() [paywall check] →
+    DatabaseStore.write { ... } [local cache] →
     SupabaseManager.createHighlight() [remote sync]
 ```
 
@@ -986,7 +986,7 @@ BibleReaderViewModel.openInlineInsight() →
 ### 13.3 Initialization Order
 
 **Sequential (Critical Path):**
-1. `DatabaseManager.setup()` - MUST complete first
+1. `DatabaseStore.setup()` - MUST complete first
 2. `BibleService.initialize()` - Loads translations
 3. `WidgetService.syncWidgetData()` - Non-blocking
 4. `AuthService` checks session - Async, doesn't block UI
@@ -994,7 +994,7 @@ BibleReaderViewModel.openInlineInsight() →
 **Parallel (Independent):**
 - `AudioCache.performMaintenance()` - Background cleanup
 - `SupabaseManager` init - Only needed for authenticated features
-- `EntitlementManager` - Lazy initialization on first paywall trigger
+- `EntitlementService` - Lazy initialization on first paywall trigger
 
 ---
 
@@ -1046,7 +1046,7 @@ var scriptureFontSize: ScriptureFontSize = .medium {
    → UserContentService.createHighlight()
 
 4. Local DB: Save to cache
-   → DatabaseManager.write { Highlight.save() }
+   → DatabaseStore.write { Highlight.save() }
 
 5. Cloud: Sync to Supabase
    → SupabaseManager.createHighlight()
@@ -1132,7 +1132,7 @@ CREATE TABLE ai_cache (
 ```swift
 // MainTabView.swift
 ZStack {
-    SanctuaryHomeView()
+    HomeTabView()
         .opacity(selectedTab == .home ? 1 : 0)
         .blur(radius: selectedTab == .home ? 0 : 2)
 
@@ -1181,7 +1181,7 @@ biblestudy://auth/error?error=otp_expired
 | Component | Location | Usage |
 |-----------|----------|-------|
 | `IlluminatedContextMenu` | `UI/Components/` | Verse selection menu |
-| `VellumScrollToast` | `UI/Components/` | Parchment-style toast |
+| `AppToastView` | `UI/Components/` | Parchment-style toast |
 | `FloatingParticles` | `UI/Components/` | Ambient animation |
 | `IlluminatedChapterHeader` | `UI/Components/` | Ornate headers |
 | `OrnamentalDivider` | `UI/Components/` | Decorative separators |
@@ -1242,12 +1242,12 @@ BibleStudy is a mature SwiftUI application with:
 - **Modern Swift patterns** (@Observable, async/await, MainActor)
 - **Multi-layer persistence** (GRDB local, Supabase remote)
 - **Rich AI integration** (insights, prayer, Q&A)
-- **Contemplative UX** (illuminated manuscript aesthetic, Stoic-Roman design)
+- **Contemplative UX** (Stoic-Roman aesthetic, classical design)
 
 **For Feature Expansion:**
 1. **New Feature**: Create ViewModel → Service → Repository (if data-backed)
 2. **New AI Feature**: Implement in `AIServiceProtocol`, add to `OpenAIProvider`
-3. **New Data Type**: Add migration to `DatabaseManager`, create model with GRDB
+3. **New Data Type**: Add migration to `DatabaseStore`, create model with GRDB
 4. **New Screen**: Follow MVVM, inject `AppState` and required services
 5. **Navigation**: Use NotificationCenter for cross-feature routing
 

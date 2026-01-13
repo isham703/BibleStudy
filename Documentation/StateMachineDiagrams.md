@@ -70,7 +70,7 @@ stateDiagram-v2
 - Crisis detection (self-harm) triggers hardcoded support resources modal
 - Exponential backoff retry for transient failures (network, rate limit)
 - Word-by-word reveal with punctuation-aware delays (0.7s base, +0.6s for periods)
-- Quota tracking via `EntitlementManager.recordPrayerGeneration()`
+- Quota tracking via `EntitlementService.recordPrayerGeneration()`
 
 **Edge Cases:**
 
@@ -637,7 +637,7 @@ stateDiagram-v2
 
 **Purpose:** Manages subscription tiers, feature gating, and paywall triggering.
 
-**Sources:** `Core/Services/Purchase/StoreManager.swift`, `Core/Services/Purchase/EntitlementManager.swift`
+**Sources:** `Core/Services/Purchase/PurchaseService.swift`, `Core/Services/Purchase/EntitlementService.swift`
 
 ```mermaid
 stateDiagram-v2

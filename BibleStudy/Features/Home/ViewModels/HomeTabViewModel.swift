@@ -6,7 +6,7 @@ import SwiftUI
 
 @Observable
 @MainActor
-final class SanctuaryViewModel {
+final class HomeTabViewModel {
     // MARK: - Dependencies
 
     private let progressService: ProgressService

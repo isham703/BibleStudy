@@ -287,7 +287,7 @@ final class BibleReaderViewModel {
                 )
 
                 // Show undo toast
-                ToastManager.shared.showHighlightToast(
+                ToastService.shared.showHighlightToast(
                     color: color,
                     reference: range.reference,
                     onUndo: { [weak self] in

@@ -194,7 +194,7 @@ struct BibleInsightContent: View {
 
             Button {
                 HapticService.shared.lightTap()
-                EntitlementManager.shared.showPaywall(trigger: .aiInsightsLimit)
+                EntitlementService.shared.showPaywall(trigger: .aiInsightsLimit)
             } label: {
                 HStack(spacing: Theme.Spacing.xs) {
                     Image(systemName: "sparkles")

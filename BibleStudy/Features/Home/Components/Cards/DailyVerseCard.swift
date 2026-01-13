@@ -43,7 +43,7 @@ struct DailyVerseCard: View {
     ZStack {
         Color.appBackground.ignoresSafeArea()
 
-        DailyVerseCard(verse: SanctuaryMockData.dailyVerse)
+        DailyVerseCard(verse: HomeMockData.dailyVerse)
             .padding()
     }
 }

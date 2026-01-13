@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Sanctuary Mock Data
 // Hardcoded placeholder content for visual mockups and sanctuary home variants
 
-enum SanctuaryMockData {
+enum HomeMockData {
 
     // MARK: - User Data
 

@@ -1,10 +1,9 @@
 import SwiftUI
 
-// MARK: - Illuminated Capital View
-// Gold-decorated first letter with breathing glow effect
-// Inspired by medieval illuminated manuscripts
+// MARK: - Drop Cap View
+// Decorative first letter with breathing glow effect
 
-struct IlluminatedCapitalView: View {
+struct DropCapView: View {
     let letter: String
     let isVisible: Bool
 
@@ -15,8 +14,8 @@ struct IlluminatedCapitalView: View {
         UIAccessibility.isReduceMotionEnabled
     }
 
-    // Typography for illuminated capitals - large serif for manuscript effect
-    private var illuminatedFont: Font {
+    // Typography for drop caps - large decorative serif
+    private var dropCapFont: Font {
         Typography.Decorative.dropCap
     }
 
@@ -24,21 +23,21 @@ struct IlluminatedCapitalView: View {
         ZStack {
             // Outer glow layer
             Text(letter.uppercased())
-                .font(illuminatedFont)
+                .font(dropCapFont)
                 .foregroundStyle(Color("AccentBronze"))
                 .blur(radius: 8)
                 .opacity(glowIntensity * Theme.Opacity.textPrimary)
 
             // Inner glow layer
             Text(letter.uppercased())
-                .font(illuminatedFont)
+                .font(dropCapFont)
                 .foregroundStyle(Color("AccentBronze"))
                 .blur(radius: 4)
                 .opacity(glowIntensity * Theme.Opacity.pressed)
 
             // Main letter
             Text(letter.uppercased())
-                .font(illuminatedFont)
+                .font(dropCapFont)
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
@@ -85,10 +84,10 @@ struct IlluminatedCapitalView: View {
     }
 }
 
-// MARK: - Compact Illuminated Capital
+// MARK: - Compact Drop Cap
 // Smaller variant for inline use
 
-struct CompactIlluminatedCapital: View {
+struct CompactDropCap: View {
     let letter: String
 
     @Environment(\.colorScheme) private var colorScheme
@@ -98,7 +97,7 @@ struct CompactIlluminatedCapital: View {
         UIAccessibility.isReduceMotionEnabled
     }
 
-    // Compact illuminated capital font (slightly smaller than full)
+    // Compact drop cap font (slightly smaller than full)
     private var compactFont: Font {
         Typography.Decorative.dropCapCompact
     }
@@ -133,9 +132,9 @@ struct CompactIlluminatedCapital: View {
 }
 
 // MARK: - Decorative Border
-// Optional ornamental frame for illuminated capitals
+// Optional ornamental frame for drop caps
 
-struct IlluminatedBorder: View {
+struct DecorativeBorder: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var shimmerOffset: CGFloat = -1
 
@@ -177,32 +176,32 @@ struct IlluminatedBorder: View {
 
 // MARK: - Preview
 
-#Preview("Illuminated Capital") {
+#Preview("Drop Cap") {
     VStack(spacing: Theme.Spacing.xxl) {
-        Text("Illuminated Capitals")
+        Text("Drop Caps")
             .font(Typography.Command.headline)
 
         HStack(spacing: Theme.Spacing.xl) {
-            IlluminatedCapitalView(letter: "W", isVisible: true)
-            IlluminatedCapitalView(letter: "B", isVisible: true)
-            IlluminatedCapitalView(letter: "T", isVisible: true)
+            DropCapView(letter: "W", isVisible: true)
+            DropCapView(letter: "B", isVisible: true)
+            DropCapView(letter: "T", isVisible: true)
         }
 
         Text("Compact Variant")
             .font(Typography.Command.headline)
 
         HStack(spacing: Theme.Spacing.lg) {
-            CompactIlluminatedCapital(letter: "A")
-            CompactIlluminatedCapital(letter: "M")
-            CompactIlluminatedCapital(letter: "S")
+            CompactDropCap(letter: "A")
+            CompactDropCap(letter: "M")
+            CompactDropCap(letter: "S")
         }
 
         Text("With Border")
             .font(Typography.Command.headline)
 
         ZStack {
-            IlluminatedBorder()
-            IlluminatedCapitalView(letter: "G", isVisible: true)
+            DecorativeBorder()
+            DropCapView(letter: "G", isVisible: true)
         }
         .frame(width: 80, height: 80)
     }

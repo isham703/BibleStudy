@@ -1,5 +1,5 @@
 //
-//  MockEntitlementManager.swift
+//  MockEntitlementService.swift
 //  BibleStudyTests
 //
 //  Mock entitlement manager for unit testing
@@ -11,7 +11,7 @@ import Foundation
 // MARK: - Mock Entitlement Manager
 
 @MainActor
-final class MockEntitlementManager: EntitlementManagerProtocol {
+final class MockEntitlementService: EntitlementManagerProtocol {
     // MARK: - Configuration
 
     var canUseAIInsights: Bool = true

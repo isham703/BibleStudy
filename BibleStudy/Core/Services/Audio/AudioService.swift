@@ -309,7 +309,7 @@ final class AudioService: NSObject {
                 print("[AudioService] Invalidating cache and regenerating...")
 
                 // Delete invalid manifest and segments
-                try? await getHLSManifestManager().delete(chapter: chapter)
+                try? await getHLSManifestService().delete(chapter: chapter)
 
                 // Fall through to regeneration
             }
@@ -1217,7 +1217,7 @@ final class AudioService: NSObject {
     )
 
     /// HLS audio generation and manifest management
-    private let hlsManifestManager = HLSManifestManager(cache: AudioCache.shared)
+    private let hlsManifestManager = HLSManifestService(cache: AudioCache.shared)
     private var hlsGenerator: HLSAudioGenerator?
 
     /// Pre-generation state
@@ -1239,7 +1239,7 @@ final class AudioService: NSObject {
         return generator
     }
 
-    private func getHLSManifestManager() -> HLSManifestManager {
+    private func getHLSManifestService() -> HLSManifestService {
         return hlsManifestManager
     }
 

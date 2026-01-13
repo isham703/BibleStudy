@@ -19,7 +19,7 @@ final class AskViewModel {
     // MARK: - Dependencies
 
     private let aiProvider: AIServiceProtocol
-    private let tokenBudgetManager: TokenBudgetManager
+    private let tokenBudgetManager: TokenBudgetService
     private let persistenceService: ChatPersistenceService
     private let searchService: SearchService
     private let bibleService: BibleService
@@ -80,7 +80,7 @@ final class AskViewModel {
 
     init(
         aiProvider: AIServiceProtocol? = nil,
-        tokenBudgetManager: TokenBudgetManager? = nil,
+        tokenBudgetManager: TokenBudgetService? = nil,
         persistenceService: ChatPersistenceService? = nil,
         searchService: SearchService? = nil,
         bibleService: BibleService? = nil
@@ -88,7 +88,7 @@ final class AskViewModel {
         // Use provided dependencies or MainActor-isolated singletons
         // This pattern avoids Swift 6 concurrency errors with default parameters
         self.aiProvider = aiProvider ?? OpenAIProvider.shared
-        self.tokenBudgetManager = tokenBudgetManager ?? TokenBudgetManager.shared
+        self.tokenBudgetManager = tokenBudgetManager ?? TokenBudgetService.shared
         self.persistenceService = persistenceService ?? ChatPersistenceService.shared
         self.searchService = searchService ?? SearchService.shared
         self.bibleService = bibleService ?? BibleService.shared

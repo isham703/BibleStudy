@@ -1107,7 +1107,7 @@ chunkDuration: 600      // 10 minutes
 | PromptTemplates | `Core/Services/AI/PromptTemplates.swift` | Study guide prompts |
 | OpenAIProvider | `Core/Services/AI/OpenAIProvider.swift` | AI service |
 | AIServiceProtocol | `Core/Services/AI/AIServiceProtocol.swift` | Protocol definition |
-| DatabaseManager | `Core/Database/DatabaseManager.swift` | GRDB setup |
+| DatabaseStore | `Core/Database/DatabaseStore.swift` | GRDB setup |
 | SupabaseClient | `Core/Networking/SupabaseClient.swift` | Supabase integration |
 
 ---

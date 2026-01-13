@@ -329,8 +329,8 @@ struct NoteEditor: View {
                     }
                 }
 
-            // MARK: - Illuminated Character Counter
-            // Displays writing progress with manuscript-inspired aesthetics
+            // MARK: - Character Counter
+            // Displays writing progress with classical aesthetics
             // State transitions: Subtle → Contemplative Warning → Urgent Reverence
 
             VStack(spacing: Theme.Spacing.xs) {

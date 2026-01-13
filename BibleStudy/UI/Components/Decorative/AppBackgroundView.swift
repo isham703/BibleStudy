@@ -18,7 +18,7 @@ struct AuroraParticle: Identifiable {
 /// Draws a dynamic aurora-like background using Canvas and TimelineView.
 /// Optimized for performance with reduce motion support.
 /// Used by breathing exercise features.
-struct BreathingAuroraBackground: View {
+struct BreathingAppBackgroundView: View {
     let isActive: Bool
     let baseHue: Double
 
@@ -150,26 +150,26 @@ struct BreathingAuroraBackground: View {
 
 // MARK: - Aurora Background Presets
 
-extension BreathingAuroraBackground {
+extension BreathingAppBackgroundView {
     /// Night-themed aurora for Compline (indigo base)
-    static func compline(isActive: Bool) -> BreathingAuroraBackground {
-        BreathingAuroraBackground(isActive: isActive, baseHue: 0.7)
+    static func compline(isActive: Bool) -> BreathingAppBackgroundView {
+        BreathingAppBackgroundView(isActive: isActive, baseHue: 0.7)
     }
 
     /// Calm mint-toned aurora
-    static func calm(isActive: Bool) -> BreathingAuroraBackground {
-        BreathingAuroraBackground(isActive: isActive, baseHue: 0.45)
+    static func calm(isActive: Bool) -> BreathingAppBackgroundView {
+        BreathingAppBackgroundView(isActive: isActive, baseHue: 0.45)
     }
 
     /// Cyan-toned aurora for focus
-    static func focus(isActive: Bool) -> BreathingAuroraBackground {
-        BreathingAuroraBackground(isActive: isActive, baseHue: 0.5)
+    static func focus(isActive: Bool) -> BreathingAppBackgroundView {
+        BreathingAppBackgroundView(isActive: isActive, baseHue: 0.5)
     }
 }
 
 // MARK: - Hue Helpers
 
-extension BreathingAuroraBackground {
+extension BreathingAppBackgroundView {
     /// Maps a BreathingPattern color to a hue value.
     static func hue(for pattern: BreathingPattern) -> Double {
         switch pattern.color {
@@ -181,19 +181,19 @@ extension BreathingAuroraBackground {
     }
 
     /// Creates an aurora background for a breathing pattern.
-    static func forPattern(_ pattern: BreathingPattern, isActive: Bool) -> BreathingAuroraBackground {
-        BreathingAuroraBackground(isActive: isActive, baseHue: hue(for: pattern))
+    static func forPattern(_ pattern: BreathingPattern, isActive: Bool) -> BreathingAppBackgroundView {
+        BreathingAppBackgroundView(isActive: isActive, baseHue: hue(for: pattern))
     }
 }
 
 // MARK: - Preview
 
 #Preview("Aurora - Active") {
-    BreathingAuroraBackground(isActive: true, baseHue: 0.7)
+    BreathingAppBackgroundView(isActive: true, baseHue: 0.7)
         .ignoresSafeArea()
 }
 
 #Preview("Aurora - Inactive") {
-    BreathingAuroraBackground(isActive: false, baseHue: 0.45)
+    BreathingAppBackgroundView(isActive: false, baseHue: 0.45)
         .ignoresSafeArea()
 }

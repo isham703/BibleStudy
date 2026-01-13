@@ -26,7 +26,7 @@ struct ExplanationLoaderTests {
 
     @Test("Returns limit reached when user has no quota")
     func returnsLimitReachedWhenNoQuota() async {
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
         mockEntitlement.simulateLimitReached()
 
         let loader = ExplanationLoader(
@@ -50,7 +50,7 @@ struct ExplanationLoaderTests {
     func returnsLimitReachedWhenRecordUsageFails() async {
         let mockAI = MockAIService()
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         // User has quota initially but recording fails (just hit limit)
         mockEntitlement.canUseAIInsights = true
@@ -79,7 +79,7 @@ struct ExplanationLoaderTests {
     func returnsCachedResult() async {
         let mockAI = MockAIService()
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         // Pre-populate cache
         let cachedOutput = ExplanationOutput(
@@ -117,7 +117,7 @@ struct ExplanationLoaderTests {
     func cachesResultAfterAICall() async {
         let mockAI = MockAIService()
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         mockAI.stubbedExplanationOutput = ExplanationOutput(
             explanation: "AI generated explanation",
@@ -155,7 +155,7 @@ struct ExplanationLoaderTests {
         mockAI.isAvailable = false
 
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         let loader = ExplanationLoader(
             aiService: mockAI,
@@ -182,7 +182,7 @@ struct ExplanationLoaderTests {
     func makesAICallOnCacheMiss() async {
         let mockAI = MockAIService()
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         let loader = ExplanationLoader(
             aiService: mockAI,
@@ -206,7 +206,7 @@ struct ExplanationLoaderTests {
     func recordsEntitlementBeforeAICall() async {
         let mockAI = MockAIService()
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         let loader = ExplanationLoader(
             aiService: mockAI,
@@ -232,7 +232,7 @@ struct ExplanationLoaderTests {
         mockAI.stubbedError = AIServiceError.networkError(NSError(domain: "test", code: -1))
 
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         let loader = ExplanationLoader(
             aiService: mockAI,
@@ -258,7 +258,7 @@ struct ExplanationLoaderTests {
         mockAI.stubbedError = AIServiceError.invalidResponse
 
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         let loader = ExplanationLoader(
             aiService: mockAI,
@@ -282,7 +282,7 @@ struct ExplanationLoaderTests {
     func parsesStructuredExplanation() async {
         let mockAI = MockAIService()
         let mockCache = MockAIResponseCache()
-        let mockEntitlement = MockEntitlementManager()
+        let mockEntitlement = MockEntitlementService()
 
         mockAI.stubbedExplanationOutput = ExplanationOutput(
             explanation: "Main explanation text",

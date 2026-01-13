@@ -73,9 +73,9 @@ enum SubscriptionTier: String, Comparable, Sendable {
 
 @MainActor
 @Observable
-final class StoreManager {
+final class PurchaseService {
     // MARK: - Singleton
-    static let shared = StoreManager()
+    static let shared = PurchaseService()
 
     // MARK: - Properties
     private(set) var products: [Product] = []
@@ -333,7 +333,7 @@ extension Notification.Name {
 
 // MARK: - Entitlement Checking Extensions
 
-extension StoreManager {
+extension PurchaseService {
     // Feature-level checks
 
     var canAccessAllTranslations: Bool {

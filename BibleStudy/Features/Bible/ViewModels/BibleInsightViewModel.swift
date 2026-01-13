@@ -64,7 +64,7 @@ final class BibleInsightViewModel {
     private let bibleService = BibleService.shared
     private let aiService: AIServiceProtocol = OpenAIProvider.shared
     private let aiCache = AIResponseCache.shared
-    private let entitlementManager = EntitlementManager.shared
+    private let entitlementManager = EntitlementService.shared
 
     // MARK: - Properties
     let verseRange: VerseRange

@@ -163,9 +163,9 @@ final class PrayerFlowState {
 
         // Check daily quota before starting (triggers paywall if limit reached)
         // Only checks - doesn't record. Recording happens after successful generation.
-        guard EntitlementManager.shared.canGeneratePrayer else {
+        guard EntitlementService.shared.canGeneratePrayer else {
             print("🙏 Prayer: Daily limit reached, triggering paywall")
-            EntitlementManager.shared.showPaywall(trigger: .prayerLimit)
+            EntitlementService.shared.showPaywall(trigger: .prayerLimit)
             return
         }
 
@@ -269,8 +269,8 @@ final class PrayerFlowState {
                 phase = .displaying
 
                 // 6. Record successful generation for quota tracking
-                EntitlementManager.shared.recordPrayerGeneration()
-                print("🙏 Prayer: Quota recorded, remaining=\(EntitlementManager.shared.remainingPrayers)")
+                EntitlementService.shared.recordPrayerGeneration()
+                print("🙏 Prayer: Quota recorded, remaining=\(EntitlementService.shared.remainingPrayers)")
 
             } catch let prayerError as PrayerGenerationError {
                 guard !Task.isCancelled else { return }

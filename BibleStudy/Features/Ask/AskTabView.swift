@@ -51,8 +51,8 @@ struct AskTabContentView: View {
                     .offset(y: contentOffset)
                     .opacity(contentAppeared ? 1 : 0)
                 } else {
-                    // Living Scroll: Revolutionary illuminated manuscript chat experience
-                    LivingScrollView(
+                    // Message list with Stoic-Roman aesthetic
+                    MessageListView(
                         messages: viewModel.messages,
                         isLoading: viewModel.isLoading,
                         lastUncertaintyLevel: viewModel.lastUncertaintyLevel,

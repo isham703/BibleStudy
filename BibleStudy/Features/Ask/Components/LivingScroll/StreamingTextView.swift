@@ -5,7 +5,7 @@ import SwiftUI
 // Character-by-character text reveal animation
 // Creates the effect of ink flowing onto parchment
 
-struct InkFlowTextView: View {
+struct StreamingTextView: View {
     let text: String
     let isAnimating: Bool
     var onAnimationComplete: (() -> Void)?
@@ -63,10 +63,10 @@ struct InkFlowTextView: View {
     }
 }
 
-// MARK: - Ink Flow Text with Illuminated Capital
-// Combines illuminated first letter with flowing text
+// MARK: - Ink Flow Text with Drop Cap
+// Combines decorative first letter with flowing text
 
-struct IlluminatedInkFlowText: View {
+struct DropCapInkFlowText: View {
     let text: String
     let isAnimating: Bool
     var onAnimationComplete: (() -> Void)?
@@ -80,16 +80,16 @@ struct IlluminatedInkFlowText: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
-            // Illuminated capital (first letter)
+            // Decorative drop cap (first letter)
             if let firstChar = text.first {
-                IlluminatedCapitalView(
+                DropCapView(
                     letter: String(firstChar),
                     isVisible: showCapital
                 )
             }
 
             // Flowing text (rest of the content)
-            InkFlowTextView(
+            StreamingTextView(
                 text: remainingText,
                 isAnimating: isAnimating && showCapital
             ) {
@@ -122,13 +122,13 @@ struct IlluminatedInkFlowText: View {
 // MARK: - Preview
 
 #if DEBUG
-struct InkFlowTextView_Previews: PreviewProvider {
+struct StreamingTextView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: Theme.Spacing.xl) {
             Text("Ink Flow Animation")
                 .font(Typography.Command.headline)
 
-            InkFlowTextView(
+            StreamingTextView(
                 text: "Blessed are the poor in spirit, for theirs is the kingdom of heaven.",
                 isAnimating: true
             )
@@ -142,13 +142,13 @@ struct InkFlowTextView_Previews: PreviewProvider {
     }
 }
 
-struct IlluminatedInkFlowText_Previews: PreviewProvider {
+struct DropCapInkFlowText_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: Theme.Spacing.xl) {
-            Text("Illuminated Text")
+            Text("Drop Cap Text")
                 .font(Typography.Command.headline)
 
-            IlluminatedInkFlowText(
+            DropCapInkFlowText(
                 text: "When Jesus saw the crowds, he went up on a mountainside and sat down.",
                 isAnimating: true
             )
@@ -158,7 +158,7 @@ struct IlluminatedInkFlowText_Previews: PreviewProvider {
         }
         .padding()
         .background(Color.appBackground)
-        .previewDisplayName("Illuminated Ink Flow")
+        .previewDisplayName("Drop Cap Ink Flow")
     }
 }
 #endif

@@ -17,7 +17,7 @@ protocol CrossRefBackgroundProviding: Sendable {
 // MARK: - Default Implementation (Direct Database Access)
 
 /// Provides background cross-ref operations without MainActor dependency
-/// Uses DatabaseManager directly since GRDB handles thread safety internally
+/// Uses DatabaseStore directly since GRDB handles thread safety internally
 struct CrossRefBackgroundProvider: CrossRefBackgroundProviding, Sendable {
     // nonisolated(unsafe) allows use as default parameter in nonisolated init
     nonisolated(unsafe) static let shared = CrossRefBackgroundProvider()
@@ -25,7 +25,7 @@ struct CrossRefBackgroundProvider: CrossRefBackgroundProviding, Sendable {
     private init() {}
 
     nonisolated func getOutgoingCrossRefsBackground(for range: VerseRange) throws -> [CrossReference] {
-        guard let dbQueue = DatabaseManager.backgroundDBQueue else {
+        guard let dbQueue = DatabaseStore.backgroundDBQueue else {
             throw DatabaseError.notInitialized
         }
 
@@ -43,7 +43,7 @@ struct CrossRefBackgroundProvider: CrossRefBackgroundProviding, Sendable {
     nonisolated func buildVerificationIndex(
         for sourceRanges: [VerseRange]
     ) throws -> (outgoing: [String: Set<String>], incoming: [String: Set<String>]) {
-        guard let dbQueue = DatabaseManager.backgroundDBQueue else {
+        guard let dbQueue = DatabaseStore.backgroundDBQueue else {
             throw DatabaseError.notInitialized
         }
 

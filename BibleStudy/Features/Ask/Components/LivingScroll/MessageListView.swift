@@ -1,10 +1,10 @@
 import SwiftUI
 
-// MARK: - Living Scroll View
-// Revolutionary AI chat interface with illuminated manuscript aesthetic
+// MARK: - Message List View
+// AI chat interface with Stoic-Roman aesthetic
 // Enhanced with scroll-aware effects and vignette
 
-struct LivingScrollView: View {
+struct MessageListView: View {
     let messages: [ChatMessage]
     let isLoading: Bool
     let lastUncertaintyLevel: UncertaintyLevel?
@@ -44,7 +44,7 @@ struct LivingScrollView: View {
 
                         // Messages
                         ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
-                            ManuscriptMessageView(
+                            ChatMessageView(
                                 message: message,
                                 isLatestAIMessage: isLatestAIMessage(message, at: index),
                                 onCitationTap: { citation in
@@ -73,7 +73,7 @@ struct LivingScrollView: View {
 
                         // Loading state - Sacred Geometry with ambient glow
                         if isLoading {
-                            EnhancedSacredGeometryThinking()
+                            EnhancedChatThinkingIndicatorView()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, Theme.Spacing.md)
                                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
@@ -505,7 +505,7 @@ private struct ScrollOffsetPreferenceKey: PreferenceKey {
 // MARK: - Enhanced Sacred Geometry Thinking
 // Sacred Geometry with ambient glow background
 
-private struct EnhancedSacredGeometryThinking: View {
+private struct EnhancedChatThinkingIndicatorView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var ambientGlowOpacity: CGFloat = 0.4
 
@@ -534,7 +534,7 @@ private struct EnhancedSacredGeometryThinking: View {
                 .opacity(ambientGlowOpacity)
                 .offset(x: -30, y: 0)
 
-            SacredGeometryThinking()
+            ChatThinkingIndicatorView()
         }
         .onAppear {
             guard !respectsReducedMotion else { return }
@@ -552,8 +552,8 @@ private struct EnhancedSacredGeometryThinking: View {
 
 // MARK: - Preview
 
-#Preview("Living Scroll View") {
-    LivingScrollView(
+#Preview("Message List View") {
+    MessageListView(
         messages: [
             ChatMessage(
                 threadId: UUID(),
@@ -582,8 +582,8 @@ private struct EnhancedSacredGeometryThinking: View {
     .background(Color.appBackground)
 }
 
-#Preview("Living Scroll Loading") {
-    LivingScrollView(
+#Preview("Message List Loading") {
+    MessageListView(
         messages: [
             ChatMessage(
                 threadId: UUID(),

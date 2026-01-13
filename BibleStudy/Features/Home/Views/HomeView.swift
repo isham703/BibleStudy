@@ -12,13 +12,13 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var isAwakened = false
-    @Environment(SanctuaryViewModel.self) private var viewModel
+    @Environment(HomeTabViewModel.self) private var viewModel
     @Environment(\.settingsAction) private var settingsAction
     @Environment(\.colorScheme) private var colorScheme
 
     // Mock data (to be replaced with real data sources)
-    private let dailyVerse = SanctuaryMockData.dailyVerse
-    private let readingPlan = SanctuaryMockData.activePlan
+    private let dailyVerse = HomeMockData.dailyVerse
+    private let readingPlan = HomeMockData.activePlan
 
     var body: some View {
         ZStack {
@@ -341,35 +341,31 @@ struct HomeView: View {
 
     private var secondaryActionsGrid: some View {
         VStack(spacing: Theme.Spacing.md) {
-            HStack(spacing: Theme.Spacing.md) {
-                HomeActionCard(
-                    icon: "mic.fill",
-                    title: "Sermon",
-                    subtitle: "Record & analyze",
-                    accentColor: Color("AppAccentAction")
-                ) {
-                    SermonView()
-                }
-
-                HomeActionCard(
-                    icon: "moon.stars.fill",
-                    title: "Compline",
-                    subtitle: "Evening prayer",
-                    accentColor: Color("FeedbackInfo")
-                ) {
-                    ComplineView()
-                }
+            HomeActionCard(
+                icon: "mic.fill",
+                title: "Sermon",
+                subtitle: "Record & analyze",
+                accentColor: Color("AppAccentAction")
+            ) {
+                SermonView()
             }
 
-            HStack(spacing: Theme.Spacing.md) {
-                HomeActionCard(
-                    icon: "wind",
-                    title: "Breathe",
-                    subtitle: "Centered stillness",
-                    accentColor: Color("FeedbackSuccess")
-                ) {
-                    BreatheView()
-                }
+            HomeActionCard(
+                icon: "moon.stars.fill",
+                title: "Compline",
+                subtitle: "Evening prayer",
+                accentColor: Color("FeedbackInfo")
+            ) {
+                ComplineView()
+            }
+
+            HomeActionCard(
+                icon: "wind",
+                title: "Breathe",
+                subtitle: "Centered stillness",
+                accentColor: Color("FeedbackSuccess")
+            ) {
+                BreatheView()
             }
         }
         .opacity(isAwakened ? 1 : 0)
@@ -545,10 +541,12 @@ private struct HomeActionCard<Destination: View>: View {
                     Text(title)
                         .font(Typography.Command.label)
                         .foregroundStyle(Color("AppTextPrimary"))
+                        .lineLimit(1)
 
                     Text(subtitle)
                         .font(Typography.Command.caption)
                         .foregroundStyle(Color("TertiaryText"))
+                        .lineLimit(1)
                 }
 
                 Spacer()
@@ -665,5 +663,5 @@ private struct HomeSuggestionCard: View {
     NavigationStack {
         HomeView()
     }
-    .environment(SanctuaryViewModel())
+    .environment(HomeTabViewModel())
 }

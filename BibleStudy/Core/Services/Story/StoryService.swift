@@ -42,7 +42,7 @@ final class StoryService {
 
     // MARK: - Dependencies
     private let supabase = SupabaseManager.shared
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     // MARK: - State
     var prebuiltStories: [Story] = []

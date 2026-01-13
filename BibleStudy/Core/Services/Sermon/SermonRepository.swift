@@ -13,7 +13,7 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
 
     // MARK: - Dependencies
 
-    private var database: DatabaseManager { DatabaseManager.shared }
+    private var database: DatabaseStore { DatabaseStore.shared }
 
     /// Helper to get dbQueue or throw appropriate error (DRY pattern)
     private var dbQueue: DatabaseQueue {

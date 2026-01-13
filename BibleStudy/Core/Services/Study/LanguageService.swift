@@ -11,7 +11,7 @@ final class LanguageService {
     static let shared = LanguageService()
 
     // MARK: - Dependencies
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     // MARK: - State
     var isLoading: Bool = false

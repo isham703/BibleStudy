@@ -1,5 +1,5 @@
 //
-//  HLSManifestManager.swift
+//  HLSManifestService.swift
 //  BibleStudy
 //
 //  HLS manifest generation and management for progressive audio streaming.
@@ -12,7 +12,7 @@ import AVFoundation
 // MARK: - HLS Manifest Manager
 
 /// Manages HLS .m3u8 manifest creation and updates for progressive audio streaming
-actor HLSManifestManager {
+actor HLSManifestService {
     // MARK: - Types
 
     struct SegmentInfo: Sendable {

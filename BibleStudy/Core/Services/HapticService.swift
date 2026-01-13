@@ -362,7 +362,7 @@ final class HapticService {
         }
     }
 
-    // MARK: - Sacred Motion Haptics (Illuminated Manuscript)
+    // MARK: - Sacred Motion Haptics (Stoic-Roman)
     // Haptic patterns synchronized with sacred motion animations
 
     /// Page turn - synchronized with page curl gesture

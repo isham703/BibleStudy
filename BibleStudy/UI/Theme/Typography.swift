@@ -186,12 +186,12 @@ enum Typography {
         static let display: Font = .system(size: 76, weight: .medium)
     }
 
-    // MARK: - Decorative Tokens (Illuminated Manuscript)
+    // MARK: - Decorative Tokens (Stoic-Roman)
 
-    /// Decorative tokens for illuminated manuscript effects
+    /// Decorative tokens for Stoic-Roman aesthetic
     /// Use for: drop caps, ornamental elements
     enum Decorative {
-        // Drop cap - large illuminated first letter
+        // Drop cap - large decorative first letter
         static let dropCap: Font = .system(size: 72, weight: .bold, design: .serif)
         static let dropCapCompact: Font = .system(size: 52, weight: .bold, design: .serif)
     }

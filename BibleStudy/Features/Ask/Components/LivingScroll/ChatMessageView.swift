@@ -1,11 +1,11 @@
 import SwiftUI
 
-// MARK: - Manuscript Message View
+// MARK: - Chat Message View
 // Renders chat messages with appropriate styling
-// AI: Illuminated manuscript style
+// AI: Decorative Stoic-Roman style
 // User: Modern minimal style
 
-struct ManuscriptMessageView: View {
+struct ChatMessageView: View {
     let message: ChatMessage
     let isLatestAIMessage: Bool
     let onCitationTap: (VerseRange) -> Void
@@ -24,7 +24,7 @@ struct ManuscriptMessageView: View {
 }
 
 // MARK: - User Message View
-// Clean, modern styling to contrast with AI's manuscript style
+// Clean, modern styling to contrast with AI's decorative style
 // Enhanced with "wax seal" entrance animation
 
 private struct UserMessageView: View {
@@ -111,7 +111,7 @@ private struct UserMessageView: View {
 }
 
 // MARK: - AI Message View
-// Illuminated manuscript styling with optional animation
+// Decorative Stoic-Roman styling with optional animation
 // Enhanced with ambient glow anticipation before text appears
 
 private struct AIMessageView: View {
@@ -138,7 +138,7 @@ private struct AIMessageView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 // Crisis support banner if needed
                 if message.isCrisisSupport {
-                    ManuscriptCrisisBanner()
+                    CrisisBanner()
                 }
 
                 // Main content with illuminated capital
@@ -223,21 +223,21 @@ private struct AIMessageView: View {
 
     @ViewBuilder
     private var messageContent: some View {
-        if shouldUseIlluminatedCapital {
-            IlluminatedInkFlowText(
+        if shouldUseDropCap {
+            DropCapInkFlowText(
                 text: message.content,
                 isAnimating: isAnimating && showContent
             )
         } else {
-            InkFlowTextView(
+            StreamingTextView(
                 text: message.content,
                 isAnimating: isAnimating && showContent
             )
         }
     }
 
-    private var shouldUseIlluminatedCapital: Bool {
-        // Use illuminated capital for substantial responses
+    private var shouldUseDropCap: Bool {
+        // Use drop cap for substantial responses
         message.content.count > 50 && message.content.first?.isLetter == true
     }
 }
@@ -405,10 +405,10 @@ private struct CitationFlowLayout: Layout {
     }
 }
 
-// MARK: - Manuscript Crisis Banner
+// MARK: - Crisis Banner
 // Visual indicator for crisis support responses (local to this file)
 
-private struct ManuscriptCrisisBanner: View {
+private struct CrisisBanner: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -444,11 +444,11 @@ struct MessageTimestamp: View {
     }
 }
 
-// MARK: - Manuscript Uncertainty Banner
+// MARK: - Message Uncertainty Banner
 // Visual indicator when AI is uncertain (local to this file)
 
-private struct ManuscriptUncertaintyBanner: View {
-    let level: ManuscriptUncertaintyLevel
+private struct MessageUncertaintyBanner: View {
+    let level: MessageUncertaintyLevel
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
@@ -470,10 +470,10 @@ private struct ManuscriptUncertaintyBanner: View {
     }
 }
 
-// MARK: - Manuscript Uncertainty Level
+// MARK: - Message Uncertainty Level
 // Levels of AI uncertainty for display (local to this file)
 
-private enum ManuscriptUncertaintyLevel {
+private enum MessageUncertaintyLevel {
     case low
     case medium
     case high
@@ -505,13 +505,13 @@ private enum ManuscriptUncertaintyLevel {
 
 // MARK: - Preview
 
-#Preview("Manuscript Messages") {
+#Preview("Chat Messages") {
     ScrollView {
         VStack(spacing: Theme.Spacing.xl) {
             Text("User Message")
                 .font(Typography.Command.headline)
 
-            ManuscriptMessageView(
+            ChatMessageView(
                 message: ChatMessage(
                     threadId: UUID(),
                     role: .user,
@@ -524,7 +524,7 @@ private enum ManuscriptUncertaintyLevel {
             Text("AI Response")
                 .font(Typography.Command.headline)
 
-            ManuscriptMessageView(
+            ChatMessageView(
                 message: ChatMessage(
                     threadId: UUID(),
                     role: .assistant,
@@ -541,7 +541,7 @@ private enum ManuscriptUncertaintyLevel {
             Text("Uncertainty Banner")
                 .font(Typography.Command.headline)
 
-            ManuscriptUncertaintyBanner(level: .medium)
+            MessageUncertaintyBanner(level: .medium)
         }
         .padding()
     }

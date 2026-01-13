@@ -4,7 +4,7 @@ import SwiftUI
 // Flower of Life pattern as the AI thinking indicator
 // 7 circles arranged in sacred geometry
 
-struct SacredGeometryThinking: View {
+struct ChatThinkingIndicatorView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var rotationAngle: Double = 0
     @State private var pulseScale: CGFloat = 1.0
@@ -212,13 +212,13 @@ struct DivineLightDivider: View {
 // MARK: - Preview
 
 #if DEBUG
-struct SacredGeometryThinking_Previews: PreviewProvider {
+struct ChatThinkingIndicatorView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: Theme.Spacing.xxl) {
             Text("Full Thinking State")
                 .font(Typography.Command.headline)
 
-            SacredGeometryThinking()
+            ChatThinkingIndicatorView()
                 .padding()
                 .background(Color("AppSurface"))
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))

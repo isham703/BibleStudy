@@ -17,8 +17,8 @@ struct ThresholdHomePage: View {
     @Environment(\.colorScheme) private var colorScheme
 
     // Mock data
-    private let dailyVerse = SanctuaryMockData.dailyVerse
-    private let readingPlan = SanctuaryMockData.activePlan
+    private let dailyVerse = HomeMockData.dailyVerse
+    private let readingPlan = HomeMockData.activePlan
 
     var body: some View {
         ZStack {
@@ -97,13 +97,13 @@ struct ThresholdHomePage: View {
     private var topSection: some View {
         VStack(spacing: Theme.Spacing.sm) {
             // Date
-            Text(SanctuaryMockData.formattedDate.uppercased())
+            Text(HomeMockData.formattedDate.uppercased())
                 .font(Typography.Command.meta)
                 .tracking(Typography.Editorial.sectionTracking)
                 .foregroundStyle(Color("TertiaryText"))
 
             // Greeting
-            Text(SanctuaryMockData.fullGreeting)
+            Text(HomeMockData.fullGreeting)
                 .font(Typography.Scripture.heading)
                 .foregroundStyle(Color("AppTextPrimary"))
         }

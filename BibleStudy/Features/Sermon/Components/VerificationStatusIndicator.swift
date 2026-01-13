@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Verification Status Indicator
-// Wax seal metaphor for verification status in illuminated manuscript aesthetic
+// Wax seal metaphor for verification status in Stoic-Roman aesthetic
 
 struct VerificationStatusIndicator: View {
     let status: VerificationStatus

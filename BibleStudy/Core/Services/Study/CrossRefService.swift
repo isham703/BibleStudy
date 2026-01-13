@@ -11,7 +11,7 @@ final class CrossRefService {
     static let shared = CrossRefService()
 
     // MARK: - Dependencies
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
     private let bibleService = BibleService.shared
 
     // MARK: - State

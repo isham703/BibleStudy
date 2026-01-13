@@ -194,7 +194,7 @@ struct CinematicDiscoveryCard: View {
         Color("AppBackground").ignoresSafeArea()
 
         DiscoveryCarousel(
-            items: SanctuaryMockData.allDiscoveryItems,
+            items: HomeMockData.allDiscoveryItems,
             style: .compact
         )
     }
@@ -205,7 +205,7 @@ struct CinematicDiscoveryCard: View {
         Color("AppBackground").ignoresSafeArea()
 
         DiscoveryCarousel(
-            items: SanctuaryMockData.featuredStories,
+            items: HomeMockData.featuredStories,
             style: .cinematic
         )
     }

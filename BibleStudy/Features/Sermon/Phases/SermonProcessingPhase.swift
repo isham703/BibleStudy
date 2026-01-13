@@ -82,7 +82,7 @@ struct SermonProcessingPhase: View {
         }
     }
 
-    // MARK: - Illuminated Initial
+    // MARK: - Decorative Initial
 
     private var illuminatedInitial: some View {
         ZStack {

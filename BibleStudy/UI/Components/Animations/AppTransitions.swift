@@ -1,12 +1,12 @@
 import SwiftUI
 
-// MARK: - Sacred Transitions
-// Custom view transitions inspired by illuminated manuscript aesthetics
+// MARK: - App Transitions
+// Custom view transitions for app-wide use
 // Includes: unfurl, illuminate, manuscript, ascend
 
 // MARK: - Transition Types
 
-enum SacredTransitionStyle {
+enum AppTransitionStyle {
     case unfurl        // Scroll-like vertical reveal
     case illuminate    // Light bloom from center
     case manuscript    // Page turn with golden edge
@@ -79,8 +79,8 @@ struct IlluminateTransition: ViewModifier {
     }
 }
 
-// MARK: - Manuscript Transition
-// Page-like reveal with golden edge hint
+// MARK: - Page Transition
+// Page-like reveal with edge accent
 
 struct ManuscriptTransition: ViewModifier {
     let isActive: Bool
@@ -154,7 +154,7 @@ extension View {
 
     /// Apply sacred transition by style
     func sacredTransition(
-        _ style: SacredTransitionStyle,
+        _ style: AppTransitionStyle,
         isActive: Bool,
         direction: Edge = .trailing
     ) -> some View {

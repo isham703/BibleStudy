@@ -13,8 +13,8 @@ final class UserContentService {
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
-    private let db = DatabaseManager.shared
-    private let entitlementManager = EntitlementManager.shared
+    private let db = DatabaseStore.shared
+    private let entitlementManager = EntitlementService.shared
 
     var highlights: [Highlight] = []
     var notes: [Note] = []

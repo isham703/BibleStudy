@@ -15,7 +15,7 @@ final class MemorizationService {
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     var items: [MemorizationItem] = [] {
         didSet { updateCachedCounts() }

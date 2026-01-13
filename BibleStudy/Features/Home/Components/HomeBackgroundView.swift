@@ -1,11 +1,11 @@
 import SwiftUI
 
-// MARK: - Roman Background
-// Unified background for the Roman/Stoic sanctuary experience
-// Marble and stone aesthetic that responds to reading mode (Light/Dark)
-// No time-awareness - timeless Roman monumentalism
+// MARK: - Home Background View
+// Unified background for the Home tab experience
+// Aesthetic that responds to reading mode (Light/Dark)
+// Radial gradients with subtle depth effects
 
-struct RomanBackground: View {
+struct HomeBackgroundView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.colorScheme) private var colorScheme
     @State private var pulsePhase: CGFloat = 0
@@ -59,7 +59,7 @@ struct RomanBackground: View {
     private var vignetteTint: Color {
         switch appState.preferredTheme {
         case .light, .system:
-            return Color.surfaceSlate
+            return Color("AppSurface")
         case .dark:
             return Color("AppBackground")
         }
@@ -103,14 +103,14 @@ struct RomanBackground: View {
 // MARK: - Preview
 
 #Preview("Roman Background - Light") {
-    RomanBackground()
+    HomeBackgroundView()
         .environment(AppState())
 }
 
 #Preview("Roman Background - Dark") {
     let appState = AppState()
     appState.preferredTheme = .dark
-    return RomanBackground()
+    return HomeBackgroundView()
         .environment(appState)
         .preferredColorScheme(.dark)
 }

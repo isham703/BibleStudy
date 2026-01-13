@@ -11,7 +11,7 @@ final class BibleService {
 
     // MARK: - Properties
     private let repository = BibleRepository.shared
-    private let entitlementManager = EntitlementManager.shared
+    private let entitlementManager = EntitlementService.shared
 
     var isDataLoaded: Bool = false
     var isLoading: Bool = false
@@ -86,7 +86,7 @@ final class BibleService {
 
         do {
             // Initialize database
-            try DatabaseManager.shared.setup()
+            try DatabaseStore.shared.setup()
 
             // Check if data exists
             let hasData = try repository.hasData()

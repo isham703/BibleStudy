@@ -1,12 +1,12 @@
 import Foundation
 
-// MARK: - Token Budget Manager
-// Manages token budgets for AI chat to control costs
+// MARK: - Token Budget Service
+// Business logic for token budget tracking and conversation windowing
 // Implements conversation summarization and windowing strategies
 
 @Observable
 @MainActor
-final class TokenBudgetManager {
+final class TokenBudgetService {
     // MARK: - Configuration
 
     /// Maximum messages before summarization is triggered
@@ -40,7 +40,7 @@ final class TokenBudgetManager {
 
     // MARK: - Shared Instance
 
-    static let shared = TokenBudgetManager()
+    static let shared = TokenBudgetService()
 
     private init() {}
 

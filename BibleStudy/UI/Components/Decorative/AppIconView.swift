@@ -1,10 +1,10 @@
 import SwiftUI
 
-// MARK: - Illuminated Icon
+// MARK: - Sanctuary Icon
 // Unified icon component supporting both Streamline assets and SF Symbols
-// Provides consistent styling aligned with the Illuminated Manuscript aesthetic
+// Provides consistent styling aligned with the Stoic-Roman aesthetic
 
-struct SanctuaryIcon: View {
+struct AppIconView: View {
 
     // MARK: - Icon Source
 
@@ -65,7 +65,7 @@ struct SanctuaryIcon: View {
 
 // MARK: - Convenience Initializers
 
-extension SanctuaryIcon {
+extension AppIconView {
 
     /// Create an illuminated icon from an SF Symbol name
     init(
@@ -108,17 +108,17 @@ extension SanctuaryIcon {
 
 // MARK: - View Modifiers
 
-extension SanctuaryIcon {
+extension AppIconView {
 
     /// Apply hierarchical rendering for depth
-    func hierarchical() -> SanctuaryIcon {
+    func hierarchical() -> AppIconView {
         var copy = self
         copy.renderingMode = .hierarchical
         return copy
     }
 
     /// Apply monochrome rendering
-    func monochrome() -> SanctuaryIcon {
+    func monochrome() -> AppIconView {
         var copy = self
         copy.renderingMode = .monochrome
         copy.secondaryColor = nil
@@ -126,7 +126,7 @@ extension SanctuaryIcon {
     }
 
     /// Set icon weight
-    func weight(_ weight: Font.Weight) -> SanctuaryIcon {
+    func weight(_ weight: Font.Weight) -> AppIconView {
         var copy = self
         copy.weight = weight
         return copy
@@ -141,22 +141,22 @@ extension SanctuaryIcon {
             .font(Typography.Command.headline)
 
         HStack(spacing: Theme.Spacing.xl - 4) {
-            SanctuaryIcon(source: .sfSymbol("scroll.fill"), size: 28)
-            SanctuaryIcon(source: .sfSymbol("book.closed.fill"), size: 28, color: Color("AppAccentAction"))
-            SanctuaryIcon(source: .sfSymbol("paintbrush.pointed.fill"), size: 28, color: Color("FeedbackSuccess"))
+            AppIconView(source: .sfSymbol("scroll.fill"), size: 28)
+            AppIconView(source: .sfSymbol("book.closed.fill"), size: 28, color: Color("AppAccentAction"))
+            AppIconView(source: .sfSymbol("paintbrush.pointed.fill"), size: 28, color: Color("FeedbackSuccess"))
         }
 
         Text("Palette Rendering")
             .font(Typography.Command.headline)
 
         HStack(spacing: Theme.Spacing.xl - 4) {
-            SanctuaryIcon(
+            AppIconView(
                 source: .sfSymbol("text.book.closed.fill"),
                 size: 28,
                 color: Color("AccentBronze"),
                 secondaryColor: Color("AppSurface")
             )
-            SanctuaryIcon(
+            AppIconView(
                 source: .sfSymbol("seal.fill"),
                 size: 28,
                 color: Color("AppAccentAction"),
@@ -168,9 +168,9 @@ extension SanctuaryIcon {
             .font(Typography.Command.headline)
 
         HStack(spacing: Theme.Spacing.xl - 4) {
-            SanctuaryIcon(source: .sfSymbol("sparkle.magnifyingglass"), size: 28)
+            AppIconView(source: .sfSymbol("sparkle.magnifyingglass"), size: 28)
                 .hierarchical()
-            SanctuaryIcon(source: .sfSymbol("books.vertical.fill"), size: 28, color: Color("AppAccentAction"))
+            AppIconView(source: .sfSymbol("books.vertical.fill"), size: 28, color: Color("AppAccentAction"))
                 .hierarchical()
         }
     }

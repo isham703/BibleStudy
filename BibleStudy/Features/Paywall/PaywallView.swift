@@ -9,7 +9,7 @@ private let analytics = AnalyticsService.shared
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    @State private var storeManager = StoreManager.shared
+    @State private var storeManager = PurchaseService.shared
     @State private var selectedProduct: Product?
     @State private var isPurchasing = false
     @State private var showError = false

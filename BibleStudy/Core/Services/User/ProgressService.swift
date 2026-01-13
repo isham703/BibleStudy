@@ -15,7 +15,7 @@ final class ProgressService {
 
     // MARK: - Properties
     private let supabase = SupabaseManager.shared
-    private let db = DatabaseManager.shared
+    private let db = DatabaseStore.shared
 
     var progress: UserProgress?
     var isLoading: Bool = false

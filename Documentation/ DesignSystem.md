@@ -394,11 +394,11 @@ Image(systemName: "book")
 
 ### Decorative Tokens (`Typography.Decorative.*`)
 
-Illuminated manuscript effects.
+Stoic-Roman aesthetic elements.
 
 | Token | Size | Use Case |
 |-------|------|----------|
-| `.dropCap` | 72pt bold serif | Large illuminated first letter |
+| `.dropCap` | 72pt bold serif | Large decorative first letter |
 | `.dropCapCompact` | 52pt bold serif | Compact drop cap |
 
 ---

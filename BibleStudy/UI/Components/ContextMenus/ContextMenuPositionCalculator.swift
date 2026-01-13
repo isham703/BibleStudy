@@ -17,9 +17,9 @@ enum MenuArrowDirection {
     case up    // Arrow points up, menu is below verse
 }
 
-// MARK: - Illuminated Menu Position
+// MARK: - Menu Position
 
-/// Calculated position for the illuminated context menu
+/// Calculated position for the context menu
 struct IlluminatedMenuPosition: Equatable {
     /// Origin point for the menu (top-left corner in local coordinates)
     var origin: CGPoint

@@ -9,7 +9,7 @@ final class BibleRepository: @unchecked Sendable {
     static let shared = BibleRepository()
 
     // MARK: - Properties
-    private var database: DatabaseManager { DatabaseManager.shared }
+    private var database: DatabaseStore { DatabaseStore.shared }
 
     /// Default translation ID used when none is specified
     static let defaultTranslationId = "kjv"

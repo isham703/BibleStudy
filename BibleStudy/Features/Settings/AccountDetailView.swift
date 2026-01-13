@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - Account Detail View
-// "Scribe's Sanctum" - Profile management with illuminated manuscript aesthetics
+// "Scribe's Sanctum" - Profile management with Stoic-Roman aesthetics
 
 struct AccountDetailView: View {
     @Bindable var viewModel: SettingsViewModel

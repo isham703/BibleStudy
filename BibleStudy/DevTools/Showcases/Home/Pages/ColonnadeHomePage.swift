@@ -16,9 +16,9 @@ struct ColonnadeHomePage: View {
     @Environment(\.colorScheme) private var colorScheme
 
     // Mock data
-    private let dailyVerse = SanctuaryMockData.dailyVerse
-    private let readingPlan = SanctuaryMockData.activePlan
-    private let practiceData = SanctuaryMockData.practiceData
+    private let dailyVerse = HomeMockData.dailyVerse
+    private let readingPlan = HomeMockData.activePlan
+    private let practiceData = HomeMockData.practiceData
 
     var body: some View {
         ZStack {
@@ -102,12 +102,12 @@ struct ColonnadeHomePage: View {
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                Text(SanctuaryMockData.formattedDate.uppercased())
+                Text(HomeMockData.formattedDate.uppercased())
                     .font(Typography.Command.meta)
                     .tracking(Typography.Editorial.sectionTracking)
                     .foregroundStyle(Color("TertiaryText"))
 
-                Text(SanctuaryMockData.fullGreeting)
+                Text(HomeMockData.fullGreeting)
                     .font(Typography.Scripture.heading)
                     .foregroundStyle(Color("AppTextPrimary"))
             }
@@ -120,7 +120,7 @@ struct ColonnadeHomePage: View {
                     .font(Typography.Icon.sm)
                     .foregroundStyle(Color("AccentBronze"))
 
-                Text("\(SanctuaryMockData.userData.currentStreak)")
+                Text("\(HomeMockData.userData.currentStreak)")
                     .font(Typography.Command.headline)
                     .foregroundStyle(Color("AccentBronze"))
             }

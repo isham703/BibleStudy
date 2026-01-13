@@ -204,7 +204,7 @@ struct FirstLaunchOverlay: View {
 
 // MARK: - Streaming Content View
 /// Displays progressive AI response with skeleton loading and phased reveals
-/// Implements the "ink-bleed" animation effect from illuminated manuscript design
+/// Implements the "ink-bleed" animation effect from classical design
 struct StreamingContentView: View {
     @Environment(\.colorScheme) private var colorScheme
     /// The content to display (nil = loading)

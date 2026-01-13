@@ -1,12 +1,12 @@
 import Foundation
 import GRDB
 
-// MARK: - Database Manager
-// Manages the local SQLite database using GRDB
+// MARK: - Database Store
+// Foundational GRDB infrastructure for local SQLite database
 
-final class DatabaseManager: @unchecked Sendable {
+final class DatabaseStore: @unchecked Sendable {
     // MARK: - Singleton
-    static let shared = DatabaseManager()
+    static let shared = DatabaseStore()
 
     // MARK: - Bundled Database Configuration
     private enum BundledDatabase {
@@ -53,7 +53,7 @@ final class DatabaseManager: @unchecked Sendable {
         #endif
 
         dbQueue = try DatabaseQueue(path: databaseURL.path, configuration: config)
-        DatabaseManager.backgroundDBQueue = dbQueue
+        DatabaseStore.backgroundDBQueue = dbQueue
 
         // Run migrations (for user data tables and any new migrations)
         try migrate()

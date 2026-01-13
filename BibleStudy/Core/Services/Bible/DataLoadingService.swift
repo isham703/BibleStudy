@@ -81,7 +81,7 @@ final class DataLoadingService {
 
         do {
             // Database setup (includes bundled DB copy if available)
-            try DatabaseManager.shared.setup()
+            try DatabaseStore.shared.setup()
 
             // Check if we now have data (from bundled DB)
             if try BibleRepository.shared.hasData() {
@@ -171,7 +171,7 @@ final class DataLoadingService {
 
         let crossRefs = try decoder.decode([CrossRefImport].self, from: data)
 
-        return try DatabaseManager.shared.write { db in
+        return try DatabaseStore.shared.write { db in
             var count = 0
             for ref in crossRefs {
                 try db.execute(
@@ -208,7 +208,7 @@ final class DataLoadingService {
 
     private func updateVerseCount() async {
         do {
-            verseCount = try DatabaseManager.shared.read { db in
+            verseCount = try DatabaseStore.shared.read { db in
                 try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM verses") ?? 0
             }
         } catch {
@@ -220,7 +220,7 @@ final class DataLoadingService {
 
     /// Get all data sources for attribution display
     func getDataSources() async throws -> [DataSource] {
-        try DatabaseManager.shared.read { db in
+        try DatabaseStore.shared.read { db in
             try DataSource.fetchAll(db)
         }
     }

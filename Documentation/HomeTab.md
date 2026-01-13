@@ -22,8 +22,8 @@ The Home tab uses a **Forum** design—a clean, centered layout inspired by Roma
 
 ```
 MainTabView
-└── SanctuaryHomeView (Tab Entry Point)
-    ├── @State viewModel: SanctuaryViewModel
+└── HomeTabView (Tab Entry Point)
+    ├── @State viewModel: HomeTabViewModel
     ├── NavigationStack
     │   └── ForumHomeView
     │       ├── backgroundLayer
@@ -40,11 +40,11 @@ MainTabView
 
 ```
 Features/Home/
-├── SanctuaryHomeView.swift          # Tab entry point
-├── SanctuaryEnvironment.swift       # Environment key for settings action
+├── HomeTabView.swift          # Tab entry point
+├── SettingsActionEnvironmentKey.swift       # Environment key for settings action
 │
 ├── ViewModels/
-│   └── SanctuaryViewModel.swift     # Centralized state management
+│   └── HomeTabViewModel.swift     # Centralized state management
 │
 ├── Models/
 │   ├── AIFeature.swift              # Navigation enum for experiences
@@ -69,7 +69,7 @@ Features/Home/
 │   ├── Discovery/
 │   │   └── DiscoveryCarousel.swift
 │   │
-│   └── RomanBackground.swift
+│   └── HomeBackgroundView.swift
 │
 └── Theme/
     └── HomeHaptics.swift
@@ -108,14 +108,14 @@ default:      return "Peace be with you, \(name)"
 
 ## 3. State Management
 
-### 3.1 SanctuaryViewModel
+### 3.1 HomeTabViewModel
 
 Centralized state using iOS 17+ `@Observable` pattern:
 
 ```swift
 @Observable
 @MainActor
-final class SanctuaryViewModel {
+final class HomeTabViewModel {
     // User Data (from services)
     var userName: String? { authService.userProfile?.displayName }
     var currentStreak: Int { progressService.currentStreak }
@@ -136,9 +136,9 @@ final class SanctuaryViewModel {
 ```
 Services (AuthService, ProgressService)
     ↓
-SanctuaryViewModel (loads user data)
+HomeTabViewModel (loads user data)
     ↓
-SanctuaryHomeView (@State owner)
+HomeTabView (@State owner)
     ↓
 ForumHomeView (@Environment)
     ↓
@@ -379,10 +379,10 @@ The view uses proper design tokens with SwiftLint escape hatches for:
 
 | File | Purpose |
 |------|---------|
-| `SanctuaryHomeView.swift` | Tab entry, state owner, lifecycle |
+| `HomeTabView.swift` | Tab entry, state owner, lifecycle |
 | `ForumHomeView.swift` | Main view with all sections |
-| `SanctuaryViewModel.swift` | Centralized state management |
-| `SanctuaryEnvironment.swift` | Settings action environment key |
+| `HomeTabViewModel.swift` | Centralized state management |
+| `SettingsActionEnvironmentKey.swift` | Settings action environment key |
 | `AIFeature.swift` | Feature navigation enum |
 | `CardStyle.swift` | Card styling configuration |
 

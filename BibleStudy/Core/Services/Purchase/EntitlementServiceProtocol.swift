@@ -1,5 +1,5 @@
 //
-//  EntitlementManagerProtocol.swift
+//  EntitlementServiceProtocol.swift
 //  BibleStudy
 //
 //  Protocol abstraction for entitlement/quota management
@@ -11,9 +11,9 @@ import Foundation
 // MARK: - Entitlement Manager Protocol
 
 /// Protocol for feature access and quota management
-/// Abstracts EntitlementManager for dependency injection
+/// Abstracts EntitlementService for dependency injection
 @MainActor
-protocol EntitlementManagerProtocol: Sendable {
+protocol EntitlementServiceProtocol: Sendable {
     /// Check if user can use AI insights without side effects
     var canUseAIInsights: Bool { get }
 
@@ -27,4 +27,4 @@ protocol EntitlementManagerProtocol: Sendable {
 
 // MARK: - Conformance
 
-extension EntitlementManager: EntitlementManagerProtocol {}
+extension EntitlementService: EntitlementServiceProtocol {}
