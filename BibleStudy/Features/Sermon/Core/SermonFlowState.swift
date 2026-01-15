@@ -590,6 +590,11 @@ final class SermonFlowState {
                 HapticService.shared.success()
             } else if job.transcriptionStatus == .failed {
                 self.handleError(.transcriptionFailed(self.currentSermon?.transcriptionError ?? "Unknown error"))
+            } else if job.studyGuideStatus == .failed && job.transcriptionStatus == .succeeded {
+                // Study guide failed but transcription succeeded - go to viewing in degraded mode
+                await self.loadSermonData(sermonId: sermonId)
+                self.phase = .viewing
+                HapticService.shared.warning()
             } else if job.studyGuideStatus == .failed {
                 self.handleError(.studyGuideGenerationFailed(self.currentSermon?.studyGuideError ?? "Unknown error"))
             }
@@ -674,6 +679,28 @@ final class SermonFlowState {
         }
     }
 
+    /// Retry only study guide generation (preserves existing transcript)
+    func retryStudyGuide() async {
+        guard let sermon = currentSermon,
+              sermon.hasSuccessfulTranscription,
+              sermon.studyGuideFailed else { return }
+
+        // Reset study guide status and enqueue
+        await processingQueue.retryStudyGuide(sermonId: sermon.id)
+
+        // Immediately reload sermon to get updated status (fixes stale state in UI)
+        await loadSermonData(sermonId: sermon.id)
+
+        // Subscribe to progress stream for UI updates
+        startProgressStream(for: sermon.id)
+    }
+
+    /// Check if study guide retry is in progress
+    var isRetryingStudyGuide: Bool {
+        guard let sermon = currentSermon else { return false }
+        return sermon.studyGuideStatus == .running || sermon.studyGuideStatus == .pending
+    }
+
     // MARK: - Reset
 
     func reset() {
@@ -721,8 +748,11 @@ final class SermonFlowState {
 
             // Subscribe to progress stream (replaces callback registration)
             startProgressStream(for: sermon.id)
-        } else if sermon.transcriptionStatus == .failed || sermon.studyGuideStatus == .failed {
-            handleError(.transcriptionFailed(sermon.transcriptionError ?? "Processing failed"))
+        } else if sermon.transcriptionStatus == .failed {
+            handleError(.transcriptionFailed(sermon.transcriptionError ?? "Transcription failed"))
+        } else if sermon.studyGuideFailed && sermon.hasSuccessfulTranscription {
+            // Study guide failed but transcript available - allow degraded viewing
+            phase = .viewing
         } else {
             // Go to viewing phase - the UI will handle missing transcript/study guide gracefully
             phase = .viewing

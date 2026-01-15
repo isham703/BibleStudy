@@ -74,6 +74,23 @@ struct Sermon: Identifiable, Hashable, Sendable {
         title.isEmpty ? "Untitled Sermon" : title
     }
 
+    // MARK: - Graceful Degradation Properties
+
+    /// Transcription succeeded, allowing basic viewing even if study guide failed
+    var hasSuccessfulTranscription: Bool {
+        transcriptionStatus == .succeeded
+    }
+
+    /// Study guide specifically failed (not just pending)
+    var studyGuideFailed: Bool {
+        studyGuideStatus == .failed
+    }
+
+    /// Can view sermon in degraded mode (transcript available, study guide may be missing/failed)
+    var canViewInDegradedMode: Bool {
+        hasSuccessfulTranscription && studyGuideFailed
+    }
+
     // MARK: - Initialization
 
     init(

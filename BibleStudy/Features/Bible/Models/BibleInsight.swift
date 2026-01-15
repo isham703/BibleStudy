@@ -35,6 +35,50 @@ struct BibleInsight: Identifiable, Hashable, Sendable {
     let qualityTier: QualityTier
     let isInterpretive: Bool            // True if theology without hard source
 
+    // MARK: - Memberwise Initializer (for Supabase DTO conversion)
+
+    init(
+        id: String,
+        bookId: Int,
+        chapter: Int,
+        verseStart: Int,
+        verseEnd: Int,
+        segmentText: String,
+        segmentStartChar: Int,
+        segmentEndChar: Int,
+        insightType: BibleInsightType,
+        title: String,
+        content: String,
+        icon: String,
+        sources: [InsightSource],
+        contentVersion: Int,
+        promptVersion: String,
+        modelVersion: String,
+        createdAt: Date,
+        qualityTier: QualityTier,
+        isInterpretive: Bool
+    ) {
+        self.id = id
+        self.bookId = bookId
+        self.chapter = chapter
+        self.verseStart = verseStart
+        self.verseEnd = verseEnd
+        self.segmentText = segmentText
+        self.segmentStartChar = segmentStartChar
+        self.segmentEndChar = segmentEndChar
+        self.insightType = insightType
+        self.title = title
+        self.content = content
+        self.icon = icon
+        self.sources = sources
+        self.contentVersion = contentVersion
+        self.promptVersion = promptVersion
+        self.modelVersion = modelVersion
+        self.createdAt = createdAt
+        self.qualityTier = qualityTier
+        self.isInterpretive = isInterpretive
+    }
+
     // MARK: - Computed Properties
 
     var verseReference: String {

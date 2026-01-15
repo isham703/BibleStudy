@@ -10,6 +10,22 @@ struct SermonOutlineSectionView: View {
     let isAwakened: Bool
     let onSeek: (TimeInterval) -> Void
 
+    /// Determines the single active section index based on current playback time.
+    /// Returns the index of the last section whose start time is <= currentTime.
+    private var activeIndex: Int? {
+        var lastValidIndex: Int?
+        for (index, section) in outline.enumerated() {
+            guard let start = section.startSeconds else { continue }
+            if currentTime >= start {
+                lastValidIndex = index
+            } else {
+                // Sections are ordered by time, so we can stop once we pass currentTime
+                break
+            }
+        }
+        return lastValidIndex
+    }
+
     var body: some View {
         SermonAtriumCard(delay: delay, isAwakened: isAwakened) {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
@@ -27,7 +43,7 @@ struct SermonOutlineSectionView: View {
                     OutlineRowView(
                         section: section,
                         index: index,
-                        currentTime: currentTime,
+                        isActive: index == activeIndex,
                         onTap: {
                             if let startSeconds = section.startSeconds {
                                 onSeek(startSeconds)
@@ -52,14 +68,8 @@ struct SermonOutlineSectionView: View {
 private struct OutlineRowView: View {
     let section: OutlineSection
     let index: Int
-    let currentTime: TimeInterval
+    let isActive: Bool
     let onTap: () -> Void
-
-    private var isActive: Bool {
-        guard let start = section.startSeconds else { return false }
-        let end = section.endSeconds ?? Double.infinity
-        return currentTime >= start && currentTime < end
-    }
 
     private var hasTimestamp: Bool {
         section.startSeconds != nil

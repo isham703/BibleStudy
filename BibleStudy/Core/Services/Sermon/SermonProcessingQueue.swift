@@ -128,6 +128,26 @@ final class SermonProcessingQueue {
         pendingSermonIds.contains(sermonId)
     }
 
+    /// Retry only study guide generation for a sermon with existing transcript
+    func retryStudyGuide(sermonId: UUID) async {
+        guard let job = loadJob(sermonId: sermonId),
+              job.transcriptionStatus == .succeeded else {
+            print("[SermonProcessingQueue] Cannot retry study guide: invalid state")
+            return
+        }
+
+        // Reset study guide status
+        do {
+            try updateSermonStatus(sermonId: sermonId, studyGuideStatus: .pending, studyGuideError: nil)
+        } catch {
+            print("[SermonProcessingQueue] Failed to reset study guide status: \(error)")
+            return
+        }
+
+        // Enqueue - processSermon() will skip transcription via needsTranscription check
+        await enqueue(sermonId: sermonId)
+    }
+
     // MARK: - Processing Logic
 
     /// Process the next batch of sermons with bounded concurrency

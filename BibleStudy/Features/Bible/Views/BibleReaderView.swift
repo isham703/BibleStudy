@@ -538,6 +538,7 @@ struct BibleReaderView: View {
     // MARK: - Insight Sheet Helpers
 
     private func openInsightSheet(for verse: Verse, chapter: Chapter) {
+        print("BibleReaderView: Opening insight sheet for verse \(verse.bookId):\(verse.chapter):\(verse.verse)")
         viewModel?.showContextMenu = false
         insightSheetVerse = verse
         insightSheetInsights = []
@@ -546,24 +547,33 @@ struct BibleReaderView: View {
 
         Task {
             do {
-                let insights = try await BibleInsightService.shared.getInsights(
+                print("BibleReaderView: Fetching insights for verse...")
+                let insights = try await SupabaseInsightService.shared.getInsights(
                     bookId: verse.bookId, chapter: verse.chapter, verse: verse.verse
                 )
+                print("BibleReaderView: Got \(insights.count) insights for verse \(verse.verse)")
+
+                // Fetch all insights for chapter once, then count per verse
+                let chapterInsights = try await SupabaseInsightService.shared.getInsights(
+                    bookId: verse.bookId, chapter: verse.chapter
+                )
+                print("BibleReaderView: Got \(chapterInsights.count) insights for chapter")
 
                 var counts: [Int: Int] = [:]
                 for v in chapter.verses {
-                    let verseInsights = try await BibleInsightService.shared.getInsights(
-                        bookId: v.bookId, chapter: v.chapter, verse: v.verse
-                    )
+                    let verseInsights = chapterInsights.filter {
+                        $0.verseStart <= v.verse && $0.verseEnd >= v.verse
+                    }
                     if !verseInsights.isEmpty { counts[v.verse] = verseInsights.count }
                 }
 
                 await MainActor.run {
                     insightSheetInsights = insights
                     insightSheetVerseInsightCounts = counts
+                    print("BibleReaderView: Updated insightSheetInsights with \(insights.count) items")
                 }
             } catch {
-                print("Failed to load insights for verse: \(error)")
+                print("BibleReaderView: Failed to load insights for verse: \(error)")
             }
         }
     }
@@ -578,7 +588,7 @@ struct BibleReaderView: View {
 
     private func navigateToVerseInSheet(_ newVerse: Verse) {
         Task {
-            let newInsights = try? await BibleInsightService.shared.getInsights(
+            let newInsights = try? await SupabaseInsightService.shared.getInsights(
                 bookId: newVerse.bookId, chapter: newVerse.chapter, verse: newVerse.verse
             )
             insightSheetVerse = newVerse

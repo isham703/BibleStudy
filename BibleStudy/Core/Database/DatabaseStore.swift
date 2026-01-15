@@ -1123,6 +1123,61 @@ final class DatabaseStore: @unchecked Sendable {
             try db.execute(sql: "INSERT INTO sermon_transcripts_fts(sermon_transcripts_fts) VALUES('rebuild')")
         }
 
+        // MARK: - v26: Supabase Insights Cache
+        // Local cache for Supabase insights to enable offline access
+        migrator.registerMigration("v26_insights_cache") { db in
+            // Cache for bible_insights from Supabase
+            try db.create(table: "insights_cache", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("book_id", .integer).notNull()
+                t.column("chapter", .integer).notNull()
+                t.column("verse_start", .integer).notNull()
+                t.column("verse_end", .integer).notNull()
+                t.column("insight_type", .text).notNull()
+                t.column("title", .text).notNull()
+                t.column("content", .text).notNull()
+                t.column("data", .blob).notNull()  // Full JSON-encoded insight
+                t.column("fetched_at", .datetime).notNull()
+            }
+
+            try db.create(index: "idx_insights_cache_chapter", on: "insights_cache",
+                         columns: ["book_id", "chapter"],
+                         ifNotExists: true)
+            try db.create(index: "idx_insights_cache_verse", on: "insights_cache",
+                         columns: ["book_id", "chapter", "verse_start"],
+                         ifNotExists: true)
+
+            // Cache for crossref_explanations from Supabase
+            try db.create(table: "crossrefs_cache", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("source_book_id", .integer).notNull()
+                t.column("source_chapter", .integer).notNull()
+                t.column("source_verse", .integer).notNull()
+                t.column("target_book_id", .integer).notNull()
+                t.column("target_chapter", .integer).notNull()
+                t.column("data", .blob).notNull()  // Full JSON-encoded crossref
+                t.column("fetched_at", .datetime).notNull()
+            }
+
+            try db.create(index: "idx_crossrefs_cache_source", on: "crossrefs_cache",
+                         columns: ["source_book_id", "source_chapter", "source_verse"],
+                         ifNotExists: true)
+
+            // Version tracking for cache invalidation
+            try db.create(table: "content_cache_version", ifNotExists: true) { t in
+                t.column("id", .integer).primaryKey()
+                t.column("insights_version", .integer).notNull().defaults(to: 0)
+                t.column("crossrefs_version", .integer).notNull().defaults(to: 0)
+                t.column("updated_at", .datetime).notNull()
+            }
+
+            // Insert initial version row
+            try db.execute(sql: """
+                INSERT INTO content_cache_version (id, insights_version, crossrefs_version, updated_at)
+                VALUES (1, 0, 0, datetime('now'))
+            """)
+        }
+
         try migrator.migrate(dbQueue)
     }
 

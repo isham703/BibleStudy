@@ -243,15 +243,13 @@ struct BibleInsightSheet: View {
 
             HapticService.shared.lightTap()
         }
-        .sheet(isPresented: $showConnectionsSheet) {
-            ConnectionsSheet(
+        .fullScreenCover(isPresented: $showConnectionsSheet) {
+            ChapterMapView(
                 verse: verse,
                 connections: insights.filter { $0.insightType == .connection },
                 onDismiss: { showConnectionsSheet = false }
             )
             .environment(\.insightSheetState, sheetState)
-            .presentationDetents([.fraction(0.55), .fraction(0.95)])
-            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showSourcesSheet) {
             SourcesSheet(
