@@ -1,12 +1,22 @@
 import SwiftUI
 
 // MARK: - Sermon Library View
-// Lists all saved sermons with search and filtering
+// Lists all saved sermons with search, filtering, and delete functionality
 
 struct SermonLibraryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = SermonLibraryViewModel()
     @State private var searchText = ""
+
+    // Delete state
+    @State private var showDeleteConfirmation = false
+    @State private var sermonToDelete: Sermon?
+
+    // Selection mode state
+    @State private var isSelectionMode = false
+    @State private var selectedSermons: Set<UUID> = []
+    @State private var showBatchDeleteConfirmation = false
+    @State private var isDeleting = false
 
     let onSelect: (Sermon) -> Void
 
@@ -29,10 +39,34 @@ struct SermonLibraryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Close") {
-                        dismiss()
+                    if isSelectionMode {
+                        Button("Cancel") {
+                            exitSelectionMode()
+                        }
+                        .foregroundStyle(Color("AccentBronze"))
+                    } else {
+                        Button("Close") {
+                            dismiss()
+                        }
+                        .foregroundStyle(Color("AccentBronze"))
                     }
-                    .foregroundStyle(Color("AccentBronze"))
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if isSelectionMode {
+                        Button("Delete (\(selectedSermons.count))") {
+                            showBatchDeleteConfirmation = true
+                        }
+                        .foregroundStyle(Color("FeedbackError"))
+                        .disabled(selectedSermons.isEmpty || isDeleting)
+                    } else if !filteredSermons.isEmpty {
+                        Button {
+                            isSelectionMode = true
+                        } label: {
+                            Image(systemName: "checkmark.circle")
+                        }
+                        .foregroundStyle(Color("AccentBronze"))
+                    }
                 }
             }
             .searchable(text: $searchText, prompt: "Search sermons")
@@ -42,6 +76,44 @@ struct SermonLibraryView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        // Single delete confirmation
+        .confirmationDialog(
+            "Delete \"\(sermonToDelete?.displayTitle ?? "Sermon")\"?",
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible,
+            presenting: sermonToDelete
+        ) { sermon in
+            Button("Delete", role: .destructive) {
+                Task {
+                    await viewModel.deleteSermon(sermon)
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                sermonToDelete = nil
+            }
+        } message: { sermon in
+            let size = viewModel.formattedStorageSize(for: sermon)
+            Text("This cannot be undone and will free \(size) on this device.")
+        }
+        // Batch delete confirmation
+        .confirmationDialog(
+            "Delete \(selectedSermons.count) sermons?",
+            isPresented: $showBatchDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete All", role: .destructive) {
+                Task {
+                    isDeleting = true
+                    await viewModel.batchDeleteSermons(Array(selectedSermons))
+                    isDeleting = false
+                    exitSelectionMode()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            let size = viewModel.formattedTotalStorageSize(for: Array(selectedSermons))
+            Text("This cannot be undone and will free \(size) on this device.")
+        }
     }
 
     // MARK: - Filtered Sermons
@@ -98,26 +170,86 @@ struct SermonLibraryView: View {
     // MARK: - Sermon List
 
     private var sermonList: some View {
-        ScrollView {
-            LazyVStack(spacing: Theme.Spacing.md) {
-                ForEach(filteredSermons) { sermon in
-                    SermonLibraryCard(sermon: sermon) {
-                        onSelect(sermon)
-                    }
-                    .contextMenu {
+        List {
+            ForEach(filteredSermons) { sermon in
+                SermonLibraryCard(
+                    sermon: sermon,
+                    isSelected: selectedSermons.contains(sermon.id),
+                    isSelectionMode: isSelectionMode,
+                    isSelectable: viewModel.canDelete(sermon)
+                ) {
+                    handleSermonTap(sermon)
+                }
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(
+                    top: Theme.Spacing.sm,
+                    leading: Theme.Spacing.lg,
+                    bottom: Theme.Spacing.sm,
+                    trailing: Theme.Spacing.lg
+                ))
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    if viewModel.canDelete(sermon) {
                         Button(role: .destructive) {
-                            Task {
-                                await viewModel.deleteSermon(sermon)
-                            }
+                            sermonToDelete = sermon
+                            showDeleteConfirmation = true
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
                     }
                 }
+                .contextMenu {
+                    if viewModel.canDelete(sermon) {
+                        Button(role: .destructive) {
+                            sermonToDelete = sermon
+                            showDeleteConfirmation = true
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+
+                        if !isSelectionMode {
+                            Button {
+                                isSelectionMode = true
+                                selectedSermons.insert(sermon.id)
+                            } label: {
+                                Label("Select", systemImage: "checkmark.circle")
+                            }
+                        }
+                    } else {
+                        Text("Cannot delete while processing")
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
-            .padding(.horizontal, Theme.Spacing.lg)
-            .padding(.vertical, Theme.Spacing.md)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+    }
+
+    // MARK: - Helpers
+
+    private func handleSermonTap(_ sermon: Sermon) {
+        if isSelectionMode {
+            toggleSelection(sermon)
+        } else {
+            onSelect(sermon)
+        }
+    }
+
+    private func toggleSelection(_ sermon: Sermon) {
+        guard viewModel.canDelete(sermon) else { return }
+
+        if selectedSermons.contains(sermon.id) {
+            selectedSermons.remove(sermon.id)
+        } else {
+            selectedSermons.insert(sermon.id)
+        }
+        HapticService.shared.selectionChanged()
+    }
+
+    private func exitSelectionMode() {
+        isSelectionMode = false
+        selectedSermons.removeAll()
     }
 }
 
@@ -125,6 +257,9 @@ struct SermonLibraryView: View {
 
 struct SermonLibraryCard: View {
     let sermon: Sermon
+    var isSelected: Bool = false
+    var isSelectionMode: Bool = false
+    var isSelectable: Bool = true
     let onTap: () -> Void
 
     var body: some View {
@@ -132,6 +267,17 @@ struct SermonLibraryCard: View {
             onTap()
         } label: {
             HStack(spacing: Theme.Spacing.lg) {
+                // Selection checkbox (selection mode only)
+                if isSelectionMode {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(Typography.Icon.base)
+                        .foregroundStyle(
+                            isSelected ? Color("AccentBronze") :
+                            isSelectable ? Color("TertiaryText") : Color("TertiaryText").opacity(0.4)
+                        )
+                        .animation(Theme.Animation.settle, value: isSelected)
+                }
+
                 // Status indicator
                 statusIcon
                     .frame(width: 40, height: 40)
@@ -167,21 +313,34 @@ struct SermonLibraryCard: View {
 
                 Spacer()
 
-                // Chevron
-                Image(systemName: "chevron.right")
-                    // swiftlint:disable:next hardcoded_font_system
-                    .font(Typography.Icon.sm)
-                    .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
+                // Chevron (hide in selection mode)
+                if !isSelectionMode {
+                    Image(systemName: "chevron.right")
+                        // swiftlint:disable:next hardcoded_font_system
+                        .font(Typography.Icon.sm)
+                        .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
+                }
             }
             .padding(Theme.Spacing.lg)
-            .background(Color("AppSurface").opacity(Theme.Opacity.pressed))
+            .background(
+                isSelected
+                    ? Color("AccentBronze").opacity(Theme.Opacity.subtle)
+                    : Color("AppSurface").opacity(Theme.Opacity.pressed)
+            )
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             .overlay(
                 RoundedRectangle(cornerRadius: Theme.Radius.button)
-                    .stroke(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
+                    .stroke(
+                        isSelected
+                            ? Color("AccentBronze")
+                            : Color("AccentBronze").opacity(Theme.Opacity.selectionBackground),
+                        lineWidth: isSelected ? Theme.Stroke.control : Theme.Stroke.hairline
+                    )
             )
+            .opacity(isSelectionMode && !isSelectable ? 0.5 : 1.0)
         }
         .buttonStyle(.plain)
+        .disabled(isSelectionMode && !isSelectable)
     }
 
     // MARK: - Status Icon
@@ -245,6 +404,7 @@ final class SermonLibraryViewModel {
     var isLoading = false
 
     private let syncService = SermonSyncService.shared
+    private let toastService = ToastService.shared
 
     func loadSermons() async {
         isLoading = true
@@ -254,14 +414,65 @@ final class SermonLibraryViewModel {
         sermons = syncService.sermons.sorted { $0.recordedAt > $1.recordedAt }
     }
 
+    // MARK: - Delete Operations
+
+    func canDelete(_ sermon: Sermon) -> Bool {
+        syncService.canDeleteSermon(sermon)
+    }
+
     func deleteSermon(_ sermon: Sermon) async {
+        print("[SermonLibraryViewModel] deleteSermon called for: \(sermon.displayTitle) (id: \(sermon.id))")
         do {
             try await syncService.deleteSermon(sermon)
             sermons.removeAll { $0.id == sermon.id }
-            HapticService.shared.success()
+            print("[SermonLibraryViewModel] Delete succeeded, remaining sermons: \(sermons.count)")
+            HapticService.shared.deleteConfirmed()
+            toastService.showSermonDeleted(title: sermon.displayTitle)
         } catch {
             print("[SermonLibraryViewModel] Failed to delete sermon: \(error)")
             HapticService.shared.warning()
+            toastService.showDeleteError(message: error.localizedDescription)
+        }
+    }
+
+    func batchDeleteSermons(_ sermonIds: [UUID]) async {
+        print("[SermonLibraryViewModel] batchDeleteSermons called with \(sermonIds.count) IDs")
+        print("[SermonLibraryViewModel] Current sermons count: \(sermons.count)")
+        let toDelete = sermons.filter { sermonIds.contains($0.id) }
+        print("[SermonLibraryViewModel] Sermons to delete: \(toDelete.count)")
+        do {
+            try await syncService.batchDeleteSermons(toDelete)
+            sermons.removeAll { sermonIds.contains($0.id) }
+            print("[SermonLibraryViewModel] Batch delete succeeded, remaining sermons: \(sermons.count)")
+            HapticService.shared.deleteConfirmed()
+            toastService.showSermonsDeleted(count: sermonIds.count)
+        } catch {
+            print("[SermonLibraryViewModel] Failed to batch delete: \(error)")
+            HapticService.shared.warning()
+            toastService.showDeleteError(message: error.localizedDescription)
+        }
+    }
+
+    // MARK: - Storage Info
+
+    func formattedStorageSize(for sermon: Sermon) -> String {
+        do {
+            let bytes = try syncService.getSermonStorageSize(sermon.id)
+            return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+        } catch {
+            return "unknown storage"
+        }
+    }
+
+    func formattedTotalStorageSize(for sermonIds: [UUID]) -> String {
+        do {
+            var total: Int64 = 0
+            for id in sermonIds {
+                total += try syncService.getSermonStorageSize(id)
+            }
+            return ByteCountFormatter.string(fromByteCount: total, countStyle: .file)
+        } catch {
+            return "unknown storage"
         }
     }
 }

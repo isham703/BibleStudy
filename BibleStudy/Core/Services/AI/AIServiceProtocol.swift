@@ -610,6 +610,12 @@ struct SermonStudyGuideOutput: Codable {
     let summary: String
     let keyThemes: [String]
 
+    // Enhanced analysis (v2)
+    let sermonType: String?
+    let centralThesis: String?
+    let keyTakeaways: [AIAnchoredInsight]?
+    let theologicalAnnotations: [AIAnchoredInsight]?
+
     // Navigation and grounding
     let outline: [SermonOutlineSection]?
     let notableQuotes: [SermonQuote]?
@@ -620,6 +626,7 @@ struct SermonStudyGuideOutput: Codable {
     let discussionQuestions: [AIStudyQuestion]
     let reflectionPrompts: [String]
     let applicationPoints: [String]
+    let anchoredApplicationPoints: [AIAnchoredInsight]?  // v2: anchored application points
 
     // Diagnostics
     let confidenceNotes: [String]?
@@ -628,14 +635,45 @@ struct SermonStudyGuideOutput: Codable {
     enum CodingKeys: String, CodingKey {
         case title, summary, outline
         case keyThemes = "key_themes"
+        case sermonType = "sermon_type"
+        case centralThesis = "central_thesis"
+        case keyTakeaways = "key_takeaways"
+        case theologicalAnnotations = "theological_annotations"
         case notableQuotes = "notable_quotes"
         case bibleReferencesMentioned = "bible_references_mentioned"
         case bibleReferencesSuggested = "bible_references_suggested"
         case discussionQuestions = "discussion_questions"
         case reflectionPrompts = "reflection_prompts"
         case applicationPoints = "application_points"
+        case anchoredApplicationPoints = "anchored_application_points"
         case confidenceNotes = "confidence_notes"
         case promptVersion = "prompt_version"
+    }
+}
+
+/// An anchored insight from AI (for timestamp resolution post-processing)
+struct AIAnchoredInsight: Codable, Hashable, Sendable, Identifiable {
+    var id: String { title }
+    let title: String               // Short label for scanning
+    let insight: String             // 1-2 sentence explanation
+    let supportingQuote: String     // Verbatim excerpt from transcript
+    let references: [String]?       // Scripture refs if relevant
+
+    enum CodingKeys: String, CodingKey {
+        case title, insight, references
+        case supportingQuote = "supporting_quote"
+    }
+
+    /// Convert to AnchoredInsight model (timestamp added later by post-processor)
+    func toAnchoredInsight() -> AnchoredInsight {
+        AnchoredInsight(
+            title: title,
+            insight: insight,
+            supportingQuote: supportingQuote,
+            timestampSeconds: nil,
+            references: references,
+            confidence: nil
+        )
     }
 }
 
@@ -646,11 +684,13 @@ struct SermonOutlineSection: Codable, Hashable, Sendable, Identifiable {
     let startSeconds: Double?
     let endSeconds: Double?
     let summary: String?
+    let anchorText: String?  // 8-20 words verbatim from transcript near section start
 
     enum CodingKeys: String, CodingKey {
         case title, summary
         case startSeconds = "start_seconds"
         case endSeconds = "end_seconds"
+        case anchorText = "anchor_text"
     }
 }
 
@@ -687,6 +727,9 @@ struct AIVerseReference: Codable, Hashable, Sendable, Identifiable {
     /// Source canonical IDs from AI (if it found cross-ref match)
     let verifiedBy: [String]?
 
+    /// How this reference relates to the sermon content (v2)
+    let relation: String?           // supports, contrasts, fulfills, exemplifies, clarifies, warns
+
     enum CodingKeys: String, CodingKey {
         case reference
         case bookId = "book_id"
@@ -698,6 +741,7 @@ struct AIVerseReference: Codable, Hashable, Sendable, Identifiable {
         case timestampSeconds = "timestamp_seconds"
         case verificationHint = "verification_hint"
         case verifiedBy = "verified_by"
+        case relation
     }
 }
 
@@ -706,7 +750,15 @@ struct AIVerseReference: Codable, Hashable, Sendable, Identifiable {
 extension AIVerseReference {
     /// Convert to SermonVerseReference for storage
     func toSermonVerseReference(isMentioned: Bool) -> SermonVerseReference {
-        SermonVerseReference(
+        // Parse relation string to enum
+        let relationEnum: CrossRefRelation?
+        if let relationStr = relation {
+            relationEnum = CrossRefRelation(rawValue: relationStr.lowercased())
+        } else {
+            relationEnum = nil
+        }
+
+        return SermonVerseReference(
             reference: reference,
             bookId: bookId,
             chapter: chapter,
@@ -714,7 +766,8 @@ extension AIVerseReference {
             verseEnd: verseEnd,
             isMentioned: isMentioned,
             rationale: rationale,
-            timestampSeconds: timestampSeconds
+            timestampSeconds: timestampSeconds,
+            relation: relationEnum
         )
     }
 }

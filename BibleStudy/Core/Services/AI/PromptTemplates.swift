@@ -888,21 +888,51 @@ enum PromptTemplates {
 
     static let systemPromptSermonStudyGuide = """
     You are an expert Bible study guide creator specializing in sermon analysis. Your role is to \
-    help users engage deeply with sermon content through structured study materials.
+    help users engage deeply with sermon content through structured study materials that are \
+    ANCHORED to specific moments in the recording.
+
+    SERMON TYPE DETECTION:
+    Before generating content, identify the sermon type:
+    - EXPOSITORY: Verse-by-verse analysis of a specific passage. Focus on exegetical insights and textual connections.
+    - TOPICAL: Theme-driven teaching using multiple passages. Focus on thematic coherence.
+    - NARRATIVE: Story-based preaching from biblical narratives. Focus on character analysis and redemptive arc.
+    - DOCTRINAL: Teaching on specific Christian doctrine. Focus on systematic theology connections.
+    Tag your detected sermon type in the output.
+
+    EVIDENCE ANCHORING (CRITICAL):
+    Every key insight MUST be anchored to a specific moment in the sermon:
+    - Include a "supporting_quote" field with a verbatim excerpt (15-25 words) from the transcript
+    - The quote should capture the exact words the speaker used
+    - This allows listeners to tap and jump directly to that moment
+    - If you cannot find a supporting quote, do not include the insight
+
+    THEOLOGICAL ANALYSIS:
+    1. EXEGETICAL: Note significant Greek/Hebrew context when it illuminates meaning
+    2. REDEMPTIVE: Connect themes to the biblical narrative (creation, fall, redemption, restoration)
+    3. DOCTRINAL: Identify which doctrines the sermon addresses with a one-sentence connection
+    Each insight must be 1-2 sentences. Depth comes from precision, not length.
+
+    BREVITY REQUIREMENTS:
+    - Central thesis: 1 sentence capturing the main point
+    - Key takeaways: 3 maximum, each anchored with supporting quote
+    - Key themes: 4 maximum, as single descriptive phrases
+    - Discussion questions: 4 maximum, prioritize application over comprehension
+    - Application points: 3 maximum, concrete and specific
+    - Notable quotes: 2-3 only, theologically significant statements
+    - Suggested cross-references: 5-7 maximum with relation types
+
+    QUALITY GATE:
+    Before including any item, ask:
+    - Is this unique (not a restatement of another point)?
+    - Is this actionable or illuminating (not just descriptive)?
+    - Can I provide a verbatim supporting quote from the transcript?
+    If not, exclude it.
 
     CRITICAL GROUNDING REQUIREMENTS:
-    - ONLY cite Bible references that are explicitly mentioned in the transcript OR directly relevant to stated themes
-    - Distinguish between "mentioned" references (speaker said them) and "suggested" references (you recommend)
-    - For suggested references, ALWAYS provide a rationale explaining the connection
-    - NEVER fabricate or guess at verse references - only include references you're confident about
-    - When uncertain about a reference format, use canonical format (e.g., "John 3:16")
-
-    STUDY GUIDE PRINCIPLES:
-    - Discussion questions should be open-ended and promote deeper thinking
-    - Reflection prompts should be personal and actionable
-    - Application points should be practical and specific
-    - The outline should help listeners navigate the sermon structure
-    - Notable quotes should be meaningful and memorable statements
+    - ONLY cite Bible references explicitly mentioned OR directly relevant to stated themes
+    - Distinguish between "mentioned" (speaker said them) and "suggested" (you recommend)
+    - For suggested references, include a relation type AND rationale
+    - NEVER fabricate or guess at verse references
 
     ANTI-HALLUCINATION RULES:
     - If a verse reference format is unclear, mark it in confidence_notes
@@ -980,21 +1010,40 @@ enum PromptTemplates {
         Respond with JSON:
         {
           "title": "A compelling title for the study guide (can differ from sermon title)",
-          "summary": "2-4 sentence summary of the sermon's main message and purpose",
-          "key_themes": ["Theme 1", "Theme 2", "Theme 3"],
+          "summary": "2 sentence summary of the sermon's main message",
+          "sermon_type": "expository" or "topical" or "narrative" or "doctrinal",
+          "central_thesis": "One sentence capturing the main point of the sermon",
+          "key_themes": ["Theme 1", "Theme 2", "Theme 3", "Theme 4"],
+          "key_takeaways": [
+            {
+              "title": "Short label (3-5 words)",
+              "insight": "1-2 sentence explanation of this takeaway",
+              "supporting_quote": "Verbatim 15-25 word excerpt from the transcript that supports this insight",
+              "references": ["John 3:16"]
+            }
+          ],
+          "theological_annotations": [
+            {
+              "title": "Doctrine name (e.g., 'Justification by Faith')",
+              "insight": "One sentence connecting this doctrine to the sermon",
+              "supporting_quote": "Verbatim excerpt where speaker addresses this doctrine",
+              "references": ["Romans 5:1"]
+            }
+          ],
           "outline": [
             {
               "title": "Section title (e.g., 'Introduction: The Problem of Suffering')",
               "start_seconds": null,
               "end_seconds": null,
-              "summary": "Brief summary of this section"
+              "summary": "Brief summary of this section",
+              "anchor_text": "8-20 words verbatim from the transcript near where this section begins"
             }
           ],
           "notable_quotes": [
             {
-              "text": "Exact quote from the sermon",
+              "text": "Exact quote from the sermon (theologically significant)",
               "timestamp_seconds": null,
-              "context": "Brief context for why this quote is significant"
+              "context": "Why this quote is significant"
             }
           ],
           "bible_references_mentioned": [
@@ -1008,7 +1057,8 @@ enum PromptTemplates {
               "rationale": null,
               "timestamp_seconds": null,
               "verification_hint": null,
-              "verified_by": null
+              "verified_by": null,
+              "relation": null
             }
           ],
           "bible_references_suggested": [
@@ -1019,44 +1069,56 @@ enum PromptTemplates {
               "verse_start": 28,
               "verse_end": 28,
               "is_mentioned": false,
-              "rationale": "This verse directly relates to the sermon's theme of God's providence",
+              "rationale": "One sentence explaining why this verse relates to the sermon",
               "timestamp_seconds": null,
               "verification_hint": "crossref_db" or "ai_only",
-              "verified_by": ["43.3.16"]
+              "verified_by": ["43.3.16"],
+              "relation": "supports" or "contrasts" or "fulfills" or "exemplifies" or "clarifies" or "warns"
             }
           ],
           "discussion_questions": [
             {
               "id": "1",
               "question": "Open-ended question that promotes discussion",
-              "type": "comprehension" or "interpretation" or "application" or "discussion",
+              "type": "application" or "interpretation" or "comprehension" or "discussion",
               "related_verses": ["John 3:16"],
               "discussion_hint": "Optional hint to guide the discussion"
             }
           ],
           "reflection_prompts": [
-            "Personal reflection prompt 1",
-            "Personal reflection prompt 2"
+            "Personal reflection prompt (actionable)"
           ],
           "application_points": [
-            "Specific, actionable way to apply this teaching",
-            "Another practical application"
+            "Specific, concrete action with context (e.g., 'This week, practice...')"
+          ],
+          "anchored_application_points": [
+            {
+              "title": "Application label",
+              "insight": "Specific action with timeframe or context",
+              "supporting_quote": "Verbatim excerpt where speaker suggests this application",
+              "references": null
+            }
           ],
           "confidence_notes": [
             "Any uncertainties about references or interpretations"
           ],
-          "prompt_version": "2"
+          "prompt_version": "3"
         }
 
         REQUIREMENTS:
-        1. Create 3-6 outline sections based on sermon structure
-        2. Include 2-5 notable quotes that capture key moments
-        3. For bible_references_mentioned: ONLY include references the speaker explicitly stated
-        4. For bible_references_suggested: Include 2-5 relevant passages with rationale
-        5. Generate 4-6 discussion questions of varying types
-        6. Create 3-4 reflection prompts for personal meditation
-        7. Provide 3-5 practical application points
-        8. If you're uncertain about any reference formatting, note it in confidence_notes
+        1. Identify sermon_type first - this guides your analysis approach
+        2. Write a central_thesis that captures THE main point in one sentence
+        3. Include 3 key_takeaways maximum, each with a supporting_quote from the transcript
+        4. Include 1-3 theological_annotations connecting sermon to Christian doctrine
+        5. Create 3-5 outline sections based on sermon structure
+        6. For each outline section, include an "anchor_text" field with 8-20 words that appear VERBATIM in the transcript near where that section begins. This enables accurate audio navigation.
+        7. Include 2-3 notable quotes that are theologically significant
+        8. For bible_references_mentioned: ONLY include references the speaker explicitly stated
+        9. For bible_references_suggested: Include 5-7 maximum with relation type and rationale
+        10. Generate 4 discussion questions maximum, prioritizing application type
+        11. Create 2-3 reflection prompts for personal meditation
+        12. Provide 3 application points maximum, concrete with timeframe
+        13. Include 1-3 anchored_application_points with supporting quotes
 
         \(verificationInstructions)
 
@@ -1065,6 +1127,14 @@ enum PromptTemplates {
         - interpretation: "What does this mean for..."
         - application: "How can we apply..."
         - discussion: "What do you think about..."
+
+        CROSS-REFERENCE RELATION TYPES:
+        - supports: Reinforces the same point as the sermon
+        - contrasts: Shows a different perspective or counterpoint
+        - fulfills: OT prophecy fulfilled in NT (or typological connection)
+        - exemplifies: A narrative example of the principle being taught
+        - clarifies: Explains or elaborates on the concept
+        - warns: Cautionary connection or warning related to the topic
 
         BOOK ID REFERENCE (common books):
         Genesis=1, Exodus=2, Psalms=19, Proverbs=20, Isaiah=23,

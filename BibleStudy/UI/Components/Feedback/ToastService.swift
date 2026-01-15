@@ -76,6 +76,39 @@ final class ToastService {
         enqueue(toast)
     }
 
+    /// Show a sermon deleted toast
+    func showSermonDeleted(title: String) {
+        let toast = ToastItem(
+            id: UUID(),
+            type: .sermonDeleted(title: title),
+            undoAction: nil,
+            duration: Self.defaultDuration
+        )
+        enqueue(toast)
+    }
+
+    /// Show a batch sermons deleted toast
+    func showSermonsDeleted(count: Int) {
+        let toast = ToastItem(
+            id: UUID(),
+            type: .sermonsDeleted(count: count),
+            undoAction: nil,
+            duration: Self.defaultDuration
+        )
+        enqueue(toast)
+    }
+
+    /// Show a delete error toast
+    func showDeleteError(message: String) {
+        let toast = ToastItem(
+            id: UUID(),
+            type: .deleteError(message: message),
+            undoAction: nil,
+            duration: Self.defaultDuration
+        )
+        enqueue(toast)
+    }
+
     /// Dismiss the current toast immediately
     func dismiss() {
         dismissTask?.cancel()
@@ -166,6 +199,9 @@ enum ToastType: Equatable {
     case info(message: String)
     case bookmark(reference: String)
     case note(reference: String)
+    case sermonDeleted(title: String)
+    case sermonsDeleted(count: Int)
+    case deleteError(message: String)
 
     var icon: String {
         switch self {
@@ -174,6 +210,8 @@ enum ToastType: Equatable {
         case .info: return "info.circle.fill"
         case .bookmark: return "bookmark.fill"
         case .note: return "note.text"
+        case .sermonDeleted, .sermonsDeleted: return "trash.fill"
+        case .deleteError: return "exclamationmark.triangle.fill"
         }
     }
 
@@ -184,6 +222,8 @@ enum ToastType: Equatable {
         case .info: return Color("FeedbackInfo")
         case .bookmark: return Color("AccentBronze")
         case .note: return Color("AccentBronze")
+        case .sermonDeleted, .sermonsDeleted: return Color("FeedbackWarning")
+        case .deleteError: return Color("FeedbackError")
         }
     }
 }

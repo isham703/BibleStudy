@@ -47,6 +47,12 @@ nonisolated struct StudyGuideContent: Codable, Hashable, Sendable {
     var summary: String
     var keyThemes: [String]
 
+    // Enhanced analysis (v2)
+    var sermonType: SermonType?
+    var centralThesis: String?
+    var keyTakeaways: [AnchoredInsight]?
+    var theologicalAnnotations: [AnchoredInsight]?
+
     // Navigation/grounding
     var outline: [OutlineSection]?
     var notableQuotes: [Quote]?
@@ -57,6 +63,7 @@ nonisolated struct StudyGuideContent: Codable, Hashable, Sendable {
     var discussionQuestions: [StudyQuestion]
     var reflectionPrompts: [String]
     var applicationPoints: [String]
+    var anchoredApplicationPoints: [AnchoredInsight]?  // v2: anchored application points
 
     // Diagnostics
     var confidenceNotes: [String]?
@@ -65,6 +72,10 @@ nonisolated struct StudyGuideContent: Codable, Hashable, Sendable {
         title: String = "",
         summary: String = "",
         keyThemes: [String] = [],
+        sermonType: SermonType? = nil,
+        centralThesis: String? = nil,
+        keyTakeaways: [AnchoredInsight]? = nil,
+        theologicalAnnotations: [AnchoredInsight]? = nil,
         outline: [OutlineSection]? = nil,
         notableQuotes: [Quote]? = nil,
         bibleReferencesMentioned: [SermonVerseReference] = [],
@@ -72,11 +83,16 @@ nonisolated struct StudyGuideContent: Codable, Hashable, Sendable {
         discussionQuestions: [StudyQuestion] = [],
         reflectionPrompts: [String] = [],
         applicationPoints: [String] = [],
+        anchoredApplicationPoints: [AnchoredInsight]? = nil,
         confidenceNotes: [String]? = nil
     ) {
         self.title = title
         self.summary = summary
         self.keyThemes = keyThemes
+        self.sermonType = sermonType
+        self.centralThesis = centralThesis
+        self.keyTakeaways = keyTakeaways
+        self.theologicalAnnotations = theologicalAnnotations
         self.outline = outline
         self.notableQuotes = notableQuotes
         self.bibleReferencesMentioned = bibleReferencesMentioned
@@ -84,7 +100,29 @@ nonisolated struct StudyGuideContent: Codable, Hashable, Sendable {
         self.discussionQuestions = discussionQuestions
         self.reflectionPrompts = reflectionPrompts
         self.applicationPoints = applicationPoints
+        self.anchoredApplicationPoints = anchoredApplicationPoints
         self.confidenceNotes = confidenceNotes
+    }
+
+    // MARK: - Coding Keys (for snake_case JSON compatibility)
+
+    enum CodingKeys: String, CodingKey {
+        case title
+        case summary
+        case keyThemes = "key_themes"
+        case sermonType = "sermon_type"
+        case centralThesis = "central_thesis"
+        case keyTakeaways = "key_takeaways"
+        case theologicalAnnotations = "theological_annotations"
+        case outline
+        case notableQuotes = "notable_quotes"
+        case bibleReferencesMentioned = "bible_references_mentioned"
+        case bibleReferencesSuggested = "bible_references_suggested"
+        case discussionQuestions = "discussion_questions"
+        case reflectionPrompts = "reflection_prompts"
+        case applicationPoints = "application_points"
+        case anchoredApplicationPoints = "anchored_application_points"
+        case confidenceNotes = "confidence_notes"
     }
 }
 
@@ -92,9 +130,25 @@ nonisolated struct StudyGuideContent: Codable, Hashable, Sendable {
 nonisolated struct OutlineSection: Codable, Hashable, Sendable, Identifiable {
     var id: String { title }
     let title: String
-    let startSeconds: Double?
-    let endSeconds: Double?
+    var startSeconds: Double?      // Mutable for post-generation enrichment
+    var endSeconds: Double?        // Mutable for post-generation enrichment
     let summary: String?
+
+    // Verbatim phrase from transcript near section start (8-20 words)
+    // Used for accurate timestamp matching
+    var anchorText: String?
+
+    // Match confidence: nil = AI-provided, 0.0-1.0 = matcher confidence
+    var matchConfidence: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case title
+        case startSeconds = "start_seconds"
+        case endSeconds = "end_seconds"
+        case summary
+        case anchorText = "anchor_text"
+        case matchConfidence = "match_confidence"
+    }
 }
 
 // MARK: - Quote
@@ -103,6 +157,132 @@ nonisolated struct Quote: Codable, Hashable, Sendable, Identifiable {
     let text: String
     let timestampSeconds: Double?
     let context: String?
+}
+
+// MARK: - Sermon Type
+/// Detected sermon type for tailored analysis
+enum SermonType: String, Codable, Sendable {
+    case expository     // Verse-by-verse analysis of a specific passage
+    case topical        // Theme-driven teaching using multiple passages
+    case narrative      // Story-based preaching from biblical narratives
+    case doctrinal      // Teaching on specific Christian doctrine
+    case unknown        // Type could not be determined
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        self = SermonType(rawValue: value.lowercased()) ?? .unknown
+    }
+
+    var displayName: String {
+        switch self {
+        case .expository: return "Expository"
+        case .topical: return "Topical"
+        case .narrative: return "Narrative"
+        case .doctrinal: return "Doctrinal"
+        case .unknown: return "General"
+        }
+    }
+}
+
+// MARK: - Cross-Reference Relation
+/// How a cross-reference relates to the sermon content
+enum CrossRefRelation: String, Codable, Sendable {
+    case supports       // Reinforces the same point
+    case contrasts      // Shows a different perspective
+    case fulfills       // OT prophecy fulfilled in NT
+    case exemplifies    // Narrative example of the principle
+    case clarifies      // Explains or elaborates
+    case warns          // Cautionary connection
+    case unknown        // Relation not specified
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        self = CrossRefRelation(rawValue: value.lowercased()) ?? .unknown
+    }
+
+    var displayName: String {
+        switch self {
+        case .supports: return "Supports"
+        case .contrasts: return "Contrasts"
+        case .fulfills: return "Fulfills"
+        case .exemplifies: return "Exemplifies"
+        case .clarifies: return "Clarifies"
+        case .warns: return "Warns"
+        case .unknown: return "Related"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .supports: return "checkmark.circle"
+        case .contrasts: return "arrow.left.arrow.right"
+        case .fulfills: return "arrow.right.circle"
+        case .exemplifies: return "text.book.closed"
+        case .clarifies: return "lightbulb"
+        case .warns: return "exclamationmark.triangle"
+        case .unknown: return "link"
+        }
+    }
+}
+
+// MARK: - Anchored Insight
+/// An insight anchored to a specific moment in the sermon via a supporting quote
+nonisolated struct AnchoredInsight: Codable, Hashable, Sendable, Identifiable {
+    let id: UUID
+    let title: String               // Short label for scanning (3-5 words)
+    let insight: String             // 1-2 sentence explanation
+    let supportingQuote: String     // Verbatim excerpt from transcript (<= 25 words)
+    var timestampSeconds: Double?   // Filled by post-processor
+    let references: [String]?       // Scripture refs if relevant
+    var confidence: Double?         // Match confidence (0-1, optional)
+
+    init(
+        id: UUID = UUID(),
+        title: String,
+        insight: String,
+        supportingQuote: String,
+        timestampSeconds: Double? = nil,
+        references: [String]? = nil,
+        confidence: Double? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.insight = insight
+        self.supportingQuote = supportingQuote
+        self.timestampSeconds = timestampSeconds
+        self.references = references
+        self.confidence = confidence
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case insight
+        case supportingQuote = "supporting_quote"
+        case timestampSeconds = "timestamp_seconds"
+        case references
+        case confidence
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Handle backward compatibility: old data may not have id field
+        if let existingId = try container.decodeIfPresent(UUID.self, forKey: .id) {
+            self.id = existingId
+        } else {
+            self.id = UUID()
+        }
+
+        self.title = try container.decode(String.self, forKey: .title)
+        self.insight = try container.decode(String.self, forKey: .insight)
+        self.supportingQuote = try container.decode(String.self, forKey: .supportingQuote)
+        self.timestampSeconds = try container.decodeIfPresent(Double.self, forKey: .timestampSeconds)
+        self.references = try container.decodeIfPresent([String].self, forKey: .references)
+        self.confidence = try container.decodeIfPresent(Double.self, forKey: .confidence)
+    }
 }
 
 // MARK: - Verification Status
@@ -193,6 +373,9 @@ nonisolated struct SermonVerseReference: Codable, Hashable, Sendable, Identifiab
     /// Version of enrichment pipeline that processed this (for future re-enrichment)
     var enrichmentVersion: String?
 
+    /// How this reference relates to the sermon content (v2)
+    var relation: CrossRefRelation?
+
     // MARK: - Initialization
 
     init(
@@ -212,7 +395,8 @@ nonisolated struct SermonVerseReference: Codable, Hashable, Sendable, Identifiab
         crossReferences: [EnrichedCrossRefSummary]? = nil,
         insights: [EnrichedInsightSummary]? = nil,
         canonicalId: String? = nil,
-        enrichmentVersion: String? = nil
+        enrichmentVersion: String? = nil,
+        relation: CrossRefRelation? = nil
     ) {
         self.id = id
         self.reference = reference
@@ -231,6 +415,7 @@ nonisolated struct SermonVerseReference: Codable, Hashable, Sendable, Identifiab
         self.insights = insights
         self.canonicalId = canonicalId
         self.enrichmentVersion = enrichmentVersion
+        self.relation = relation
     }
 
     // MARK: - Coding Keys (for backward compatibility)
@@ -253,6 +438,7 @@ nonisolated struct SermonVerseReference: Codable, Hashable, Sendable, Identifiab
         case insights
         case canonicalId = "canonical_id"
         case enrichmentVersion = "enrichment_version"
+        case relation
     }
 
     // MARK: - Custom Decoding (backward compatibility)
@@ -285,6 +471,7 @@ nonisolated struct SermonVerseReference: Codable, Hashable, Sendable, Identifiab
         self.insights = try container.decodeIfPresent([EnrichedInsightSummary].self, forKey: .insights)
         self.canonicalId = try container.decodeIfPresent(String.self, forKey: .canonicalId)
         self.enrichmentVersion = try container.decodeIfPresent(String.self, forKey: .enrichmentVersion)
+        self.relation = try container.decodeIfPresent(CrossRefRelation.self, forKey: .relation)
     }
 }
 

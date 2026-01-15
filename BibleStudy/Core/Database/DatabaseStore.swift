@@ -994,11 +994,24 @@ final class DatabaseStore: @unchecked Sendable {
         // MARK: - v23: Prayer Sync Tracking
         // Add sync tracking and pagination support to saved_prayers
         migrator.registerMigration("v23_prayer_sync_tracking") { db in
-            // Add sync tracking columns
-            try db.alter(table: "saved_prayers") { t in
-                t.add(column: "last_synced_at", .datetime)
-                t.add(column: "sync_retry_count", .integer).defaults(to: 0)
-                t.add(column: "sync_error", .text)
+            // Check existing columns to avoid duplicate column errors
+            let existingColumns = try db.columns(in: "saved_prayers").map { $0.name }
+
+            // Add sync tracking columns only if they don't exist
+            if !existingColumns.contains("last_synced_at") {
+                try db.alter(table: "saved_prayers") { t in
+                    t.add(column: "last_synced_at", .datetime)
+                }
+            }
+            if !existingColumns.contains("sync_retry_count") {
+                try db.alter(table: "saved_prayers") { t in
+                    t.add(column: "sync_retry_count", .integer).defaults(to: 0)
+                }
+            }
+            if !existingColumns.contains("sync_error") {
+                try db.alter(table: "saved_prayers") { t in
+                    t.add(column: "sync_error", .text)
+                }
             }
 
             // Composite index for efficient sync queue queries
@@ -1055,6 +1068,59 @@ final class DatabaseStore: @unchecked Sendable {
 
             // Rebuild index from existing prayer data
             try db.execute(sql: "INSERT INTO saved_prayers_fts(saved_prayers_fts) VALUES('rebuild')")
+        }
+
+        // MARK: - v25: Repair Sermon Transcripts FTS5 Index
+        // Fixes corrupted FTS5 index by recreating with proper external content mode
+        migrator.registerMigration("v25_repair_sermon_fts") { db in
+            // Drop existing (corrupted) FTS triggers first
+            try db.execute(sql: "DROP TRIGGER IF EXISTS sermon_transcripts_ai")
+            try db.execute(sql: "DROP TRIGGER IF EXISTS sermon_transcripts_ad")
+            try db.execute(sql: "DROP TRIGGER IF EXISTS sermon_transcripts_au")
+
+            // Drop existing (corrupted) FTS table
+            try db.execute(sql: "DROP TABLE IF EXISTS sermon_transcripts_fts")
+
+            // Recreate FTS5 with proper external content mode (matches verses_fts pattern)
+            // This links to sermon_transcripts table via rowid for better reliability
+            try db.execute(sql: """
+                CREATE VIRTUAL TABLE IF NOT EXISTS sermon_transcripts_fts USING fts5(
+                    sermon_id UNINDEXED,
+                    content,
+                    content='sermon_transcripts',
+                    content_rowid='rowid',
+                    tokenize='porter unicode61'
+                )
+            """)
+
+            // Trigger: sync FTS on INSERT
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS sermon_transcripts_ai AFTER INSERT ON sermon_transcripts BEGIN
+                    INSERT INTO sermon_transcripts_fts(rowid, sermon_id, content)
+                    VALUES (new.rowid, new.sermon_id, new.content);
+                END
+            """)
+
+            // Trigger: sync FTS on DELETE
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS sermon_transcripts_ad AFTER DELETE ON sermon_transcripts BEGIN
+                    INSERT INTO sermon_transcripts_fts(sermon_transcripts_fts, rowid, sermon_id, content)
+                    VALUES ('delete', old.rowid, old.sermon_id, old.content);
+                END
+            """)
+
+            // Trigger: sync FTS on UPDATE
+            try db.execute(sql: """
+                CREATE TRIGGER IF NOT EXISTS sermon_transcripts_au AFTER UPDATE ON sermon_transcripts BEGIN
+                    INSERT INTO sermon_transcripts_fts(sermon_transcripts_fts, rowid, sermon_id, content)
+                    VALUES ('delete', old.rowid, old.sermon_id, old.content);
+                    INSERT INTO sermon_transcripts_fts(rowid, sermon_id, content)
+                    VALUES (new.rowid, new.sermon_id, new.content);
+                END
+            """)
+
+            // Rebuild index from existing transcript data
+            try db.execute(sql: "INSERT INTO sermon_transcripts_fts(sermon_transcripts_fts) VALUES('rebuild')")
         }
 
         try migrator.migrate(dbQueue)

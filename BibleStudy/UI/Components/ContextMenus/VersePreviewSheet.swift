@@ -45,21 +45,23 @@ struct VersePreviewSheet: View {
                             .font(Typography.Command.body)
                             .foregroundStyle(Color("AppTextSecondary"))
                     } else {
-                        // Verses with numbers
+                        // Verses with numbers - text is centered, verse number in overlay
                         ForEach(verses, id: \.id) { verse in
-                            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                                Text(String(verse.verse))
-                                    .font(Typography.Command.caption)
-                                    .monospacedDigit()
-                                    .foregroundStyle(Color("TertiaryText"))
-                                    .frame(width: 24, alignment: .trailing)
-
-                                Text(verse.text)
-                                    .font(Typography.Scripture.body)
-                                    .foregroundStyle(Color("AppTextPrimary"))
-                                    .lineSpacing(6)
-                                    .textSelection(.enabled)
-                            }
+                            Text(verse.text)
+                                .font(Typography.Scripture.body)
+                                .foregroundStyle(Color("AppTextPrimary"))
+                                .lineSpacing(6)
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity)
+                                .multilineTextAlignment(.center)
+                                .overlay(alignment: .topLeading) {
+                                    Text(String(verse.verse))
+                                        .font(Typography.Command.caption)
+                                        .monospacedDigit()
+                                        .foregroundStyle(Color("TertiaryText"))
+                                        .offset(x: -28)
+                                }
+                                .padding(.leading, 28)
                         }
                     }
 

@@ -119,6 +119,23 @@ struct AppToastView: View {
             Text("Note saved")
                 .font(Typography.Scripture.quote)
                 .foregroundStyle(textColor)
+
+        case .sermonDeleted(let title):
+            Text("Deleted \"\(title)\"")
+                .font(Typography.Scripture.quote)
+                .foregroundStyle(textColor)
+                .lineLimit(1)
+
+        case .sermonsDeleted(let count):
+            Text("Deleted \(count) sermons")
+                .font(Typography.Scripture.quote)
+                .foregroundStyle(textColor)
+
+        case .deleteError(let message):
+            Text(message)
+                .font(Typography.Scripture.quote)
+                .foregroundStyle(Color("FeedbackError"))
+                .lineLimit(2)
         }
     }
 
@@ -134,7 +151,7 @@ struct AppToastView: View {
                 .font(Typography.Scripture.footnote)
                 .foregroundStyle(secondaryTextColor)
 
-        case .success, .info:
+        case .success, .info, .sermonDeleted, .sermonsDeleted, .deleteError:
             EmptyView()
         }
     }
@@ -232,6 +249,12 @@ struct AppToastView: View {
             return "Bookmarked \(reference)"
         case .note(let reference):
             return "Note saved for \(reference)"
+        case .sermonDeleted(let title):
+            return "Deleted sermon: \(title)"
+        case .sermonsDeleted(let count):
+            return "Deleted \(count) sermons"
+        case .deleteError(let message):
+            return "Delete error: \(message)"
         }
     }
 }

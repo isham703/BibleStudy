@@ -185,7 +185,7 @@ final class SupabaseManager {
     func deleteHighlight(id: String) async throws {
         try await client
             .from("highlights")
-            .update(["deleted_at": AnyEncodable(Date())])
+            .update(["deleted_at": AnyEncodable(Date().iso8601String)])
             .eq("id", value: id)
             .execute()
     }
@@ -231,7 +231,7 @@ final class SupabaseManager {
     func updateNote(id: String, content: String, template: String? = nil) async throws {
         var updates: [String: AnyEncodable] = [
             "content": AnyEncodable(content),
-            "updated_at": AnyEncodable(Date())
+            "updated_at": AnyEncodable(Date().iso8601String)
         ]
         if let template = template {
             updates["template"] = AnyEncodable(template)
@@ -246,7 +246,7 @@ final class SupabaseManager {
     func deleteNote(id: String) async throws {
         try await client
             .from("notes")
-            .update(["deleted_at": AnyEncodable(Date())])
+            .update(["deleted_at": AnyEncodable(Date().iso8601String)])
             .eq("id", value: id)
             .execute()
     }
@@ -276,7 +276,7 @@ final class SupabaseManager {
     func deleteSavedPrayer(id: String) async throws {
         try await client
             .from("saved_prayers")
-            .update(["deleted_at": AnyEncodable(Date())])
+            .update(["deleted_at": AnyEncodable(Date().iso8601String)])
             .eq("id", value: id)
             .execute()
     }
@@ -320,7 +320,7 @@ final class SupabaseManager {
     func deleteSermon(id: String) async throws {
         try await client
             .from("sermons")
-            .update(["deleted_at": AnyEncodable(Date())])
+            .update(["deleted_at": AnyEncodable(Date().iso8601String)])
             .eq("id", value: id)
             .execute()
     }
@@ -337,6 +337,23 @@ final class SupabaseManager {
             .from("sermons")
             .createSignedURL(path: path, expiresIn: expiresIn)
         return signedURL
+    }
+
+    /// Delete all files in a sermon storage directory
+    /// - Parameter path: The directory path (e.g., "userId/sermonId")
+    func deleteSermonDirectory(path: String) async throws {
+        // List all files in the directory
+        let files = try await client.storage
+            .from("sermons")
+            .list(path: path)
+
+        // Delete each file if any exist
+        if !files.isEmpty {
+            let filePaths = files.map { "\(path)/\($0.name)" }
+            try await client.storage
+                .from("sermons")
+                .remove(paths: filePaths)
+        }
     }
 
     func getSermon(id: String) async throws -> SermonDTO? {
@@ -383,7 +400,7 @@ final class SupabaseManager {
     func deleteSermonBookmark(id: String) async throws {
         try await client
             .from("sermon_bookmarks")
-            .update(["deleted_at": AnyEncodable(Date())])
+            .update(["deleted_at": AnyEncodable(Date().iso8601String)])
             .eq("id", value: id)
             .execute()
     }
@@ -530,5 +547,13 @@ struct AnyEncodable: Encodable, @unchecked Sendable {
 
     func encode(to encoder: Encoder) throws {
         try _encode(encoder)
+    }
+}
+
+// MARK: - Date Formatting for Supabase
+extension Date {
+    /// Returns ISO8601 formatted string for PostgreSQL timestamp with time zone
+    var iso8601String: String {
+        ISO8601DateFormatter().string(from: self)
     }
 }

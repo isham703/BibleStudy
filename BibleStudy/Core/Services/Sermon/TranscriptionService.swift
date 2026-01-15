@@ -199,9 +199,9 @@ final class TranscriptionService: Sendable {
                 onProgress?(overallProgress)
             }
 
-            // Update detected language from first chunk
+            // Update detected language from first chunk (normalize to ISO-639-1)
             if index == 0 {
-                detectedLanguage = output.language
+                detectedLanguage = normalizeLanguageCode(output.language)
             }
 
             // Offset segment timestamps
@@ -254,6 +254,50 @@ final class TranscriptionService: Sendable {
         case "mpeg", "mpga": return "audio/mpeg"
         default: return "audio/mp4"
         }
+    }
+
+    /// Normalize language from Whisper output to ISO-639-1 code
+    /// Whisper returns full language names ("english") but the API expects ISO-639-1 codes ("en")
+    private func normalizeLanguageCode(_ language: String) -> String {
+        let lowercased = language.lowercased().trimmingCharacters(in: .whitespaces)
+
+        // Map common full language names to ISO-639-1 codes
+        let languageMap: [String: String] = [
+            "english": "en",
+            "spanish": "es",
+            "french": "fr",
+            "german": "de",
+            "italian": "it",
+            "portuguese": "pt",
+            "dutch": "nl",
+            "russian": "ru",
+            "chinese": "zh",
+            "japanese": "ja",
+            "korean": "ko",
+            "arabic": "ar",
+            "hindi": "hi",
+            "turkish": "tr",
+            "polish": "pl",
+            "ukrainian": "uk",
+            "greek": "el",
+            "hebrew": "he",
+            "swedish": "sv",
+            "norwegian": "no",
+            "danish": "da",
+            "finnish": "fi",
+            "czech": "cs",
+            "romanian": "ro",
+            "hungarian": "hu",
+            "indonesian": "id",
+            "vietnamese": "vi",
+            "thai": "th",
+            "malay": "ms",
+            "tagalog": "tl",
+            "swahili": "sw"
+        ]
+
+        // Return mapped code if found, otherwise return as-is (might already be ISO code)
+        return languageMap[lowercased] ?? lowercased
     }
 
     /// Build multipart form body with pre-allocated capacity

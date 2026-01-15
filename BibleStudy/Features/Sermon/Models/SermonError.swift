@@ -45,6 +45,10 @@ enum SermonError: Error, LocalizedError, Sendable {
     case notAuthenticated
     case authorizationFailed
 
+    // Delete errors
+    case cannotDeleteWhileProcessing
+    case deleteFailed(String)
+
     var errorDescription: String? {
         switch self {
         case .microphonePermissionDenied:
@@ -109,6 +113,11 @@ enum SermonError: Error, LocalizedError, Sendable {
             return "Please sign in to record and sync sermons."
         case .authorizationFailed:
             return "Authorization failed. Please sign in again."
+
+        case .cannotDeleteWhileProcessing:
+            return "Cannot delete while processing. Please wait for processing to complete."
+        case .deleteFailed(let reason):
+            return "Failed to delete sermon: \(reason)"
         }
     }
 
@@ -128,6 +137,8 @@ enum SermonError: Error, LocalizedError, Sendable {
             return "Delete old sermons or clear the cache in Settings."
         case .notAuthenticated:
             return "Sign in to enable cloud sync and AI features."
+        case .cannotDeleteWhileProcessing:
+            return "Wait for the transcription and study guide to complete, then try again."
         default:
             return nil
         }

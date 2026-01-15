@@ -6,6 +6,7 @@ import SwiftUI
 struct SermonAtriumActionButton: View {
     let icon: String
     let label: String
+    var tint: Color?  // Optional custom tint for icon and label
     let delay: Double
     let isAwakened: Bool
     let action: () -> Void
@@ -17,11 +18,11 @@ struct SermonAtriumActionButton: View {
             VStack(spacing: Theme.Spacing.xs) {
                 Image(systemName: icon)
                     .font(Typography.Icon.md)
-                    .foregroundStyle(Color("AppTextSecondary"))
+                    .foregroundStyle(tint ?? Color("AppTextSecondary"))
 
                 Text(label)
                     .font(Typography.Command.caption)
-                    .foregroundStyle(Color("TertiaryText"))
+                    .foregroundStyle(tint ?? Color("TertiaryText"))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Theme.Spacing.md)

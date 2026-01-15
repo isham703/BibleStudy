@@ -12,6 +12,7 @@ struct SermonViewingPhase: View {
     @State private var copiedToClipboard = false
     @State private var isAwakened = false
     @State private var autoScrollEnabled = true
+    @State private var showDeleteConfirmation = false
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -59,6 +60,18 @@ struct SermonViewingPhase: View {
             if let shareText = generateShareText() {
                 ShareSheet(items: [shareText])
             }
+        }
+        .confirmationDialog(
+            "Delete \"\(flowState.currentSermon?.displayTitle ?? "Sermon")\"?",
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                Task { await deleteCurrentSermon() }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This cannot be undone.")
         }
     }
 
@@ -288,6 +301,16 @@ struct SermonViewingPhase: View {
                 ) {
                     flowState.reset()
                 }
+
+                SermonAtriumActionButton(
+                    icon: "trash",
+                    label: "Delete",
+                    tint: Color("FeedbackError"),
+                    delay: 0.7,
+                    isAwakened: isAwakened
+                ) {
+                    showDeleteConfirmation = true
+                }
             }
         }
     }
@@ -381,6 +404,23 @@ struct SermonViewingPhase: View {
         }
 
         return text
+    }
+
+    private func deleteCurrentSermon() async {
+        guard let sermon = flowState.currentSermon else { return }
+
+        // Stop playback first
+        viewModel.cleanup()
+
+        do {
+            try await SermonSyncService.shared.deleteSermon(sermon)
+            HapticService.shared.deleteConfirmed()
+            ToastService.shared.showSermonDeleted(title: sermon.displayTitle)
+            flowState.reset()
+        } catch {
+            HapticService.shared.warning()
+            ToastService.shared.showDeleteError(message: error.localizedDescription)
+        }
     }
 }
 

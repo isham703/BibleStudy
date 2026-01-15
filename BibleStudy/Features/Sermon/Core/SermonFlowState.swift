@@ -122,6 +122,7 @@ final class SermonFlowState {
     private var processingTask: Task<Void, Never>?
     private var durationTimerTask: Task<Void, Never>?
     private var progressStreamTask: Task<Void, Never>?
+    private var studyGuideObserverTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -538,6 +539,31 @@ final class SermonFlowState {
         try repository.fetchStudyGuide(sermonId: sermonId)
     }
 
+    // MARK: - Study Guide Observation
+
+    /// Start observing study guide updates for live UI refresh.
+    /// Called when entering viewing phase to handle timestamp enrichment updates.
+    private func beginObservingStudyGuideUpdates(for sermonId: UUID) {
+        studyGuideObserverTask?.cancel()
+        studyGuideObserverTask = Task { @MainActor [weak self] in
+            for await note in NotificationCenter.default.notifications(named: .sermonStudyGuideUpdated) {
+                guard !Task.isCancelled,
+                      let self = self,
+                      let updatedId = note.userInfo?["sermonId"] as? UUID,
+                      updatedId == sermonId else { continue }
+
+                // Reload study guide to get updated timestamps
+                self.currentStudyGuide = try? self.repository.fetchStudyGuide(sermonId: sermonId)
+            }
+        }
+    }
+
+    /// Stop observing study guide updates
+    private func stopObservingStudyGuideUpdates() {
+        studyGuideObserverTask?.cancel()
+        studyGuideObserverTask = nil
+    }
+
     // MARK: - Progress Stream Helpers
 
     /// Start listening to progress updates via AsyncStream
@@ -655,6 +681,7 @@ final class SermonFlowState {
         processingTask?.cancel()
         durationTimerTask?.cancel()
         stopProgressStream()
+        stopObservingStudyGuideUpdates()
         recordingService.stopMetering()
 
         // Clear task references
@@ -684,6 +711,9 @@ final class SermonFlowState {
     func loadExistingSermon(_ sermon: Sermon) async {
         currentSermon = sermon
         await loadSermonData(sermonId: sermon.id)
+
+        // Start observing study guide updates for live timestamp enrichment
+        beginObservingStudyGuideUpdates(for: sermon.id)
 
         // Check if still processing
         if sermon.transcriptionStatus == .running || sermon.studyGuideStatus == .running {

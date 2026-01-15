@@ -313,6 +313,12 @@ final class HapticService {
         }
     }
 
+    /// Delete action confirmed - medium impact for successful deletion
+    func deleteConfirmed() {
+        guard isEnabled else { return }
+        impactMedium.impactOccurred()
+    }
+
     /// Toast appeared - subtle notification
     func toastAppeared() {
         guard isEnabled else { return }

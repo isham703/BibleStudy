@@ -258,11 +258,27 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
         try dbQueue.write { db in
             try guide.save(db)
         }
+        // Notify observers that study guide was saved
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: .sermonStudyGuideUpdated,
+                object: nil,
+                userInfo: ["sermonId": guide.sermonId]
+            )
+        }
     }
 
     func updateStudyGuide(_ guide: SermonStudyGuide) throws {
         try dbQueue.write { db in
             try guide.update(db)
+        }
+        // Notify observers that study guide was updated
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: .sermonStudyGuideUpdated,
+                object: nil,
+                userInfo: ["sermonId": guide.sermonId]
+            )
         }
     }
 
@@ -316,6 +332,14 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
     func saveSermons(_ sermons: [Sermon]) throws {
         try dbQueue.write { db in
             for sermon in sermons {
+                // Check if sermon exists locally and is soft-deleted
+                if let existing = try Sermon.fetchOne(db, key: sermon.id) {
+                    // Don't overwrite locally deleted sermons with undeleted remote versions
+                    if existing.deletedAt != nil && sermon.deletedAt == nil {
+                        print("[SermonRepository] Skipping save - sermon \(sermon.id) is locally deleted")
+                        continue
+                    }
+                }
                 try sermon.save(db)
             }
         }
@@ -329,6 +353,43 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
 
             sermon.markDeleted()
             try sermon.update(db)
+        }
+    }
+
+    // MARK: - Storage Size Calculation
+
+    /// Calculate the total storage size for a sermon's audio chunks
+    /// - Parameter sermonId: The sermon ID
+    /// - Returns: Total size in bytes (best-effort, includes filesystem fallback)
+    func calculateSermonStorageSize(sermonId: UUID) throws -> Int64 {
+        return try dbQueue.read { db in
+            let chunks = try SermonAudioChunk
+                .filter(SermonAudioChunk.Columns.sermonId == sermonId)
+                .fetchAll(db)
+
+            // Primary: sum stored fileSize values
+            var totalSize = Int64(chunks.compactMap { $0.fileSize }.reduce(0, +))
+
+            // Fallback: compute from filesystem for chunks missing fileSize
+            let fileManager = FileManager.default
+            for chunk in chunks where chunk.fileSize == nil {
+                if let localPath = chunk.localPath,
+                   let attrs = try? fileManager.attributesOfItem(atPath: localPath),
+                   let size = attrs[.size] as? Int64 {
+                    totalSize += size
+                }
+            }
+
+            return totalSize
+        }
+    }
+
+    /// Calculate the total storage size for multiple sermons
+    /// - Parameter sermonIds: Array of sermon IDs
+    /// - Returns: Total size in bytes across all sermons
+    func calculateTotalSermonStorageSize(sermonIds: [UUID]) -> Int64 {
+        sermonIds.reduce(Int64(0)) { total, id in
+            total + ((try? calculateSermonStorageSize(sermonId: id)) ?? 0)
         }
     }
 }

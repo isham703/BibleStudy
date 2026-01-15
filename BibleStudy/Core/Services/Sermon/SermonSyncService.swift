@@ -3,6 +3,13 @@ import Auth
 import Supabase
 @preconcurrency import GRDB
 
+// MARK: - Study Guide Notifications
+extension Notification.Name {
+    /// Posted when a sermon study guide is saved or updated.
+    /// UserInfo contains "sermonId" (UUID) for the affected sermon.
+    static let sermonStudyGuideUpdated = Notification.Name("sermonStudyGuideUpdated")
+}
+
 // MARK: - Sermon Sync Service
 // Manages sermon data and audio sync with offline-first architecture
 
@@ -111,21 +118,92 @@ final class SermonSyncService {
         try await syncSermon(updated)
     }
 
-    /// Delete a sermon (soft delete)
-    func deleteSermon(_ sermon: Sermon) async throws {
-        try repository.softDeleteSermon(id: sermon.id)
-        sermons.removeAll { $0.id == sermon.id }
+    // MARK: - Delete Operations
 
-        // Sync deletion
-        do {
-            try await supabase.deleteSermon(id: sermon.id.uuidString)
-        } catch {
-            // Will sync later
-            self.error = error
+    /// Check if sermon can be deleted (not currently processing)
+    func canDeleteSermon(_ sermon: Sermon) -> Bool {
+        return !sermon.isProcessing
+    }
+
+    /// Get storage size for confirmation UI
+    func getSermonStorageSize(_ sermonId: UUID) throws -> Int64 {
+        try repository.calculateSermonStorageSize(sermonId: sermonId)
+    }
+
+    /// Delete a sermon with full cleanup (soft delete)
+    func deleteSermon(_ sermon: Sermon) async throws {
+        print("[SermonSyncService] deleteSermon called for: \(sermon.displayTitle) (id: \(sermon.id))")
+
+        // 1. Guard processing state
+        guard canDeleteSermon(sermon) else {
+            print("[SermonSyncService] Cannot delete - sermon is processing")
+            throw SermonError.cannotDeleteWhileProcessing
         }
 
-        // Clean up local audio files
-        await cleanupAudioFiles(for: sermon.id)
+        // 2. Soft delete in DB
+        print("[SermonSyncService] Performing soft delete in DB...")
+        try repository.softDeleteSermon(id: sermon.id)
+        print("[SermonSyncService] Soft delete succeeded")
+        sermons.removeAll { $0.id == sermon.id }
+        print("[SermonSyncService] Removed from in-memory array, remaining: \(sermons.count)")
+
+        // 3. Local file cleanup (best-effort, non-fatal)
+        await cleanupLocalFiles(for: sermon.id)
+        print("[SermonSyncService] Local file cleanup complete")
+
+        // 4. Queue remote deletion (will sync later)
+        do {
+            try await supabase.deleteSermon(id: sermon.id.uuidString)
+            await cleanupRemoteStorage(for: sermon)
+            print("[SermonSyncService] Remote deletion complete")
+        } catch {
+            // Will retry on next sync - offline-first approach
+            print("[SermonSyncService] Remote deletion failed (will retry): \(error)")
+            self.error = error
+        }
+    }
+
+    /// Batch delete multiple sermons
+    func batchDeleteSermons(_ sermons: [Sermon]) async throws {
+        // Pre-validate all are deletable
+        for sermon in sermons {
+            guard canDeleteSermon(sermon) else {
+                throw SermonError.cannotDeleteWhileProcessing
+            }
+        }
+
+        // Execute deletions sequentially
+        for sermon in sermons {
+            try await deleteSermon(sermon)
+        }
+    }
+
+    // MARK: - Cleanup Helpers
+
+    private func cleanupLocalFiles(for sermonId: UUID) async {
+        let fileManager = FileManager.default
+
+        // Delete recording directory (Documents/Sermons/{sermonId}/)
+        let documentsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let sermonDir = documentsDir.appendingPathComponent("Sermons/\(sermonId.uuidString)")
+        try? fileManager.removeItem(at: sermonDir)
+
+        // Delete cache directory
+        let cacheDir = audioCacheDirectory.appendingPathComponent(sermonId.uuidString)
+        try? fileManager.removeItem(at: cacheDir)
+    }
+
+    private func cleanupRemoteStorage(for sermon: Sermon) async {
+        guard let userId = supabase.currentUser?.id else { return }
+
+        // Delete all chunks from Supabase Storage
+        let basePath = "\(userId.uuidString.lowercased())/\(sermon.id.uuidString.lowercased())"
+        do {
+            try await supabase.deleteSermonDirectory(path: basePath)
+        } catch {
+            // Log and retry on next sync
+            print("[SermonSyncService] Remote storage cleanup failed: \(error)")
+        }
     }
 
     // MARK: - Audio Upload
@@ -447,11 +525,6 @@ final class SermonSyncService {
 
             print("[SermonSyncService] Evicted from cache: \(file.url.lastPathComponent)")
         }
-    }
-
-    private func cleanupAudioFiles(for sermonId: UUID) async {
-        let sermonDir = audioCacheDirectory.appendingPathComponent(sermonId.uuidString)
-        try? FileManager.default.removeItem(at: sermonDir)
     }
 
     // MARK: - Remote Fetch

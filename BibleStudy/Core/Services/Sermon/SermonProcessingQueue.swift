@@ -308,7 +308,7 @@ final class SermonProcessingQueue {
                 transcript: transcript
             )
 
-            // Save study guide via repository
+            // 1) Save study guide immediately (outline visible, timestamps may be nil)
             try saveStudyGuide(studyGuide)
 
             // Update status to succeeded
@@ -318,6 +318,28 @@ final class SermonProcessingQueue {
             await progressPublisher.publish(sermonId: sermonId, job: job, progress: 1.0)
 
             print("[SermonProcessingQueue] Study guide generation complete")
+
+            // 2) Enrich outline timestamps asynchronously (outline becomes clickable)
+            let capturedRepository = repository
+            let sermonDuration = try? repository.fetchSermon(id: sermonId)?.durationSeconds
+            Task.detached(priority: .utility) {
+                var updated = studyGuide
+                if let outline = updated.content.outline, !outline.isEmpty {
+                    updated.content.outline = OutlineTimestampMatcher.matchOutlineToTranscript(
+                        outline: outline,
+                        wordTimestamps: transcript.wordTimestamps,
+                        sermonDuration: Double(sermonDuration ?? 0)
+                    )
+                    updated.updatedAt = Date()
+                    updated.needsSync = true
+                    do {
+                        try capturedRepository.updateStudyGuide(updated)
+                        print("[SermonProcessingQueue] Outline timestamps enriched for sermon \(sermonId)")
+                    } catch {
+                        print("[SermonProcessingQueue] Failed to save enriched outline: \(error)")
+                    }
+                }
+            }
 
         } catch {
             // Update status to failed
@@ -402,11 +424,12 @@ final class SermonProcessingQueue {
             classification: RefClassification.suggested
         )
 
-        // Convert AI output to StudyGuideContent with enriched references
+        // Convert AI output to StudyGuideContent with enriched references and timestamp resolution
         let content = convertToStudyGuideContent(
             output,
             enrichedMentioned: enrichedMentioned,
-            enrichedSuggested: enrichedSuggested
+            enrichedSuggested: enrichedSuggested,
+            wordTimestamps: transcript.wordTimestamps
         )
 
         // Use SHA256 for deterministic transcript hash
@@ -428,18 +451,26 @@ final class SermonProcessingQueue {
     }
 
     /// Convert SermonStudyGuideOutput to StudyGuideContent with enriched references
+    /// - Parameters:
+    ///   - output: The AI-generated study guide output
+    ///   - enrichedMentioned: Bible references mentioned in the sermon (enriched)
+    ///   - enrichedSuggested: AI-suggested Bible references (enriched)
+    ///   - wordTimestamps: Word-level timestamps for anchor resolution
     private func convertToStudyGuideContent(
         _ output: SermonStudyGuideOutput,
         enrichedMentioned: [SermonVerseReference],
-        enrichedSuggested: [SermonVerseReference]
+        enrichedSuggested: [SermonVerseReference],
+        wordTimestamps: [SermonTranscript.WordTimestamp]
     ) -> StudyGuideContent {
-        // Convert outline sections
+        // Convert outline sections (timestamps will be enriched later)
         let outline = output.outline?.map { section in
             OutlineSection(
                 title: section.title,
                 startSeconds: section.startSeconds,
                 endSeconds: section.endSeconds,
-                summary: section.summary
+                summary: section.summary,
+                anchorText: section.anchorText,
+                matchConfidence: nil  // Will be set by OutlineTimestampMatcher
             )
         }
 
@@ -463,10 +494,47 @@ final class SermonProcessingQueue {
             )
         }
 
+        // Parse sermon type
+        let sermonType: SermonType?
+        if let typeStr = output.sermonType {
+            sermonType = SermonType(rawValue: typeStr.lowercased())
+        } else {
+            sermonType = nil
+        }
+
+        // Convert and resolve timestamps for anchored insights
+        let keyTakeaways: [AnchoredInsight]?
+        if let aiTakeaways = output.keyTakeaways {
+            let unresolved = aiTakeaways.map { $0.toAnchoredInsight() }
+            keyTakeaways = resolveTimestamps(for: unresolved, using: wordTimestamps)
+        } else {
+            keyTakeaways = nil
+        }
+
+        let theologicalAnnotations: [AnchoredInsight]?
+        if let aiAnnotations = output.theologicalAnnotations {
+            let unresolved = aiAnnotations.map { $0.toAnchoredInsight() }
+            theologicalAnnotations = resolveTimestamps(for: unresolved, using: wordTimestamps)
+        } else {
+            theologicalAnnotations = nil
+        }
+
+        let anchoredApplicationPoints: [AnchoredInsight]?
+        if let aiApps = output.anchoredApplicationPoints {
+            let unresolved = aiApps.map { $0.toAnchoredInsight() }
+            anchoredApplicationPoints = resolveTimestamps(for: unresolved, using: wordTimestamps)
+        } else {
+            anchoredApplicationPoints = nil
+        }
+
         return StudyGuideContent(
             title: output.title,
             summary: output.summary,
             keyThemes: output.keyThemes,
+            sermonType: sermonType,
+            centralThesis: output.centralThesis,
+            keyTakeaways: keyTakeaways,
+            theologicalAnnotations: theologicalAnnotations,
             outline: outline,
             notableQuotes: quotes,
             bibleReferencesMentioned: enrichedMentioned,
@@ -474,8 +542,142 @@ final class SermonProcessingQueue {
             discussionQuestions: questions,
             reflectionPrompts: output.reflectionPrompts,
             applicationPoints: output.applicationPoints,
+            anchoredApplicationPoints: anchoredApplicationPoints,
             confidenceNotes: output.confidenceNotes
         )
+    }
+
+    // MARK: - Timestamp Resolution
+
+    /// Result of finding a quote in the transcript
+    private struct QuoteMatch {
+        let startTime: Double
+        let endTime: Double
+        let confidence: Double
+    }
+
+    /// Find a quote in the transcript using fuzzy token matching
+    /// Returns the timestamp of the best match above the confidence threshold
+    private func findQuoteInTranscript(
+        quote: String,
+        wordTimestamps: [SermonTranscript.WordTimestamp]
+    ) -> QuoteMatch? {
+        guard !quote.isEmpty, !wordTimestamps.isEmpty else { return nil }
+
+        // Normalize the quote: lowercase, remove punctuation
+        let normalizedQuote = normalizeText(quote)
+        let quoteTokens = normalizedQuote.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+
+        guard quoteTokens.count >= 3 else { return nil }  // Need at least 3 words for reliable matching
+
+        // Build normalized word list from transcript
+        let normalizedWords = wordTimestamps.map { normalizeText($0.word) }
+
+        var bestMatch: (startIndex: Int, endIndex: Int, score: Double)?
+
+        // Sliding window approach
+        let windowSize = quoteTokens.count
+        let maxStartIndex = max(0, normalizedWords.count - windowSize)
+
+        for startIndex in 0...maxStartIndex {
+            let endIndex = min(startIndex + windowSize + 2, normalizedWords.count)  // Allow slight variance
+            let windowWords = Array(normalizedWords[startIndex..<endIndex])
+
+            // Calculate token overlap score
+            let score = calculateTokenOverlap(quoteTokens: quoteTokens, windowWords: windowWords)
+
+            if score > (bestMatch?.score ?? 0.0) {
+                bestMatch = (startIndex, min(startIndex + windowSize - 1, normalizedWords.count - 1), score)
+            }
+        }
+
+        // Check confidence threshold
+        guard let match = bestMatch, match.score >= 0.6 else { return nil }
+
+        let startTime = wordTimestamps[match.startIndex].start
+        let endTime = wordTimestamps[match.endIndex].end
+
+        return QuoteMatch(startTime: startTime, endTime: endTime, confidence: match.score)
+    }
+
+    /// Normalize text for matching: lowercase, remove punctuation
+    private func normalizeText(_ text: String) -> String {
+        text.lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .joined(separator: " ")
+            .components(separatedBy: .whitespaces)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+    }
+
+    /// Calculate token overlap between quote and window (returns 0-1 score)
+    private func calculateTokenOverlap(quoteTokens: [String], windowWords: [String]) -> Double {
+        guard !quoteTokens.isEmpty else { return 0.0 }
+
+        var matchedTokens = 0
+        var usedIndices = Set<Int>()
+
+        for quoteToken in quoteTokens {
+            // Find best match in window (allowing for slight misspellings)
+            for (index, windowWord) in windowWords.enumerated() {
+                if usedIndices.contains(index) { continue }
+
+                if quoteToken == windowWord || levenshteinDistance(quoteToken, windowWord) <= 1 {
+                    matchedTokens += 1
+                    usedIndices.insert(index)
+                    break
+                }
+            }
+        }
+
+        return Double(matchedTokens) / Double(quoteTokens.count)
+    }
+
+    /// Simple Levenshtein distance for fuzzy matching
+    private func levenshteinDistance(_ s1: String, _ s2: String) -> Int {
+        if s1.isEmpty { return s2.count }
+        if s2.isEmpty { return s1.count }
+
+        let a = Array(s1)
+        let b = Array(s2)
+
+        var dist = [[Int]](repeating: [Int](repeating: 0, count: b.count + 1), count: a.count + 1)
+
+        for i in 0...a.count { dist[i][0] = i }
+        for j in 0...b.count { dist[0][j] = j }
+
+        for i in 1...a.count {
+            for j in 1...b.count {
+                let cost = a[i - 1] == b[j - 1] ? 0 : 1
+                dist[i][j] = min(
+                    dist[i - 1][j] + 1,      // deletion
+                    dist[i][j - 1] + 1,      // insertion
+                    dist[i - 1][j - 1] + cost // substitution
+                )
+            }
+        }
+
+        return dist[a.count][b.count]
+    }
+
+    /// Resolve timestamps for an array of AnchoredInsights
+    private func resolveTimestamps(
+        for insights: [AnchoredInsight],
+        using wordTimestamps: [SermonTranscript.WordTimestamp]
+    ) -> [AnchoredInsight] {
+        return insights.map { insight in
+            var resolved = insight
+
+            if let match = findQuoteInTranscript(
+                quote: insight.supportingQuote,
+                wordTimestamps: wordTimestamps
+            ) {
+                resolved.timestampSeconds = match.startTime
+                resolved.confidence = match.confidence
+            }
+
+            return resolved
+        }
     }
 
     // MARK: - Database Operations (via Repository)

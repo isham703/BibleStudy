@@ -65,20 +65,18 @@ private struct OutlineRowView: View {
         section.startSeconds != nil
     }
 
+    /// Whether the timestamp match is approximate (low confidence)
+    private var isApproximate: Bool {
+        guard section.startSeconds != nil else { return false }
+        return (section.matchConfidence ?? 1.0) < 0.7
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: Theme.Spacing.md) {
-                // Timestamp (Plaud-style: underlined)
-                if let startSeconds = section.startSeconds {
-                    Text(TimestampFormatter.format(startSeconds))
-                        .font(Typography.Command.caption.monospacedDigit())
-                        .foregroundStyle(Color("AppTextSecondary"))
-                        .underline()
-                } else {
-                    Text("--:--")
-                        .font(Typography.Command.caption.monospacedDigit())
-                        .foregroundStyle(Color("TertiaryText"))
-                }
+                // Timestamp with 3 states: loading, approximate, precise
+                timestampView
+                    .frame(width: 48, alignment: .leading)
 
                 // Title
                 Text(section.title)
@@ -91,10 +89,47 @@ private struct OutlineRowView: View {
                 RoundedRectangle(cornerRadius: Theme.Radius.tag)
                     .fill(isActive ? Color("AppAccentAction").opacity(Theme.Opacity.subtle) : Color.clear)
             )
+            .opacity(hasTimestamp ? 1.0 : Theme.Opacity.disabled)
         }
         .buttonStyle(.plain)
         .disabled(!hasTimestamp)
+        .animation(Theme.Animation.fade, value: hasTimestamp)
         .accessibilityLabel("Section \(index + 1): \(section.title)")
-        .accessibilityHint(hasTimestamp ? "Double tap to jump to this section" : "No timestamp available")
+        .accessibilityHint(accessibilityHintText)
+    }
+
+    /// Timestamp display with 3 states
+    @ViewBuilder
+    private var timestampView: some View {
+        if let startSeconds = section.startSeconds {
+            // Has timestamp - show with optional approximate indicator
+            HStack(spacing: 0) {
+                if isApproximate {
+                    Text("~")
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Color("TertiaryText"))
+                }
+                Text(TimestampFormatter.format(startSeconds))
+                    .font(Typography.Command.caption.monospacedDigit())
+                    .foregroundStyle(Color("AppTextSecondary"))
+                    .underline()
+            }
+        } else {
+            // No timestamp - shimmer loading state
+            Text("00:00")
+                .font(Typography.Command.caption.monospacedDigit())
+                .foregroundStyle(Color("TertiaryText"))
+                .redacted(reason: .placeholder)
+        }
+    }
+
+    private var accessibilityHintText: String {
+        if !hasTimestamp {
+            return "Timestamp loading"
+        } else if isApproximate {
+            return "Approximate position. Double tap to jump to this section"
+        } else {
+            return "Double tap to jump to this section"
+        }
     }
 }
