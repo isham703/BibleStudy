@@ -65,6 +65,7 @@ final class UserContentService {
 
     private func loadFromCache(userId: UUID) throws {
         guard let dbQueue = db.dbQueue else { return }
+
         highlights = try fetchHighlightsFromCache(userId: userId, dbQueue: dbQueue)
         notes = try fetchNotesFromCache(userId: userId, dbQueue: dbQueue)
     }

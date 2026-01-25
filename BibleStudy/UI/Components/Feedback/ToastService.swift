@@ -109,6 +109,17 @@ final class ToastService {
         enqueue(toast)
     }
 
+    /// Show a sample hidden toast with undo capability
+    func showSampleHidden(onUndo: @escaping () async -> Void) {
+        let toast = ToastItem(
+            id: UUID(),
+            type: .sampleHidden,
+            undoAction: onUndo,
+            duration: Self.defaultDuration
+        )
+        enqueue(toast)
+    }
+
     /// Dismiss the current toast immediately
     func dismiss() {
         dismissTask?.cancel()
@@ -202,6 +213,7 @@ enum ToastType: Equatable {
     case sermonDeleted(title: String)
     case sermonsDeleted(count: Int)
     case deleteError(message: String)
+    case sampleHidden
 
     var icon: String {
         switch self {
@@ -212,6 +224,7 @@ enum ToastType: Equatable {
         case .note: return "note.text"
         case .sermonDeleted, .sermonsDeleted: return "trash.fill"
         case .deleteError: return "exclamationmark.triangle.fill"
+        case .sampleHidden: return "eye.slash.fill"
         }
     }
 
@@ -224,6 +237,7 @@ enum ToastType: Equatable {
         case .note: return Color("AccentBronze")
         case .sermonDeleted, .sermonsDeleted: return Color("FeedbackWarning")
         case .deleteError: return Color("FeedbackError")
+        case .sampleHidden: return Color("TertiaryText")
         }
     }
 }

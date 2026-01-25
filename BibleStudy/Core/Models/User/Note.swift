@@ -265,7 +265,12 @@ extension Note: FetchableRecord, PersistableRecord {
 
     nonisolated init(row: Row) {
         id = row[Columns.id]
-        userId = row[Columns.userId]
+        // userId stored as string for consistent querying
+        if let userIdString: String = row[Columns.userId] {
+            userId = UUID(uuidString: userIdString) ?? UUID()
+        } else {
+            userId = UUID()
+        }
         bookId = row[Columns.bookId]
         chapter = row[Columns.chapter]
         verseStart = row[Columns.verseStart]
@@ -293,7 +298,7 @@ extension Note: FetchableRecord, PersistableRecord {
 
     nonisolated func encode(to container: inout PersistenceContainer) {
         container[Columns.id] = id
-        container[Columns.userId] = userId
+        container[Columns.userId] = userId.uuidString  // Store as string for consistent querying
         container[Columns.bookId] = bookId
         container[Columns.chapter] = chapter
         container[Columns.verseStart] = verseStart

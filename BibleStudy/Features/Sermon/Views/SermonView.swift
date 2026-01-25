@@ -17,9 +17,14 @@ struct SermonView: View {
 
             // Phase content
             phaseContent
-                .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                // Use asymmetric transition: animate leaving, but not entering input phase
+                // This lets SermonInputPhase handle its own ceremonial animations
+                .transition(.asymmetric(
+                    insertion: .identity,
+                    removal: .opacity.combined(with: .scale(scale: 0.96))
+                ))
         }
-        .animation(Theme.Animation.slowFade, value: flowState.phase)
+        .animation(flowState.phase == .input ? nil : Theme.Animation.slowFade, value: flowState.phase)
         .navigationBarHidden(flowState.phase == .input)
         .navigationBarBackButtonHidden(flowState.phase != .input)
         .toolbar {
@@ -105,9 +110,20 @@ struct SermonView: View {
     private var phaseContent: some View {
         switch flowState.phase {
         case .input:
-            SermonInputPhase(flowState: flowState) {
-                showLibrary = true
-            }
+            SermonInputPhase(
+                flowState: flowState,
+                onShowLibrary: {
+                    showLibrary = true
+                },
+                onSampleTap: {
+                    flowState.loadSampleSermon()
+                },
+                onSermonTap: { sermon in
+                    Task {
+                        await flowState.loadExistingSermon(sermon)
+                    }
+                }
+            )
 
         case .recording:
             SermonRecordingPhase(flowState: flowState)

@@ -8,6 +8,14 @@ struct SermonLibraryView: View {
     @State private var viewModel = SermonLibraryViewModel()
     @State private var searchText = ""
 
+    // Filter state
+    @State private var selectedFilter: SermonStatusFilterOption = .all
+
+    // Group/Sort state
+    @State private var selectedGroup: SermonGroupOption = .saved
+    @State private var selectedSort: SermonSortOption = .saved
+    @State private var showGroupSelector = false
+
     // Delete state
     @State private var showDeleteConfirmation = false
     @State private var sermonToDelete: Sermon?
@@ -18,23 +26,53 @@ struct SermonLibraryView: View {
     @State private var showBatchDeleteConfirmation = false
     @State private var isDeleting = false
 
+    // Rename state
+    @State private var sermonToRename: Sermon?
+    @State private var renameText = ""
+    @State private var showRenameSheet = false
+
     let onSelect: (Sermon) -> Void
+
+    private let groupingService = SermonGroupingService.shared
+    private let pinService = SermonPinService.shared
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Background
-                Color("AppBackground")
-                    .ignoresSafeArea()
+            VStack(spacing: 0) {
+                // Filter and group controls
+                if !viewModel.sermons.isEmpty {
+                    HStack(spacing: Theme.Spacing.md) {
+                        // Status filter chips
+                        SermonStatusFilterBar(
+                            selectedFilter: $selectedFilter,
+                            counts: SermonStatusCounts.from(searchFilteredSermons)
+                        )
 
-                if viewModel.isLoading {
-                    loadingView
-                } else if filteredSermons.isEmpty {
-                    emptyStateView
-                } else {
-                    sermonList
+                        // Group button
+                        SermonGroupButton(currentGroup: selectedGroup) {
+                            showGroupSelector = true
+                        }
+                        .padding(.trailing, Theme.Spacing.lg)
+                    }
+                    .padding(.vertical, Theme.Spacing.sm)
+                }
+
+                // Content
+                ZStack {
+                    // Background
+                    Color("AppBackground")
+                        .ignoresSafeArea()
+
+                    if viewModel.isLoading {
+                        loadingView
+                    } else if filteredSermons.isEmpty {
+                        emptyStateView
+                    } else {
+                        sermonList
+                    }
                 }
             }
+            .background(Color("AppBackground"))
             .navigationTitle("Your Sermons")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -60,10 +98,8 @@ struct SermonLibraryView: View {
                         .foregroundStyle(Color("FeedbackError"))
                         .disabled(selectedSermons.isEmpty || isDeleting)
                     } else if !filteredSermons.isEmpty {
-                        Button {
+                        Button("Select") {
                             isSelectionMode = true
-                        } label: {
-                            Image(systemName: "checkmark.circle")
                         }
                         .foregroundStyle(Color("AccentBronze"))
                     }
@@ -114,11 +150,87 @@ struct SermonLibraryView: View {
             let size = viewModel.formattedTotalStorageSize(for: Array(selectedSermons))
             Text("This cannot be undone and will free \(size) on this device.")
         }
+        // Rename sheet
+        .sheet(isPresented: $showRenameSheet) {
+            renameSheet
+        }
+        // Group selector sheet
+        .sheet(isPresented: $showGroupSelector) {
+            SermonGroupSelector(
+                selectedGroup: $selectedGroup,
+                selectedSort: $selectedSort,
+                groupCounts: groupingService.groupCounts(for: filteredSermons)
+            )
+        }
+    }
+
+    // MARK: - Rename Sheet
+
+    private var renameSheet: some View {
+        VStack(spacing: Theme.Spacing.lg) {
+            Text("RENAME")
+                .font(Typography.Editorial.sectionHeader)
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(Color("TertiaryText"))
+                .padding(.top, Theme.Spacing.md)
+
+            TextField("Sermon title", text: $renameText)
+                .font(Typography.Scripture.body)
+                .padding(Theme.Spacing.md)
+                .background(Color("AppSurface"))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.input))
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.Radius.input)
+                        .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+                )
+
+            HStack(spacing: Theme.Spacing.md) {
+                Button("Cancel") {
+                    showRenameSheet = false
+                    sermonToRename = nil
+                    renameText = ""
+                }
+                .font(Typography.Command.body)
+                .foregroundStyle(Color("AccentBronze"))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.Spacing.md)
+                .background(Color("AppSurface"))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.Radius.button)
+                        .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+                )
+
+                Button("Save") {
+                    if let sermon = sermonToRename {
+                        Task {
+                            await viewModel.renameSermon(sermon, to: renameText)
+                        }
+                    }
+                    showRenameSheet = false
+                    sermonToRename = nil
+                    renameText = ""
+                }
+                .font(Typography.Command.cta)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.Spacing.md)
+                .background(Color("AppAccentAction"))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+                .disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .opacity(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1.0)
+            }
+        }
+        .padding(Theme.Spacing.lg)
+        .background(Color("AppBackground"))
+        .presentationDetents([.height(220)])
+        .presentationDragIndicator(.visible)
     }
 
     // MARK: - Filtered Sermons
 
-    private var filteredSermons: [Sermon] {
+    /// Sermons filtered by search text only (for filter chip counts)
+    private var searchFilteredSermons: [Sermon] {
         if searchText.isEmpty {
             return viewModel.sermons
         }
@@ -126,6 +238,54 @@ struct SermonLibraryView: View {
             sermon.title.localizedCaseInsensitiveContains(searchText) ||
             (sermon.speakerName?.localizedCaseInsensitiveContains(searchText) ?? false)
         }
+    }
+
+    /// Sermons filtered by both search and status filter
+    private var filteredSermons: [Sermon] {
+        searchFilteredSermons.filter { selectedFilter.matches($0) }
+    }
+
+    // MARK: - Grouped Sermons
+
+    /// Sermons grouped by selected option
+    private var sermonGroups: [SermonGroup] {
+        groupingService.group(filteredSermons, by: selectedGroup, sortedBy: selectedSort)
+    }
+
+    /// Whether using custom grouping (not status-based)
+    private var isUsingCustomGroup: Bool {
+        selectedGroup != .none
+    }
+
+    // MARK: - Pinned Sermons
+
+    private var pinnedSermons: [Sermon] {
+        pinService.pinnedSermons(from: filteredSermons)
+    }
+
+    private var unpinnedSermons: [Sermon] {
+        pinService.unpinnedSermons(from: filteredSermons)
+    }
+
+    // MARK: - Status Sectioned Sermons (when group = none)
+
+    private var processingSermons: [Sermon] {
+        unpinnedSermons.filter { $0.isProcessing }
+    }
+
+    private var errorSermons: [Sermon] {
+        unpinnedSermons.filter { $0.hasError }
+    }
+
+    private var readySermons: [Sermon] {
+        // Catch-all: anything not actively processing and not in error
+        // This includes both completed sermons and pending ones
+        unpinnedSermons.filter { !$0.isProcessing && !$0.hasError }
+    }
+
+    private var hasMultipleSections: Bool {
+        let sections = [pinnedSermons, processingSermons, errorSermons, readySermons].filter { !$0.isEmpty }
+        return sections.count > 1
     }
 
     // MARK: - Loading View
@@ -144,86 +304,226 @@ struct SermonLibraryView: View {
     // MARK: - Empty State
 
     private var emptyStateView: some View {
-        VStack(spacing: Theme.Spacing.xxl) {
-            Image(systemName: "waveform.circle")
-                // swiftlint:disable:next hardcoded_font_system
-                .font(Typography.Icon.display)
-                .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
-
-            VStack(spacing: Theme.Spacing.sm) {
-                Text(searchText.isEmpty ? "No Sermons Yet" : "No Results")
-                    .font(Typography.Scripture.heading)
-                    .foregroundStyle(Color.appTextPrimary)
-
-                Text(searchText.isEmpty
-                    ? "Record or import your first sermon to get started"
-                    : "Try a different search term"
-                )
-                    .font(Typography.Scripture.body)
-                    .foregroundStyle(Color.appTextSecondary)
-                    .multilineTextAlignment(.center)
+        Group {
+            if searchText.isEmpty && selectedFilter == .all {
+                SermonEmptyState.noSermons
+            } else if !searchText.isEmpty {
+                SermonEmptyState.noResults
+            } else {
+                SermonEmptyState.noMatches(filter: selectedFilter.rawValue)
             }
         }
-        .padding(Theme.Spacing.xxl + Theme.Spacing.sm)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Sermon List
 
     private var sermonList: some View {
         List {
-            ForEach(filteredSermons) { sermon in
-                SermonLibraryCard(
-                    sermon: sermon,
-                    isSelected: selectedSermons.contains(sermon.id),
-                    isSelectionMode: isSelectionMode,
-                    isSelectable: viewModel.canDelete(sermon)
-                ) {
-                    handleSermonTap(sermon)
+            if isUsingCustomGroup {
+                // Custom grouping (date, book, speaker)
+                ForEach(sermonGroups) { group in
+                    Section {
+                        ForEach(group.sermons) { sermon in
+                            sermonRow(sermon)
+                        }
+                    } header: {
+                        groupHeader(group)
+                    }
                 }
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(
-                    top: Theme.Spacing.sm,
-                    leading: Theme.Spacing.lg,
-                    bottom: Theme.Spacing.sm,
-                    trailing: Theme.Spacing.lg
-                ))
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    if viewModel.canDelete(sermon) {
-                        Button(role: .destructive) {
-                            sermonToDelete = sermon
-                            showDeleteConfirmation = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+            } else {
+                // Status-based sectioning (default)
+
+                // Pinned section (always first)
+                if !pinnedSermons.isEmpty {
+                    Section {
+                        ForEach(pinnedSermons) { sermon in
+                            sermonRow(sermon)
+                        }
+                    } header: {
+                        pinnedSectionHeader
+                    }
+                }
+
+                // Processing section
+                if !processingSermons.isEmpty {
+                    Section {
+                        ForEach(processingSermons) { sermon in
+                            sermonRow(sermon)
+                        }
+                    } header: {
+                        if hasMultipleSections {
+                            sectionHeader("PROCESSING")
                         }
                     }
                 }
-                .contextMenu {
-                    if viewModel.canDelete(sermon) {
-                        Button(role: .destructive) {
-                            sermonToDelete = sermon
-                            showDeleteConfirmation = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
 
-                        if !isSelectionMode {
-                            Button {
-                                isSelectionMode = true
-                                selectedSermons.insert(sermon.id)
-                            } label: {
-                                Label("Select", systemImage: "checkmark.circle")
-                            }
+                // Error section
+                if !errorSermons.isEmpty {
+                    Section {
+                        ForEach(errorSermons) { sermon in
+                            sermonRow(sermon)
                         }
-                    } else {
-                        Text("Cannot delete while processing")
-                            .foregroundStyle(.secondary)
+                    } header: {
+                        if hasMultipleSections {
+                            sectionHeader("NEEDS ATTENTION")
+                        }
+                    }
+                }
+
+                // Ready section
+                if !readySermons.isEmpty {
+                    Section {
+                        ForEach(readySermons) { sermon in
+                            sermonRow(sermon)
+                        }
+                    } header: {
+                        if hasMultipleSections {
+                            sectionHeader("READY")
+                        }
                     }
                 }
             }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+    }
+
+    private func groupHeader(_ group: SermonGroup) -> some View {
+        HStack {
+            Text(group.title.uppercased())
+                .font(Typography.Editorial.sectionHeader)
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(Color("TertiaryText"))
+
+            Spacer()
+
+            Text(group.subtitle)
+                .font(Typography.Command.caption)
+                .foregroundStyle(Color("TertiaryText"))
+        }
+        .listRowInsets(EdgeInsets(
+            top: Theme.Spacing.md,
+            leading: Theme.Spacing.lg,
+            bottom: Theme.Spacing.xs,
+            trailing: Theme.Spacing.lg
+        ))
+    }
+
+    @ViewBuilder
+    private func sermonRow(_ sermon: Sermon) -> some View {
+        SermonLibraryCard(
+            sermon: sermon,
+            isSelected: selectedSermons.contains(sermon.id),
+            isSelectionMode: isSelectionMode,
+            isSelectable: viewModel.canDelete(sermon)
+        ) {
+            handleSermonTap(sermon)
+        }
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(
+            top: Theme.Spacing.sm,
+            leading: Theme.Spacing.lg,
+            bottom: Theme.Spacing.sm,
+            trailing: Theme.Spacing.lg
+        ))
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            if viewModel.canDelete(sermon) {
+                Button(role: .destructive) {
+                    sermonToDelete = sermon
+                    showDeleteConfirmation = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                pinService.togglePin(sermon.id)
+            } label: {
+                Label(
+                    pinService.isPinned(sermon.id) ? "Unpin" : "Pin",
+                    systemImage: pinService.isPinned(sermon.id) ? "pin.slash.fill" : "pin.fill"
+                )
+            }
+            .tint(Color("AccentBronze"))
+        }
+        .contextMenu {
+            // Pin/Unpin (available for all sermons)
+            Button {
+                pinService.togglePin(sermon.id)
+            } label: {
+                Label(
+                    pinService.isPinned(sermon.id) ? "Unpin" : "Pin",
+                    systemImage: pinService.isPinned(sermon.id) ? "pin.slash" : "pin"
+                )
+            }
+
+            // Rename (available for all sermons)
+            Button {
+                sermonToRename = sermon
+                renameText = sermon.title.isEmpty ? "" : sermon.title
+                showRenameSheet = true
+            } label: {
+                Label("Rename", systemImage: "pencil")
+            }
+
+            Divider()
+
+            if viewModel.canDelete(sermon) {
+                Button(role: .destructive) {
+                    sermonToDelete = sermon
+                    showDeleteConfirmation = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+
+                if !isSelectionMode {
+                    Button {
+                        isSelectionMode = true
+                        selectedSermons.insert(sermon.id)
+                    } label: {
+                        Label("Select", systemImage: "checkmark.circle")
+                    }
+                }
+            } else {
+                Text("Cannot delete while processing")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(Typography.Editorial.sectionHeader)
+            .tracking(Typography.Editorial.sectionTracking)
+            .foregroundStyle(Color("TertiaryText"))
+            .listRowInsets(EdgeInsets(
+                top: Theme.Spacing.md,
+                leading: Theme.Spacing.lg,
+                bottom: Theme.Spacing.xs,
+                trailing: Theme.Spacing.lg
+            ))
+    }
+
+    private var pinnedSectionHeader: some View {
+        HStack(spacing: Theme.Spacing.xs) {
+            Image(systemName: "pin.fill")
+                .font(Typography.Icon.xxs)
+                .foregroundStyle(Color("AccentBronze"))
+
+            Text("PINNED")
+                .font(Typography.Editorial.sectionHeader)
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(Color("AccentBronze"))
+        }
+        .listRowInsets(EdgeInsets(
+            top: Theme.Spacing.md,
+            leading: Theme.Spacing.lg,
+            bottom: Theme.Spacing.xs,
+            trailing: Theme.Spacing.lg
+        ))
     }
 
     // MARK: - Helpers
@@ -278,36 +578,44 @@ struct SermonLibraryCard: View {
                         .animation(Theme.Animation.settle, value: isSelected)
                 }
 
-                // Status indicator
-                statusIcon
-                    .frame(width: 40, height: 40)
+                // Status indicator (44pt tap target)
+                SermonStatusView(sermon: sermon, layout: .full)
 
                 // Info
-                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    Text(sermon.displayTitle)
-                        .font(Typography.Scripture.heading)
-                        .foregroundStyle(Color.appTextPrimary)
-                        .lineLimit(1)
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                    HStack(spacing: Theme.Spacing.xs) {
+                        // Pin indicator
+                        if sermon.isPinned {
+                            Image(systemName: "pin.fill")
+                                .font(Typography.Icon.xxs)
+                                .foregroundStyle(Color("AccentBronze"))
+                        }
+
+                        Text(sermon.displayTitle)
+                            .font(Typography.Scripture.heading)
+                            .foregroundStyle(Color.appTextPrimary)
+                            .lineLimit(2)
+                    }
 
                     HStack(spacing: Theme.Spacing.sm) {
                         if let speaker = sermon.speakerName {
                             Text(speaker)
                                 .foregroundStyle(Color.appTextSecondary)
-                        }
 
-                        Text("•")
-                            .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
+                            Text("—")
+                                .foregroundStyle(Color("TertiaryText"))
+                        }
 
                         Text(sermon.formattedDuration)
                             .foregroundStyle(Color.appTextSecondary)
 
-                        Text("•")
-                            .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.textSecondary))
+                        Text("—")
+                            .foregroundStyle(Color("TertiaryText"))
 
-                        Text(sermon.recordedAt.formatted(date: .abbreviated, time: .omitted))
+                        Text(formattedDate)
                             .foregroundStyle(Color.appTextSecondary)
                     }
-                    .font(Typography.Scripture.body)
+                    .font(Typography.Command.caption)
                     .lineLimit(1)
                 }
 
@@ -343,54 +651,17 @@ struct SermonLibraryCard: View {
         .disabled(isSelectionMode && !isSelectable)
     }
 
-    // MARK: - Status Icon
+    // MARK: - Date Formatting
 
-    @ViewBuilder
-    private var statusIcon: some View {
-        ZStack {
-            Circle()
-                .fill(statusBackgroundColor)
+    /// Short date format: "Jan 24" for current year, "Jan 24, 2025" for other years
+    private var formattedDate: String {
+        let calendar = Calendar.current
+        let isCurrentYear = calendar.isDate(sermon.recordedAt, equalTo: Date(), toGranularity: .year)
 
-            if sermon.isProcessing {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: Color("AccentBronze")))
-                    .scaleEffect(0.98)
-            } else {
-                Image(systemName: statusIconName)
-                    // swiftlint:disable:next hardcoded_font_system
-                    .font(Typography.Icon.base)
-                    .foregroundStyle(statusIconColor)
-            }
-        }
-    }
-
-    private var statusBackgroundColor: Color {
-        if sermon.hasError {
-            return Color.red.opacity(Theme.Opacity.selectionBackground)
-        } else if sermon.isComplete {
-            return Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
+        if isCurrentYear {
+            return sermon.recordedAt.formatted(.dateTime.month(.abbreviated).day())
         } else {
-            return Color("AppSurface")
-        }
-    }
-
-    private var statusIconName: String {
-        if sermon.hasError {
-            return "exclamationmark.triangle.fill"
-        } else if sermon.isComplete {
-            return "checkmark.circle.fill"
-        } else {
-            return "clock"
-        }
-    }
-
-    private var statusIconColor: Color {
-        if sermon.hasError {
-            return Color.red
-        } else if sermon.isComplete {
-            return Color("AccentBronze")
-        } else {
-            return Color.appTextSecondary
+            return sermon.recordedAt.formatted(.dateTime.month(.abbreviated).day().year())
         }
     }
 }
@@ -450,6 +721,26 @@ final class SermonLibraryViewModel {
             print("[SermonLibraryViewModel] Failed to batch delete: \(error)")
             HapticService.shared.warning()
             toastService.showDeleteError(message: error.localizedDescription)
+        }
+    }
+
+    // MARK: - Rename Operations
+
+    func renameSermon(_ sermon: Sermon, to newTitle: String) async {
+        let trimmedTitle = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty else { return }
+
+        do {
+            try await syncService.renameSermon(sermon.id, title: trimmedTitle)
+            if let index = sermons.firstIndex(where: { $0.id == sermon.id }) {
+                sermons[index].title = trimmedTitle
+            }
+            HapticService.shared.selectionChanged()
+            toastService.showSuccess(message: "Renamed to \"\(trimmedTitle)\"")
+        } catch {
+            print("[SermonLibraryViewModel] Failed to rename sermon: \(error)")
+            HapticService.shared.warning()
+            toastService.showDeleteError(message: "Failed to rename sermon")
         }
     }
 

@@ -109,6 +109,9 @@ protocol SermonRepositoryProtocol: Sendable {
     /// Delete a sermon and all related data (cascading)
     /// - Note: Performs soft delete by setting deletedAt
     func softDeleteSermon(id: UUID) throws
+
+    /// Update a sermon's title
+    func updateSermonTitle(_ id: UUID, title: String) throws
 }
 
 // MARK: - Pagination Types

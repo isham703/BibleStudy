@@ -128,22 +128,16 @@ struct ReadingAppearanceSection: View {
                 .tracking(1.5)
                 .foregroundStyle(Color("AppTextSecondary").opacity(Theme.Opacity.pressed))
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Theme.Spacing.md) {
-                    ForEach(AppThemeMode.allCases, id: \.self) { theme in
-                        InlineThemeCard(
-                            theme: theme,
-                            isSelected: appState.preferredTheme == theme
-                        ) {
-                            appState.preferredTheme = theme
-                            saveTheme(theme)
-                            HapticService.shared.lightTap()
-                        }
+            // Uses ThemePicker - flat design, no shadows per design system
+            ThemePicker(
+                selectedTheme: Binding(
+                    get: { appState.preferredTheme },
+                    set: { newTheme in
+                        appState.preferredTheme = newTheme
+                        saveTheme(newTheme)
                     }
-                }
-                .padding(.vertical, Theme.Spacing.xs)
-                .padding(.horizontal, 2)
-            }
+                )
+            )
         }
     }
 

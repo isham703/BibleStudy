@@ -36,6 +36,9 @@ struct BibleInsightSheet: View {
     /// Optional: Navigate to a cross-reference (e.g., "Genesis 1:1")
     var onNavigateToReference: ((String) -> Void)?
 
+    /// Optional: Create a note (routes back to reader for immediate refresh)
+    var onCreateNote: ((VerseRange, String, NoteTemplate, [UUID]) async -> Void)?
+
     @Environment(\.colorScheme) private var colorScheme
 
     /// Computed: The actual dismiss-all action
@@ -48,6 +51,12 @@ struct BibleInsightSheet: View {
     @State private var selectedLens: BibleInsightType?
     @State private var showConnectionsSheet = false
     @State private var showSourcesSheet = false
+    @State private var crossRefExplanations: [CrossRefExplanation] = []
+    @State private var isLoadingCrossRefs = false
+
+    // Note editor state (for Reflection tab "Write a note" button)
+    @State private var showNoteEditor = false
+    @State private var noteEditorInsight: BibleInsight?
 
     /// Centralized state for managing dismiss callbacks
     @State private var sheetState = InsightSheetState()
@@ -90,9 +99,9 @@ struct BibleInsightSheet: View {
         return insights.filter { $0.insightType == lens }
     }
 
-    /// Connection count for this verse
+    /// Connection count for this verse (from Supabase crossref_explanations)
     private var connectionCount: Int {
-        insights.filter { $0.insightType == .connection }.count
+        crossRefExplanations.count
     }
 
     /// Total sources across all non-connection insights
@@ -242,11 +251,20 @@ struct BibleInsightSheet: View {
             }
 
             HapticService.shared.lightTap()
+
+            // Refetch cross-refs for new verse
+            Task {
+                await fetchCrossRefExplanations()
+            }
+        }
+        .task {
+            // Fetch cross-ref explanations from Supabase on load
+            await fetchCrossRefExplanations()
         }
         .fullScreenCover(isPresented: $showConnectionsSheet) {
             ChapterMapView(
                 verse: verse,
-                connections: insights.filter { $0.insightType == .connection },
+                connections: crossRefExplanationsAsInsights,
                 onDismiss: { showConnectionsSheet = false }
             )
             .environment(\.insightSheetState, sheetState)
@@ -260,6 +278,30 @@ struct BibleInsightSheet: View {
             .environment(\.insightSheetState, sheetState)
             .presentationDetents([.fraction(0.55), .fraction(0.95)])
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showNoteEditor) {
+            if let insight = noteEditorInsight {
+                let range = VerseRange(
+                    bookId: verse.bookId,
+                    chapter: verse.chapter,
+                    verseStart: verse.verse,
+                    verseEnd: verse.verse
+                )
+                NoteEditor(
+                    range: range,
+                    existingNote: nil,
+                    allNotes: [],
+                    initialContent: "**Reflection on \(insight.title):**\n\n",
+                    initialTemplate: .questions,
+                    onSave: { content, template, linkedIds in
+                        Task {
+                            // Route through closure for immediate reader refresh
+                            await onCreateNote?(range, content, template, linkedIds)
+                        }
+                    },
+                    onDelete: nil
+                )
+            }
         }
     }
 
@@ -413,8 +455,14 @@ struct BibleInsightSheet: View {
     private var flatContent: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             ForEach(selectedInsights) { insight in
-                FlatInsightView(insight: insight)
-                    .environment(\.insightSheetState, sheetState)
+                FlatInsightView(
+                    insight: insight,
+                    onWriteNote: { selectedInsight in
+                        noteEditorInsight = selectedInsight
+                        showNoteEditor = true
+                    }
+                )
+                .environment(\.insightSheetState, sheetState)
             }
         }
     }
@@ -503,6 +551,58 @@ struct BibleInsightSheet: View {
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
+    }
+
+    // MARK: - Cross-Reference Data
+
+    /// Fetch cross-reference explanations from Supabase
+    private func fetchCrossRefExplanations() async {
+        isLoadingCrossRefs = true
+        do {
+            crossRefExplanations = try await SupabaseInsightService.shared.getCrossRefExplanations(
+                bookId: verse.bookId,
+                chapter: verse.chapter,
+                verse: verse.verse
+            )
+            print("BibleInsightSheet: Loaded \(crossRefExplanations.count) cross-refs for \(verse.bookId):\(verse.chapter):\(verse.verse)")
+        } catch {
+            print("BibleInsightSheet: Error fetching cross-refs: \(error)")
+            crossRefExplanations = []
+        }
+        isLoadingCrossRefs = false
+    }
+
+    /// Convert CrossRefExplanation to BibleInsight for ChapterMapView compatibility
+    private var crossRefExplanationsAsInsights: [BibleInsight] {
+        crossRefExplanations.map { crossRef in
+            BibleInsight(
+                id: crossRef.id.uuidString,
+                bookId: verse.bookId,
+                chapter: verse.chapter,
+                verseStart: verse.verse,
+                verseEnd: verse.verse,
+                segmentText: crossRef.anchorPhrase ?? "",
+                segmentStartChar: 0,
+                segmentEndChar: 0,
+                insightType: .connection,
+                title: crossRef.title,
+                content: crossRef.content,
+                icon: crossRef.connectionType.icon,
+                sources: [
+                    InsightSource(
+                        type: .crossReference,
+                        reference: crossRef.targetReference,
+                        description: nil
+                    )
+                ],
+                contentVersion: 1,
+                promptVersion: "v1.0",
+                modelVersion: "gpt-4o-mini",
+                createdAt: Date(),
+                qualityTier: .standard,
+                isInterpretive: false
+            )
+        }
     }
 }
 

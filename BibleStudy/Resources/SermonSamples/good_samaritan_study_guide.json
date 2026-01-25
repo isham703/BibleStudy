@@ -1,0 +1,162 @@
+{
+  "title": "The Good Samaritan",
+  "summary": "Jesus uses the parable of the Good Samaritan to redefine what it means to be a neighbor. Rather than asking 'Who qualifies as my neighbor?', we should ask 'Am I being a neighbor to those in need?' True love crosses boundaries of prejudice and convenience to show mercy.",
+  "key_themes": [
+    "Compassion without boundaries",
+    "Action over religious observance",
+    "Redefining neighbor",
+    "Costly love",
+    "Overcoming prejudice"
+  ],
+  "sermon_type": "expository",
+  "central_thesis": "True discipleship means showing mercy to all people, regardless of social boundaries or personal cost. The question is never 'Who is my neighbor?' but 'Am I being a neighbor?'",
+  "key_takeaways": [
+    {
+      "title": "Flipping the Question",
+      "insight": "Jesus transforms the lawyer's self-justifying question 'Who is my neighbor?' into a challenge: 'Who proved to be a neighbor?' This shifts the focus from categorizing others to examining our own actions.",
+      "supporting_quote": "The lawyer asked who is my neighbor but Jesus flips the question making it about action rather than categorization",
+      "references": ["Luke 10:29", "Luke 10:36"]
+    },
+    {
+      "title": "Religion Without Love",
+      "insight": "The priest and Levite represent how religious observance can become an excuse for indifference. Their theology prevented rather than promoted compassion.",
+      "supporting_quote": "Their religious observance took precedence over human need. Their theology became an excuse for indifference.",
+      "references": ["Luke 10:31-32", "Matthew 23:23"]
+    },
+    {
+      "title": "Costly Commitment",
+      "insight": "The Samaritan didn't offer momentary kindness but made a long-term commitment: his time, resources, and reputation for a stranger who was his cultural enemy.",
+      "supporting_quote": "The Samaritan didn't just offer a momentary kindness. He made a long-term commitment.",
+      "references": ["Luke 10:34-35"]
+    }
+  ],
+  "outline": [
+    {
+      "title": "The Lawyer's Question",
+      "start_seconds": 0,
+      "end_seconds": 180,
+      "summary": "A lawyer tests Jesus with a question about eternal life, leading to the command to love God and neighbor."
+    },
+    {
+      "title": "Who Is My Neighbor?",
+      "start_seconds": 180,
+      "end_seconds": 300,
+      "summary": "The lawyer seeks to justify himself by asking for a definition of 'neighbor', revealing his desire to draw boundaries."
+    },
+    {
+      "title": "The Parable",
+      "start_seconds": 300,
+      "end_seconds": 540,
+      "summary": "Jesus tells of a man beaten by robbers, ignored by religious leaders, but helped by a Samaritan."
+    },
+    {
+      "title": "The Shocking Hero",
+      "start_seconds": 540,
+      "end_seconds": 660,
+      "summary": "The Samaritan, an enemy of the Jews, demonstrates true compassion through sacrificial action."
+    },
+    {
+      "title": "Go and Do Likewise",
+      "start_seconds": 660,
+      "end_seconds": 720,
+      "summary": "Jesus challenges us to stop asking who qualifies for our love and start being neighbors to those in need."
+    }
+  ],
+  "bible_references_mentioned": [
+    {
+      "reference": "Luke 10:25-37",
+      "book_id": 42,
+      "chapter": 10,
+      "verse_start": 25,
+      "verse_end": 37,
+      "is_mentioned": true,
+      "rationale": "The primary passage containing the Good Samaritan parable"
+    },
+    {
+      "reference": "Deuteronomy 6:5",
+      "book_id": 5,
+      "chapter": 6,
+      "verse_start": 5,
+      "verse_end": 5,
+      "is_mentioned": true,
+      "rationale": "The great commandment to love God, quoted by the lawyer"
+    },
+    {
+      "reference": "Leviticus 19:18",
+      "book_id": 3,
+      "chapter": 19,
+      "verse_start": 18,
+      "verse_end": 18,
+      "is_mentioned": true,
+      "rationale": "The command to love your neighbor as yourself"
+    }
+  ],
+  "bible_references_suggested": [
+    {
+      "reference": "Matthew 5:43-48",
+      "book_id": 40,
+      "chapter": 5,
+      "verse_start": 43,
+      "verse_end": 48,
+      "is_mentioned": false,
+      "rationale": "Jesus' teaching on loving enemies, directly relevant to the Samaritan crossing ethnic boundaries"
+    },
+    {
+      "reference": "James 2:14-17",
+      "book_id": 59,
+      "chapter": 2,
+      "verse_start": 14,
+      "verse_end": 17,
+      "is_mentioned": false,
+      "rationale": "Faith without works is dead - connects to the theme of action over mere religious profession"
+    },
+    {
+      "reference": "1 John 3:17-18",
+      "book_id": 62,
+      "chapter": 3,
+      "verse_start": 17,
+      "verse_end": 18,
+      "is_mentioned": false,
+      "rationale": "Love in action, not just words - echoes the Samaritan's practical compassion"
+    }
+  ],
+  "discussion_questions": [
+    {
+      "id": "q1",
+      "question": "What 'roads to Jericho' do you travel regularly where you might encounter people in need?",
+      "type": "application",
+      "related_verses": ["Luke 10:30"],
+      "discussion_hint": "Think about your commute, neighborhood, workplace, or online spaces."
+    },
+    {
+      "id": "q2",
+      "question": "Who are the 'Samaritans' in your life - people you've been taught to avoid or distrust?",
+      "type": "interpretation",
+      "related_verses": ["Luke 10:33"],
+      "discussion_hint": "Consider cultural, political, or religious 'others' in your context."
+    },
+    {
+      "id": "q3",
+      "question": "What excuses do you find yourself making for not stopping to help others?",
+      "type": "application",
+      "related_verses": ["Luke 10:31-32"],
+      "discussion_hint": "The priest and Levite likely had reasonable-sounding excuses too."
+    },
+    {
+      "id": "q4",
+      "question": "How does Jesus' answer challenge the way you typically think about loving your neighbor?",
+      "type": "comprehension",
+      "related_verses": ["Luke 10:36-37"]
+    }
+  ],
+  "reflection_prompts": [
+    "When was the last time you went out of your way to help someone who couldn't repay you?",
+    "Is there someone in your life you've been avoiding because helping them would be inconvenient or costly?",
+    "How might your life look different if you stopped asking 'Who is my neighbor?' and started asking 'Am I being a neighbor?'"
+  ],
+  "application_points": [
+    "Look for opportunities this week to show kindness to someone outside your usual social circle.",
+    "Examine your schedule and budget for 'margins' that allow you to respond to unexpected needs.",
+    "Practice seeing people as Jesus sees them: not as categories to include or exclude, but as individuals worthy of love."
+  ]
+}

@@ -10,12 +10,13 @@ struct SermonTranscriptSection: View {
     @Binding var copiedToClipboard: Bool
     let delay: Double
     let isAwakened: Bool
+    var isStaticMode: Bool = false // When true, no audio playback available
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         SermonAtriumCard(delay: delay, isAwakened: isAwakened) {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                // Header with auto-scroll toggle
+                // Header with auto-scroll toggle (hidden in static mode)
                 HStack {
                     Text("Transcript")
                         .font(Typography.Command.body.weight(.semibold))
@@ -23,16 +24,18 @@ struct SermonTranscriptSection: View {
 
                     Spacer()
 
-                    // Auto-scroll toggle
-                    HStack(spacing: Theme.Spacing.xs) {
-                        Text("Auto-scroll")
-                            .font(Typography.Command.meta)
-                            .foregroundStyle(Color("TertiaryText"))
+                    // Auto-scroll toggle (only when audio available)
+                    if !isStaticMode {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            Text("Auto-scroll")
+                                .font(Typography.Command.meta)
+                                .foregroundStyle(Color("TertiaryText"))
 
-                        Toggle("", isOn: $autoScrollEnabled)
-                            .labelsHidden()
-                            .tint(Color("AppAccentAction"))
-                            .scaleEffect(0.8)
+                            Toggle("", isOn: $autoScrollEnabled)
+                                .labelsHidden()
+                                .tint(Color("AppAccentAction"))
+                                .scaleEffect(0.8)
+                        }
                     }
                 }
 
@@ -49,7 +52,9 @@ struct SermonTranscriptSection: View {
                                     segment: segment,
                                     index: index,
                                     viewModel: viewModel,
+                                    isStaticMode: isStaticMode,
                                     onTap: {
+                                        guard !isStaticMode else { return }
                                         viewModel.seekToTime(segment.startTime)
                                         HapticService.shared.selectionChanged()
                                     }
@@ -58,7 +63,7 @@ struct SermonTranscriptSection: View {
                             }
                         }
                         .onChange(of: viewModel.currentSegmentIndex) { _, newIndex in
-                            if autoScrollEnabled, let index = newIndex {
+                            if !isStaticMode, autoScrollEnabled, let index = newIndex {
                                 withAnimation(reduceMotion ? nil : Theme.Animation.settle) {
                                     proxy.scrollTo(index, anchor: .center)
                                 }
@@ -124,35 +129,58 @@ private struct TranscriptRowView: View {
     let segment: TranscriptDisplaySegment
     let index: Int
     let viewModel: SermonViewingViewModel
+    var isStaticMode: Bool = false
     let onTap: () -> Void
 
     private var isActive: Bool {
-        index == viewModel.currentSegmentIndex
+        !isStaticMode && index == viewModel.currentSegmentIndex
     }
 
     var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                // Timestamp
-                Text(TimestampFormatter.format(segment.startTime))
-                    .font(Typography.Command.meta.monospacedDigit())
-                    .foregroundStyle(isActive ? Color("AppAccentAction") : Color("TertiaryText"))
-
-                // Text
-                Text(segment.text)
-                    .font(Typography.Scripture.body)
-                    .foregroundStyle(isActive ? Color("AppTextPrimary") : Color("AppTextSecondary"))
-                    .lineSpacing(Typography.Scripture.bodyLineSpacing)
+        if isStaticMode {
+            // Static mode: No tap interaction
+            staticContent
+        } else {
+            // Interactive mode: Tap to seek
+            Button(action: onTap) {
+                interactiveContent
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(Theme.Spacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.tag)
-                    .fill(isActive ? Color("AppAccentAction").opacity(Theme.Opacity.subtle) : Color.clear)
-            )
+            .buttonStyle(.plain)
+            .accessibilityLabel("Segment at \(TimestampFormatter.format(segment.startTime))")
+            .accessibilityHint("Double tap to jump to this part")
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Segment at \(TimestampFormatter.format(segment.startTime))")
-        .accessibilityHint("Double tap to jump to this part")
+    }
+
+    private var staticContent: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            // Text only (no timestamp in static mode)
+            Text(segment.text)
+                .font(Typography.Scripture.body)
+                .foregroundStyle(Color.appTextPrimary)
+                .lineSpacing(Typography.Scripture.bodyLineSpacing)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Theme.Spacing.sm)
+    }
+
+    private var interactiveContent: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            // Timestamp
+            Text(TimestampFormatter.format(segment.startTime))
+                .font(Typography.Command.meta.monospacedDigit())
+                .foregroundStyle(isActive ? Color("AppAccentAction") : Color("TertiaryText"))
+
+            // Text
+            Text(segment.text)
+                .font(Typography.Scripture.body)
+                .foregroundStyle(isActive ? Color("AppTextPrimary") : Color("AppTextSecondary"))
+                .lineSpacing(Typography.Scripture.bodyLineSpacing)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Theme.Spacing.sm)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.tag)
+                .fill(isActive ? Color("AppAccentAction").opacity(Theme.Opacity.subtle) : Color.clear)
+        )
     }
 }

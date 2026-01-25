@@ -1,7 +1,9 @@
 import SwiftUI
 
 // MARK: - Account Section View
-// Displays user account status with illuminated profile card
+// Design Rationale: Displays user account status with flat styling.
+// NO glows or shadows per design system - uses gradient stroke only.
+// Stoic-Existential Renaissance design
 
 struct AccountSectionView: View {
     @Bindable var viewModel: SettingsViewModel
@@ -10,17 +12,52 @@ struct AccountSectionView: View {
 
     var body: some View {
         SettingsCard(title: "Account", icon: "person.fill") {
-            if viewModel.isAuthenticated {
-                NavigationLink {
-                    AccountDetailView(viewModel: viewModel)
-                } label: {
-                    authenticatedContent
+            VStack(spacing: 0) {
+                if viewModel.isAuthenticated {
+                    NavigationLink {
+                        AccountDetailView(viewModel: viewModel)
+                    } label: {
+                        authenticatedContent
+                    }
+                    .buttonStyle(.plain)
+
+                    SettingsDivider()
+                        .padding(.vertical, Theme.Spacing.md)
+
+                    // Sign out row
+                    signOutRow
+                } else {
+                    signInPrompt
                 }
-                .buttonStyle(.plain)
-            } else {
-                signInPrompt
             }
         }
+    }
+
+    // MARK: - Sign Out Row
+
+    private var signOutRow: some View {
+        Button {
+            viewModel.showSignOutConfirmation = true
+        } label: {
+            HStack(spacing: Theme.Spacing.md) {
+                IconBadge.settings("rectangle.portrait.and.arrow.right", color: Color("FeedbackError"))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Sign Out")
+                        .font(Typography.Command.body)
+                        .foregroundStyle(Color("FeedbackError"))
+
+                    if let email = viewModel.email {
+                        Text(email)
+                            .font(Typography.Command.caption)
+                            .foregroundStyle(Color("AppTextSecondary"))
+                    }
+                }
+
+                Spacer()
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Authenticated Content
@@ -56,26 +93,15 @@ struct AccountSectionView: View {
         .contentShape(Rectangle())
     }
 
+    // MARK: - Avatar View
+    // Design Rationale: FLAT design - no glow/blur per design system.
+    // Uses gradient stroke border for visual interest.
+
     private var avatarView: some View {
         ZStack {
-            // Gold glow
+            // Avatar background - solid fill, no gradient glow
             Circle()
-                .fill(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
-                .blur(radius: 4 + 1)
-                .frame(width: 56, height: 56)
-
-            // Avatar background
-            Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground),
-                            Color("AppAccentAction").opacity(Theme.Opacity.subtle)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(Color.appSurface)
                 .frame(width: 52, height: 52)
 
             // Avatar icon
@@ -83,14 +109,14 @@ struct AccountSectionView: View {
                 .font(Typography.Icon.xl.weight(.medium))
                 .foregroundStyle(Color("AppAccentAction"))
 
-            // Gold border
+            // Gradient stroke border - the ONE decorative element
+            // This is acceptable because it's a stroke, not a glow
             Circle()
-                .stroke(
+                .strokeBorder(
                     LinearGradient(
                         colors: [
                             Color("AppAccentAction").opacity(Theme.Opacity.textPrimary),
-                            Color("AppAccentAction").opacity(Theme.Opacity.textSecondary),
-                            Color("AppAccentAction").opacity(Theme.Opacity.textPrimary)
+                            Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing

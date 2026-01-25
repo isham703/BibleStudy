@@ -325,6 +325,17 @@ final class SupabaseManager {
             .execute()
     }
 
+    func updateSermonTitle(id: String, title: String) async throws {
+        try await client
+            .from("sermons")
+            .update([
+                "title": AnyEncodable(title),
+                "updated_at": AnyEncodable(Date().iso8601String)
+            ])
+            .eq("id", value: id)
+            .execute()
+    }
+
     func uploadSermonAudio(data: Data, path: String, contentType: String = "audio/mp4") async throws -> String {
         _ = try await client.storage
             .from("sermons")

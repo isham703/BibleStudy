@@ -1,7 +1,11 @@
 import SwiftUI
 
-// MARK: - Toggle
-// Standard iOS toggle with flat styling
+// MARK: - Toggle with Pulse Feedback
+// Design Rationale: Toggle activation is a critical moment.
+// The pulse animation provides immediate visual feedback that
+// the action was registered, reinforcing the user's intent.
+// This follows the "ceremonial restraint" principle - subtle
+// but meaningful motion that serves a purpose.
 // Stoic-Existential Renaissance design
 
 struct SettingsToggle: View {
@@ -10,6 +14,12 @@ struct SettingsToggle: View {
     let description: String?
     let icon: String?
     let iconColor: Color
+
+    // MARK: - Animation State
+    // Purpose: Track toggle state for pulse effect
+    @State private var justToggled = false
+    @State private var pulseScale: CGFloat = 1.0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(
         isOn: Binding<Bool>,
@@ -32,7 +42,8 @@ struct SettingsToggle: View {
                 IconBadge.settings(icon, color: iconColor)
             }
 
-            // Label and description
+            // Label and description - all Command typography (Sans)
+            // Rationale: Settings is "action" space, not "contemplation"
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(label)
                     .font(Typography.Command.body)
@@ -48,12 +59,59 @@ struct SettingsToggle: View {
 
             Spacer()
 
-            // Standard iOS toggle
-            Toggle("", isOn: $isOn)
-                .labelsHidden()
-                .tint(iconColor)
+            // Toggle with pulse feedback
+            // Rationale: The pulse provides immediate visual confirmation
+            // that scales from center outward, mimicking a "ripple" of activation
+            ZStack {
+                // Pulse effect - only on activation, respects reduce motion
+                if justToggled && isOn && !reduceMotion {
+                    Circle()
+                        .fill(iconColor.opacity(Theme.Opacity.selectionBackground))
+                        .scaleEffect(pulseScale)
+                        .opacity(1 - (pulseScale - 1) / 1.5) // Fade as it expands
+                        .frame(width: 30, height: 30)
+                }
+
+                Toggle("", isOn: $isOn)
+                    .toggleStyle(GoldToggleStyle())
+                    .labelsHidden()
+            }
+            .onChange(of: isOn) { _, newValue in
+                triggerFeedback(newValue: newValue)
+            }
         }
+        .frame(minHeight: Theme.Size.minTapTarget)
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label)\(description.map { ", \($0)" } ?? "")")
+        .accessibilityValue(isOn ? "On" : "Off")
+        .accessibilityAddTraits(.isButton)
+    }
+
+    // MARK: - Feedback Trigger
+    // Design Rationale: Multi-sensory feedback (visual + haptic) creates
+    // a complete interaction moment. The 0.5s duration matches the
+    // Theme.Animation.slowFade timing for consistency.
+
+    private func triggerFeedback(newValue: Bool) {
+        guard !reduceMotion else { return }
+
+        justToggled = true
+        pulseScale = 1.0
+
+        // Animate pulse expansion using design system timing
+        withAnimation(Theme.Animation.slowFade) {
+            pulseScale = 2.5
+        }
+
+        // Haptic feedback
+        HapticService.shared.lightTap()
+
+        // Reset after animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            justToggled = false
+            pulseScale = 1.0
+        }
     }
 }
 

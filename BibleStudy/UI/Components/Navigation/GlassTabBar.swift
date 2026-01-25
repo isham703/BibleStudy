@@ -2,11 +2,15 @@ import SwiftUI
 
 // MARK: - Tab Bar
 // Flat tab bar with pill-shaped segment control + Ask FAB
+// Transforms into mini player when audio is active
 // Stoic-Existential Renaissance design with minimal glass effects
 
 struct GlassTabBar: View {
     @Binding var selectedTab: Tab
     @Binding var showAskModal: Bool
+    let audioService: AudioService
+    let onMiniPlayerTap: () -> Void
+    let onMiniPlayerClose: () -> Void
     @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - Animation State
@@ -16,7 +20,29 @@ struct GlassTabBar: View {
         UIAccessibility.isReduceMotionEnabled
     }
 
+    private var isAudioActive: Bool {
+        audioService.playbackState != .idle
+    }
+
     var body: some View {
+        Group {
+            if isAudioActive {
+                miniPlayerContent
+            } else {
+                tabBarContent
+            }
+        }
+        .offset(y: tabBarAppeared ? 0 : 80)
+        .opacity(tabBarAppeared ? 1 : 0)
+        .animation(Theme.Animation.fade, value: isAudioActive)
+        .onAppear {
+            startEntranceAnimation()
+        }
+    }
+
+    // MARK: - Tab Bar Content
+
+    private var tabBarContent: some View {
         HStack(spacing: Theme.Spacing.md) {
             // Tab pill (left side) - segmented control
             GeometryReader { geometry in
@@ -49,13 +75,109 @@ struct GlassTabBar: View {
         .frame(height: 55)
         .padding(.horizontal, Theme.Spacing.lg)
         .padding(.vertical, Theme.Spacing.md)
-        // No outer background - each component (pill + FAB) has its own background
-        // This allows them to float independently without a connecting band
-        .offset(y: tabBarAppeared ? 0 : 80)
-        .opacity(tabBarAppeared ? 1 : 0)
-        .onAppear {
-            startEntranceAnimation()
+    }
+
+    // MARK: - Mini Player Content
+
+    private var miniPlayerContent: some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            // Play/Pause button
+            if audioService.isLoading {
+                ProgressView()
+                    .tint(Color("AppAccentAction"))
+                    .frame(width: 36, height: 36)
+            } else {
+                Button {
+                    HapticService.shared.lightTap()
+                    audioService.togglePlayPause()
+                } label: {
+                    Image(systemName: audioService.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(Color("AppAccentAction"))
+                        .frame(width: 36, height: 36)
+                }
+                .accessibilityLabel(audioService.isPlaying ? "Pause" : "Play")
+            }
+
+            // Chapter info and progress
+            VStack(alignment: .leading, spacing: 1) {
+                if let chapter = audioService.currentChapter {
+                    Text("\(chapter.bookName) \(chapter.chapterNumber)")
+                        .font(Typography.Command.caption.weight(.semibold))
+                        .foregroundStyle(Color("AppTextPrimary"))
+                        .lineLimit(1)
+
+                    Text("\(audioService.formattedCurrentTime) / \(audioService.formattedDuration)")
+                        .font(Typography.Command.meta.monospacedDigit())
+                        .foregroundStyle(Color("TertiaryText"))
+                        .lineLimit(1)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onMiniPlayerTap)
+
+            // Skip backward
+            Button {
+                HapticService.shared.lightTap()
+                audioService.skipBackward()
+            } label: {
+                Image(systemName: "gobackward.15")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color("AppTextSecondary"))
+                    .frame(width: 36, height: 36)
+            }
+            .accessibilityLabel("Skip backward 15 seconds")
+
+            // Skip forward
+            Button {
+                HapticService.shared.lightTap()
+                audioService.skipForward()
+            } label: {
+                Image(systemName: "goforward.15")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color("AppTextSecondary"))
+                    .frame(width: 36, height: 36)
+            }
+            .accessibilityLabel("Skip forward 15 seconds")
+
+            // Close
+            Button {
+                HapticService.shared.lightTap()
+                onMiniPlayerClose()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color("TertiaryText"))
+                    .frame(width: 32, height: 32)
+            }
+            .accessibilityLabel("Close audio")
         }
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Color.appDivider.opacity(0.5), lineWidth: Theme.Stroke.hairline)
+        )
+        .overlay(alignment: .bottom) {
+            // Progress bar
+            GeometryReader { geometry in
+                Rectangle()
+                    .fill(Color("AppAccentAction"))
+                    .frame(width: geometry.size.width * audioService.progress, height: 2)
+            }
+            .frame(height: 2)
+            .clipShape(RoundedRectangle(cornerRadius: 1))
+            .padding(.horizontal, Theme.Spacing.md)
+        }
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.vertical, Theme.Spacing.md)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Audio player")
     }
 
     // MARK: - Ask Button
@@ -222,7 +344,13 @@ extension Tab {
         var body: some View {
             VStack {
                 Spacer()
-                GlassTabBar(selectedTab: $selectedTab, showAskModal: $showAskModal)
+                GlassTabBar(
+                    selectedTab: $selectedTab,
+                    showAskModal: $showAskModal,
+                    audioService: AudioService.shared,
+                    onMiniPlayerTap: {},
+                    onMiniPlayerClose: {}
+                )
             }
             .background(Color.appBackground)
         }

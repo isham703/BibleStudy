@@ -128,6 +128,16 @@ final class SermonViewingViewModel {
         currentTime = time
     }
 
+    /// Seeks to time and starts playback (used by outline, timestamps, etc.)
+    func seekAndPlay(_ time: TimeInterval) {
+        seekToTime(time)
+        if !isPlaying {
+            player?.play()
+            player?.rate = playbackSpeed
+            isPlaying = true
+        }
+    }
+
     func seekForward(_ seconds: Double) {
         let targetTime = min(currentTime + seconds, duration)
         seekToTime(targetTime)

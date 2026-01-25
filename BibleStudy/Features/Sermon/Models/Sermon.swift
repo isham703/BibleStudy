@@ -71,7 +71,17 @@ struct Sermon: Identifiable, Hashable, Sendable {
     }
 
     var displayTitle: String {
-        title.isEmpty ? "Untitled Sermon" : title
+        // 1. Use actual title if explicitly set
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty && trimmed != "Untitled Sermon" {
+            return trimmed
+        }
+        // 2. Use first scripture reference if available
+        if let firstRef = scriptureReferences.first {
+            return "Sermon — \(firstRef)"
+        }
+        // 3. Fall back to date-based title
+        return "Sermon — \(recordedAt.formatted(date: .abbreviated, time: .omitted))"
     }
 
     // MARK: - Graceful Degradation Properties
@@ -215,14 +225,17 @@ nonisolated extension Sermon: FetchableRecord, PersistableRecord {
         audioBitrateKbps = row[Columns.audioBitrateKbps]
         audioContentHash = row[Columns.audioContentHash]
 
-        if let statusString: String = row[Columns.transcriptionStatus] {
+        let transcriptionRaw: String? = row[Columns.transcriptionStatus]
+        let studyGuideRaw: String? = row[Columns.studyGuideStatus]
+
+        if let statusString = transcriptionRaw {
             transcriptionStatus = SermonProcessingStatus(rawValue: statusString) ?? .pending
         } else {
             transcriptionStatus = .pending
         }
         transcriptionError = row[Columns.transcriptionError]
 
-        if let statusString: String = row[Columns.studyGuideStatus] {
+        if let statusString = studyGuideRaw {
             studyGuideStatus = SermonProcessingStatus(rawValue: statusString) ?? .pending
         } else {
             studyGuideStatus = .pending

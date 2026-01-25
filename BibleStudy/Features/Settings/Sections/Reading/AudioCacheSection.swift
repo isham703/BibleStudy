@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - Audio Cache Section
-// Audio cache limit, usage, and clear cache settings
+// MARK: - Audio Storage Section
+// Audio storage limit, usage, and clear storage settings
 
 struct AudioCacheSection: View {
     @Bindable var viewModel: SettingsViewModel
@@ -10,7 +10,7 @@ struct AudioCacheSection: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        SettingsCard(title: "Audio", icon: "speaker.wave.2.fill") {
+        SettingsCard(title: "Audio Storage", icon: "speaker.wave.2.fill") {
             VStack(spacing: Theme.Spacing.lg) {
                 // Cache size picker
                 audioCacheLimitRow
@@ -26,10 +26,13 @@ struct AudioCacheSection: View {
                 clearCacheRow
             }
         }
-        .alert("Clear Audio Cache?", isPresented: $showClearCacheConfirmation) {
+        .alert("Clear Audio Storage?", isPresented: $showClearCacheConfirmation) {
             Button("Cancel", role: .cancel) {}
             Button("Clear", role: .destructive) {
                 viewModel.clearAudioCache()
+                // Toast feedback for critical action
+                ToastService.shared.showSuccess(message: "Cache cleared")
+                HapticService.shared.success()
             }
         } message: {
             Text("This will delete all cached audio files. They will be regenerated when you play chapters again.")
@@ -52,11 +55,11 @@ struct AudioCacheSection: View {
 
             // Label
             VStack(alignment: .leading, spacing: 2) {
-                Text("Cache Limit")
+                Text("Storage Limit")
                     .font(Typography.Command.body)
                     .foregroundStyle(Color("AppTextPrimary"))
 
-                Text("Maximum storage for cached audio")
+                Text("Maximum space for cached audio")
                     .font(Typography.Command.meta)
                     .foregroundStyle(Color("TertiaryText"))
             }
@@ -151,7 +154,7 @@ struct AudioCacheSection: View {
                     )
 
                 // Label
-                Text("Clear Audio Cache")
+                Text("Clear Audio Storage")
                     .font(Typography.Command.body)
                     .foregroundStyle(Color("AppTextPrimary"))
 

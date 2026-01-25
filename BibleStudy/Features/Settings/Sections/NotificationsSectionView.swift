@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - Notifications Section View
-// Notification settings with expandable cards
+// MARK: - Feedback & Alerts Section View
+// Notification settings and haptic feedback preferences
 
 struct NotificationsSectionView: View {
     @Bindable var viewModel: SettingsViewModel
@@ -9,8 +9,12 @@ struct NotificationsSectionView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
+    // Haptic feedback preference (merged from standalone Preferences section)
+    @AppStorage(AppConfiguration.UserDefaultsKeys.hapticFeedbackEnabled)
+    private var hapticFeedbackEnabled: Bool = true
+
     var body: some View {
-        SettingsCard(title: "Notifications", icon: "bell.fill") {
+        SettingsCard(title: "Feedback & Alerts", icon: "bell.fill") {
             if viewModel.notificationsAuthorized {
                 authorizedContent
             } else {
@@ -58,6 +62,17 @@ struct NotificationsSectionView: View {
                 }
             }
             .animation(Theme.Animation.settle, value: viewModel.streakReminderEnabled)
+
+            SettingsDivider()
+
+            // Haptic Feedback (merged from standalone Preferences section)
+            SettingsToggle(
+                isOn: $hapticFeedbackEnabled,
+                label: "Haptic Feedback",
+                description: "Tactile response for interactions",
+                icon: "hand.tap.fill",
+                iconColor: Color("AppAccentAction")
+            )
         }
     }
 

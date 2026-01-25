@@ -13,6 +13,7 @@ final class BibleReaderViewModel {
     private let userContentService: UserContentService
     private let aiService: AIServiceProtocol
     private let highlightIndexCache = HighlightIndexCache()
+    private let noteIndexCache = NoteIndexCache()
 
     // MARK: - State
     var currentLocation: BibleLocation
@@ -120,6 +121,9 @@ final class BibleReaderViewModel {
         do {
             chapter = try await bibleService.getChapter(location: currentLocation)
             updateNavigationState()
+
+            // Load user content from cache/remote before filtering
+            await userContentService.loadContent()
             loadUserContent()
         } catch {
             self.error = error
@@ -129,9 +133,30 @@ final class BibleReaderViewModel {
     }
 
     func loadChapter(at location: BibleLocation) async {
+        // Check if audio is currently playing before changing chapters
+        let wasPlaying = AudioService.shared.isPlaying
+
+        // Invalidate caches for BOTH old and new chapters to prevent stale data
+        // This fixes a race condition where SwiftUI renders between setting
+        // currentLocation and loadUserContent() completing
+        noteIndexCache.invalidate(chapter: currentLocation.chapter, bookId: currentLocation.bookId)
+        highlightIndexCache.invalidate(chapter: currentLocation.chapter, bookId: currentLocation.bookId)
+        noteIndexCache.invalidate(chapter: location.chapter, bookId: location.bookId)
+        highlightIndexCache.invalidate(chapter: location.chapter, bookId: location.bookId)
+
+        // Clear user content data immediately to prevent stale indicators
+        // If SwiftUI renders during async load, empty arrays mean no indicators shown
+        chapterNotes = []
+        chapterHighlights = []
+
         currentLocation = location
         clearSelection()
         await loadChapter()
+
+        // Auto-continue audio on new chapter if it was playing
+        if wasPlaying {
+            await playAudio()
+        }
     }
 
     // MARK: - Navigation
@@ -406,6 +431,7 @@ final class BibleReaderViewModel {
     // MARK: - User Content
 
     func loadUserContent() {
+        // Load the data first
         chapterHighlights = userContentService.getHighlights(
             for: currentLocation.chapter,
             bookId: currentLocation.bookId
@@ -414,6 +440,11 @@ final class BibleReaderViewModel {
             for: currentLocation.chapter,
             bookId: currentLocation.bookId
         )
+
+        // Invalidate caches AFTER loading data so the next render builds fresh indexes
+        // This ensures any stale empty entries from mid-navigation renders are cleared
+        noteIndexCache.invalidate(chapter: currentLocation.chapter, bookId: currentLocation.bookId)
+        highlightIndexCache.invalidate(chapter: currentLocation.chapter, bookId: currentLocation.bookId)
     }
 
     func highlightColor(for verseNumber: Int) -> HighlightColor? {
@@ -426,9 +457,114 @@ final class BibleReaderViewModel {
         return index.color(for: verseNumber)
     }
 
+    // MARK: - Note Lookups (O(1) via cached index)
+
+    /// Get the note index for current chapter (cached)
+    private func noteIndex() -> NoteIndex {
+        noteIndexCache.getIndex(
+            for: currentLocation.chapter,
+            bookId: currentLocation.bookId,
+            notes: chapterNotes
+        )
+    }
+
+    /// Check if verse has a note indicator (FIRST verse only per design)
     func hasNote(for verseNumber: Int) -> Bool {
-        chapterNotes.contains { note in
-            verseNumber >= note.verseStart && verseNumber <= note.verseEnd
+        noteIndex().hasNote(for: verseNumber)
+    }
+
+    /// Get template of most recent note at verse (for indicator color)
+    func noteTemplate(for verseNumber: Int) -> NoteTemplate? {
+        noteIndex().template(for: verseNumber)
+    }
+
+    /// Get count of notes at verse (for badge)
+    func noteCount(for verseNumber: Int) -> Int {
+        noteIndex().noteCount(for: verseNumber)
+    }
+
+    /// Get all notes starting at this verse (for preview/editing)
+    func notesForVerse(_ verseNumber: Int) -> [Note] {
+        noteIndex().notes(for: verseNumber)
+    }
+
+    /// Get all notes covering this verse (includes notes where verse is in range)
+    func allNotesForVerse(_ verseNumber: Int) -> [Note] {
+        noteIndex().allNotesForVerse(verseNumber)
+    }
+
+    // MARK: - Note CRUD
+
+    /// Create a new note for the given verse range
+    func createNote(
+        range: VerseRange,
+        content: String,
+        template: NoteTemplate,
+        linkedNoteIds: [UUID] = []
+    ) async {
+        do {
+            try await userContentService.createNote(
+                for: range,
+                content: content,
+                template: template,
+                linkedNoteIds: linkedNoteIds
+            )
+            HapticService.shared.lightTap()
+
+            // Invalidate cache and reload
+            noteIndexCache.invalidate(
+                chapter: currentLocation.chapter,
+                bookId: currentLocation.bookId
+            )
+            loadUserContent()
+        } catch {
+            self.error = error
+        }
+    }
+
+    /// Update an existing note
+    func updateNote(
+        _ note: Note,
+        content: String,
+        template: NoteTemplate,
+        linkedNoteIds: [UUID] = []
+    ) async {
+        do {
+            var updatedNote = note
+            updatedNote.content = content
+            updatedNote.template = template
+            updatedNote.linkedNoteIds = linkedNoteIds
+            updatedNote.updatedAt = Date()
+            updatedNote.needsSync = true
+
+            try await userContentService.updateNote(updatedNote)
+            HapticService.shared.lightTap()
+
+            // Invalidate cache and reload
+            noteIndexCache.invalidate(
+                chapter: currentLocation.chapter,
+                bookId: currentLocation.bookId
+            )
+            loadUserContent()
+        } catch {
+            self.error = error
+        }
+    }
+
+    /// Delete a note
+    func deleteNote(_ note: Note) async {
+        do {
+            try await userContentService.deleteNote(note)
+            HapticService.shared.lightTap()
+
+            // Invalidate cache and reload
+            noteIndexCache.invalidate(
+                chapter: currentLocation.chapter,
+                bookId: currentLocation.bookId
+            )
+            loadUserContent()
+        } catch {
+            self.error = error
         }
     }
 

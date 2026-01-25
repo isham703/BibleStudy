@@ -136,6 +136,11 @@ struct AppToastView: View {
                 .font(Typography.Scripture.quote)
                 .foregroundStyle(Color("FeedbackError"))
                 .lineLimit(2)
+
+        case .sampleHidden:
+            Text("Sample hidden")
+                .font(Typography.Scripture.quote)
+                .foregroundStyle(textColor)
         }
     }
 
@@ -151,7 +156,7 @@ struct AppToastView: View {
                 .font(Typography.Scripture.footnote)
                 .foregroundStyle(secondaryTextColor)
 
-        case .success, .info, .sermonDeleted, .sermonsDeleted, .deleteError:
+        case .success, .info, .sermonDeleted, .sermonsDeleted, .deleteError, .sampleHidden:
             EmptyView()
         }
     }
@@ -255,6 +260,8 @@ struct AppToastView: View {
             return "Deleted \(count) sermons"
         case .deleteError(let message):
             return "Delete error: \(message)"
+        case .sampleHidden:
+            return "Sample hidden"
         }
     }
 }

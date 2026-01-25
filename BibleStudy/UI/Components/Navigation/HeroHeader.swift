@@ -8,6 +8,9 @@ import SwiftUI
 // Usage:
 //   HeroHeader(imageName: "PrayerHero")
 //
+//   // With custom height:
+//   HeroHeader(imageName: "SermonHero", height: 200)
+//
 //   // With custom back action:
 //   HeroHeader(imageName: "StoryHero") {
 //       customBackAction()
@@ -15,6 +18,7 @@ import SwiftUI
 
 struct HeroHeader: View {
     let imageName: String
+    var height: CGFloat = 280
     var onBack: (() -> Void)?
 
     @Environment(\.dismiss) private var dismiss
@@ -23,7 +27,7 @@ struct HeroHeader: View {
 
     // MARK: - Constants
 
-    private let heroHeight: CGFloat = 280
+    private var heroHeight: CGFloat { height }
     private let curveHeight: CGFloat = 48
     private let warmGradientHeight: CGFloat = 140  // Extended for softer atmospheric falloff
     private let dynamicIslandFallback: CGFloat = 59

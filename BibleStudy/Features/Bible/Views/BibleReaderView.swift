@@ -36,6 +36,21 @@ struct BibleReaderView: View {
     // Chapter panel state
     @State private var showChapterPanel = false
 
+    // Bottom bar state
+    @State private var bottomBarViewModel = BibleReaderBottomBarViewModel()
+    @State private var showNotesSheet = false
+    @State private var showSearchSheet = false
+
+    // Note preview sheet state
+    @State private var showNotePreviewSheet = false
+    @State private var notePreviewState = NotePreviewSheetState()
+    @State private var pendingNoteEdit: Note? // Set when edit tapped, triggers editor on sheet dismiss
+
+    // Note editor state
+    @State private var showNoteEditor = false
+    @State private var noteEditorRange: VerseRange?
+    @State private var existingNoteForEditor: Note?
+
     // Persist last reading position
     @AppStorage("scholarLastBookId") private var lastBookId: Int = 43
     @AppStorage("scholarLastChapter") private var lastChapter: Int = 1
@@ -48,6 +63,10 @@ struct BibleReaderView: View {
 
     private var isUITestingReader: Bool {
         ProcessInfo.processInfo.arguments.contains("-ui_testing_reader")
+    }
+
+    private var shouldShowBottomBar: Bool {
+        showToolbar && !showChapterPanel && !(viewModel?.showContextMenu ?? false)
     }
 
     var body: some View {
@@ -86,6 +105,35 @@ struct BibleReaderView: View {
                     }
                 )
             }
+
+            // Bottom navigation bar
+            VStack {
+                Spacer()
+                BibleReaderBottomBar(
+                    viewModel: bottomBarViewModel,
+                    audioService: audioService,
+                    isVisible: shouldShowBottomBar,
+                    onNotesTap: {
+                        HapticService.shared.lightTap()
+                        showNotesSheet = true
+                    },
+                    onSearchTap: {
+                        HapticService.shared.lightTap()
+                        showSearchSheet = true
+                    },
+                    onAudioTap: {
+                        HapticService.shared.lightTap()
+                        Task {
+                            await viewModel?.playAudio()
+                        }
+                    },
+                    onMiniPlayerTap: {
+                        HapticService.shared.lightTap()
+                        showAudioPlayer = true
+                    }
+                )
+            }
+            .ignoresSafeArea(.keyboard)
         }
         .simultaneousGesture(chapterPanelSwipeGesture)
         .toolbar {
@@ -147,9 +195,77 @@ struct BibleReaderView: View {
         .sheet(isPresented: $showBookPicker) { bookPickerSheet }
         .sheet(isPresented: $showAudioPlayer) { AudioPlayerSheet(audioService: audioService) }
         .sheet(isPresented: $showInsightSheet, onDismiss: { viewModel?.clearSelection() }) { insightSheetContent }
+        .sheet(isPresented: $showNotesSheet) {
+            NotesSheet(onNavigate: { range in
+                showNotesSheet = false
+                Task { await viewModel?.navigateToVerse(range) }
+            })
+        }
+        .sheet(isPresented: $showSearchSheet) {
+            NavigationStack {
+                SearchView(onNavigate: { range in
+                    showSearchSheet = false
+                    Task { await viewModel?.navigateToVerse(range) }
+                })
+            }
+        }
+        .sheet(isPresented: $showNoteEditor) {
+            if let range = noteEditorRange {
+                NoteEditor(
+                    range: range,
+                    existingNote: existingNoteForEditor,
+                    allNotes: viewModel?.chapterNotes ?? [],
+                    onSave: { content, template, linkedIds in
+                        Task {
+                            // CRITICAL: Branch create vs update to avoid duplicates
+                            if let existing = existingNoteForEditor {
+                                await viewModel?.updateNote(
+                                    existing,
+                                    content: content,
+                                    template: template,
+                                    linkedNoteIds: linkedIds
+                                )
+                            } else {
+                                await viewModel?.createNote(
+                                    range: range,
+                                    content: content,
+                                    template: template,
+                                    linkedNoteIds: linkedIds
+                                )
+                            }
+                        }
+                    },
+                    onDelete: existingNoteForEditor != nil ? {
+                        Task {
+                            if let note = existingNoteForEditor {
+                                await viewModel?.deleteNote(note)
+                            }
+                        }
+                    } : nil
+                )
+            }
+        }
+        .sheet(isPresented: $showNotePreviewSheet, onDismiss: {
+            // If edit was pending, open editor now that preview sheet is dismissed
+            if let note = pendingNoteEdit {
+                noteEditorRange = note.range
+                existingNoteForEditor = note
+                pendingNoteEdit = nil
+                showNoteEditor = true
+            }
+        }) {
+            NotePreviewSheet(state: notePreviewState)
+        }
         .task { await initializeViewModel() }
-        .onAppear { appState.hideTabBar = true }
-        .onDisappear { appState.hideTabBar = false }
+        .onAppear {
+            appState.hideTabBar = true
+            bottomBarViewModel.startObservingAudio()
+        }
+        .onDisappear {
+            appState.hideTabBar = false
+            bottomBarViewModel.stopObservingAudio()
+            audioService.stop()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .audioVerseChanged)) { handleAudioVerseChange($0) }
         .onChange(of: audioService.playbackState) { handlePlaybackStateChange($1) }
         .onChange(of: viewModel?.flashVerseId) { handleFlashVerseChange($1) }
@@ -198,7 +314,12 @@ struct BibleReaderView: View {
                         shareVerse(viewModel: viewModel)
                         viewModel.clearSelection()
                     },
-                    onNote: { viewModel.clearSelection() },
+                    onNote: {
+                        noteEditorRange = viewModel.selectedRange
+                        existingNoteForEditor = nil
+                        showNoteEditor = true
+                        viewModel.clearSelection()
+                    },
                     onHighlight: { color in Task { await viewModel.quickHighlight(color: color) } },
                     onRemoveHighlight: { Task { await viewModel.removeHighlightForSelection() } },
                     onStudy: { openInsightSheetFromMenu(viewModel: viewModel) },
@@ -215,15 +336,6 @@ struct BibleReaderView: View {
     @ViewBuilder
     private var readingMenuSheet: some View {
         BibleReadingMenuSheet(
-            onAudioTap: {
-                showReadingMenu = false
-                if let viewModel = viewModel {
-                    Task {
-                        await viewModel.playAudio()
-                        showAudioPlayer = true
-                    }
-                }
-            },
             onNavigate: { range in
                 showReadingMenu = false
                 Task { await viewModel?.navigateToVerse(range) }
@@ -256,7 +368,15 @@ struct BibleReaderView: View {
                 onDismiss: { showInsightSheet = false },
                 onOpenInStudy: { showInsightSheet = false },
                 onNavigateToVerse: { navigateToVerseInSheet($0) },
-                onNavigateToReference: { navigateToReferenceFromSheet($0, viewModel: viewModel) }
+                onNavigateToReference: { navigateToReferenceFromSheet($0, viewModel: viewModel) },
+                onCreateNote: { range, content, template, linkedIds in
+                    await viewModel.createNote(
+                        range: range,
+                        content: content,
+                        template: template,
+                        linkedNoteIds: linkedIds
+                    )
+                }
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
@@ -420,7 +540,10 @@ struct BibleReaderView: View {
                         if viewModel.isVerseSelected(verse.verse) {
                             viewModel.updateSelectionBounds(bounds, container: geometry.frame(in: .global))
                         }
-                    }
+                    },
+                    noteTemplate: viewModel.noteTemplate(for: verse.verse),
+                    noteCount: viewModel.noteCount(for: verse.verse),
+                    onNoteTap: { handleNoteTap(verse: verse, viewModel: viewModel) }
                 )
                 .id("verse-\(verse.verse)")
                 .opacity(isVisible ? 1 : 0)
@@ -476,10 +599,47 @@ struct BibleReaderView: View {
         openInsightSheet(for: verse, chapter: chapter)
     }
 
+    /// Handle note indicator tap - shows note preview sheet
+    private func handleNoteTap(verse: Verse, viewModel: BibleReaderViewModel) {
+        let notes = viewModel.notesForVerse(verse.verse)
+        guard !notes.isEmpty else { return }
+
+        // Capture verse number for onRefresh closure
+        let verseNumber = verse.verse
+
+        // Configure state and show sheet
+        notePreviewState.configure(
+            notes: notes,
+            onEdit: { note in
+                // Set pending edit - will open editor when sheet dismisses via onDismiss
+                pendingNoteEdit = note
+                showNotePreviewSheet = false
+            },
+            onDelete: { [weak viewModel] note in
+                await viewModel?.deleteNote(note)
+            },
+            onDismiss: {
+                showNotePreviewSheet = false
+            },
+            onRefresh: { [weak viewModel] in
+                // Return fresh notes from viewModel after edit/delete
+                viewModel?.notesForVerse(verseNumber) ?? []
+            }
+        )
+
+        showNotePreviewSheet = true
+        HapticService.shared.lightTap()
+    }
+
     private func initializeViewModel() async {
         let vm = BibleReaderViewModel(location: initialLocation)
         viewModel = vm
         await vm.loadChapter()
+
+        // Initialize bottom bar counts
+        let location = vm.currentLocation
+        bottomBarViewModel.updateCounts(bookId: location.bookId, chapter: location.chapter)
+
         if isUITestingReader {
             showChapterPanel = true
         }
@@ -504,7 +664,8 @@ struct BibleReaderView: View {
     }
 
     private func handlePlaybackStateChange(_ newState: PlaybackState) {
-        if newState == .idle || newState == .finished {
+        // Only show verse highlighting when actively playing
+        if newState != .playing {
             currentPlayingVerse = nil
         }
     }
@@ -532,6 +693,9 @@ struct BibleReaderView: View {
         if let location = newLocation {
             lastBookId = location.bookId
             lastChapter = location.chapter
+
+            // Update bottom bar counts
+            bottomBarViewModel.updateCounts(bookId: location.bookId, chapter: location.chapter)
         }
     }
 

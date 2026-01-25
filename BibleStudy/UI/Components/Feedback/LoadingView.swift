@@ -407,6 +407,32 @@ enum StreamingProgressStage: Equatable {
     }
 }
 
+// MARK: - Loading Dots View
+/// Elegant animated loading indicator with three dots
+/// Uses refined bronze accent and ceremonial timing
+
+struct LoadingDotsView: View {
+    @State private var animatingDot = 0
+    private let timer = Timer.publish(every: 0.35, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            ForEach(0..<3, id: \.self) { index in
+                Circle()
+                    .fill(Color("AccentBronze"))
+                    .frame(width: 8, height: 8)
+                    .opacity(animatingDot == index ? 1.0 : 0.3)
+                    .scaleEffect(animatingDot == index ? 1.2 : 1.0)
+            }
+        }
+        .onReceive(timer) { _ in
+            withAnimation(Theme.Animation.fade) {
+                animatingDot = (animatingDot + 1) % 3
+            }
+        }
+    }
+}
+
 // MARK: - Gold Shimmer Line
 
 private struct GoldShimmerLine: View {

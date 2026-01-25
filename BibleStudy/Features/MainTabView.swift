@@ -56,31 +56,23 @@ struct MainTabView: View {
             }
         }
         // Floating glass tab bar overlays content at bottom (hidden when in child views)
+        // Transforms into mini player when audio is active
         .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 0) {
-                // Mini player (always shown when audio is active, even with tab bar hidden)
-                if audioService.playbackState != .idle {
-                    MiniPlayerView(
-                        audioService: audioService,
-                        onTap: {
-                            showFullPlayer = true
-                        },
-                        onClose: {
-                            withAnimation(Theme.Animation.fade) {
-                                audioService.stop()
-                            }
+            if !appState.hideTabBar {
+                GlassTabBar(
+                    selectedTab: $selectedTab,
+                    showAskModal: $showAskModal,
+                    audioService: audioService,
+                    onMiniPlayerTap: {
+                        showFullPlayer = true
+                    },
+                    onMiniPlayerClose: {
+                        withAnimation(Theme.Animation.fade) {
+                            audioService.stop()
                         }
-                    )
-                    .padding(.bottom, appState.hideTabBar ? 0 : Theme.Spacing.sm)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .animation(Theme.Animation.settle, value: audioService.playbackState)
-                }
-
-                // Glass tab bar floats over content with see-through background (hidden in child views)
-                if !appState.hideTabBar {
-                    GlassTabBar(selectedTab: $selectedTab, showAskModal: $showAskModal)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
+                    }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(Theme.Animation.settle, value: appState.hideTabBar)

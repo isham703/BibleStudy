@@ -10,26 +10,36 @@ struct SermonViewingPhase: View {
     @State private var showShareSheet = false
     @State private var copiedToClipboard = false
     @State private var isAwakened = false
-    @State private var autoScrollEnabled = true
+    @State private var autoScrollEnabled = false
     @State private var showDeleteConfirmation = false
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var retryAttempts: Int = 0
 
     // MARK: - Animated Tab State
-    @State private var selectedTabIndex: Int = 0
+    @State private var selectedTabIndex: Int = 0  // Start on Notes tab (now first)
     @State private var scrollProgress: CGFloat = 0.0
-    @State private var tabWidths: [CGFloat] = []
 
     /// Computed property for backward compatibility with existing code
     private var selectedTab: SermonTab {
         SermonTab.allCases[safe: selectedTabIndex] ?? .sources
     }
 
-    // MARK: - Study Guide State Detection
+    // MARK: - State Detection
 
     private var isStudyGuideFailed: Bool {
         flowState.currentSermon?.canViewInDegradedMode ?? false
+    }
+
+    /// Whether the current sermon is the bundled sample (no audio)
+    private var isSampleSermon: Bool {
+        flowState.isViewingSample
+    }
+
+    /// Whether audio is available for playback
+    /// All real sermons have audio (recorded or imported). Only sample is audio-free.
+    private var hasAudio: Bool {
+        !isSampleSermon
     }
 
     // Use flowState.flowState.isRetryingStudyGuide instead of duplicating the logic
@@ -46,46 +56,63 @@ struct SermonViewingPhase: View {
     }
 
     enum SermonTab: String, CaseIterable {
-        case sources = "Sources"
         case notes = "Notes"
+        case sources = "Sources"
     }
 
     var body: some View {
         ZStack {
             backgroundLayer
 
-            VStack(spacing: 0) {
-                // Animated top tab bar
-                animatedTabBar
-                    .padding(.top, Theme.Spacing.sm)
+            if isAwakened {
+                // Main content (shown after loading)
+                VStack(spacing: 0) {
+                    // Animated top tab bar
+                    animatedTabBar
+                        .padding(.top, Theme.Spacing.sm)
 
-                // Swipeable content pages
-                AnimatedTabPageContainer(
-                    pageCount: SermonTab.allCases.count,
-                    selectedIndex: $selectedTabIndex,
-                    scrollProgress: $scrollProgress
-                ) { index in
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: Theme.Spacing.lg) {
-                            switch SermonTab.allCases[safe: index] ?? .sources {
-                            case .sources:
-                                sourcesContent
-                            case .notes:
+                    // Swipeable content pages (iOS standard TabView)
+                    AnimatedTabPageContainer(
+                        selectedIndex: $selectedTabIndex,
+                        scrollProgress: $scrollProgress
+                    ) {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: Theme.Spacing.lg) {
                                 notesContent
                             }
+                            .padding(.horizontal, Theme.Spacing.lg)
+                            .padding(.top, Theme.Spacing.md)
+                            .padding(.bottom, Theme.Spacing.xxl * 2)
                         }
-                        .padding(.horizontal, Theme.Spacing.lg)
-                        .padding(.top, Theme.Spacing.md)
-                        .padding(.bottom, Theme.Spacing.xxl * 2)
+                        .tag(0)
+
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: Theme.Spacing.lg) {
+                                sourcesContent
+                            }
+                            .padding(.horizontal, Theme.Spacing.lg)
+                            .padding(.top, Theme.Spacing.md)
+                            .padding(.bottom, Theme.Spacing.xxl * 2)
+                        }
+                        .tag(1)
                     }
                 }
+                .transition(.opacity)
+            } else {
+                // Loading state with sermon title
+                loadingView
+                    .transition(.opacity)
             }
         }
+        .animation(reduceMotion ? .none : Theme.Animation.slowFade, value: isAwakened)
         .overlay(copiedOverlay)
         .onAppear {
             setupAudioPlayer()
-            withAnimation(Theme.Animation.settle) {
-                isAwakened = true
+            // Brief delay for loading state to be visible, then awaken
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(Theme.Animation.settle) {
+                    isAwakened = true
+                }
             }
         }
         .onDisappear {
@@ -117,32 +144,57 @@ struct SermonViewingPhase: View {
             .ignoresSafeArea()
     }
 
-    // MARK: - Animated Tab Bar (Fuse-style)
+    // MARK: - Loading View
+
+    private var loadingView: some View {
+        VStack(spacing: Theme.Spacing.xl) {
+            Spacer()
+
+            // Sermon icon with subtle pulse
+            ZStack {
+                Circle()
+                    .fill(Color("AccentBronze").opacity(Theme.Opacity.subtle))
+                    .frame(width: 80, height: 80)
+
+                Image(systemName: "text.book.closed.fill")
+                    .font(.system(size: 32))
+                    .foregroundStyle(Color("AccentBronze"))
+            }
+
+            // Sermon title
+            VStack(spacing: Theme.Spacing.sm) {
+                Text(flowState.currentSermon?.displayTitle ?? "Loading...")
+                    .font(Typography.Scripture.title)
+                    .foregroundStyle(Color.appTextPrimary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+
+                if let duration = flowState.currentSermon?.formattedDuration {
+                    Text(duration)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Color.appTextSecondary)
+                }
+            }
+            .padding(.horizontal, Theme.Spacing.xxl)
+
+            // Loading indicator
+            LoadingDotsView()
+                .padding(.top, Theme.Spacing.md)
+
+            Spacer()
+            Spacer()
+        }
+    }
+
+    // MARK: - Animated Tab Bar (iOS Standard)
 
     private var animatedTabBar: some View {
-        VStack(spacing: 0) {
-            // Tab labels with color interpolation
-            AnimatedTabBar(
-                tabs: SermonTab.allCases.map(\.rawValue),
-                selectedIndex: $selectedTabIndex,
-                scrollProgress: scrollProgress,
-                tabWidths: $tabWidths,
-                onTap: { index in
-                    withAnimation(Theme.Animation.fade) {
-                        selectedTabIndex = index
-                    }
-                }
-            )
-
-            // Sliding underline indicator
-            if !tabWidths.isEmpty {
-                AnimatedTabIndicator(
-                    tabCount: SermonTab.allCases.count,
-                    tabWidths: tabWidths,
-                    scrollProgress: scrollProgress
-                )
-            }
-        }
+        AnimatedTabBar(
+            tabs: SermonTab.allCases.map(\.rawValue),
+            selectedIndex: $selectedTabIndex,
+            scrollProgress: scrollProgress
+        )
+        .padding(.horizontal, Theme.Spacing.lg)
         .opacity(isAwakened ? 1 : 0)
         .animation(Theme.Animation.slowFade.delay(0.1), value: isAwakened)
     }
@@ -152,26 +204,28 @@ struct SermonViewingPhase: View {
 
     private var sourcesContent: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            // Compact Player
-            SermonPlayerView(
-                viewModel: viewModel,
-                delay: 0.2,
-                isAwakened: isAwakened
-            )
-
-            // Outline section (with timestamps)
-            if let studyGuide = flowState.currentStudyGuide,
-               let outline = studyGuide.content.outline,
-               !outline.isEmpty {
-                SermonOutlineSectionView(
-                    outline: outline,
-                    currentTime: viewModel.currentTime,
-                    delay: 0.3,
-                    isAwakened: isAwakened,
-                    onSeek: { time in
-                        viewModel.seekToTime(time)
-                    }
+            // Compact Player (hidden for sample/no-audio sermons)
+            if hasAudio {
+                SermonPlayerView(
+                    viewModel: viewModel,
+                    delay: 0.2,
+                    isAwakened: isAwakened
                 )
+
+                // Outline section (with timestamps) - only show if audio available
+                if let studyGuide = flowState.currentStudyGuide,
+                   let outline = studyGuide.content.outline,
+                   !outline.isEmpty {
+                    SermonOutlineSectionView(
+                        outline: outline,
+                        currentTime: viewModel.currentTime,
+                        delay: 0.3,
+                        isAwakened: isAwakened,
+                        onSeek: { time in
+                            viewModel.seekAndPlay(time)
+                        }
+                    )
+                }
             }
 
             // Transcript section
@@ -180,8 +234,9 @@ struct SermonViewingPhase: View {
                 viewModel: viewModel,
                 autoScrollEnabled: $autoScrollEnabled,
                 copiedToClipboard: $copiedToClipboard,
-                delay: 0.4,
-                isAwakened: isAwakened
+                delay: hasAudio ? 0.4 : 0.2,
+                isAwakened: isAwakened,
+                isStaticMode: !hasAudio // Disable tap-to-seek when no audio
             )
         }
     }
@@ -191,10 +246,29 @@ struct SermonViewingPhase: View {
 
     private var notesContent: some View {
         VStack(spacing: Theme.Spacing.lg) {
+            // Sample notice card (when viewing bundled sample)
+            if isSampleSermon {
+                sampleNoticeCard
+            }
+
             // Priority: Data presence over status
             // If study guide exists, show it regardless of status (handles stale status after sync)
             if let studyGuide = flowState.currentStudyGuide {
-                studyGuideContent(studyGuide)
+                SermonNotesContent(
+                    studyGuide: studyGuide,
+                    isAwakened: isAwakened,
+                    onSeek: { timestamp in
+                        // Switch to Sources tab to show the verse
+                        withAnimation(Theme.Animation.settle) {
+                            selectedTabIndex = 1
+                        }
+                        // Seek to timestamp and play
+                        viewModel.seekToTime(timestamp)
+                        if !viewModel.isPlaying {
+                            viewModel.togglePlayPause()
+                        }
+                    }
+                )
             } else if flowState.isRetryingStudyGuide {
                 // No data yet, actively generating
                 studyGuideRetryingCard
@@ -209,6 +283,34 @@ struct SermonViewingPhase: View {
             // Actions row - ALWAYS visible for user agency
             actionsRow
         }
+    }
+
+    // MARK: - Sample Notice Card
+
+    private var sampleNoticeCard: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            Image(systemName: "info.circle.fill")
+                .font(Typography.Icon.base)
+                .foregroundStyle(Color("FeedbackInfo"))
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                Text("Sample Sermon")
+                    .font(Typography.Command.headline)
+                    .foregroundStyle(Color.appTextPrimary)
+
+                Text("This is an example. Record your own to get started!")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color.appTextSecondary)
+            }
+
+            Spacer()
+        }
+        .padding(Theme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Color("FeedbackInfo").opacity(Theme.Opacity.overlay))
+        )
+        .ceremonialAppear(isAwakened: isAwakened, delay: 0.15)
     }
 
     // MARK: - Study Guide Error Card
@@ -303,126 +405,6 @@ struct SermonViewingPhase: View {
         }
     }
 
-    // MARK: - Study Guide Content
-
-    @ViewBuilder
-    private func studyGuideContent(_ studyGuide: SermonStudyGuide) -> some View {
-        // AI Summary
-        if !studyGuide.content.summary.isEmpty {
-            SermonAtriumCard(delay: 0.2, isAwakened: isAwakened) {
-                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                    // Title
-                    if !studyGuide.content.title.isEmpty {
-                        Text(studyGuide.content.title)
-                            .font(Typography.Scripture.title)
-                            .foregroundStyle(Color("AppTextPrimary"))
-                    }
-
-                    // Summary
-                    Text(studyGuide.content.summary)
-                        .font(Typography.Scripture.body)
-                        .foregroundStyle(Color("AppTextSecondary"))
-                        .lineSpacing(Typography.Scripture.bodyLineSpacing)
-
-                    // Key themes
-                    if !studyGuide.content.keyThemes.isEmpty {
-                        Rectangle()
-                            .fill(Color("AppDivider"))
-                            .frame(height: Theme.Stroke.hairline)
-
-                        Text("THEMES")
-                            .font(Typography.Command.meta)
-                            .tracking(Typography.Editorial.labelTracking)
-                            .foregroundStyle(Color("TertiaryText"))
-
-                        SermonFlowLayout(spacing: Theme.Spacing.sm) {
-                            ForEach(studyGuide.content.keyThemes, id: \.self) { theme in
-                                Text(theme)
-                                    .font(Typography.Command.label)
-                                    .foregroundStyle(Color("AppAccentAction"))
-                                    .padding(.horizontal, Theme.Spacing.sm)
-                                    .padding(.vertical, Theme.Spacing.xs)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: Theme.Radius.tag)
-                                            .stroke(Color("AppAccentAction").opacity(0.3), lineWidth: Theme.Stroke.hairline)
-                                    )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Discussion Questions
-        if !studyGuide.content.discussionQuestions.isEmpty {
-            CollapsibleInsightCard(
-                icon: "bubble.left.and.bubble.right",
-                iconColor: Color("FeedbackInfo"),
-                title: "Discussion Questions",
-                items: studyGuide.content.discussionQuestions,
-                delay: 0.3,
-                isAwakened: isAwakened
-            ) { question, index in
-                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    Text("\(index + 1). \(question.question)")
-                        .font(Typography.Command.body)
-                        .foregroundStyle(Color("AppTextPrimary"))
-                        .lineSpacing(Typography.Command.bodyLineSpacing)
-                }
-                .padding(.vertical, Theme.Spacing.xs)
-            }
-        }
-
-        // Reflection Prompts
-        if !studyGuide.content.reflectionPrompts.isEmpty {
-            CollapsibleInsightCard(
-                icon: "heart.text.square",
-                iconColor: Color("AccentBronze"),
-                title: "Reflection Prompts",
-                items: studyGuide.content.reflectionPrompts.indexed,
-                delay: 0.4,
-                isAwakened: isAwakened
-            ) { item, _ in
-                HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                    Image(systemName: "arrow.turn.down.right")
-                        .font(Typography.Icon.sm)
-                        .foregroundStyle(Color("AccentBronze"))
-                        .padding(.top, 2)
-
-                    Text(item.value)
-                        .font(Typography.Scripture.body)
-                        .foregroundStyle(Color("AppTextSecondary"))
-                        .italic()
-                        .lineSpacing(Typography.Scripture.bodyLineSpacing)
-                }
-            }
-        }
-
-        // Application Points
-        if !studyGuide.content.applicationPoints.isEmpty {
-            CollapsibleInsightCard(
-                icon: "hand.raised",
-                iconColor: Color("FeedbackSuccess"),
-                title: "Application Points",
-                items: studyGuide.content.applicationPoints.indexed,
-                delay: 0.5,
-                isAwakened: isAwakened
-            ) { item, _ in
-                HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                    Text("\(item.id + 1)")
-                        .font(Typography.Command.label)
-                        .foregroundStyle(Color("FeedbackSuccess"))
-                        .frame(width: 20)
-
-                    Text(item.value)
-                        .font(Typography.Command.body)
-                        .foregroundStyle(Color("AppTextSecondary"))
-                        .lineSpacing(Typography.Command.bodyLineSpacing)
-                }
-            }
-        }
-    }
-
     // MARK: - Actions Row
 
     private var actionsRow: some View {
@@ -445,14 +427,17 @@ struct SermonViewingPhase: View {
                 flowState.reset()
             }
 
-            SermonAtriumActionButton(
-                icon: "trash",
-                label: "Delete",
-                tint: Color("FeedbackError"),
-                delay: 0.7,
-                isAwakened: isAwakened
-            ) {
-                showDeleteConfirmation = true
+            // Hide delete for sample sermons (they're "hidden" not "deleted")
+            if !isSampleSermon {
+                SermonAtriumActionButton(
+                    icon: "trash",
+                    label: "Delete",
+                    tint: Color("FeedbackError"),
+                    delay: 0.7,
+                    isAwakened: isAwakened
+                ) {
+                    showDeleteConfirmation = true
+                }
             }
         }
     }
@@ -612,18 +597,66 @@ private extension Collection {
                 sermonId: flowState.currentSermon!.id,
                 content: StudyGuideContent(
                     title: "The Power of Grace",
-                    summary: "This sermon explores the foundational Christian concept of grace as unmerited favor from God.",
-                    keyThemes: ["Grace", "Salvation", "Faith"],
+                    summary: "This sermon explores the foundational Christian concept of grace as unmerited favor from God, transforming our identity and relationship with Him.",
+                    keyThemes: ["Grace", "Identity", "Faith", "Transformation"],
+                    centralThesis: "Grace is not merely God's response to our failure - it is the foundation upon which our entire identity in Christ is built.",
+                    keyTakeaways: [
+                        AnchoredInsight(
+                            title: "Grace Transforms Identity",
+                            insight: "The believer's identity shifts from performance to position - not what we do, but who we are in Christ.",
+                            supportingQuote: "When you understand grace, you stop trying to earn what you have already received.",
+                            timestampSeconds: 154,
+                            references: ["John 3:16", "Ephesians 2:8-9"]
+                        ),
+                        AnchoredInsight(
+                            title: "Rest in Finished Work",
+                            insight: "The cross declares 'It is finished' - our striving adds nothing to Christ's completed work.",
+                            supportingQuote: "We do not work for acceptance; we work from acceptance.",
+                            timestampSeconds: 423,
+                            references: ["Romans 5:1"]
+                        )
+                    ],
                     outline: [
                         OutlineSection(title: "Introduction to Grace", startSeconds: 0, endSeconds: 120, summary: nil),
                         OutlineSection(title: "Biblical Foundation", startSeconds: 120, endSeconds: 300, summary: nil),
                         OutlineSection(title: "Application", startSeconds: 300, endSeconds: 450, summary: nil)
                     ],
+                    bibleReferencesMentioned: [
+                        SermonVerseReference(reference: "John 3:16", bookId: 43, chapter: 3, verseStart: 16, isMentioned: true, timestampSeconds: 120),
+                        SermonVerseReference(reference: "Romans 8:28", bookId: 45, chapter: 8, verseStart: 28, isMentioned: true, timestampSeconds: 340),
+                        SermonVerseReference(reference: "Ephesians 2:8-9", bookId: 49, chapter: 2, verseStart: 8, verseEnd: 9, isMentioned: true, timestampSeconds: 520)
+                    ],
+                    bibleReferencesSuggested: [
+                        SermonVerseReference(
+                            reference: "Romans 5:1-2",
+                            bookId: 45, chapter: 5, verseStart: 1, verseEnd: 2,
+                            isMentioned: false,
+                            rationale: "Justification by faith leads to peace with God - a direct connection to the sermon's theme of grace-based identity.",
+                            verificationStatus: .verified,
+                            relation: .supports
+                        ),
+                        SermonVerseReference(
+                            reference: "Galatians 2:16",
+                            bookId: 48, chapter: 2, verseStart: 16,
+                            isMentioned: false,
+                            rationale: "Clarifies that no one is justified by works of the law, but through faith in Christ.",
+                            verificationStatus: .partial,
+                            relation: .clarifies
+                        )
+                    ],
                     discussionQuestions: [
                         StudyQuestion(question: "How does understanding grace change your relationship with God?", type: .application)
                     ],
-                    reflectionPrompts: ["Consider how you might extend grace to others"],
-                    applicationPoints: ["Rest in God's grace rather than striving to earn approval"]
+                    reflectionPrompts: ["Consider how you might extend grace to others this week."],
+                    applicationPoints: [],
+                    anchoredApplicationPoints: [
+                        AnchoredInsight(
+                            title: "Practice Sabbath Rest",
+                            insight: "This week, set aside one day to disconnect from work and practice intentional rest.",
+                            supportingQuote: "Reclaim the gift of Sabbath in our hustle culture.",
+                            timestampSeconds: 2112
+                        )
+                    ]
                 )
             )
         }

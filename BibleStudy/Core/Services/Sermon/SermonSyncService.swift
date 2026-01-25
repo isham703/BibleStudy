@@ -22,6 +22,7 @@ final class SermonSyncService {
     // MARK: - Dependencies
     private let supabase = SupabaseManager.shared
     private let repository = SermonRepository.shared
+    private let groupingService = SermonGroupingService.shared
 
     // MARK: - State
     var sermons: [Sermon] = []
@@ -50,18 +51,36 @@ final class SermonSyncService {
     // MARK: - Load Sermons
 
     /// Load all sermons for current user
-    func loadSermons() async {
-        guard let userId = supabase.currentUser?.id else { return }
+    /// - Parameter includeSample: Whether to inject the sample sermon if visible (default: true)
+    func loadSermons(includeSample: Bool = true) async {
+        let userId = supabase.currentUser?.id
 
         isLoading = true
         defer { isLoading = false }
 
         do {
             // Load from local cache first (via repository)
-            sermons = try repository.fetchAllSermons(userId: userId, includeDeleted: false)
+            var results: [Sermon] = []
+            if let userId = userId {
+                results = try repository.fetchAllSermons(userId: userId, includeDeleted: false)
+            }
 
-            // Then sync with remote
-            try await syncWithRemote()
+            // Inject sample if visible
+            if includeSample,
+               SampleSermonService.shared.shouldShowSample(userId: userId) {
+                let sample = SampleSermonService.shared.sampleSermon(userId: userId)
+                results.insert(sample, at: 0)
+            }
+
+            sermons = results
+
+            // Sync index cache with loaded sermons
+            groupingService.syncIndex(with: results)
+
+            // Then sync with remote (only if authenticated)
+            if userId != nil {
+                try await syncWithRemote()
+            }
         } catch {
             self.error = error
             print("[SermonSyncService] Error loading sermons: \(error)")
@@ -70,6 +89,12 @@ final class SermonSyncService {
 
     /// Load a specific sermon by ID
     func loadSermon(id: UUID) async -> Sermon? {
+        // Handle sample sermon lookup
+        if SampleSermonService.shared.isSample(id: id) {
+            let userId = supabase.currentUser?.id
+            return SampleSermonService.shared.sampleSermon(userId: userId)
+        }
+
         do {
             // Try local first (via repository)
             if let sermon = try repository.fetchSermon(id: id) {
@@ -114,15 +139,29 @@ final class SermonSyncService {
             sermons[index] = updated
         }
 
+        // Update index if sermon is complete
+        if updated.isComplete {
+            groupingService.updateIndex(for: updated)
+        }
+
         // Queue for sync
         try await syncSermon(updated)
     }
 
     // MARK: - Delete Operations
 
-    /// Check if sermon can be deleted (not currently processing)
+    /// Check if sermon can be deleted (not currently processing, not a sample)
     func canDeleteSermon(_ sermon: Sermon) -> Bool {
+        // Samples are "hidden" via UserDefaults, not deleted
+        if SampleSermonService.shared.isSample(sermon) {
+            return false
+        }
         return !sermon.isProcessing
+    }
+
+    /// Check if a sermon is the bundled sample
+    func isSample(_ sermon: Sermon) -> Bool {
+        SampleSermonService.shared.isSample(sermon)
     }
 
     /// Get storage size for confirmation UI
@@ -147,11 +186,14 @@ final class SermonSyncService {
         sermons.removeAll { $0.id == sermon.id }
         print("[SermonSyncService] Removed from in-memory array, remaining: \(sermons.count)")
 
-        // 3. Local file cleanup (best-effort, non-fatal)
+        // 3. Remove from index cache
+        groupingService.removeFromIndex(sermonId: sermon.id)
+
+        // 4. Local file cleanup (best-effort, non-fatal)
         await cleanupLocalFiles(for: sermon.id)
         print("[SermonSyncService] Local file cleanup complete")
 
-        // 4. Queue remote deletion (will sync later)
+        // 5. Queue remote deletion (will sync later)
         do {
             try await supabase.deleteSermon(id: sermon.id.uuidString)
             await cleanupRemoteStorage(for: sermon)
@@ -175,6 +217,30 @@ final class SermonSyncService {
         // Execute deletions sequentially
         for sermon in sermons {
             try await deleteSermon(sermon)
+        }
+    }
+
+    /// Rename a sermon
+    func renameSermon(_ id: UUID, title: String) async throws {
+        print("[SermonSyncService] renameSermon called for id: \(id), new title: \(title)")
+
+        // 1. Update local database
+        try repository.updateSermonTitle(id, title: title)
+
+        // 2. Update in-memory cache
+        if let index = sermons.firstIndex(where: { $0.id == id }) {
+            sermons[index].title = title
+            sermons[index].updatedAt = Date()
+            sermons[index].needsSync = true
+        }
+
+        // 3. Sync to remote (best-effort)
+        do {
+            try await supabase.updateSermonTitle(id: id.uuidString, title: title)
+            print("[SermonSyncService] Remote rename succeeded")
+        } catch {
+            // Will sync on next full sync - offline-first approach
+            print("[SermonSyncService] Remote rename failed (will retry): \(error)")
         }
     }
 
@@ -368,6 +434,11 @@ final class SermonSyncService {
     }
 
     private func syncSermon(_ sermon: Sermon) async throws {
+        // Never sync sample sermon (bundle-backed, not user data)
+        if SampleSermonService.shared.isSample(sermon) {
+            return
+        }
+
         do {
             // Refresh session to ensure fresh JWT token for RLS validation
             do {

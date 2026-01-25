@@ -1,14 +1,13 @@
 import SwiftUI
 
 // MARK: - Menu Section
-// Main menu view with options for search, audio, settings, and insights
-// Navigates to other sections via state mutations
+// Main menu view with options for display settings and insights
+// Search and audio are accessible via the bottom navigation bar
 
 struct MenuSection: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @Bindable var state: ReadingMenuState
-    let onAudioTap: () -> Void
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
@@ -17,29 +16,6 @@ struct MenuSection: View {
 
             // Menu Items
             VStack(spacing: Theme.Spacing.sm) {
-                BibleMenuRow(
-                    icon: "magnifyingglass",
-                    iconColor: Color("AppAccentAction"),
-                    title: "Search",
-                    subtitle: "Find verses and passages"
-                ) {
-                    state.navigateToSearch()
-                }
-
-                menuDivider
-
-                BibleMenuRow(
-                    icon: "speaker.wave.2",
-                    iconColor: Color("AppAccentAction"),
-                    title: "Listen",
-                    subtitle: "Audio playback"
-                ) {
-                    dismiss()
-                    onAudioTap()
-                }
-
-                menuDivider
-
                 BibleMenuRow(
                     icon: "slider.horizontal.3",
                     iconColor: Color("FeedbackSuccess"),
@@ -119,10 +95,8 @@ struct MenuSection: View {
         @State private var state = ReadingMenuState()
 
         var body: some View {
-            MenuSection(state: state) {
-                print("Audio tapped")
-            }
-            .background(Color.appBackground)
+            MenuSection(state: state)
+                .background(Color.appBackground)
         }
     }
 

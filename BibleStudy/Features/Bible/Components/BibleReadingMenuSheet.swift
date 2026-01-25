@@ -11,18 +11,12 @@ struct BibleReadingMenuSheet: View {
     @Environment(AppState.self) private var appState
 
     // Actions
-    let onAudioTap: () -> Void
     let onNavigate: ((VerseRange) -> Void)?
 
     // Centralized state
     @State private var state = ReadingMenuState()
 
-    init(
-        onAudioTap: @escaping () -> Void,
-        onSettingsTap: @escaping () -> Void = {},
-        onNavigate: ((VerseRange) -> Void)? = nil
-    ) {
-        self.onAudioTap = onAudioTap
+    init(onNavigate: ((VerseRange) -> Void)? = nil) {
         self.onNavigate = onNavigate
     }
 
@@ -31,11 +25,8 @@ struct BibleReadingMenuSheet: View {
             ZStack {
                 switch state.currentView {
                 case .menu:
-                    MenuSection(
-                        state: state,
-                        onAudioTap: onAudioTap
-                    )
-                    .transition(.blurReplace(.downUp))
+                    MenuSection(state: state)
+                        .transition(.blurReplace(.downUp))
 
                 case .search:
                     SearchSection(
@@ -71,7 +62,6 @@ struct BibleReadingMenuSheet: View {
                 .ignoresSafeArea()
                 .sheet(isPresented: $showSheet) {
                     BibleReadingMenuSheet(
-                        onAudioTap: { print("Audio") },
                         onNavigate: { range in print("Navigate to \(range)") }
                     )
                     .environment(BibleService.shared)

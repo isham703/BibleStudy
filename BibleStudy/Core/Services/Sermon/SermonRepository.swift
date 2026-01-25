@@ -356,6 +356,19 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
         }
     }
 
+    func updateSermonTitle(_ id: UUID, title: String) throws {
+        try dbQueue.write { db in
+            guard var sermon = try Sermon.fetchOne(db, key: id) else {
+                throw SermonRepositoryError.sermonNotFound(id)
+            }
+
+            sermon.title = title
+            sermon.updatedAt = Date()
+            sermon.needsSync = true
+            try sermon.update(db)
+        }
+    }
+
     // MARK: - Storage Size Calculation
 
     /// Calculate the total storage size for a sermon's audio chunks
@@ -390,6 +403,122 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
     func calculateTotalSermonStorageSize(sermonIds: [UUID]) -> Int64 {
         sermonIds.reduce(Int64(0)) { total, id in
             total + ((try? calculateSermonStorageSize(sermonId: id)) ?? 0)
+        }
+    }
+
+    // MARK: - Theme Assignment Operations
+
+    /// Fetch all theme assignments for a sermon
+    func fetchThemeAssignments(sermonId: UUID) throws -> [SermonThemeAssignment] {
+        return try dbQueue.read { db in
+            try SermonThemeAssignment
+                .filter(SermonThemeAssignment.Columns.sermonId == sermonId)
+                .order(SermonThemeAssignment.Columns.confidence.desc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Fetch visible theme assignments (excludes user_removed)
+    func fetchVisibleThemeAssignments(sermonId: UUID) throws -> [SermonThemeAssignment] {
+        return try dbQueue.read { db in
+            try SermonThemeAssignment
+                .filter(SermonThemeAssignment.Columns.sermonId == sermonId)
+                .filter(SermonThemeAssignment.Columns.overrideState != ThemeOverrideState.userRemoved.rawValue)
+                .order(SermonThemeAssignment.Columns.confidence.desc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Save theme assignments for a sermon (replaces auto assignments, preserves user overrides)
+    func saveThemeAssignments(sermonId: UUID, assignments: [SermonThemeAssignment]) throws {
+        try dbQueue.write { db in
+            // Delete existing auto assignments (preserve user overrides)
+            try db.execute(
+                sql: """
+                    DELETE FROM sermon_themes
+                    WHERE sermon_id = ? AND override_state = 'auto'
+                """,
+                arguments: [sermonId]
+            )
+
+            // Insert new assignments
+            for var assignment in assignments {
+                assignment.updatedAt = Date()
+                try assignment.save(db)
+            }
+        }
+    }
+
+    /// Update a single theme assignment
+    func updateThemeAssignment(_ assignment: SermonThemeAssignment) throws {
+        try dbQueue.write { db in
+            var updated = assignment
+            updated.updatedAt = Date()
+            try updated.save(db)
+        }
+    }
+
+    /// Add a user-added theme to a sermon
+    func addUserTheme(sermonId: UUID, theme: NormalizedTheme) throws {
+        try dbQueue.write { db in
+            let assignment = SermonThemeAssignment(
+                sermonId: sermonId,
+                theme: theme.rawValue,
+                confidence: 1.0,
+                overrideState: .userAdded,
+                sourceThemes: [],
+                matchType: .exact
+            )
+            try assignment.save(db)
+        }
+    }
+
+    /// Remove a theme from a sermon (marks as user_removed to prevent re-adding)
+    func removeUserTheme(sermonId: UUID, theme: NormalizedTheme) throws {
+        try dbQueue.write { db in
+            // Check if assignment exists
+            if var existing = try SermonThemeAssignment
+                .filter(SermonThemeAssignment.Columns.sermonId == sermonId)
+                .filter(SermonThemeAssignment.Columns.theme == theme.rawValue)
+                .fetchOne(db) {
+                // Mark as user removed
+                existing.overrideState = .userRemoved
+                existing.updatedAt = Date()
+                try existing.update(db)
+            } else {
+                // Create a user_removed entry to prevent future auto-assignment
+                let assignment = SermonThemeAssignment(
+                    sermonId: sermonId,
+                    theme: theme.rawValue,
+                    confidence: 0.0,
+                    overrideState: .userRemoved,
+                    sourceThemes: [],
+                    matchType: .exact
+                )
+                try assignment.save(db)
+            }
+        }
+    }
+
+    /// Delete all theme assignments for a sermon
+    func deleteThemeAssignments(sermonId: UUID) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "DELETE FROM sermon_themes WHERE sermon_id = ?",
+                arguments: [sermonId]
+            )
+        }
+    }
+
+    /// Get primary theme for a sermon (highest confidence visible theme)
+    func fetchPrimaryTheme(sermonId: UUID) throws -> NormalizedTheme? {
+        return try dbQueue.read { db in
+            let assignment = try SermonThemeAssignment
+                .filter(SermonThemeAssignment.Columns.sermonId == sermonId)
+                .filter(SermonThemeAssignment.Columns.overrideState != ThemeOverrideState.userRemoved.rawValue)
+                .order(SermonThemeAssignment.Columns.confidence.desc)
+                .fetchOne(db)
+            return assignment?.normalizedTheme
         }
     }
 }

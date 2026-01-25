@@ -339,7 +339,10 @@ final class SermonProcessingQueue {
 
             print("[SermonProcessingQueue] Study guide generation complete")
 
-            // 2) Enrich outline timestamps asynchronously (outline becomes clickable)
+            // 2) Normalize themes from the study guide
+            await ThemeNormalizationService.shared.normalizeThemes(for: sermonId)
+
+            // 3) Enrich outline timestamps asynchronously (outline becomes clickable)
             let capturedRepository = repository
             let sermonDuration = try? repository.fetchSermon(id: sermonId)?.durationSeconds
             Task.detached(priority: .utility) {

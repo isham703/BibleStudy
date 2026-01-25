@@ -1178,6 +1178,80 @@ final class DatabaseStore: @unchecked Sendable {
             """)
         }
 
+        // MARK: - v27: Sermon Index Cache
+        // Lightweight index for fast sermon grouping (<100ms for 500+ sermons)
+        migrator.registerMigration("v27_sermon_index") { db in
+            try db.create(table: "sermon_index", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("speaker_name", .text)
+                t.column("parsed_books", .text).notNull().defaults(to: "[]")
+                t.column("recorded_at", .datetime).notNull()
+                t.column("duration_seconds", .integer).notNull().defaults(to: 0)
+                t.column("display_title", .text).notNull()
+                t.column("indexed_at", .datetime).notNull()
+                t.column("sermon_updated_at", .datetime).notNull()
+            }
+
+            try db.create(index: "idx_sermon_index_speaker", on: "sermon_index",
+                         columns: ["speaker_name"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermon_index_recorded", on: "sermon_index",
+                         columns: ["recorded_at"],
+                         ifNotExists: true)
+        }
+
+        // MARK: - v28: Sermon Themes
+        // Normalized theme assignments for theme-based grouping
+        migrator.registerMigration("v28_sermon_themes") { db in
+            try db.create(table: "sermon_themes", ifNotExists: true) { t in
+                t.column("sermon_id", .text).notNull()
+                    .references("sermons", onDelete: .cascade)
+                t.column("theme", .text).notNull()
+                t.column("confidence", .double).notNull().defaults(to: 0.0)
+                t.column("override_state", .text).notNull().defaults(to: "auto")
+                t.column("source_themes", .text)
+                t.column("match_type", .text).notNull().defaults(to: "exact")
+                t.column("created_at", .datetime).notNull()
+                t.column("updated_at", .datetime).notNull()
+                t.primaryKey(["sermon_id", "theme"])
+            }
+
+            try db.create(index: "idx_sermon_themes_sermon", on: "sermon_themes",
+                         columns: ["sermon_id"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermon_themes_theme", on: "sermon_themes",
+                         columns: ["theme"],
+                         ifNotExists: true)
+            try db.create(index: "idx_sermon_themes_override", on: "sermon_themes",
+                         columns: ["override_state"],
+                         ifNotExists: true)
+        }
+
+        // MARK: - v29: Repair Sermon Status
+        // Fixes sermon status columns based on actual transcript/study guide data presence
+        migrator.registerMigration("v29_repair_sermon_status") { db in
+            // Update transcription_status to 'succeeded' for sermons that have transcript data
+            try db.execute(sql: """
+                UPDATE sermons
+                SET transcription_status = 'succeeded',
+                    updated_at = datetime('now')
+                WHERE id IN (SELECT DISTINCT sermon_id FROM sermon_transcripts)
+                  AND transcription_status != 'succeeded'
+                """)
+
+            // Update study_guide_status to 'succeeded' for sermons that have study guide data
+            try db.execute(sql: """
+                UPDATE sermons
+                SET study_guide_status = 'succeeded',
+                    updated_at = datetime('now')
+                WHERE id IN (SELECT DISTINCT sermon_id FROM sermon_study_guides)
+                  AND study_guide_status != 'succeeded'
+                """)
+
+            let repairedCount = db.changesCount
+            print("[Migration v29] Repaired \(repairedCount) sermon status records")
+        }
+
         try migrator.migrate(dbQueue)
     }
 

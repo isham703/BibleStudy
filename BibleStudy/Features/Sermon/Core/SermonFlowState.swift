@@ -758,4 +758,25 @@ final class SermonFlowState {
             phase = .viewing
         }
     }
+
+    // MARK: - Sample Sermon
+
+    /// Load the bundled sample sermon (no audio, bundle-backed)
+    func loadSampleSermon() {
+        let sampleService = SampleSermonService.shared
+        let userId = supabase.currentUser?.id
+
+        currentSermon = sampleService.sampleSermon(userId: userId)
+        currentTranscript = sampleService.sampleTranscript(sermonId: currentSermon!.id)
+        currentStudyGuide = sampleService.sampleStudyGuide(sermonId: currentSermon!.id)
+        audioChunks = [] // No audio for sample
+
+        phase = .viewing
+    }
+
+    /// Whether the current sermon is the sample
+    var isViewingSample: Bool {
+        guard let sermon = currentSermon else { return false }
+        return SampleSermonService.shared.isSample(sermon)
+    }
 }

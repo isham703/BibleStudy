@@ -26,28 +26,13 @@ struct SubscriptionSectionView: View {
     }
 
     // MARK: - Tier Status Card
+    // Design Rationale: FLAT design - no glow/blur per design system.
+    // Uses solid fill background only for tier icon.
 
     private var tierStatusCard: some View {
         HStack(spacing: Theme.Spacing.md) {
-            // Tier icon with glow
-            ZStack {
-                // Glow effect for premium tiers
-                if viewModel.isPremiumOrHigher {
-                    Circle()
-                        .fill(tierColor.opacity(Theme.Opacity.selectionBackground))
-                        .blur(radius: 8)
-                        .frame(width: 48, height: 48)
-                }
-
-                Image(systemName: viewModel.tierIcon)
-                    .font(Typography.Icon.xl.weight(.medium))
-                    .foregroundStyle(tierColor)
-                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
-                    .background(
-                        Circle()
-                            .fill(tierColor.opacity(Theme.Opacity.subtle + 0.02))
-                    )
-            }
+            // Tier icon - flat design, no glow
+            IconBadge.settings(viewModel.tierIcon, color: tierColor)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: Theme.Spacing.sm) {

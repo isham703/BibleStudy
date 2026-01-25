@@ -10,20 +10,22 @@ struct SermonOutlineSectionView: View {
     let isAwakened: Bool
     let onSeek: (TimeInterval) -> Void
 
-    /// Determines the single active section index based on current playback time.
-    /// Returns the index of the last section whose start time is <= currentTime.
+    /// Determines the active section index based on current playback time.
+    /// Returns the section with the highest timestamp that is still <= currentTime.
+    /// Handles unsorted timestamps from approximate matching.
     private var activeIndex: Int? {
-        var lastValidIndex: Int?
+        var bestIndex: Int?
+        var bestTime: TimeInterval = -1
+
         for (index, section) in outline.enumerated() {
             guard let start = section.startSeconds else { continue }
-            if currentTime >= start {
-                lastValidIndex = index
-            } else {
-                // Sections are ordered by time, so we can stop once we pass currentTime
-                break
+            // Find the section with the highest timestamp <= currentTime
+            if currentTime >= start && start > bestTime {
+                bestIndex = index
+                bestTime = start
             }
         }
-        return lastValidIndex
+        return bestIndex
     }
 
     var body: some View {

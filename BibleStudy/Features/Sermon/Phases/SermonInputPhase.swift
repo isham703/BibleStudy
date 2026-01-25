@@ -1,45 +1,100 @@
+import Auth
 import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - Sermon Input Phase
-// Hero-style landing screen with curved header image
-// Title is auto-generated from study guide after processing
+// Hero-style landing screen with segmented tab navigation.
+// Adaptive default: Library for returning users, Record for first-time users.
+// Features sticky tab control when hero scrolls away.
 
 struct SermonInputPhase: View {
     @Bindable var flowState: SermonFlowState
     var onShowLibrary: (() -> Void)?
+    var onShowProcessingQueue: (() -> Void)?
+    var onSampleTap: (() -> Void)?
+    var onSermonTap: ((Sermon) -> Void)?
+
+    // Tab state
+    @State private var selectedTab: SermonTab = .library
+    @State private var isTabControlSticky = false
+
+    // Content state
     @State private var showFilePicker = false
     @State private var isAwakened = false
+    @State private var librarySermons: [Sermon] = []
+    @State private var showSample = false
+
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private let sampleService = SampleSermonService.shared
+    private let syncService = SermonSyncService.shared
+
+    // MARK: - Adaptive Default Tab
+
+    private var adaptiveDefaultTab: SermonTab {
+        let hasSermons = !realSermons.isEmpty
+        let hasSample = sampleService.shouldShowSample(userId: SupabaseManager.shared.currentUser?.id)
+
+        if hasSermons {
+            return .library          // Returning user: show their sermons
+        } else if hasSample {
+            return .library          // New user with sample: show sample in library
+        } else {
+            return .recordNew        // New user, no sample: go straight to record
+        }
+    }
+
+    // MARK: - Body
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .top) {
+            // Main scrollable content
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
-                    // Hero header with curved bottom
-                    HeroHeader(imageName: "SermonHero")
+                    // Hero header with variable height
+                    HeroHeader(
+                        imageName: "SermonHero",
+                        height: selectedTab == .library ? 200 : 280
+                    )
+                    .animation(reduceMotion ? nil : Theme.Animation.settle, value: selectedTab)
 
-                // Main content
-                VStack(spacing: Theme.Spacing.lg) {
-                    // Title block - negative padding pulls content up to hero curve
-                    titleBlock
-                        .padding(.top, -Theme.Spacing.lg)
+                    // Main content
+                    VStack(spacing: Theme.Spacing.lg) {
+                        // Title block - negative padding pulls content up to hero curve
+                        titleBlock
+                            .padding(.top, -Theme.Spacing.lg)
 
-                    // Action buttons
-                    actionSection
+                        // Tab control (in-flow version)
+                        SermonTabControl(selectedTab: $selectedTab)
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear.preference(
+                                        key: TabControlPositionKey.self,
+                                        value: geo.frame(in: .global).minY
+                                    )
+                                }
+                            )
 
-                    // Footer hint
-                    footerHint
-                        .padding(.top, Theme.Spacing.sm)
+                        // Tab content with crossfade
+                        tabContent
+                    }
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.bottom, Theme.Spacing.xxl * 2)
                 }
-                .padding(.horizontal, Theme.Spacing.lg)
-                .padding(.bottom, Theme.Spacing.xxl * 2)
             }
+            .onPreferenceChange(TabControlPositionKey.self) { position in
+                let shouldBeSticky = position < 0
+                if shouldBeSticky != isTabControlSticky {
+                    withAnimation(Theme.Animation.fade) {
+                        isTabControlSticky = shouldBeSticky
+                    }
+                }
             }
 
-            // Library button overlay
-            if let onShowLibrary = onShowLibrary {
-                libraryButton(action: onShowLibrary)
+            // Sticky tab control overlay (when scrolled past hero)
+            if isTabControlSticky {
+                stickyTabControl
             }
         }
         .ignoresSafeArea(edges: .top)
@@ -61,9 +116,83 @@ struct SermonInputPhase: View {
             }
         }
         .onAppear {
-            withAnimation(Theme.Animation.settle) {
+            // Check if sync service already has data (means we're returning, not fresh load)
+            let hasExistingData = !syncService.sermons.isEmpty
+            if hasExistingData {
+                // Instant appearance on return - no ceremonial animation
                 isAwakened = true
+                // Restore state from service cache
+                let userId = SupabaseManager.shared.currentUser?.id
+                showSample = sampleService.shouldShowSample(userId: userId)
+                librarySermons = syncService.sermons.filter { !sampleService.isSample($0) }
+                // Set adaptive default
+                selectedTab = adaptiveDefaultTab
+            } else {
+                // First appearance - use ceremonial animation
+                withAnimation(Theme.Animation.settle) {
+                    isAwakened = true
+                }
             }
+        }
+        .task {
+            // Only fetch from network if service cache is empty (first load)
+            if syncService.sermons.isEmpty {
+                await loadLibrary()
+                // Set adaptive default after loading
+                selectedTab = adaptiveDefaultTab
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .sampleSermonUnhidden)) { _ in
+            withAnimation(Theme.Animation.settle) {
+                showSample = true
+            }
+        }
+    }
+
+    // MARK: - Computed Properties
+
+    /// Real sermons (excluding sample)
+    private var realSermons: [Sermon] {
+        librarySermons.filter { !sampleService.isSample($0) }
+    }
+
+    /// Quick access state based on sermon statuses
+    private var quickAccessState: SermonQuickAccessState {
+        SermonQuickAccessState.from(sermons: realSermons)
+    }
+
+    /// Sample sermon if available
+    private var sampleSermon: Sermon? {
+        showSample ? sampleService.sampleSermon(userId: SupabaseManager.shared.currentUser?.id) : nil
+    }
+
+    /// Whether the user is first time (no sermons)
+    private var isFirstTimeUser: Bool {
+        realSermons.isEmpty && !showSample
+    }
+
+    // MARK: - Library Loading
+
+    private func loadLibrary() async {
+        let userId = SupabaseManager.shared.currentUser?.id
+        showSample = sampleService.shouldShowSample(userId: userId)
+        await syncService.loadSermons(includeSample: false)
+        librarySermons = syncService.sermons
+    }
+
+    private func hideSample() {
+        let userId = SupabaseManager.shared.currentUser?.id
+        sampleService.hideSample(userId: userId)
+        withAnimation(Theme.Animation.settle) {
+            showSample = false
+        }
+        HapticService.shared.deleteConfirmed()
+
+        // Show undo toast
+        ToastService.shared.showSampleHidden { [sampleService] in
+            sampleService.unhideSample(userId: userId)
+            // Post notification for view to restore sample visibility
+            NotificationCenter.default.post(name: .sampleSermonUnhidden, object: nil)
         }
     }
 
@@ -71,177 +200,113 @@ struct SermonInputPhase: View {
 
     private var titleBlock: some View {
         VStack(spacing: Theme.Spacing.sm) {
-            Text("NEW SERMON")
+            Text(selectedTab == .library ? "YOUR SERMONS" : "RECORD NEW")
                 .font(Typography.Command.meta)
                 .tracking(Typography.Editorial.sectionTracking)
                 .foregroundStyle(Color("TertiaryText"))
 
-            Text("Capture & Study")
+            Text(selectedTab == .library ? "Your Collection" : "Capture & Study")
                 .font(Typography.Scripture.title)
                 .foregroundStyle(Color("AppTextPrimary"))
 
-            Text("Record live or import an audio file")
+            Text(selectedTab == .library
+                ? "\(realSermons.count) sermons saved"
+                : "Record live or import an audio file")
                 .font(Typography.Command.body)
                 .foregroundStyle(Color("AppTextSecondary"))
                 .padding(.top, Theme.Spacing.xs)
         }
         .opacity(isAwakened ? 1 : 0)
         .animation(Theme.Animation.slowFade.delay(0.2), value: isAwakened)
+        // Staggered animation on tab switch (80ms delay after content)
+        .animation(reduceMotion ? nil : Theme.Animation.settle.delay(0.08), value: selectedTab)
     }
 
-    // MARK: - Action Section
+    // MARK: - Tab Content
 
-    private var actionSection: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            // Primary: Record button
-            Button {
-                HapticService.shared.mediumTap()
-                Task {
-                    await flowState.startRecording()
-                }
-            } label: {
-                HStack(spacing: Theme.Spacing.md) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.2))
-                            .frame(width: 36, height: 36)
-
-                        Image(systemName: "mic.fill")
-                            .font(Typography.Icon.md)
-                            .foregroundStyle(.white)
+    private var tabContent: some View {
+        ZStack {
+            // Library tab
+            SermonLibraryTab(
+                sermons: realSermons,
+                sampleSermon: sampleSermon,
+                showSample: showSample,
+                quickAccessState: quickAccessState,
+                onSermonTap: { sermon in
+                    onSermonTap?(sermon)
+                },
+                onSampleTap: {
+                    onSampleTap?()
+                },
+                onSampleDismiss: {
+                    hideSample()
+                },
+                onViewAllTap: {
+                    HapticService.shared.lightTap()
+                    onShowLibrary?()
+                },
+                onRecordTap: {
+                    HapticService.shared.lightTap()
+                    withAnimation(Theme.Animation.settle) {
+                        selectedTab = .recordNew
                     }
-
-                    Text("Begin Recording")
-                        .font(Typography.Command.cta)
-                        .foregroundStyle(.white)
+                },
+                onProcessingTap: {
+                    onShowProcessingQueue?()
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Theme.Spacing.lg)
-                .background(
-                    LinearGradient(
-                        colors: [
-                            Color("AppAccentAction"),
-                            Color("AppAccentAction").opacity(0.9)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
-                // Subtle ink-like shadow rather than material drop shadow
-                .shadow(color: Color("AppAccentAction").opacity(0.15), radius: 6, y: 2)
-            }
-            .buttonStyle(SermonPressButtonStyle())
-            .accessibilityLabel("Begin recording sermon")
-            .accessibilityHint("Double tap to start recording with your microphone")
-            .opacity(isAwakened ? 1 : 0)
-            .offset(y: isAwakened ? 0 : 10)
-            .animation(Theme.Animation.slowFade.delay(0.3), value: isAwakened)
+            )
+            .opacity(selectedTab == .library ? 1 : 0)
+            .zIndex(selectedTab == .library ? 1 : 0)
+            .allowsHitTesting(selectedTab == .library)
 
-            // Divider with "or" - shortened lines for intentional appearance
-            HStack(spacing: Theme.Spacing.lg) {
-                Rectangle()
-                    .fill(Color("AppTextSecondary").opacity(0.3))
-                    .frame(width: 60, height: 1)
-
-                Text("or")
-                    .font(Typography.Command.caption)
-                    .foregroundStyle(Color("AppTextSecondary"))
-
-                Rectangle()
-                    .fill(Color("AppTextSecondary").opacity(0.3))
-                    .frame(width: 60, height: 1)
-            }
-            .padding(.vertical, Theme.Spacing.sm)
-            .opacity(isAwakened ? 1 : 0)
-            .animation(Theme.Animation.slowFade.delay(0.35), value: isAwakened)
-
-            // Secondary: Import button - more intentional surface treatment
-            Button {
-                HapticService.shared.lightTap()
-                showFilePicker = true
-            } label: {
-                HStack(spacing: Theme.Spacing.md) {
-                    Image(systemName: "square.and.arrow.down")
-                        .font(Typography.Icon.md)
-                        .foregroundStyle(Color("AppAccentAction"))
-
-                    Text("Import Audio File")
-                        .font(Typography.Command.body.weight(.medium))
-                        .foregroundStyle(Color("AppTextPrimary"))
+            // Record tab
+            SermonRecordTab(
+                isFirstTimeUser: isFirstTimeUser,
+                hasSampleInLibrary: showSample,
+                onRecordTap: {
+                    HapticService.shared.mediumTap()
+                    Task {
+                        await flowState.startRecording()
+                    }
+                },
+                onImportTap: {
+                    HapticService.shared.lightTap()
+                    showFilePicker = true
+                },
+                onSeeExampleTap: {
+                    HapticService.shared.lightTap()
+                    withAnimation(Theme.Animation.settle) {
+                        selectedTab = .library
+                    }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Theme.Spacing.lg)
-                .background(Color("AppSurface"))
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
-                .overlay(
-                    RoundedRectangle(cornerRadius: Theme.Radius.button)
-                        .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.control)
-                )
-            }
-            .buttonStyle(SermonPressButtonStyle())
-            .accessibilityLabel("Import audio file")
-            .accessibilityHint("Double tap to select an audio file from your device")
-            .opacity(isAwakened ? 1 : 0)
-            .offset(y: isAwakened ? 0 : 10)
-            .animation(Theme.Animation.slowFade.delay(0.4), value: isAwakened)
+            )
+            .opacity(selectedTab == .recordNew ? 1 : 0)
+            .zIndex(selectedTab == .recordNew ? 1 : 0)
+            .allowsHitTesting(selectedTab == .recordNew)
         }
+        .animation(reduceMotion ? nil : Theme.Animation.fade, value: selectedTab)
     }
 
-    // MARK: - Footer Hint
+    // MARK: - Sticky Tab Control
 
-    private var footerHint: some View {
-        VStack(spacing: Theme.Spacing.sm) {
-            HStack(spacing: Theme.Spacing.xs) {
-                Image(systemName: "checkmark.circle")
-                    .font(Typography.Icon.xs)
-                Text("MP3, M4A, WAV")
-            }
-            .font(Typography.Command.caption)
-            .foregroundStyle(Color("AppTextSecondary"))
-
-            HStack(spacing: Theme.Spacing.xs) {
-                Image(systemName: "arrow.up.circle")
-                    .font(Typography.Icon.xs)
-                Text("Up to 500MB per file")
-            }
-            .font(Typography.Command.caption)
-            .foregroundStyle(Color("AppTextSecondary"))
+    private var stickyTabControl: some View {
+        VStack(spacing: 0) {
+            SermonTabControl(selectedTab: $selectedTab)
+                .padding(.horizontal, Theme.Spacing.lg)
+                .padding(.vertical, Theme.Spacing.sm)
+                .background(.ultraThinMaterial)
         }
-        .opacity(isAwakened ? 1 : 0)
-        .animation(Theme.Animation.slowFade.delay(0.45), value: isAwakened)
-    }
-
-    // MARK: - Library Button
-
-    private func libraryButton(action: @escaping () -> Void) -> some View {
-        Button {
-            HapticService.shared.lightTap()
-            action()
-        } label: {
-            Image(systemName: "list.bullet")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 44, height: 44)
-                .background(
-                    Circle()
-                        .fill(.black.opacity(0.3))
-                )
-        }
-        .padding(.trailing, Theme.Spacing.md)
-        .padding(.top, 59 + Theme.Spacing.xs) // Match HeroHeader's safe area offset
-        .accessibilityLabel("Sermon Library")
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
 }
 
-// MARK: - Button Style
+// MARK: - Tab Control Position Key
 
-private struct SermonPressButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(Theme.Animation.fade, value: configuration.isPressed)
+private struct TabControlPositionKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 
@@ -252,4 +317,10 @@ private struct SermonPressButtonStyle: ButtonStyle {
         SermonInputPhase(flowState: SermonFlowState())
     }
     .preferredColorScheme(.dark)
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let sampleSermonUnhidden = Notification.Name("sampleSermonUnhidden")
 }

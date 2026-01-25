@@ -27,6 +27,8 @@ struct NoteEditor: View {
         range: VerseRange,
         existingNote: Note? = nil,
         allNotes: [Note] = [],
+        initialContent: String? = nil,
+        initialTemplate: NoteTemplate? = nil,
         onSave: @escaping (String, NoteTemplate, [UUID]) -> Void,
         onDelete: (() -> Void)? = nil,
         onNavigateToNote: ((Note) -> Void)? = nil
@@ -37,8 +39,9 @@ struct NoteEditor: View {
         self.onSave = onSave
         self.onDelete = onDelete
         self.onNavigateToNote = onNavigateToNote
-        _content = State(initialValue: existingNote?.content ?? "")
-        _selectedTemplate = State(initialValue: existingNote?.template ?? .freeform)
+        // Priority: existingNote > initialContent/Template > defaults
+        _content = State(initialValue: existingNote?.content ?? initialContent ?? "")
+        _selectedTemplate = State(initialValue: existingNote?.template ?? initialTemplate ?? .freeform)
         _linkedNoteIds = State(initialValue: existingNote?.linkedNoteIds ?? [])
     }
 

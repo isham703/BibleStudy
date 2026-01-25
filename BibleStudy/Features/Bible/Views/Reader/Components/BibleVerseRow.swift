@@ -19,6 +19,11 @@ struct BibleVerseRow: View {
     let onLongPress: () -> Void
     let onBoundsChange: (CGRect) -> Void
 
+    // Note indicator (optional - shows when verse has notes)
+    var noteTemplate: NoteTemplate?
+    var noteCount: Int = 0
+    var onNoteTap: (() -> Void)?
+
     @State private var isPressed = false
     private let verseNumberWidth: CGFloat = 28
     // 4pt: selection should read as highlight band, not card. One-off, not tokenized.
@@ -27,21 +32,26 @@ struct BibleVerseRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.md) {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
                 // Verse number - always muted (functional UI, not sacred)
                 // Per design feedback: don't let number become hero even when selected
                 Text("\(verse.verse)")
                     .readingVerseNumber()
                     .foregroundStyle(Color("TertiaryText"))
                     .frame(width: verseNumberWidth, alignment: .trailing)
+                    .padding(.trailing, Theme.Spacing.md)
 
-                // Verse text
+                // Verse text - takes all remaining space, wraps naturally
+                // Conditional trailing padding creates space for indicator when present
                 Text(verse.text)
                     .readingVerse(size: fontSize, font: scriptureFont, lineSpacing: lineSpacing)
                     .foregroundStyle(Color("AppTextPrimary"))
                     .fixedSize(horizontal: false, vertical: true)
+                    .padding(.trailing, noteTemplate != nil ? 36 : 0)
             }
         }
+        // Stretch to full width so note indicators align consistently at trailing edge
+        .frame(maxWidth: .infinity, alignment: .leading)
         // Tight vertical (6pt), standard horizontal (16pt) = highlight band, not card
         .padding(.vertical, Theme.Spacing.xs)
         .padding(.horizontal, Theme.Spacing.md)
@@ -49,6 +59,18 @@ struct BibleVerseRow: View {
         .overlay(flashOverlay)
         .overlay(spokenUnderline, alignment: .bottomLeading)
         .clipShape(RoundedRectangle(cornerRadius: verseCornerRadius))
+        // Note indicator overlay - floats independently, doesn't affect text layout
+        .overlay(alignment: .topTrailing) {
+            if let template = noteTemplate {
+                VerseNoteIndicator(
+                    template: template,
+                    noteCount: noteCount,
+                    onTap: { onNoteTap?() }
+                )
+                // Match verse's vertical padding to align with first line
+                .padding(.top, Theme.Spacing.xs)
+            }
+        }
         .contentShape(Rectangle())
         .scaleEffect(isPressed ? 0.98 : 1)
         .onTapGesture(perform: onTap)

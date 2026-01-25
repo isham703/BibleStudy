@@ -1,494 +1,266 @@
 import SwiftUI
 
 // MARK: - Highlight Library View
-// Filterable collection of all user highlights with navigation to source
+// Hierarchical highlights browser with filter bar, color chips, and grouped list
 
 struct HighlightLibraryView: View {
     @State private var viewModel = HighlightLibraryViewModel()
-    @State private var showSortOptions = false
-    @State private var showGroupOptions = false
-    @State private var navigateToVerse: VerseRange?
+    @State private var showSortSheet = false
+    @State private var appeared = false
 
-    @Environment(\.colorScheme) private var colorScheme
+    let onNavigate: ((VerseRange) -> Void)?
 
-    var onNavigate: ((VerseRange) -> Void)?
+    init(onNavigate: ((VerseRange) -> Void)? = nil) {
+        self.onNavigate = onNavigate
+    }
 
     var body: some View {
         VStack(spacing: 0) {
+            searchBar
+            filterChips
+            sortButton
+
             if viewModel.isEmpty {
                 emptyState
+            } else if viewModel.hasActiveFilters && viewModel.filteredHighlights.isEmpty {
+                noResultsState
             } else {
-                // Filter Bar
-                filterBar
-
-                // Highlight List
-                highlightList
+                highlightsList
             }
         }
         .background(Color.appBackground)
-        .sheet(isPresented: $showSortOptions) {
-            SortOptionsSheet(
-                sortOption: $viewModel.sortOption,
-                groupOption: $viewModel.groupOption
-            )
-            .presentationDetents([.medium])
+        .sheet(isPresented: $showSortSheet) {
+            sortSheet
         }
     }
 
-    // MARK: - Empty State
+    // MARK: - Search Bar
 
-    private var emptyState: some View {
-        EmptyStateView.noHighlights
+    private var searchBar: some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            Image(systemName: "magnifyingglass")
+                .font(Typography.Icon.sm)
+                .foregroundStyle(Color("TertiaryText"))
+
+            TextField("Search highlights...", text: $viewModel.searchQuery)
+                .font(Typography.Command.body)
+                .foregroundStyle(Color("AppTextPrimary"))
+
+            if !viewModel.searchQuery.isEmpty {
+                Button {
+                    viewModel.searchQuery = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(Typography.Icon.sm)
+                        .foregroundStyle(Color("TertiaryText"))
+                }
+            }
+        }
+        .padding(Theme.Spacing.sm)
+        .background(Color("AppSurface"))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.top, Theme.Spacing.sm)
     }
 
-    // MARK: - Filter Bar
+    // MARK: - Filter Chips
 
-    private var filterBar: some View {
-        VStack(spacing: Theme.Spacing.sm) {
-            // Search field
+    private var filterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Theme.Spacing.sm) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(Color("TertiaryText"))
+                // All filter
+                HighlightColorFilterChip(
+                    color: nil,
+                    count: viewModel.highlightStats.total,
+                    isSelected: viewModel.selectedColorFilter == nil
+                ) {
+                    viewModel.selectedColorFilter = nil
+                }
 
-                TextField("Search highlights...", text: $viewModel.searchQuery)
-                    .font(Typography.Command.body)
-
-                if !viewModel.searchQuery.isEmpty {
-                    Button {
-                        viewModel.searchQuery = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color("TertiaryText"))
+                // Color filters
+                ForEach(HighlightColor.allCases, id: \.self) { color in
+                    HighlightColorFilterChip(
+                        color: color,
+                        count: viewModel.highlightStats.byColor[color] ?? 0,
+                        isSelected: viewModel.selectedColorFilter == color
+                    ) {
+                        viewModel.selectedColorFilter = color
                     }
                 }
             }
             .padding(.horizontal, Theme.Spacing.md)
             .padding(.vertical, Theme.Spacing.sm)
-            .background(Color("AppSurface"))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+        }
+    }
 
-            // Color filter chips
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Theme.Spacing.sm) {
-                    // All chip
-                    HighlightFilterChip(
-                        label: "All",
-                        count: viewModel.highlightStats.total,
-                        isSelected: viewModel.selectedColorFilter == nil,
-                        color: nil
-                    ) {
-                        viewModel.selectedColorFilter = nil
-                    }
+    // MARK: - Sort Button
 
-                    // Color chips
-                    ForEach(HighlightColor.allCases, id: \.self) { color in
-                        HighlightFilterChip(
-                            label: color.displayName,
-                            count: viewModel.highlightStats.byColor[color] ?? 0,
-                            isSelected: viewModel.selectedColorFilter == color,
-                            color: color
-                        ) {
-                            viewModel.toggleColorFilter(color)
-                        }
-                    }
+    private var sortButton: some View {
+        HStack {
+            Spacer()
 
-                    Divider()
-                        .frame(height: 24)
-                        .padding(.horizontal, Theme.Spacing.xs)
-
-                    // Sort/Group button
-                    Button {
-                        showSortOptions = true
-                    } label: {
-                        HStack(spacing: 2) {
-                            Image(systemName: "arrow.up.arrow.down")
-                            Text("Sort")
-                        }
+            Button {
+                showSortSheet = true
+            } label: {
+                HStack(spacing: Theme.Spacing.xxs) {
+                    Image(systemName: viewModel.groupOption.icon)
+                        .font(Typography.Icon.xs)
+                    Text(viewModel.groupOption.rawValue)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(Color("AppAccentAction"))
-                        .padding(.horizontal, Theme.Spacing.sm)
-                        .padding(.vertical, Theme.Spacing.xs)
-                        .background(
-                            Capsule()
-                                .stroke(Color("AppAccentAction").opacity(Theme.Opacity.focusStroke), lineWidth: Theme.Stroke.hairline)
-                        )
-                    }
+                    Image(systemName: "chevron.down")
+                        .font(Typography.Icon.xxs)
                 }
-                .padding(.horizontal, Theme.Spacing.md)
-            }
-
-            // Category filter chips (if any categories in use)
-            if hasUsedCategories {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Theme.Spacing.sm) {
-                        ForEach(usedCategories, id: \.self) { category in
-                            CategoryHighlightFilterChip(
-                                category: category,
-                                count: viewModel.highlightStats.byCategory[category] ?? 0,
-                                isSelected: viewModel.selectedCategoryFilter == category
-                            ) {
-                                viewModel.toggleCategoryFilter(category)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, Theme.Spacing.md)
-                }
-            }
-
-            // Active filters indicator
-            if viewModel.hasActiveFilters {
-                HStack {
-                    Text("\(viewModel.filteredHighlights.count) of \(viewModel.allHighlights.count) highlights")
-                        .font(Typography.Command.caption.monospacedDigit())
-                        .foregroundStyle(Color("AppTextSecondary"))
-
-                    Spacer()
-
-                    Button("Clear Filters") {
-                        viewModel.clearFilters()
-                    }
-                    .font(Typography.Command.caption)
-                    .foregroundStyle(Color("AppAccentAction"))
-                }
-                .padding(.horizontal, Theme.Spacing.md)
+                .foregroundStyle(Color("AppAccentAction"))
+                .padding(.horizontal, Theme.Spacing.sm)
+                .padding(.vertical, Theme.Spacing.xs)
             }
         }
-        .padding(.vertical, Theme.Spacing.sm)
-        .background(Color("AppSurface"))
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.bottom, Theme.Spacing.xs)
     }
 
-    private var hasUsedCategories: Bool {
-        viewModel.highlightStats.byCategory.values.contains { $0 > 0 && viewModel.highlightStats.byCategory.keys.contains(where: { $0 != .none }) }
-    }
+    // MARK: - Highlights List
 
-    private var usedCategories: [HighlightCategory] {
-        HighlightCategory.allCases.filter { category in
-            category != .none && (viewModel.highlightStats.byCategory[category] ?? 0) > 0
-        }
-    }
-
-    // MARK: - Highlight List
-
-    private var highlightList: some View {
+    private var highlightsList: some View {
         ScrollView {
-            LazyVStack(spacing: Theme.Spacing.md, pinnedViews: .sectionHeaders) {
+            LazyVStack(alignment: .leading, spacing: Theme.Spacing.lg, pinnedViews: [.sectionHeaders]) {
                 ForEach(viewModel.groupedHighlights) { group in
                     Section {
-                        ForEach(group.highlights, id: \.id) { highlight in
-                            HighlightListCard(highlight: highlight) {
-                                onNavigate?(highlight.range)
-                            } onDelete: {
-                                Task {
-                                    await viewModel.deleteHighlight(highlight)
-                                }
-                            }
+                        ForEach(Array(group.highlights.enumerated()), id: \.element.id) { index, highlight in
+                            highlightCard(highlight, index: index)
                         }
                     } header: {
                         if let title = group.title {
-                            GroupHeader(
-                                title: title,
-                                color: group.color,
-                                category: group.category,
-                                count: group.highlights.count
-                            )
+                            sectionHeader(title, color: group.color)
                         }
                     }
                 }
             }
-            .padding()
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.xl)
         }
-    }
-}
-
-// MARK: - Filter Chip
-
-struct HighlightFilterChip: View {
-    let label: String
-    let count: Int
-    let isSelected: Bool
-    let color: HighlightColor?
-    let action: () -> Void
-
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 2) {
-                if let color = color {
-                    Circle()
-                        .fill(color.color)
-                        .frame(width: 8 + 2, height: 8 + 2)
-                }
-                Text(label)
-                    .font(Typography.Command.caption)
-                if count > 0 {
-                    Text("\(count)")
-                        .font(Typography.Command.meta.monospacedDigit())
-                        .foregroundStyle(isSelected ? Color("AppTextPrimary") : Color("TertiaryText"))
-                }
+        .onAppear {
+            // Trigger stagger animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                appeared = true
             }
-            .foregroundStyle(isSelected ? Color("AppTextPrimary") : Color("AppTextSecondary"))
-            .padding(.horizontal, Theme.Spacing.sm)
-            .padding(.vertical, Theme.Spacing.xs)
-            .background(
-                Capsule()
-                    .fill(isSelected ? (color?.color.opacity(Theme.Opacity.selectionBackground) ?? Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground)) : Color("AppSurface"))
-            )
-            .overlay(
-                Capsule()
-                    .stroke(isSelected ? (color?.color ?? Color("AppAccentAction")) : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
-            )
         }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Category Filter Chip
-
-struct CategoryHighlightFilterChip: View {
-    let category: HighlightCategory
-    let count: Int
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 2) {
-                categoryIcon
-                Text(category.displayName)
-                    .font(Typography.Command.caption)
-                Text("\(count)")
-                    .font(Typography.Command.meta.monospacedDigit())
-                    .foregroundStyle(isSelected ? Color("AppTextPrimary") : Color("TertiaryText"))
-            }
-            .foregroundStyle(isSelected ? category.suggestedColor.color : Color("AppTextSecondary"))
-            .padding(.horizontal, Theme.Spacing.sm)
-            .padding(.vertical, Theme.Spacing.xs)
-            .background(
-                Capsule()
-                    .fill(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.selectionBackground) : Color("AppSurface"))
-            )
-            .overlay(
-                Capsule()
-                    .stroke(isSelected ? category.suggestedColor.color.opacity(Theme.Opacity.textSecondary) : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    @ViewBuilder
-    private var categoryIcon: some View {
-        if category.usesStreamlineIcon {
-            Image(category.icon)
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 12, height: 12)
-        } else {
-            Image(systemName: category.icon)
-                .font(Typography.Command.meta)
+        .onDisappear {
+            appeared = false
         }
     }
-}
 
-// MARK: - Group Header
-
-struct GroupHeader: View {
-    let title: String
-    var color: HighlightColor?
-    var category: HighlightCategory?
-    let count: Int
-
-    var body: some View {
+    private func sectionHeader(_ title: String, color: HighlightColor?) -> some View {
         HStack(spacing: Theme.Spacing.sm) {
             if let color = color {
                 Circle()
-                    .fill(color.color)
+                    .fill(color.solidColor)
                     .frame(width: 12, height: 12)
-            } else if let category = category {
-                categoryIcon(for: category)
-                    .foregroundStyle(category.suggestedColor.color)
             }
 
             Text(title)
-                .font(Typography.Command.subheadline)
-                .fontWeight(.semibold)
+                .font(Typography.Command.subheadline.weight(.semibold))
                 .foregroundStyle(Color("AppTextPrimary"))
-
-            Text("(\(count))")
-                .font(Typography.Command.caption.monospacedDigit())
-                .foregroundStyle(Color("TertiaryText"))
 
             Spacer()
         }
-        .padding(.vertical, Theme.Spacing.xs)
+        .padding(.vertical, Theme.Spacing.sm)
         .padding(.horizontal, Theme.Spacing.sm)
         .background(Color.appBackground)
     }
 
-    @ViewBuilder
-    private func categoryIcon(for category: HighlightCategory) -> some View {
-        if category.usesStreamlineIcon {
-            Image(category.icon)
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 14, height: 14)
-        } else {
-            Image(systemName: category.icon)
-                .font(Typography.Command.caption)
-        }
-    }
-}
-
-// MARK: - Highlight Card
-
-struct HighlightListCard: View {
-    let highlight: Highlight
-    let onTap: () -> Void
-    let onDelete: () -> Void
-
-    @State private var showDeleteConfirmation = false
-    @Environment(BibleService.self) private var bibleService
-
-    @State private var verseText: String = ""
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack(alignment: .top, spacing: Theme.Spacing.md) {
-                // Color indicator
-                RoundedRectangle(cornerRadius: Theme.Radius.xs)
-                    .fill(highlight.color.color)
-                    .frame(width: 4)
-
-                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    // Reference and category
-                    HStack {
-                        Text(highlight.reference)
-                            .font(Typography.Command.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color("AppTextPrimary"))
-
-                        if highlight.category != .none {
-                            HStack(spacing: 2) {
-                                categoryIcon(for: highlight.category)
-                                Text(highlight.category.displayName)
-                                    .font(Typography.Command.meta)
-                            }
-                            .foregroundStyle(highlight.category.suggestedColor.color)
-                            .padding(.horizontal, Theme.Spacing.xs)
-                            .padding(.vertical, 2)
-                            .background(
-                                Capsule()
-                                    .fill(highlight.category.suggestedColor.color.opacity(Theme.Opacity.subtle))
-                            )
-                        }
-
-                        Spacer()
-
-                        // Delete button
-                        Button {
-                            showDeleteConfirmation = true
-                        } label: {
-                            Image(systemName: "trash")
-                                .font(Typography.Command.caption)
-                                .foregroundStyle(Color("TertiaryText"))
-                        }
+    private func highlightCard(_ highlight: Highlight, index: Int) -> some View {
+        Button {
+            onNavigate?(highlight.range)
+        } label: {
+            HighlightLibraryCard(
+                highlight: highlight,
+                onDelete: {
+                    Task {
+                        await viewModel.deleteHighlight(highlight)
                     }
-
-                    // Verse preview
-                    if !verseText.isEmpty {
-                        Text(verseText)
-                            .font(Typography.Scripture.footnote)
-                            .foregroundStyle(Color("AppTextSecondary"))
-                            .lineLimit(2)
-                    }
-
-                    // Date
-                    Text(highlight.createdAt.formatted(.dateTime.month(.abbreviated).day()))
-                        .font(Typography.Command.meta)
-                        .foregroundStyle(Color("TertiaryText"))
                 }
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .fill(Color("AppSurface"))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.card)
-                    .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
             )
         }
         .buttonStyle(.plain)
-        .task {
-            await loadVerseText()
-        }
-        .confirmationDialog(
-            "Delete Highlight",
-            isPresented: $showDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) {
-                onDelete()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Are you sure you want to delete this highlight?")
-        }
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared ? 0 : 4)
+        .animation(Theme.Animation.stagger(index: index), value: appeared)
     }
 
-    private func loadVerseText() async {
-        do {
-            let verses = try await bibleService.getVerses(range: highlight.range)
-            verseText = verses.map { $0.text }.joined(separator: " ")
-        } catch {
-            verseText = ""
+    // MARK: - Empty State
+
+    private var emptyState: some View {
+        VStack(spacing: Theme.Spacing.lg) {
+            Spacer()
+
+            Image(systemName: "highlighter")
+                .font(Typography.Icon.xxl)
+                .foregroundStyle(Color("TertiaryText"))
+
+            Text("No Highlights Yet")
+                .font(Typography.Scripture.heading)
+                .foregroundStyle(Color("AppTextPrimary"))
+
+            Text("Long-press any verse to add your first highlight.")
+                .font(Typography.Command.body)
+                .foregroundStyle(Color("AppTextSecondary"))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Theme.Spacing.xl)
+
+            Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
 
-    @ViewBuilder
-    private func categoryIcon(for category: HighlightCategory) -> some View {
-        if category.usesStreamlineIcon {
-            Image(category.icon)
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 12, height: 12)
-        } else {
-            Image(systemName: category.icon)
-                .font(Typography.Command.meta)
+    // MARK: - No Results State
+
+    private var noResultsState: some View {
+        VStack(spacing: Theme.Spacing.lg) {
+            Spacer()
+
+            Image(systemName: "magnifyingglass")
+                .font(Typography.Icon.xxl)
+                .foregroundStyle(Color("TertiaryText"))
+
+            Text("No Results")
+                .font(Typography.Scripture.heading)
+                .foregroundStyle(Color("AppTextPrimary"))
+
+            Text("Try adjusting your search or filters.")
+                .font(Typography.Command.body)
+                .foregroundStyle(Color("AppTextSecondary"))
+
+            Spacer()
         }
+        .frame(maxWidth: .infinity)
     }
-}
 
-// MARK: - Sort Options Sheet
+    // MARK: - Sort Sheet
 
-struct SortOptionsSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
-    @Binding var sortOption: SortOption
-    @Binding var groupOption: GroupOption
-
-    var body: some View {
+    private var sortSheet: some View {
         NavigationStack {
             List {
                 Section("Sort By") {
                     ForEach(SortOption.allCases, id: \.self) { option in
                         Button {
-                            sortOption = option
+                            viewModel.sortOption = option
                         } label: {
                             HStack {
                                 Image(systemName: option.icon)
-                                    .frame(width: 24)
+                                    .foregroundStyle(Color("AppAccentAction"))
+                                    .frame(width: Theme.Size.iconSizeLarge)
+
                                 Text(option.rawValue)
+                                    .foregroundStyle(Color("AppTextPrimary"))
+
                                 Spacer()
-                                if sortOption == option {
+
+                                if viewModel.sortOption == option {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(Color("AppAccentAction"))
                                 }
                             }
-                            .foregroundStyle(Color("AppTextPrimary"))
                         }
                     }
                 }
@@ -496,19 +268,23 @@ struct SortOptionsSheet: View {
                 Section("Group By") {
                     ForEach(GroupOption.allCases, id: \.self) { option in
                         Button {
-                            groupOption = option
+                            viewModel.groupOption = option
                         } label: {
                             HStack {
                                 Image(systemName: option.icon)
-                                    .frame(width: 24)
+                                    .foregroundStyle(Color("AppAccentAction"))
+                                    .frame(width: Theme.Size.iconSizeLarge)
+
                                 Text(option.rawValue)
+                                    .foregroundStyle(Color("AppTextPrimary"))
+
                                 Spacer()
-                                if groupOption == option {
+
+                                if viewModel.groupOption == option {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(Color("AppAccentAction"))
                                 }
                             }
-                            .foregroundStyle(Color("AppTextPrimary"))
                         }
                     }
                 }
@@ -518,17 +294,21 @@ struct SortOptionsSheet: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        dismiss()
+                        showSortSheet = false
                     }
                 }
             }
         }
+        .presentationDetents([.medium])
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    HighlightLibraryView()
-        .environment(BibleService.shared)
+    NavigationStack {
+        HighlightLibraryView { range in
+            print("Navigate to \(range)")
+        }
+    }
 }
