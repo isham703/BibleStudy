@@ -24,6 +24,7 @@ struct SermonRecordTab: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        // Card container (no section header - tab name provides context)
         VStack(spacing: Theme.Spacing.md) {
             // First-time user onboarding prompt
             if isFirstTimeUser {
@@ -33,37 +34,38 @@ struct SermonRecordTab: View {
 
             // Primary: Record button
             recordButton
-                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.15 : 0.1)
+                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.15 : 0.08)
 
             // Reassurance text
             Text("Stop anytime. We'll generate a transcript + study guide.")
                 .font(Typography.Command.caption)
                 .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
-                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.18 : 0.13)
+                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.18 : 0.11)
 
             // Divider with "or"
             orDivider
-                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.2 : 0.15)
+                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.2 : 0.13)
 
             // Secondary: Import button
             importButton
-                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.22 : 0.17)
+                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.22 : 0.15)
 
             // Footer hint
             footerHint
                 .padding(.top, Theme.Spacing.sm)
-                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.25 : 0.2)
+                .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.25 : 0.18)
 
             // See example link (if sample exists in library)
             if hasSampleInLibrary {
                 seeExampleLink
                     .padding(.top, Theme.Spacing.md)
-                    .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.28 : 0.23)
+                    .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.28 : 0.21)
             }
         }
-        // Container styling
-        .padding(Theme.Spacing.lg)
+        .padding(.top, Theme.Spacing.md)      // Tighter top for tab connection
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.bottom, Theme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .fill(Color("AppSurface").opacity(0.5))

@@ -28,7 +28,6 @@ final class SermonSyncService {
     var sermons: [Sermon] = []
     var isLoading: Bool = false
     var isSyncing: Bool = false
-    var error: Error?
 
     // Audio cache management
     private let audioCacheDirectory: URL
@@ -82,7 +81,6 @@ final class SermonSyncService {
                 try await syncWithRemote()
             }
         } catch {
-            self.error = error
             print("[SermonSyncService] Error loading sermons: \(error)")
         }
     }
@@ -104,7 +102,7 @@ final class SermonSyncService {
             // Fetch from remote
             return try await fetchSermonFromRemote(id: id)
         } catch {
-            self.error = error
+            print("[SermonSyncService] Error loading sermon \(id): \(error)")
             return nil
         }
     }
@@ -170,14 +168,26 @@ final class SermonSyncService {
     }
 
     /// Delete a sermon with full cleanup (soft delete)
-    func deleteSermon(_ sermon: Sermon) async throws {
+    /// - Returns: SyncResult indicating local and remote status
+    func deleteSermon(_ sermon: Sermon) async -> SyncResult<UUID> {
         // 1. Guard processing state
         guard canDeleteSermon(sermon) else {
-            throw SermonError.cannotDeleteWhileProcessing
+            return .failure(SermonSyncError.localFailure(
+                operation: .delete,
+                error: SermonError.cannotDeleteWhileProcessing
+            ))
         }
 
         // 2. Soft delete in DB
-        try repository.softDeleteSermon(id: sermon.id)
+        do {
+            try repository.softDeleteSermon(id: sermon.id)
+        } catch {
+            return .failure(SermonSyncError.localFailure(
+                operation: .delete,
+                error: error
+            ))
+        }
+
         sermons.removeAll { $0.id == sermon.id }
 
         // 3. Remove from index cache
@@ -188,34 +198,49 @@ final class SermonSyncService {
 
         // 5. Queue remote deletion (will sync later)
         do {
+            try await JWTRefreshManager.shared.refreshIfNeeded()
             try await supabase.deleteSermon(id: sermon.id.uuidString)
             await cleanupRemoteStorage(for: sermon)
+            return .success(sermon.id, syncState: .synced)
         } catch {
-            // Will retry on next sync - offline-first approach
+            // Local succeeded, remote queued for retry - offline-first approach
             print("[SermonSyncService] Remote deletion deferred: \(error.localizedDescription)")
-            self.error = error
+            return .success(sermon.id, syncState: .queued)
         }
     }
 
     /// Batch delete multiple sermons
-    func batchDeleteSermons(_ sermons: [Sermon]) async throws {
-        // Pre-validate all are deletable
-        for sermon in sermons {
-            guard canDeleteSermon(sermon) else {
-                throw SermonError.cannotDeleteWhileProcessing
+    /// - Returns: SyncResult with succeeded and failed deletions
+    func batchDeleteSermons(_ sermons: [Sermon]) async -> SyncResult<[UUID]> {
+        await BatchOperationManager.executeWithId(
+            items: sermons,
+            getId: { $0.id }
+        ) { sermon in
+            let result = await self.deleteSermon(sermon)
+            switch result {
+            case .success(_, let syncState):
+                return syncState
+            case .failure(let error):
+                throw error
+            case .partialSuccess:
+                // Single delete can't have partial success
+                return .queued
             }
-        }
-
-        // Execute deletions sequentially
-        for sermon in sermons {
-            try await deleteSermon(sermon)
         }
     }
 
     /// Rename a sermon
-    func renameSermon(_ id: UUID, title: String) async throws {
+    /// - Returns: SyncResult indicating local and remote status
+    func renameSermon(_ id: UUID, title: String) async -> SyncResult<Void> {
         // 1. Update local database
-        try repository.updateSermonTitle(id, title: title)
+        do {
+            try repository.updateSermonTitle(id, title: title)
+        } catch {
+            return .failure(SermonSyncError.localFailure(
+                operation: .rename,
+                error: error
+            ))
+        }
 
         // 2. Update in-memory cache
         if let index = sermons.firstIndex(where: { $0.id == id }) {
@@ -226,11 +251,14 @@ final class SermonSyncService {
 
         // 3. Sync to remote (best-effort, will retry on next full sync)
         do {
+            try await JWTRefreshManager.shared.refreshIfNeeded()
             try await supabase.updateSermonTitle(id: id.uuidString, title: title)
+            return .success(syncState: .synced)
         } catch {
             #if DEBUG
             print("[SermonSyncService] Remote rename sync deferred: \(error.localizedDescription)")
             #endif
+            return .success(syncState: .queued)
         }
     }
 
@@ -279,7 +307,7 @@ final class SermonSyncService {
         do {
             // Refresh session to ensure fresh JWT token for storage RLS
             do {
-                _ = try await supabase.client.auth.refreshSession()
+                try await JWTRefreshManager.shared.refreshIfNeeded()
             } catch {
                 #if DEBUG
                 print("[SermonSyncService] Session refresh before upload failed: \(error.localizedDescription)")
@@ -396,7 +424,7 @@ final class SermonSyncService {
 
         // Refresh session if needed (handles expired JWTs)
         do {
-            try await supabase.client.auth.refreshSession()
+            try await JWTRefreshManager.shared.refreshIfNeeded()
         } catch {
             print("[SermonSyncService] Session refresh failed, will retry sync later: \(error.localizedDescription)")
             return
@@ -424,7 +452,7 @@ final class SermonSyncService {
 
         do {
             // Refresh session to ensure fresh JWT token for RLS validation
-            _ = try? await supabase.client.auth.refreshSession()
+            try await JWTRefreshManager.shared.refreshIfNeeded()
 
             // Verify the user ID matches before syncing
             guard let currentUserId = supabase.currentUser?.id, currentUserId == sermon.userId else {
@@ -444,7 +472,7 @@ final class SermonSyncService {
 
         } catch {
             // Will sync later - offline-first approach
-            self.error = error
+            print("[SermonSyncService] Sermon sync error: \(error)")
         }
     }
 
@@ -477,7 +505,7 @@ final class SermonSyncService {
     private func syncTranscript(_ transcript: SermonTranscript) async throws {
         do {
             // Refresh session to ensure fresh JWT token for RLS validation
-            _ = try? await supabase.client.auth.refreshSession()
+            try await JWTRefreshManager.shared.refreshIfNeeded()
             try await supabase.upsertSermonTranscript(transcript.toDTO())
 
             // Mark as synced (via repository)
@@ -492,7 +520,7 @@ final class SermonSyncService {
     private func syncStudyGuide(_ guide: SermonStudyGuide) async throws {
         do {
             // Refresh session to ensure fresh JWT token for RLS validation
-            _ = try? await supabase.client.auth.refreshSession()
+            try await JWTRefreshManager.shared.refreshIfNeeded()
             try await supabase.upsertSermonStudyGuide(guide.toDTO())
 
             // Mark as synced (via repository)
@@ -507,7 +535,7 @@ final class SermonSyncService {
     private func syncBookmark(_ bookmark: SermonBookmark) async throws {
         do {
             // Refresh session to ensure fresh JWT token for RLS validation
-            _ = try? await supabase.client.auth.refreshSession()
+            try await JWTRefreshManager.shared.refreshIfNeeded()
 
             if bookmark.deletedAt != nil {
                 try await supabase.deleteSermonBookmark(id: bookmark.id.uuidString)

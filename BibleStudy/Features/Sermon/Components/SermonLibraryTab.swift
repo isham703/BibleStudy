@@ -29,6 +29,10 @@ struct SermonLibraryTab: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
+            // Section header
+            collectionHeader
+                .ceremonialAppear(isAwakened: isAwakened, delay: 0.08)
+
             // Quick access row (processing/continue states)
             if case .hidden = quickAccessState {
                 // No quick access to show
@@ -63,6 +67,7 @@ struct SermonLibraryTab: View {
             recordShortcutButton
                 .ceremonialAppear(isAwakened: isAwakened, delay: 0.25)
         }
+        .padding(.top, Theme.Spacing.md)  // Match Record tab's spacing
         .onAppear {
             if reduceMotion {
                 isAwakened = true
@@ -72,6 +77,23 @@ struct SermonLibraryTab: View {
                 }
             }
         }
+    }
+
+    // MARK: - Collection Header
+
+    private var collectionHeader: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+            Text("YOUR COLLECTION")
+                .font(Typography.Editorial.sectionHeader)
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(Color("TertiaryText"))
+                .accessibilityLabel("Your collection")
+
+            Text("\(sermons.count) \(sermons.count == 1 ? "sermon" : "sermons") saved")
+                .font(Typography.Command.caption)
+                .foregroundStyle(Color("AppTextSecondary"))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Carousel Sermons
@@ -87,12 +109,10 @@ struct SermonLibraryTab: View {
         }
 
         // Get the continue sermon ID to exclude from carousel
-        let continueSermonId: UUID? = {
-            if case .continueSermon(let sermon) = quickAccessState {
-                return sermon.id
-            }
-            return nil
-        }()
+        var continueSermonId: UUID?
+        if case .continueSermon(let sermon) = quickAccessState {
+            continueSermonId = sermon.id
+        }
 
         // Add recent sermons (up to 4 to make 5 total with sample)
         let maxRecent = showSample ? 4 : 5

@@ -187,7 +187,7 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
 
         if let timestampsString: String = row[Columns.wordTimestamps],
            let data = timestampsString.data(using: .utf8) {
-            wordTimestamps = (try? JSONDecoder().decode([WordTimestamp].self, from: data)) ?? []
+            wordTimestamps = (try? JSONCodingUtilities.decode([WordTimestamp].self, from: data)) ?? []
         } else {
             wordTimestamps = []
         }
@@ -205,7 +205,7 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
         container[Columns.content] = content
         container[Columns.language] = language
 
-        if let data = try? JSONEncoder().encode(wordTimestamps),
+        if let data = try? JSONCodingUtilities.encode(wordTimestamps),
            let jsonString = String(data: data, encoding: .utf8) {
             container[Columns.wordTimestamps] = jsonString
         } else {

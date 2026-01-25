@@ -246,7 +246,7 @@ nonisolated extension Sermon: FetchableRecord, PersistableRecord {
 
         if let refsString: String = row[Columns.scriptureReferences],
            let data = refsString.data(using: .utf8),
-           let refs = try? JSONDecoder().decode([String].self, from: data) {
+           let refs = try? JSONCodingUtilities.decode([String].self, from: data) {
             scriptureReferences = refs
         } else {
             scriptureReferences = []
@@ -279,7 +279,7 @@ nonisolated extension Sermon: FetchableRecord, PersistableRecord {
         container[Columns.studyGuideError] = studyGuideError
         container[Columns.processingVersion] = processingVersion
 
-        if let data = try? JSONEncoder().encode(scriptureReferences),
+        if let data = try? JSONCodingUtilities.encode(scriptureReferences),
            let jsonString = String(data: data, encoding: .utf8) {
             container[Columns.scriptureReferences] = jsonString
         } else {

@@ -6,19 +6,14 @@ import SwiftUI
 struct SermonLibraryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = SermonLibraryViewModel()
-    @State private var searchText = ""
 
-    // Filter state
-    @State private var selectedFilter: SermonStatusFilterOption = .all
-
-    // Group/Sort state
-    @State private var selectedGroup: SermonGroupOption = .saved
-    @State private var selectedSort: SermonSortOption = .saved
+    // Sheet/dialog state
     @State private var showGroupSelector = false
-
-    // Delete state
     @State private var showDeleteConfirmation = false
     @State private var sermonToDelete: Sermon?
+    @State private var showRenameSheet = false
+    @State private var sermonToRename: Sermon?
+    @State private var renameText = ""
 
     // Selection mode state
     @State private var isSelectionMode = false
@@ -26,17 +21,14 @@ struct SermonLibraryView: View {
     @State private var showBatchDeleteConfirmation = false
     @State private var isDeleting = false
 
-    // Rename state
-    @State private var sermonToRename: Sermon?
-    @State private var renameText = ""
-    @State private var showRenameSheet = false
-
     let onSelect: (Sermon) -> Void
 
-    private let groupingService = SermonGroupingService.shared
     private let pinService = SermonPinService.shared
 
     var body: some View {
+        // @Bindable allows two-way binding to @Observable properties
+        @Bindable var vm = viewModel
+
         NavigationStack {
             VStack(spacing: 0) {
                 // Filter and group controls
@@ -44,12 +36,12 @@ struct SermonLibraryView: View {
                     HStack(spacing: Theme.Spacing.md) {
                         // Status filter chips
                         SermonStatusFilterBar(
-                            selectedFilter: $selectedFilter,
-                            counts: SermonStatusCounts.from(searchFilteredSermons)
+                            selectedFilter: $vm.selectedFilter,
+                            counts: SermonStatusCounts.from(viewModel.searchFilteredSermons)
                         )
 
                         // Group button
-                        SermonGroupButton(currentGroup: selectedGroup) {
+                        SermonGroupButton(currentGroup: viewModel.selectedGroup) {
                             showGroupSelector = true
                         }
                         .padding(.trailing, Theme.Spacing.lg)
@@ -65,7 +57,7 @@ struct SermonLibraryView: View {
 
                     if viewModel.isLoading {
                         loadingView
-                    } else if filteredSermons.isEmpty {
+                    } else if viewModel.filteredSermons.isEmpty {
                         emptyStateView
                     } else {
                         sermonList
@@ -97,7 +89,7 @@ struct SermonLibraryView: View {
                         }
                         .foregroundStyle(Color("FeedbackError"))
                         .disabled(selectedSermons.isEmpty || isDeleting)
-                    } else if !filteredSermons.isEmpty {
+                    } else if !viewModel.filteredSermons.isEmpty {
                         Button("Select") {
                             isSelectionMode = true
                         }
@@ -105,7 +97,7 @@ struct SermonLibraryView: View {
                     }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search sermons")
+            .searchable(text: $vm.searchText, prompt: "Search sermons")
             .task {
                 await viewModel.loadSermons()
             }
@@ -157,9 +149,9 @@ struct SermonLibraryView: View {
         // Group selector sheet
         .sheet(isPresented: $showGroupSelector) {
             SermonGroupSelector(
-                selectedGroup: $selectedGroup,
-                selectedSort: $selectedSort,
-                groupCounts: groupingService.groupCounts(for: filteredSermons)
+                selectedGroup: $vm.selectedGroup,
+                selectedSort: $vm.selectedSort,
+                groupCounts: SermonGroupingService.shared.groupCounts(for: viewModel.filteredSermons)
             )
         }
     }
@@ -227,67 +219,6 @@ struct SermonLibraryView: View {
         .presentationDragIndicator(.visible)
     }
 
-    // MARK: - Filtered Sermons
-
-    /// Sermons filtered by search text only (for filter chip counts)
-    private var searchFilteredSermons: [Sermon] {
-        if searchText.isEmpty {
-            return viewModel.sermons
-        }
-        return viewModel.sermons.filter { sermon in
-            sermon.title.localizedCaseInsensitiveContains(searchText) ||
-            (sermon.speakerName?.localizedCaseInsensitiveContains(searchText) ?? false)
-        }
-    }
-
-    /// Sermons filtered by both search and status filter
-    private var filteredSermons: [Sermon] {
-        searchFilteredSermons.filter { selectedFilter.matches($0) }
-    }
-
-    // MARK: - Grouped Sermons
-
-    /// Sermons grouped by selected option
-    private var sermonGroups: [SermonGroup] {
-        groupingService.group(filteredSermons, by: selectedGroup, sortedBy: selectedSort)
-    }
-
-    /// Whether using custom grouping (not status-based)
-    private var isUsingCustomGroup: Bool {
-        selectedGroup != .none
-    }
-
-    // MARK: - Pinned Sermons
-
-    private var pinnedSermons: [Sermon] {
-        pinService.pinnedSermons(from: filteredSermons)
-    }
-
-    private var unpinnedSermons: [Sermon] {
-        pinService.unpinnedSermons(from: filteredSermons)
-    }
-
-    // MARK: - Status Sectioned Sermons (when group = none)
-
-    private var processingSermons: [Sermon] {
-        unpinnedSermons.filter { $0.isProcessing }
-    }
-
-    private var errorSermons: [Sermon] {
-        unpinnedSermons.filter { $0.hasError }
-    }
-
-    private var readySermons: [Sermon] {
-        // Catch-all: anything not actively processing and not in error
-        // This includes both completed sermons and pending ones
-        unpinnedSermons.filter { !$0.isProcessing && !$0.hasError }
-    }
-
-    private var hasMultipleSections: Bool {
-        let sections = [pinnedSermons, processingSermons, errorSermons, readySermons].filter { !$0.isEmpty }
-        return sections.count > 1
-    }
-
     // MARK: - Loading View
 
     private var loadingView: some View {
@@ -305,12 +236,12 @@ struct SermonLibraryView: View {
 
     private var emptyStateView: some View {
         Group {
-            if searchText.isEmpty && selectedFilter == .all {
+            if viewModel.searchText.isEmpty && viewModel.selectedFilter == .all {
                 SermonEmptyState.noSermons
-            } else if !searchText.isEmpty {
+            } else if !viewModel.searchText.isEmpty {
                 SermonEmptyState.noResults
             } else {
-                SermonEmptyState.noMatches(filter: selectedFilter.rawValue)
+                SermonEmptyState.noMatches(filter: viewModel.selectedFilter.rawValue)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -320,9 +251,9 @@ struct SermonLibraryView: View {
 
     private var sermonList: some View {
         List {
-            if isUsingCustomGroup {
+            if viewModel.isUsingCustomGroup {
                 // Custom grouping (date, book, speaker)
-                ForEach(sermonGroups) { group in
+                ForEach(viewModel.sermonGroups) { group in
                     Section {
                         ForEach(group.sermons) { sermon in
                             sermonRow(sermon)
@@ -335,9 +266,9 @@ struct SermonLibraryView: View {
                 // Status-based sectioning (default)
 
                 // Pinned section (always first)
-                if !pinnedSermons.isEmpty {
+                if !viewModel.pinnedSermons.isEmpty {
                     Section {
-                        ForEach(pinnedSermons) { sermon in
+                        ForEach(viewModel.pinnedSermons) { sermon in
                             sermonRow(sermon)
                         }
                     } header: {
@@ -346,39 +277,39 @@ struct SermonLibraryView: View {
                 }
 
                 // Processing section
-                if !processingSermons.isEmpty {
+                if !viewModel.processingSermons.isEmpty {
                     Section {
-                        ForEach(processingSermons) { sermon in
+                        ForEach(viewModel.processingSermons) { sermon in
                             sermonRow(sermon)
                         }
                     } header: {
-                        if hasMultipleSections {
+                        if viewModel.hasMultipleSections {
                             sectionHeader("PROCESSING")
                         }
                     }
                 }
 
                 // Error section
-                if !errorSermons.isEmpty {
+                if !viewModel.errorSermons.isEmpty {
                     Section {
-                        ForEach(errorSermons) { sermon in
+                        ForEach(viewModel.errorSermons) { sermon in
                             sermonRow(sermon)
                         }
                     } header: {
-                        if hasMultipleSections {
+                        if viewModel.hasMultipleSections {
                             sectionHeader("NEEDS ATTENTION")
                         }
                     }
                 }
 
                 // Ready section
-                if !readySermons.isEmpty {
+                if !viewModel.readySermons.isEmpty {
                     Section {
-                        ForEach(readySermons) { sermon in
+                        ForEach(viewModel.readySermons) { sermon in
                             sermonRow(sermon)
                         }
                     } header: {
-                        if hasMultipleSections {
+                        if viewModel.hasMultipleSections {
                             sectionHeader("READY")
                         }
                     }
@@ -662,108 +593,6 @@ struct SermonLibraryCard: View {
             return sermon.recordedAt.formatted(.dateTime.month(.abbreviated).day())
         } else {
             return sermon.recordedAt.formatted(.dateTime.month(.abbreviated).day().year())
-        }
-    }
-}
-
-// MARK: - Sermon Library ViewModel
-
-@MainActor
-@Observable
-final class SermonLibraryViewModel {
-    var sermons: [Sermon] = []
-    var isLoading = false
-
-    private let syncService = SermonSyncService.shared
-    private let toastService = ToastService.shared
-
-    func loadSermons() async {
-        isLoading = true
-        defer { isLoading = false }
-
-        await syncService.loadSermons()
-        sermons = syncService.sermons.sorted { $0.recordedAt > $1.recordedAt }
-    }
-
-    // MARK: - Delete Operations
-
-    func canDelete(_ sermon: Sermon) -> Bool {
-        syncService.canDeleteSermon(sermon)
-    }
-
-    func deleteSermon(_ sermon: Sermon) async {
-        print("[SermonLibraryViewModel] deleteSermon called for: \(sermon.displayTitle) (id: \(sermon.id))")
-        do {
-            try await syncService.deleteSermon(sermon)
-            sermons.removeAll { $0.id == sermon.id }
-            print("[SermonLibraryViewModel] Delete succeeded, remaining sermons: \(sermons.count)")
-            HapticService.shared.deleteConfirmed()
-            toastService.showSermonDeleted(title: sermon.displayTitle)
-        } catch {
-            print("[SermonLibraryViewModel] Failed to delete sermon: \(error)")
-            HapticService.shared.warning()
-            toastService.showDeleteError(message: error.localizedDescription)
-        }
-    }
-
-    func batchDeleteSermons(_ sermonIds: [UUID]) async {
-        print("[SermonLibraryViewModel] batchDeleteSermons called with \(sermonIds.count) IDs")
-        print("[SermonLibraryViewModel] Current sermons count: \(sermons.count)")
-        let toDelete = sermons.filter { sermonIds.contains($0.id) }
-        print("[SermonLibraryViewModel] Sermons to delete: \(toDelete.count)")
-        do {
-            try await syncService.batchDeleteSermons(toDelete)
-            sermons.removeAll { sermonIds.contains($0.id) }
-            print("[SermonLibraryViewModel] Batch delete succeeded, remaining sermons: \(sermons.count)")
-            HapticService.shared.deleteConfirmed()
-            toastService.showSermonsDeleted(count: sermonIds.count)
-        } catch {
-            print("[SermonLibraryViewModel] Failed to batch delete: \(error)")
-            HapticService.shared.warning()
-            toastService.showDeleteError(message: error.localizedDescription)
-        }
-    }
-
-    // MARK: - Rename Operations
-
-    func renameSermon(_ sermon: Sermon, to newTitle: String) async {
-        let trimmedTitle = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedTitle.isEmpty else { return }
-
-        do {
-            try await syncService.renameSermon(sermon.id, title: trimmedTitle)
-            if let index = sermons.firstIndex(where: { $0.id == sermon.id }) {
-                sermons[index].title = trimmedTitle
-            }
-            HapticService.shared.selectionChanged()
-            toastService.showSuccess(message: "Renamed to \"\(trimmedTitle)\"")
-        } catch {
-            print("[SermonLibraryViewModel] Failed to rename sermon: \(error)")
-            HapticService.shared.warning()
-            toastService.showDeleteError(message: "Failed to rename sermon")
-        }
-    }
-
-    // MARK: - Storage Info
-
-    func formattedStorageSize(for sermon: Sermon) -> String {
-        do {
-            let bytes = try syncService.getSermonStorageSize(sermon.id)
-            return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
-        } catch {
-            return "unknown storage"
-        }
-    }
-
-    func formattedTotalStorageSize(for sermonIds: [UUID]) -> String {
-        do {
-            var total: Int64 = 0
-            for id in sermonIds {
-                total += try syncService.getSermonStorageSize(id)
-            }
-            return ByteCountFormatter.string(fromByteCount: total, countStyle: .file)
-        } catch {
-            return "unknown storage"
         }
     }
 }
