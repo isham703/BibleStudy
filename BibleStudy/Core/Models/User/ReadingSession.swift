@@ -64,7 +64,10 @@ struct ReadingSession: Identifiable, Hashable, Sendable {
 
     mutating func end() {
         endedAt = Date()
-        durationSeconds = Int(duration)
+        // Cap duration at 2 hours to prevent inflated stats from background time
+        let rawDuration = Int(duration)
+        let maxDuration = 7200  // 2 hours max
+        durationSeconds = min(rawDuration, maxDuration)
     }
 
     mutating func recordVerseRead(_ verse: Int) {
