@@ -77,12 +77,14 @@ final class ReadingAnalyticsService {
         }
 
         // Save session on app termination to prevent data loss
+        // CRITICAL: Must be synchronous - async Task may not complete before termination
         NotificationCenter.default.addObserver(
             forName: UIApplication.willTerminateNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
+            // We're on .main queue, so we can use assumeIsolated to run synchronously
+            MainActor.assumeIsolated {
                 self?.saveSessionOnTerminate()
             }
         }
