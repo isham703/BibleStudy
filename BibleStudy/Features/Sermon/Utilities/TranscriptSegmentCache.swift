@@ -5,6 +5,12 @@ import UIKit
 // Caches computed display segments to avoid O(n) recomputation on every access
 // Invalidates automatically when updatedAt changes (O(1) check)
 // Uses LRU eviction and responds to memory pressure
+//
+// NOTE: This cache relies on SermonTranscript.updatedAt for invalidation.
+// SermonTranscript is effectively immutable after creation - properties are only
+// set during initialization (via TranscriptionService) or DTO conversion.
+// The `var` declarations exist for GRDB's FetchableRecord protocol compliance.
+// If transcript mutation is ever needed, add mutation methods that update updatedAt.
 
 @MainActor
 final class TranscriptSegmentCache {
