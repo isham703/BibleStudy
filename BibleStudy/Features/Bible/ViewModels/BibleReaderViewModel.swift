@@ -133,8 +133,11 @@ final class BibleReaderViewModel {
     }
 
     func loadChapter(at location: BibleLocation) async {
-        // Check if audio is currently playing before changing chapters
-        let wasPlaying = AudioService.shared.isPlaying
+        // Stop audio when navigating to a different chapter
+        // User must explicitly tap the audio button to start playback
+        if AudioService.shared.playbackState != .idle {
+            AudioService.shared.stop()
+        }
 
         // Invalidate caches for BOTH old and new chapters to prevent stale data
         // This fixes a race condition where SwiftUI renders between setting
@@ -152,11 +155,6 @@ final class BibleReaderViewModel {
         currentLocation = location
         clearSelection()
         await loadChapter()
-
-        // Auto-continue audio on new chapter if it was playing
-        if wasPlaying {
-            await playAudio()
-        }
     }
 
     // MARK: - Navigation

@@ -112,6 +112,8 @@ struct BibleReaderView: View {
                 BibleReaderBottomBar(
                     viewModel: bottomBarViewModel,
                     audioService: audioService,
+                    currentBookId: viewModel?.currentLocation.bookId ?? 0,
+                    currentChapterNumber: viewModel?.currentLocation.chapter ?? 0,
                     isVisible: shouldShowBottomBar,
                     onNotesTap: {
                         HapticService.shared.lightTap()

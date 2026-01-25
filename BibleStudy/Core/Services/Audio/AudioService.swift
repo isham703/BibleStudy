@@ -178,6 +178,7 @@ final class AudioService: NSObject {
     private var nextBoundaryIndex: Int = 0  // Track which boundary will fire next
     private var shouldResumeAfterReload: Bool = false
     private var isReloadingComposition: Bool = false  // Suppress UI updates during reload
+    private var generationTask: Task<Void, Never>?  // In-flight audio generation task
 
     // MARK: - Settings
     var playbackRate: Float = 1.0 {
@@ -484,7 +485,8 @@ final class AudioService: NSObject {
         print("[AudioService] Starting HLS generation for \(chapter.bookName) \(chapter.chapterNumber)")
 
         // Generate with quick-start playback, then reload when full generation completes
-        Task { @MainActor [weak self] in
+        let chapterKey = chapter.cacheKey
+        generationTask = Task { @MainActor [weak self] in
             guard let self = self else { return }
             do {
                 let result = try await self.getHLSGenerator().generateProgressive(
@@ -493,6 +495,7 @@ final class AudioService: NSObject {
                     onProgress: { [weak self] progress in
                         guard let self = self else { return }
                         await MainActor.run {
+                            guard self.currentChapter?.cacheKey == chapterKey else { return }
                             self.generationProgress = progress
                         }
                     },
@@ -515,6 +518,7 @@ final class AudioService: NSObject {
                 )
 
                 // Generation complete - reload full composition
+                guard self.currentChapter?.cacheKey == chapterKey else { return }
                 print("[AudioService] Generation complete with \(result.verseTimings.count) verses")
                 await self.reloadFullComposition(
                     manifestURL: result.manifestURL,
@@ -522,6 +526,7 @@ final class AudioService: NSObject {
                     timings: result.verseTimings
                 )
             } catch {
+                guard !Task.isCancelled else { return }
                 print("[AudioService] Generation failed: \(error)")
                 self.error = .generationFailed
                 self.isLoading = false
@@ -535,6 +540,8 @@ final class AudioService: NSObject {
         chapter: AudioChapter,
         timings: [VerseTiming]
     ) async {
+        // Guard against stale callback from a previous chapter's generation
+        guard currentChapter?.cacheKey == chapter.cacheKey else { return }
         do {
             try await loadHLSManifest(manifestURL, chapter: chapter, timings: timings)
             isLoading = false
@@ -608,15 +615,17 @@ final class AudioService: NSObject {
         currentChapter?.setVerseTimings(timings)
         print("[AudioService] Using \(timings.count) verse timings from generation")
 
+        // Tear down observers tied to the current player before replacing it
+        removeTimeObserver()
+        removeBoundaryTimeObserver()
+
         // Create player item and player
         playerItem = AVPlayerItem(asset: composition)
         player = AVPlayer(playerItem: playerItem)
         player?.rate = 0 // Start paused
 
-        // Setup time observer for UI updates (0.25s interval)
-        setupTimeObserver()
-
         // Setup boundary time observer for precise verse transitions
+        // Time observer is managed exclusively by play()/pause()/stop()
         setupBoundaryTimeObserver()
 
         setPlaybackState(.ready)
@@ -628,6 +637,8 @@ final class AudioService: NSObject {
     /// Reload composition with all segments while preserving playback position
     /// Defers reload during active playback to avoid audio glitches
     private func reloadFullComposition(manifestURL: URL, chapter: AudioChapter, timings: [VerseTiming]) async {
+        // Guard against stale callback from a previous chapter's generation
+        guard currentChapter?.cacheKey == chapter.cacheKey else { return }
         let wasPlaying = isPlaying
         let wasFinished = playbackState == .finished  // Audio ran out but more verses available
         let savedTime = currentTime
@@ -706,6 +717,8 @@ final class AudioService: NSObject {
         chapter: AudioChapter,
         timings: [VerseTiming]
     ) async {
+        // Guard against stale callback from a previous chapter's generation
+        guard currentChapter?.cacheKey == chapter.cacheKey else { return }
         let currentPosition = currentTime
         // CRITICAL: Use actual loaded audio duration, NOT verse timings
         // The `duration` property reflects what's actually loaded in the AVPlayer composition
@@ -832,6 +845,11 @@ final class AudioService: NSObject {
             }
         }
 
+        // Re-add time observer if not present (removed during pause or reload)
+        if timeObserver == nil {
+            setupTimeObserver()
+        }
+
         player?.rate = playbackRate
         setPlaybackState(.playing)
         updateNowPlayingInfo()
@@ -841,7 +859,16 @@ final class AudioService: NSObject {
         player?.pause()
         shouldResumeAfterReload = false
         setPlaybackState(.paused)
+
+        // Freeze at exact player time (avoids up to 250ms drift from last observer tick)
+        if let seconds = player?.currentTime().seconds, seconds.isFinite {
+            currentTime = seconds
+        }
+
         updateNowPlayingInfo()
+
+        // Remove time observer to stop progress updates while paused
+        removeTimeObserver()
 
         // Apply any pending reload now that playback is paused (safe time)
         if pendingFullReload != nil {
@@ -882,6 +909,13 @@ final class AudioService: NSObject {
     }
 
     func stop() {
+        // Cancel in-flight generation/prefetch tasks to prevent stale callbacks
+        generationTask?.cancel()
+        generationTask = nil
+        prefetchTask?.cancel()
+        prefetchTask = nil
+        prefetchingChapterKey = nil
+
         removeTimeObserver()
         removeBoundaryTimeObserver()
         cancelSleepTimer()
@@ -894,6 +928,10 @@ final class AudioService: NSObject {
         nextBoundaryIndex = 0
         shouldResumeAfterReload = false
         hasAttemptedPreGeneration = false
+        isLoading = false
+        isGeneratingAudio = false
+        generationProgress = 0
+        isReloadingComposition = false
         pendingFullReload = nil
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
@@ -1045,6 +1083,8 @@ final class AudioService: NSObject {
     // MARK: - Time Observer
 
     private func setupTimeObserver() {
+        guard timeObserver == nil else { return }
+
         // Use 0.25s interval for UI updates (reduced from 0.1s for better performance)
         // This is sufficient for displaying time labels while reducing CPU usage
         let interval = CMTime(seconds: 0.25, preferredTimescale: 600)
@@ -1067,6 +1107,9 @@ final class AudioService: NSObject {
     private func handleTimeUpdateWithSeconds(_ seconds: TimeInterval) {
         // Suppress UI updates during composition reload to prevent glitching
         guard !isReloadingComposition else { return }
+
+        // Defense-in-depth: only update time when actively playing
+        guard playbackState == .playing else { return }
 
         currentTime = seconds
         // Note: Verse updates are handled by the boundary time observer for precise transitions
