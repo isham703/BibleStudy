@@ -68,8 +68,10 @@ enum SyncResultMessage {
             let allRemote = failed.allSatisfy { $0.1.failureScope == .remote }
 
             if allRemote {
+                let itemsWord = successCount == 1 ? itemName : "\(itemName)s"
+                let failWord = failCount == 1 ? "item" : "items"
                 return (
-                    title: "\(successCount) \(itemName)(s) synced, \(failCount) will retry later.",
+                    title: "\(successCount) \(itemsWord) synced, \(failCount) \(failWord) will retry later.",
                     isError: false
                 )
             } else {

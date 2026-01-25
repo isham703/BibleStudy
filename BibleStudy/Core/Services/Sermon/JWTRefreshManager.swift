@@ -45,14 +45,14 @@ actor JWTRefreshManager {
         }
 
         // Create and track new task
+        // Note: defer is inside Task to avoid clearing inFlightTask on caller cancellation
         let task = Task { [weak self] in
             guard let self = self else { return }
+            defer { Task { await self.clearInFlightTask() } }
             try await self.performRefresh()
         }
 
         inFlightTask = task
-        defer { inFlightTask = nil }
-
         try await task.value
     }
 
@@ -65,15 +65,20 @@ actor JWTRefreshManager {
             return
         }
 
+        // Note: defer is inside Task to avoid clearing inFlightTask on caller cancellation
         let task = Task { [weak self] in
             guard let self = self else { return }
+            defer { Task { await self.clearInFlightTask() } }
             try await self.performRefresh()
         }
 
         inFlightTask = task
-        defer { inFlightTask = nil }
-
         try await task.value
+    }
+
+    /// Clear in-flight task (called from within the refresh Task)
+    private func clearInFlightTask() {
+        inFlightTask = nil
     }
 
     // MARK: - Private

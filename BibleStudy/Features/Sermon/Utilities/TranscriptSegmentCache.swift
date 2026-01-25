@@ -61,30 +61,25 @@ final class TranscriptSegmentCache {
         compute: () -> [TranscriptDisplaySegment]
     ) -> [TranscriptDisplaySegment] {
         let currentHash = transcript.wordTimestamps.hashValue
+        let cacheKey = transcript.sermonId  // Use sermonId for consistent cache invalidation
 
         // Check if cached and valid
-        if let entry = cache[transcript.id], entry.hash == currentHash {
-            updateAccessOrder(for: transcript.id)
+        if let entry = cache[cacheKey], entry.hash == currentHash {
+            updateAccessOrder(for: cacheKey)
             return entry.segments
         }
 
         // Compute and cache
         let segments = compute()
-        cache[transcript.id] = CacheEntry(segments: segments, hash: currentHash)
-        updateAccessOrder(for: transcript.id)
+        cache[cacheKey] = CacheEntry(segments: segments, hash: currentHash)
+        updateAccessOrder(for: cacheKey)
         evictIfNeeded()
         return segments
     }
 
-    /// Clear cache for a specific transcript
-    func invalidate(transcriptId: UUID) {
-        cache.removeValue(forKey: transcriptId)
-        accessOrder.removeAll { $0 == transcriptId }
-    }
-
-    /// Clear cache for a sermon (by sermon ID, which maps to transcript ID)
+    /// Clear cache for a sermon
+    /// - Parameter sermonId: The sermon ID to invalidate cache for
     func invalidate(sermonId: UUID) {
-        // In practice, 1 sermon = 1 transcript with matching ID
         cache.removeValue(forKey: sermonId)
         accessOrder.removeAll { $0 == sermonId }
     }
