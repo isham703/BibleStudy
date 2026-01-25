@@ -171,36 +171,28 @@ final class SermonSyncService {
 
     /// Delete a sermon with full cleanup (soft delete)
     func deleteSermon(_ sermon: Sermon) async throws {
-        print("[SermonSyncService] deleteSermon called for: \(sermon.displayTitle) (id: \(sermon.id))")
-
         // 1. Guard processing state
         guard canDeleteSermon(sermon) else {
-            print("[SermonSyncService] Cannot delete - sermon is processing")
             throw SermonError.cannotDeleteWhileProcessing
         }
 
         // 2. Soft delete in DB
-        print("[SermonSyncService] Performing soft delete in DB...")
         try repository.softDeleteSermon(id: sermon.id)
-        print("[SermonSyncService] Soft delete succeeded")
         sermons.removeAll { $0.id == sermon.id }
-        print("[SermonSyncService] Removed from in-memory array, remaining: \(sermons.count)")
 
         // 3. Remove from index cache
         groupingService.removeFromIndex(sermonId: sermon.id)
 
         // 4. Local file cleanup (best-effort, non-fatal)
         await cleanupLocalFiles(for: sermon.id)
-        print("[SermonSyncService] Local file cleanup complete")
 
         // 5. Queue remote deletion (will sync later)
         do {
             try await supabase.deleteSermon(id: sermon.id.uuidString)
             await cleanupRemoteStorage(for: sermon)
-            print("[SermonSyncService] Remote deletion complete")
         } catch {
             // Will retry on next sync - offline-first approach
-            print("[SermonSyncService] Remote deletion failed (will retry): \(error)")
+            print("[SermonSyncService] Remote deletion deferred: \(error.localizedDescription)")
             self.error = error
         }
     }
@@ -222,8 +214,6 @@ final class SermonSyncService {
 
     /// Rename a sermon
     func renameSermon(_ id: UUID, title: String) async throws {
-        print("[SermonSyncService] renameSermon called for id: \(id), new title: \(title)")
-
         // 1. Update local database
         try repository.updateSermonTitle(id, title: title)
 
@@ -234,13 +224,13 @@ final class SermonSyncService {
             sermons[index].needsSync = true
         }
 
-        // 3. Sync to remote (best-effort)
+        // 3. Sync to remote (best-effort, will retry on next full sync)
         do {
             try await supabase.updateSermonTitle(id: id.uuidString, title: title)
-            print("[SermonSyncService] Remote rename succeeded")
         } catch {
-            // Will sync on next full sync - offline-first approach
-            print("[SermonSyncService] Remote rename failed (will retry): \(error)")
+            #if DEBUG
+            print("[SermonSyncService] Remote rename sync deferred: \(error.localizedDescription)")
+            #endif
         }
     }
 
@@ -290,21 +280,16 @@ final class SermonSyncService {
             // Refresh session to ensure fresh JWT token for storage RLS
             do {
                 _ = try await supabase.client.auth.refreshSession()
-                print("[SermonSyncService] Upload: Session refreshed successfully")
             } catch {
-                print("[SermonSyncService] Upload: Session refresh failed: \(error.localizedDescription)")
+                #if DEBUG
+                print("[SermonSyncService] Session refresh before upload failed: \(error.localizedDescription)")
+                #endif
             }
-
-            // Log user ID for debugging
-            let sessionUserId = supabase.currentUser?.id
-            print("[SermonSyncService] Upload: Session userId: \(sessionUserId?.uuidString ?? "nil"), Chunk userId path: \(userId.uuidString)")
 
             // Generate storage path: {userId}/{sermonId}/chunk_{index:03d}.m4a
             // IMPORTANT: Use lowercased UUIDs to match PostgreSQL's auth.uid()::text format
             let path = "\(userId.uuidString.lowercased())/\(chunk.sermonId.uuidString.lowercased())/chunk_\(String(format: "%03d", chunk.chunkIndex)).m4a"
 
-            // Upload to Supabase Storage
-            print("[SermonSyncService] Uploading chunk to path: \(path)")
             let remotePath = try await supabase.uploadSermonAudio(
                 data: data,
                 path: path,
@@ -320,8 +305,6 @@ final class SermonSyncService {
             updatedChunk.needsSync = true
 
             try repository.updateChunk(updatedChunk)
-
-            print("[SermonSyncService] Uploaded chunk \(chunk.chunkIndex) to \(remotePath)")
             return remotePath
 
         } catch {
@@ -441,20 +424,10 @@ final class SermonSyncService {
 
         do {
             // Refresh session to ensure fresh JWT token for RLS validation
-            do {
-                _ = try await supabase.client.auth.refreshSession()
-                print("[SermonSyncService] Session refreshed successfully")
-            } catch {
-                print("[SermonSyncService] Session refresh failed: \(error.localizedDescription)")
-            }
-
-            // Log user ID comparison for debugging
-            let sessionUserId = supabase.currentUser?.id
-            print("[SermonSyncService] Session userId: \(sessionUserId?.uuidString ?? "nil"), Sermon userId: \(sermon.userId.uuidString)")
+            _ = try? await supabase.client.auth.refreshSession()
 
             // Verify the user ID matches before syncing
-            guard let currentUserId = sessionUserId, currentUserId == sermon.userId else {
-                print("[SermonSyncService] User ID mismatch or no session - sermon userId: \(sermon.userId), session userId: \(sessionUserId?.uuidString ?? "nil")")
+            guard let currentUserId = supabase.currentUser?.id, currentUserId == sermon.userId else {
                 throw SermonError.notAuthenticated
             }
 
@@ -468,12 +441,10 @@ final class SermonSyncService {
             var synced = sermon
             synced.needsSync = false
             try repository.updateSermon(synced)
-            print("[SermonSyncService] Sermon synced successfully: \(sermon.id)")
 
         } catch {
-            // Will sync later
+            // Will sync later - offline-first approach
             self.error = error
-            print("[SermonSyncService] Sync error: \(error)")
         }
     }
 
