@@ -277,9 +277,8 @@ final class ProgressService {
     // MARK: - Premium Status
 
     private func checkPremiumStatus() async -> Bool {
-        // TODO: Integrate with StoreKit 2 for premium status check
-        // For now, return false (free tier)
-        return false
+        // FIXED: Properly check premium status via PurchaseService
+        return PurchaseService.shared.isPremiumOrHigher
     }
 
     // MARK: - Reset (for testing)

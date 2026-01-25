@@ -183,16 +183,8 @@ final class BibleInsightViewModel {
         let translationId = bibleService.currentTranslationId
         let currentTranslation = bibleService.currentTranslation
 
-        // Check if user can use AI insights FIRST (before cache)
-        // When limit is reached, we show the limit reached UI instead of any content
-        guard entitlementManager.canUseAIInsights else {
-            // User at limit - don't show cached content, show limit reached UI
-            // Note: isLimitReached computed property will return true
-            isLoadingExplain = false
-            return
-        }
-
-        // User has quota - check cache to avoid unnecessary API calls
+        // FIXED: Check cache FIRST - always show cached content even when at limit
+        // This ensures users can view previously generated insights
         if let cached = aiCache.getExplanation(for: verseRange, translationId: translationId, mode: ExplanationMode.plain) {
             explanation = cached.explanation
             structuredExplanation = StructuredExplanation.parse(cached.explanation, keyPoints: cached.keyPoints)
@@ -203,20 +195,18 @@ final class BibleInsightViewModel {
             return
         }
 
-        // No cache available - need to make API call
+        // No cache available - check if user can make a new API call
+        guard entitlementManager.canUseAIInsights else {
+            // User at limit and no cached content - show limit reached UI
+            // Note: isLimitReached computed property will return true
+            isLoadingExplain = false
+            return
+        }
 
         // Check if AI is available
         guard aiService.isAvailable else {
             // Fall back to sample response when API key not configured
             setSampleExplanation()
-            isLoadingExplain = false
-            return
-        }
-
-        // Record usage (will trigger paywall if this was the last allowed use)
-        guard entitlementManager.recordAIInsightUsage() else {
-            // User just hit limit - paywall will be shown
-            // Don't set sample data, let isLimitReached handle UI
             isLoadingExplain = false
             return
         }
@@ -231,6 +221,11 @@ final class BibleInsightViewModel {
             )
 
             let output = try await aiService.generateExplanation(input: input)
+
+            // FIXED: Record usage AFTER successful API response
+            // This ensures quota is only consumed when user receives value
+            entitlementManager.recordAIInsightUsage()
+
             explanation = output.explanation
             structuredExplanation = StructuredExplanation.parse(output.explanation, keyPoints: output.keyPoints)
             explanationReasoning = output.reasoning
@@ -245,11 +240,12 @@ final class BibleInsightViewModel {
         } catch let aiError as AIServiceError {
             self.error = aiError
             self.errorMessage = aiError.errorDescription
-            // Fall back to sample on error
+            // Fall back to sample on error - NO quota consumed since API failed
             setSampleExplanation()
         } catch {
             self.error = error
             self.errorMessage = error.localizedDescription
+            // Fall back to sample on error - NO quota consumed since API failed
             setSampleExplanation()
         }
 
@@ -498,8 +494,8 @@ final class BibleInsightViewModel {
             return generateSampleTermExplanation(token: token)
         }
 
-        // Check entitlement (will trigger paywall if limit reached)
-        guard entitlementManager.recordAIInsightUsage() else {
+        // Check entitlement without consuming quota
+        guard entitlementManager.canUseAIInsights else {
             return generateSampleTermExplanation(token: token)
         }
 
@@ -509,8 +505,11 @@ final class BibleInsightViewModel {
                 morph: token.morph,
                 verseContext: verseText
             )
+            // FIXED: Record usage AFTER successful API response
+            entitlementManager.recordAIInsightUsage()
             return explanation
         } catch {
+            // NO quota consumed since API failed
             print("Failed to generate term explanation: \(error)")
             return generateSampleTermExplanation(token: token)
         }
@@ -564,8 +563,8 @@ final class BibleInsightViewModel {
             return
         }
 
-        // Check entitlement (will trigger paywall if limit reached)
-        guard entitlementManager.recordAIInsightUsage() else {
+        // Check entitlement without consuming quota
+        guard entitlementManager.canUseAIInsights else {
             interpretation = getSampleInterpretation()
             isLoadingInterpretation = false
             return
@@ -583,6 +582,9 @@ final class BibleInsightViewModel {
 
             let output = try await aiService.generateInterpretation(input: input)
 
+            // FIXED: Record usage AFTER successful API response
+            entitlementManager.recordAIInsightUsage()
+
             interpretation = convertToInterpretationResult(output)
 
             // Cache the result
@@ -593,10 +595,12 @@ final class BibleInsightViewModel {
         } catch let aiError as AIServiceError {
             self.error = aiError
             self.errorMessage = aiError.errorDescription
+            // NO quota consumed since API failed
             interpretation = getSampleInterpretation()
         } catch {
             self.error = error
             self.errorMessage = error.localizedDescription
+            // NO quota consumed since API failed
             interpretation = getSampleInterpretation()
         }
 
@@ -674,8 +678,8 @@ final class BibleInsightViewModel {
             return
         }
 
-        // Check entitlement (will trigger paywall if limit reached)
-        guard entitlementManager.recordAIInsightUsage() else {
+        // Check entitlement without consuming quota
+        guard entitlementManager.canUseAIInsights else {
             passageSummary = PassageSummaryOutput(
                 summary: "This passage describes God's first act of creation—speaking light into existence.",
                 theme: "Creation",
@@ -686,13 +690,16 @@ final class BibleInsightViewModel {
         }
 
         do {
-            passageSummary = try await aiService.summarizePassage(
+            let result = try await aiService.summarizePassage(
                 verseRange: verseRange,
                 verseText: verseText
             )
+            // FIXED: Record usage AFTER successful API response
+            entitlementManager.recordAIInsightUsage()
+            passageSummary = result
         } catch {
             self.error = error
-            // Provide fallback on error
+            // NO quota consumed since API failed
             passageSummary = PassageSummaryOutput(
                 summary: "Unable to generate summary. Please try again.",
                 theme: "—",
@@ -710,8 +717,8 @@ final class BibleInsightViewModel {
             return "Both passages share thematic connections. *(Configure API key for AI-powered analysis)*"
         }
 
-        // Check entitlement (will trigger paywall if limit reached)
-        guard entitlementManager.recordAIInsightUsage() else {
+        // Check entitlement without consuming quota
+        guard entitlementManager.canUseAIInsights else {
             return "Both passages share thematic connections. *(Upgrade to Premium for unlimited AI insights)*"
         }
 
@@ -730,8 +737,11 @@ final class BibleInsightViewModel {
                 target: targetRange,
                 context: verseText
             )
+            // FIXED: Record usage AFTER successful API response
+            entitlementManager.recordAIInsightUsage()
             return result
         } catch {
+            // NO quota consumed since API failed
             return "Both passages share thematic connections. *(Unable to load AI analysis)*"
         }
     }

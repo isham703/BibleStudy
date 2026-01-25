@@ -550,6 +550,10 @@ struct BibleReaderView: View {
                 .offset(y: isVisible ? 0 : 20)
                 // swiftlint:disable:next hardcoded_animation_spring
                 .animation(Theme.Animation.settle.delay(0.4 + Double(index) * 0.02), value: isVisible)
+                .onAppear {
+                    // Track verse as read for analytics
+                    ReadingAnalyticsService.shared.recordVerseRead(verse.verse)
+                }
             }
         }
     }
@@ -572,6 +576,12 @@ struct BibleReaderView: View {
         .offset(y: isVisible ? 0 : 20)
         // swiftlint:disable:next hardcoded_animation_spring
         .animation(Theme.Animation.settle.delay(0.4), value: isVisible)
+        .onAppear {
+            // Track all verses as read in paragraph mode (displays entire chapter at once)
+            for verse in chapter.verses {
+                ReadingAnalyticsService.shared.recordVerseRead(verse.verse)
+            }
+        }
     }
 
     // MARK: - Event Handlers
