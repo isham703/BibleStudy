@@ -16,11 +16,11 @@ struct BibleReaderBottomBar: View {
     let onMiniPlayerTap: () -> Void
 
     private var isAudioPlaying: Bool {
-        audioService.isPlaying
+        hasActiveAudio && audioService.isPlaying
     }
 
     private var isAudioLoading: Bool {
-        audioService.isLoading
+        hasActiveAudio && audioService.isLoading
     }
 
     /// Audio is active for the current chapter (not stale from a previous chapter)
