@@ -458,10 +458,94 @@ enum SermonError: Error, LocalizedError, Sendable {
 ```
 
 **Properties:**
+
 - `errorDescription` - User-friendly message
 - `recoverySuggestion` - Actionable guidance
 - `isRetryable` - Whether retry might succeed
 - `shouldShowRetryButton` - UI hint
+
+### 3.7 SermonStatus (Centralized Status Logic)
+
+**File:** `Features/Sermon/Core/SermonStatus.swift`
+
+Single source of truth for sermon display status, consolidating logic from multiple UI locations.
+
+```swift
+enum SermonStatus: Equatable, Sendable {
+    case pending      // Not yet started processing
+    case processing   // Transcription or study guide in progress
+    case ready        // Both transcription and study guide succeeded
+    case degraded     // Transcription OK, study guide failed (viewable + retry)
+    case error        // Transcription failed (unrecoverable)
+}
+```
+
+**Status Derivation Logic:**
+
+| Condition | Status |
+| --------- | ------ |
+| `transcriptionStatus == .failed` | `.error` |
+| `transcriptionStatus == .running` OR `studyGuideStatus == .running` | `.processing` |
+| `transcriptionStatus == .pending` AND `studyGuideStatus == .pending` | `.pending` |
+| `transcriptionStatus == .succeeded` AND `studyGuideStatus == .failed` | `.degraded` |
+| `transcriptionStatus == .succeeded` AND `studyGuideStatus == .succeeded` | `.ready` |
+| `transcriptionStatus == .succeeded` (other) | `.processing` |
+
+**Computed Properties:**
+
+- `isViewable` → `.ready` or `.degraded` (user can view transcript)
+- `isProcessing` → `.processing`
+- `canRetryStudyGuide` → `.degraded` (retry affordance)
+- `displayText` → Human-readable status ("Ready", "Transcript Ready", etc.)
+- `accessibilityLabel` → VoiceOver description
+
+**Usage:**
+```swift
+// Extension on Sermon model
+extension Sermon {
+    var status: SermonStatus {
+        SermonStatus.from(self)
+    }
+}
+
+// In views
+if sermon.status.isViewable {
+    // Show transcript and study guide
+}
+```
+
+### 3.8 SermonConfiguration (Centralized Constants)
+
+**File:** `Features/Sermon/Core/SermonConfiguration.swift`
+
+Centralizes hardcoded values scattered across the Sermon feature for maintainability.
+
+```swift
+enum SermonConfiguration {
+    // Recording
+    static let chunkDurationSeconds: TimeInterval = 10 * 60  // 10 minutes
+    static let maxChunkFileSizeBytes: Int = 25 * 1024 * 1024 // 25 MB (Whisper limit)
+    static let estimatedBytesPerMinute: Int = 240_000        // ~240 KB/min at 32kbps
+
+    // Validation
+    static let maxAudioDurationMinutes: Int = 30
+
+    // Transcript
+    static let segmentDurationSeconds: TimeInterval = 12.0
+
+    // Cache
+    static let maxCacheEntries: Int = 50
+
+    // Timeouts
+    static let processingTimeoutSeconds: TimeInterval = 30 * 60  // 30 minutes
+}
+```
+
+**Benefits:**
+
+- Single location to adjust thresholds
+- Clear documentation of API constraints (Whisper 25MB limit)
+- Easier testing with different values
 
 ---
 
@@ -673,6 +757,56 @@ final class SermonSyncService {
 5. Push local changes where `needsSync = true`
 6. Upload audio where `audioNeedsUpload = true`
 
+### 4.5 Audio Session Ownership Model
+
+**File:** `Core/Services/Audio/AudioService.swift`
+
+The app uses a **stack-based audio session ownership model** to coordinate between Bible audio playback, sermon playback, and sermon recording.
+
+**AudioSessionMode Enum:**
+
+```swift
+enum AudioSessionMode: Int, Comparable {
+    case idle = 0           // No active audio
+    case biblePlayback = 1  // Bible audio playback
+    case sermonPlayback = 2 // Sermon audio playback
+    case sermonRecording = 3 // Sermon recording (highest priority)
+}
+```
+
+**Priority-Based Ownership:**
+
+| Mode               | Priority | Category       | Options            |
+| ------------------ | -------- | -------------- | ------------------ |
+| `idle`             | 0        | -              | -                  |
+| `biblePlayback`    | 1        | playback       | mixWithOthers      |
+| `sermonPlayback`   | 2        | playback       | duckOthers         |
+| `sermonRecording`  | 3        | playAndRecord  | allowBluetoothHFP  |
+
+**Stack-Based Push/Pop API:**
+
+```swift
+// Claim audio session (pushes onto stack)
+AudioService.shared.pushAudioSession(mode: .sermonRecording, owner: "SermonRecordingService")
+
+// Release audio session (pops from stack, restores previous mode)
+AudioService.shared.popAudioSession(owner: "SermonRecordingService")
+```
+
+**Key Behaviors:**
+
+- Highest-priority mode on stack wins (recording > playback)
+- Idempotent: same owner pushing same mode is no-op
+- Pop restores previous mode automatically
+- Handles interruptions (phone calls, Siri) via NotificationCenter
+
+**Usage in Sermon Feature:**
+
+| Component                | Mode                | When              |
+| ------------------------ | ------------------- | ----------------- |
+| `SermonRecordingService` | `.sermonRecording`  | During recording  |
+| `SermonViewingViewModel` | `.sermonPlayback`   | During playback   |
+
 ---
 
 ## 5. User Interface
@@ -806,7 +940,7 @@ final class SermonFlowState {
 
 **UI Elements:**
 - Animated illuminated initial
-- Overall progress bar (gold fill with shimmer)
+- Overall progress bar (gold gradient fill, no shimmer per Theme doctrine)
 - Current step label
 - Step checklist:
   - ✓ Uploaded
@@ -1074,6 +1208,8 @@ chunkDuration: 600      // 10 minutes
 |------|------|-------|---------|
 | SermonView | `Features/Sermon/Views/SermonView.swift` | ~150 | Container with phase routing |
 | SermonFlowState | `Features/Sermon/Core/SermonFlowState.swift` | ~650 | State machine |
+| SermonStatus | `Features/Sermon/Core/SermonStatus.swift` | ~120 | Centralized status enum |
+| SermonConfiguration | `Features/Sermon/Core/SermonConfiguration.swift` | ~30 | Centralized constants |
 | SermonInputPhase | `Features/Sermon/Phases/SermonInputPhase.swift` | ~200 | Record/Import UI |
 | SermonRecordingPhase | `Features/Sermon/Phases/SermonRecordingPhase.swift` | ~250 | Recording UI |
 | SermonProcessingPhase | `Features/Sermon/Phases/SermonProcessingPhase.swift` | ~180 | Progress UI |
@@ -1100,10 +1236,17 @@ chunkDuration: 600      // 10 minutes
 | SermonProcessingQueue | `Core/Services/Sermon/SermonProcessingQueue.swift` | ~575 | Job orchestration |
 | SermonSyncService | `Core/Services/Sermon/SermonSyncService.swift` | ~650 | Data/audio sync |
 
+### Utility Files
+
+| File                   | Path                                                     | Purpose                        |
+| ---------------------- | -------------------------------------------------------- | ------------------------------ |
+| TranscriptSegmentCache | `Features/Sermon/Utilities/TranscriptSegmentCache.swift` | LRU cache for display segments |
+
 ### Related Files
 
 | File | Path | Purpose |
 |------|------|---------|
+| AudioService | `Core/Services/Audio/AudioService.swift` | Stack-based audio session ownership |
 | PromptTemplates | `Core/Services/AI/PromptTemplates.swift` | Study guide prompts |
 | OpenAIProvider | `Core/Services/AI/OpenAIProvider.swift` | AI service |
 | AIServiceProtocol | `Core/Services/AI/AIServiceProtocol.swift` | Protocol definition |
@@ -1264,26 +1407,28 @@ struct SermonWaveformView: View {
 
 **File:** `Features/Sermon/Phases/SermonProcessingPhase.swift` (277 lines)
 
-**Progress Bar with Shimmer:**
+**Progress Bar (Theme Doctrine Compliant):**
 ```swift
 // Track
-RoundedRectangle(cornerRadius: 4).fill(ManuscriptTheme.surface)
-
-// Fill with shimmer
 RoundedRectangle(cornerRadius: 4)
-    .fill(LinearGradient(colors: [ManuscriptTheme.gold, ManuscriptTheme.goldHighlight], ...))
+    .fill(Color("AppSurface"))
+    .overlay(RoundedRectangle(cornerRadius: 4)
+        .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline))
+
+// Fill with gradient (no shimmer - banned by Theme.swift doctrine)
+RoundedRectangle(cornerRadius: 4)
+    .fill(LinearGradient(
+        colors: [Color("AppAccentAction"), Color("AppAccentAction").opacity(0.7)],
+        startPoint: .leading, endPoint: .trailing))
     .frame(width: geo.size.width * flowState.processingProgress)
-    .overlay(
-        LinearGradient(colors: [.clear, .white.opacity(0.3), .clear], ...)
-            .frame(width: 100)
-            .offset(x: shimmerOffset)
-    )
+    .animation(reduceMotion ? nil : Theme.Animation.settle, value: flowState.processingProgress)
 ```
 
-**Shimmer Animation:**
-- Duration: 2.5 seconds
-- Moves from x: -200 to x: 400
-- Repeats forever, no autoreverse
+**Motion Compliance:**
+
+- NO shimmer gradients (banned by Theme.swift lines 16-20)
+- Respects `@Environment(\.accessibilityReduceMotion)`
+- All animations <400ms per doctrine
 
 **Step Checklist (ProcessingStepRow):**
 - Complete: Green checkmark circle
@@ -1390,12 +1535,14 @@ The Sermon Recording feature is a comprehensive, fully-implemented system that:
 The architecture follows established patterns in the BibleStudy app (state machines, offline-first, Observable ViewModels) and is production-ready with comprehensive error handling, resumable processing, and user-friendly progress feedback.
 
 **Design Language:** Uses the unified design system (`Theme.*`, `Typography.*`, Asset Catalog colors) with:
+
 - Bronze accent via `Color("AccentBronze")`
 - Typography tokens (`Typography.Scripture.*`, `Typography.Command.*`)
 - Adaptive backgrounds (`Color("AppBackground")`, `Color("AppSurface")`)
-- Pulsing animations and shimmer effects
+- Theme-compliant animations (no shimmer, respects Reduce Motion)
 - Consistent haptic feedback patterns
+- Stack-based audio session ownership for recording/playback coordination
 
 ---
 
-*Document updated: January 10, 2026*
+*Document updated: January 25, 2026*
