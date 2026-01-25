@@ -409,6 +409,7 @@ final class AskViewModel {
             let results = try await searchService.search(
                 query: question,
                 translationId: bibleService.currentTranslationId,
+                bookId: nil,
                 limit: 5
             )
 

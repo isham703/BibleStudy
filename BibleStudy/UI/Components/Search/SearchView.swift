@@ -9,7 +9,9 @@ struct SearchView: View {
     @State private var isSearching = false
     @State private var searchTask: Task<Void, Never>?
     @State private var selectedBook: Book?
+    @State private var selectedTestament: Testament?
     @State private var showBookPicker = false
+    @State private var recentSearches: [String] = []
 
     @Environment(BibleService.self) private var bibleService
     @Environment(\.dismiss) private var dismiss
@@ -36,9 +38,6 @@ struct SearchView: View {
             // Search bar
             searchBar
 
-            // Book filter chips
-            bookFilterChips
-
             // Content
             content
         }
@@ -53,41 +52,65 @@ struct SearchView: View {
             }
         }
         .sheet(isPresented: $showBookPicker) {
-            BookFilterSheet(selectedBook: $selectedBook) {
+            BookFilterSheet(
+                selectedBook: $selectedBook,
+                selectedTestament: $selectedTestament
+            ) {
                 performSearch(query)
             }
+        }
+        .onAppear {
+            loadRecentSearches()
         }
     }
 
     // MARK: - Scope Bar
 
+    /// Returns the display text for the current scope filter
+    private var scopeDisplayText: String {
+        if let book = selectedBook {
+            return book.name
+        } else if let testament = selectedTestament {
+            return testament == .old ? "Old Testament" : "New Testament"
+        }
+        return "All Books"
+    }
+
+    /// Whether any scope filter is active
+    private var hasScopeFilter: Bool {
+        selectedBook != nil || selectedTestament != nil
+    }
+
     private var scopeBar: some View {
         HStack(spacing: Theme.Spacing.sm) {
-            // Translation badge
-            Text(bibleService.currentTranslation?.abbreviation ?? "KJV")
-                .font(Typography.Command.caption.weight(.semibold))
-                .foregroundStyle(Color("AppAccentAction"))
-                .padding(.horizontal, Theme.Spacing.sm)
-                .padding(.vertical, 2)
-                .background(Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground))
-                .clipShape(Capsule())
-
-            Text("•")
-                .foregroundStyle(Color("TertiaryText"))
-
-            // Book filter
+            // Unified scope button: Translation + Book scope
             Button {
                 showBookPicker = true
             } label: {
-                HStack(spacing: 2) {
-                    Text(selectedBook?.name ?? "All Books")
+                HStack(spacing: 6) {
+                    Text(bibleService.currentTranslation?.abbreviation ?? "KJV")
+                        .font(Typography.Command.caption.weight(.semibold))
+                        .foregroundStyle(Color("AppAccentAction"))
+
+                    Text("·")
+                        .foregroundStyle(Color("TertiaryText"))
+
+                    Text(scopeDisplayText)
                         .font(Typography.Command.caption)
-                        .foregroundStyle(selectedBook != nil ? Color("AppTextPrimary") : Color("AppTextSecondary"))
+                        .foregroundStyle(hasScopeFilter ? Color("AppTextPrimary") : Color("AppTextSecondary"))
 
                     Image(systemName: "chevron.down")
-                        .font(Typography.Command.meta)
+                        .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(Color("TertiaryText"))
                 }
+                .padding(.horizontal, Theme.Spacing.sm)
+                .padding(.vertical, 6)
+                .background(Color("AppSurface"))
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(hasScopeFilter ? Color("AppAccentAction").opacity(0.3) : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+                )
             }
 
             Spacer()
@@ -101,7 +124,6 @@ struct SearchView: View {
         }
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.sm)
-        .background(Color("AppSurface"))
     }
 
     // MARK: - Search Bar
@@ -140,53 +162,6 @@ struct SearchView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.sm)
-    }
-
-    // MARK: - Book Filter Chips
-
-    private var bookFilterChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Theme.Spacing.sm) {
-                // All books chip
-                BookFilterChip(
-                    title: "All",
-                    isSelected: selectedBook == nil
-                ) {
-                    selectedBook = nil
-                    performSearch(query)
-                }
-
-                // Testament groups
-                BookFilterChip(
-                    title: "Old Testament",
-                    isSelected: false,
-                    showChevron: true
-                ) {
-                    // Could expand to show OT books
-                }
-
-                BookFilterChip(
-                    title: "New Testament",
-                    isSelected: false,
-                    showChevron: true
-                ) {
-                    // Could expand to show NT books
-                }
-
-                // Selected book indicator
-                if let book = selectedBook {
-                    BookFilterChip(
-                        title: book.name,
-                        isSelected: true
-                    ) {
-                        selectedBook = nil
-                        performSearch(query)
-                    }
-                }
-            }
-            .padding(.horizontal, Theme.Spacing.md)
-        }
-        .padding(.bottom, Theme.Spacing.sm)
     }
 
     // MARK: - Content
@@ -245,45 +220,124 @@ struct SearchView: View {
     }
 
     private var emptyStateInitial: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Image(systemName: "text.magnifyingglass")
-                .font(Typography.Command.largeTitle)
-                .foregroundStyle(Color("TertiaryText"))
+        ScrollView {
+            VStack(spacing: Theme.Spacing.md) {
+                // Recent searches (if any)
+                if !recentSearches.isEmpty {
+                    recentSearchesSection
+                }
 
-            Text("Search the Bible")
-                .font(Typography.Scripture.heading)
-                .foregroundStyle(Color("AppTextPrimary"))
+                // Search guidance
+                searchGuidanceSection
+            }
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.top, Theme.Spacing.sm)
+        }
+    }
 
+    private var recentSearchesSection: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            HStack {
+                Text("Recent")
+                    .font(Typography.Command.caption.weight(.semibold))
+                    .foregroundStyle(Color("AppTextSecondary"))
+
+                Spacer()
+
+                Button {
+                    withAnimation(Theme.Animation.fade) {
+                        recentSearches = []
+                        saveRecentSearches()
+                    }
+                } label: {
+                    Text("Clear")
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Color("TertiaryText"))
+                }
+            }
+
+            ForEach(recentSearches.prefix(5), id: \.self) { search in
+                Button {
+                    query = search
+                    performSearch(search)
+                } label: {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(Typography.Command.caption)
+                            .foregroundStyle(Color("TertiaryText"))
+
+                        Text(search)
+                            .font(Typography.Command.body)
+                            .foregroundStyle(Color("AppTextPrimary"))
+                            .lineLimit(1)
+
+                        Spacer()
+                    }
+                    .padding(.vertical, Theme.Spacing.xs)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(Theme.Spacing.md)
+        .background(Color("AppSurface"))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+    }
+
+    private var searchGuidanceSection: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Go to reference examples
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Go to a reference:")
                     .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color("AppTextSecondary"))
+                    .padding(.bottom, 2)
 
-                syntaxHint("John 3:16", "jump to verse")
-                syntaxHint("Gen 1", "jump to chapter")
-                syntaxHint("Rom 8:28-30", "verse range")
+                tappableExample("John 3:16", "jump to verse")
+                tappableExample("Gen 1", "jump to chapter")
+                tappableExample("Rom 8:28-30", "verse range")
             }
-            .padding(Theme.Spacing.md)
-            .background(Color("AppSurface"))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+
+            Divider()
+                .background(Color("AppDivider"))
 
             // Word search examples
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text("Or search for words:")
                     .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color("AppTextSecondary"))
+                    .padding(.bottom, 2)
 
-                syntaxHint("love", "matches love, loves, loving")
-                syntaxHint("\"love one another\"", "exact phrase")
-                syntaxHint("grace AND mercy", "both words")
+                tappableExample("love", "matches love, loves, loving")
+                tappableExample("\"love one another\"", "exact phrase")
+                tappableExample("grace AND mercy", "both words")
             }
-            .padding(Theme.Spacing.md)
-            .background(Color("AppSurface"))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
         }
-        .padding(Theme.Spacing.xl)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(Theme.Spacing.md)
+        .background(Color("AppSurface"))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+    }
+
+    private func tappableExample(_ example: String, _ description: String) -> some View {
+        Button {
+            query = example
+            performSearch(example)
+        } label: {
+            HStack(spacing: Theme.Spacing.sm) {
+                Text(example)
+                    // swiftlint:disable:next hardcoded_font_system
+                    .font(.system(size: 14, weight: .medium, design: .monospaced))
+                    .foregroundStyle(Color("AppAccentAction"))
+
+                Text("— \(description)")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color("TertiaryText"))
+
+                Spacer()
+            }
+            .padding(.vertical, Theme.Spacing.xs)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var emptyStateNoResults: some View {
@@ -301,34 +355,22 @@ struct SearchView: View {
                 .foregroundStyle(Color("AppTextSecondary"))
                 .multilineTextAlignment(.center)
 
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                Text("Search tips:")
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                Text("Try these searches:")
                     .font(Typography.Command.caption.weight(.semibold))
                     .foregroundStyle(Color("AppTextSecondary"))
+                    .padding(.bottom, 2)
 
-                syntaxHint("love", "matches love, loves, loving")
-                syntaxHint("\"exact phrase\"", "use quotes for phrases")
-                syntaxHint("grace AND mercy", "both words required")
+                tappableExample("love", "matches love, loves, loving")
+                tappableExample("\"love one another\"", "exact phrase")
+                tappableExample("grace AND mercy", "both words")
             }
             .padding(Theme.Spacing.md)
             .background(Color("AppSurface"))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
         }
         .padding(Theme.Spacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private func syntaxHint(_ example: String, _ description: String) -> some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            Text(example)
-                // swiftlint:disable:next hardcoded_font_system
-                .font(.system(size: 14, weight: .medium, design: .monospaced))
-                .foregroundStyle(Color("AppTextPrimary"))
-
-            Text("— \(description)")
-                .font(Typography.Command.caption)
-                .foregroundStyle(Color("TertiaryText"))
-        }
     }
 
     // MARK: - Search Execution
@@ -336,7 +378,8 @@ struct SearchView: View {
     private func performSearch(_ query: String) {
         searchTask?.cancel()
 
-        guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmedQuery.isEmpty else {
             results = []
             isSearching = false
             return
@@ -351,16 +394,59 @@ struct SearchView: View {
             guard !Task.isCancelled else { return }
 
             do {
+                // Determine book IDs to search based on testament or specific book selection
+                let bookIds: [Int]?
+                if let book = selectedBook {
+                    bookIds = [book.id]
+                } else if let testament = selectedTestament {
+                    bookIds = (testament == .old ? Book.oldTestament : Book.newTestament).map(\.id)
+                } else {
+                    bookIds = nil
+                }
+
                 results = try await SearchService.shared.search(
-                    query: query,
+                    query: trimmedQuery,
                     translationId: bibleService.currentTranslationId,
-                    bookId: selectedBook?.id
+                    bookIds: bookIds
                 )
+
+                // Save to recent searches if we got results
+                if !results.isEmpty {
+                    await MainActor.run {
+                        addToRecentSearches(trimmedQuery)
+                    }
+                }
             } catch {
                 results = []
                 print("Search error: \(error)")
             }
         }
+    }
+
+    // MARK: - Recent Searches
+
+    private static let recentSearchesKey = "SearchView.recentSearches"
+    private static let maxRecentSearches = 10
+
+    private func loadRecentSearches() {
+        recentSearches = UserDefaults.standard.stringArray(forKey: Self.recentSearchesKey) ?? []
+    }
+
+    private func saveRecentSearches() {
+        UserDefaults.standard.set(recentSearches, forKey: Self.recentSearchesKey)
+    }
+
+    private func addToRecentSearches(_ search: String) {
+        // Don't add duplicates - move existing to top
+        recentSearches.removeAll { $0.lowercased() == search.lowercased() }
+        recentSearches.insert(search, at: 0)
+
+        // Keep only the most recent
+        if recentSearches.count > Self.maxRecentSearches {
+            recentSearches = Array(recentSearches.prefix(Self.maxRecentSearches))
+        }
+
+        saveRecentSearches()
     }
 }
 
@@ -462,86 +548,119 @@ struct ReferenceGoToCard: View {
     }
 }
 
-// MARK: - Book Filter Chip
-
-struct BookFilterChip: View {
-    let title: String
-    let isSelected: Bool
-    var showChevron: Bool = false
-    let action: () -> Void
-
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 2) {
-                Text(title)
-                    .font(Typography.Command.caption)
-
-                if showChevron {
-                    Image(systemName: "chevron.down")
-                        .font(Typography.Command.meta)
-                }
-            }
-            .foregroundStyle(isSelected ? Color("AppTextPrimary") : Color("AppTextSecondary"))
-            .padding(.horizontal, Theme.Spacing.sm)
-            .padding(.vertical, Theme.Spacing.xs)
-            .background(
-                Capsule()
-                    .fill(isSelected ? Color("AppAccentAction").opacity(Theme.Opacity.selectionBackground) : Color("AppSurface"))
-            )
-            .overlay(
-                Capsule()
-                    .stroke(isSelected ? Color("AppAccentAction") : Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 // MARK: - Book Filter Sheet
 
 struct BookFilterSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(BibleService.self) private var bibleService
     @Binding var selectedBook: Book?
+    @Binding var selectedTestament: Testament?
     var onSelect: () -> Void
+
+    /// Whether no filter is active (all books)
+    private var isAllSelected: Bool {
+        selectedBook == nil && selectedTestament == nil
+    }
+
+    /// Whether Old Testament filter is active (but no specific book)
+    private var isOldTestamentSelected: Bool {
+        selectedBook == nil && selectedTestament == .old
+    }
+
+    /// Whether New Testament filter is active (but no specific book)
+    private var isNewTestamentSelected: Bool {
+        selectedBook == nil && selectedTestament == .new
+    }
 
     var body: some View {
         NavigationStack {
             List {
-                // All books option
-                Button {
-                    selectedBook = nil
-                    onSelect()
-                    dismiss()
-                } label: {
-                    HStack {
-                        Text("All Books")
-                            .foregroundStyle(Color("AppTextPrimary"))
-                        Spacer()
-                        if selectedBook == nil {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(Color("AppAccentAction"))
+                // Translation section
+                Section {
+                    ForEach(bibleService.availableTranslations, id: \.id) { translation in
+                        Button {
+                            bibleService.setTranslation(translation.id)
+                            onSelect()
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(translation.abbreviation)
+                                        .font(Typography.Command.body)
+                                        .foregroundStyle(Color("AppTextPrimary"))
+
+                                    Text(translation.name)
+                                        .font(Typography.Command.caption)
+                                        .foregroundStyle(Color("TertiaryText"))
+                                }
+
+                                Spacer()
+
+                                if translation.id == bibleService.currentTranslationId {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Color("AppAccentAction"))
+                                }
+                            }
                         }
                     }
+                } header: {
+                    Text("Translation")
                 }
 
-                // Old Testament
-                Section("Old Testament") {
-                    ForEach(Book.oldTestament, id: \.id) { book in
-                        bookRow(book)
+                // Scope section
+                Section {
+                    scopeRow("All Books", isSelected: isAllSelected) {
+                        selectedBook = nil
+                        selectedTestament = nil
+                        onSelect()
+                        dismiss()
                     }
+
+                    scopeRow("Old Testament", subtitle: "39 books", isSelected: isOldTestamentSelected) {
+                        selectedBook = nil
+                        selectedTestament = .old
+                        onSelect()
+                        dismiss()
+                    }
+
+                    scopeRow("New Testament", subtitle: "27 books", isSelected: isNewTestamentSelected) {
+                        selectedBook = nil
+                        selectedTestament = .new
+                        onSelect()
+                        dismiss()
+                    }
+                } header: {
+                    Text("Search In")
                 }
 
-                // New Testament
-                Section("New Testament") {
-                    ForEach(Book.newTestament, id: \.id) { book in
-                        bookRow(book)
+                // Specific book section (progressive disclosure via NavigationLink)
+                Section {
+                    NavigationLink {
+                        bookPickerList
+                    } label: {
+                        HStack {
+                            Text(selectedBook != nil ? "Book: \(selectedBook!.name)" : "Choose a specific book")
+                                .foregroundStyle(selectedBook != nil ? Color("AppTextPrimary") : Color("AppTextSecondary"))
+
+                            Spacer()
+
+                            if selectedBook != nil {
+                                Button {
+                                    selectedBook = nil
+                                    onSelect()
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(Color("TertiaryText"))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
+                } header: {
+                    Text("Specific Book")
                 }
             }
-            .navigationTitle("Filter by Book")
+            .navigationTitle("Search Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -554,9 +673,59 @@ struct BookFilterSheet: View {
         .presentationDetents([.medium, .large])
     }
 
+    // MARK: - Scope Row
+
+    private func scopeRow(
+        _ title: String,
+        subtitle: String? = nil,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                    .foregroundStyle(Color("AppTextPrimary"))
+
+                if let subtitle {
+                    Text(subtitle)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Color("TertiaryText"))
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(Color("AppAccentAction"))
+                }
+            }
+        }
+    }
+
+    // MARK: - Book Picker List
+
+    private var bookPickerList: some View {
+        List {
+            Section("Old Testament") {
+                ForEach(Book.oldTestament, id: \.id) { book in
+                    bookRow(book)
+                }
+            }
+
+            Section("New Testament") {
+                ForEach(Book.newTestament, id: \.id) { book in
+                    bookRow(book)
+                }
+            }
+        }
+        .navigationTitle("Choose Book")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
     private func bookRow(_ book: Book) -> some View {
         Button {
             selectedBook = book
+            selectedTestament = nil  // Clear testament when selecting specific book
             onSelect()
             dismiss()
         } label: {

@@ -293,6 +293,7 @@ struct SearchSection: View {
                 let searchResults = try await SearchService.shared.search(
                     query: query,
                     translationId: bibleService.currentTranslationId,
+                    bookId: nil,
                     limit: 20
                 )
 

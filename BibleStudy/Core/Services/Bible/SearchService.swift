@@ -53,6 +53,27 @@ final class SearchService {
         bookId: Int? = nil,
         limit: Int = 100
     ) async throws -> [SearchResult] {
+        try await search(
+            query: query,
+            translationId: translationId,
+            bookIds: bookId.map { [$0] },
+            limit: limit
+        )
+    }
+
+    /// Search verses using FTS5 full-text search with multiple book filter
+    /// - Parameters:
+    ///   - query: Search query (supports phrases, AND/OR/NOT operators)
+    ///   - translationId: Filter to specific translation (nil = current only)
+    ///   - bookIds: Filter to specific books (nil = all books, useful for testament filtering)
+    ///   - limit: Maximum results to return
+    /// - Returns: Array of search results sorted by relevance
+    func search(
+        query: String,
+        translationId: String? = nil,
+        bookIds: [Int]? = nil,
+        limit: Int = 100
+    ) async throws -> [SearchResult] {
         guard let dbQueue = db.dbQueue else {
             throw SearchError.databaseNotInitialized
         }
@@ -67,7 +88,7 @@ final class SearchService {
                 db: db,
                 ftsQuery: ftsQuery,
                 translationId: translationId,
-                bookId: bookId,
+                bookIds: bookIds,
                 limit: limit
             )
         }
@@ -79,7 +100,7 @@ final class SearchService {
         db: Database,
         ftsQuery: String,
         translationId: String?,
-        bookId: Int?,
+        bookIds: [Int]?,
         limit: Int
     ) throws -> [SearchResult] {
         // Build dynamic WHERE clause
@@ -91,9 +112,10 @@ final class SearchService {
             arguments.append(tid)
         }
 
-        if let bid = bookId {
-            conditions.append("v.book_id = ?")
-            arguments.append(bid)
+        if let bids = bookIds, !bids.isEmpty {
+            let placeholders = bids.map { _ in "?" }.joined(separator: ", ")
+            conditions.append("v.book_id IN (\(placeholders))")
+            arguments.append(contentsOf: bids)
         }
 
         arguments.append(limit)
