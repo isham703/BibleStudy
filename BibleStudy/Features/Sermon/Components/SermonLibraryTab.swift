@@ -77,6 +77,7 @@ struct SermonLibraryTab: View {
     // MARK: - Carousel Sermons
 
     /// Sermons to show in carousel: sample pinned first (if visible), then recent
+    /// Excludes any sermon shown in the quick access "Continue" row to avoid duplication
     private var carouselSermons: [Sermon] {
         var result: [Sermon] = []
 
@@ -85,13 +86,27 @@ struct SermonLibraryTab: View {
             result.append(sample)
         }
 
+        // Get the continue sermon ID to exclude from carousel
+        let continueSermonId: UUID? = {
+            if case .continueSermon(let sermon) = quickAccessState {
+                return sermon.id
+            }
+            return nil
+        }()
+
         // Add recent sermons (up to 4 to make 5 total with sample)
         let maxRecent = showSample ? 4 : 5
         let recent = sermons
             .filter { sermon in
                 // Exclude sample from recent list to avoid duplication
-                guard let sample = sampleSermon else { return true }
-                return sermon.id != sample.id
+                if let sample = sampleSermon, sermon.id == sample.id {
+                    return false
+                }
+                // Exclude the sermon shown in Continue row to avoid duplication
+                if let continueId = continueSermonId, sermon.id == continueId {
+                    return false
+                }
+                return true
             }
             .prefix(maxRecent)
 
