@@ -63,7 +63,9 @@ struct SermonRecordTab: View {
                     .ceremonialAppear(isAwakened: isAwakened, delay: isFirstTimeUser ? 0.28 : 0.21)
             }
         }
-        .padding(Theme.Spacing.lg)
+        .padding(.top, Theme.Spacing.md)      // Tighter top for tab connection
+        .padding(.horizontal, Theme.Spacing.lg)
+        .padding(.bottom, Theme.Spacing.lg)
         .background(
             RoundedRectangle(cornerRadius: Theme.Radius.card)
                 .fill(Color("AppSurface").opacity(0.5))
