@@ -77,7 +77,9 @@ struct SermonInputPhase: View {
                             )
 
                         // Tab content with crossfade
+                        // Tighter spacing between tabs and content (control-to-panel connection)
                         tabContent
+                            .padding(.top, -Theme.Spacing.sm)
                     }
                     .padding(.horizontal, Theme.Spacing.lg)
                     .padding(.bottom, Theme.Spacing.xxl * 2)
