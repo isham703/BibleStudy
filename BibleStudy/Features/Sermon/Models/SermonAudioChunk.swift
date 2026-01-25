@@ -202,14 +202,14 @@ nonisolated extension SermonAudioChunk: FetchableRecord, PersistableRecord {
 
         if let segmentString: String = row[Columns.transcriptSegment],
            let data = segmentString.data(using: .utf8) {
-            transcriptSegment = try? JSONDecoder().decode(TranscriptSegment.self, from: data)
+            transcriptSegment = try? JSONCodingUtilities.decode(TranscriptSegment.self, from: data)
         } else {
             transcriptSegment = nil
         }
 
         if let samplesString: String = row[Columns.waveformSamples],
            let data = samplesString.data(using: .utf8) {
-            waveformSamples = try? JSONDecoder().decode([Float].self, from: data)
+            waveformSamples = try? JSONCodingUtilities.decode([Float].self, from: data)
         } else {
             waveformSamples = nil
         }
@@ -236,7 +236,7 @@ nonisolated extension SermonAudioChunk: FetchableRecord, PersistableRecord {
         container[Columns.transcriptionError] = transcriptionError
 
         if let segment = transcriptSegment,
-           let data = try? JSONEncoder().encode(segment),
+           let data = try? JSONCodingUtilities.encode(segment),
            let jsonString = String(data: data, encoding: .utf8) {
             container[Columns.transcriptSegment] = jsonString
         } else {
@@ -244,7 +244,7 @@ nonisolated extension SermonAudioChunk: FetchableRecord, PersistableRecord {
         }
 
         if let samples = waveformSamples,
-           let data = try? JSONEncoder().encode(samples),
+           let data = try? JSONCodingUtilities.encode(samples),
            let jsonString = String(data: data, encoding: .utf8) {
             container[Columns.waveformSamples] = jsonString
         } else {
