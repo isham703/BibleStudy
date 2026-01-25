@@ -46,6 +46,11 @@ struct SermonStatusView: View {
         }
     }
 
+    /// Derived status using centralized SermonStatus logic
+    private var status: SermonStatus {
+        sermon.status
+    }
+
     var body: some View {
         ZStack {
             // Background circle
@@ -53,19 +58,19 @@ struct SermonStatusView: View {
                 .fill(backgroundColor)
 
             // Status content
-            if sermon.isProcessing {
+            if status.isProcessing {
                 processingIndicator
             } else {
                 statusIcon
             }
         }
         .frame(width: layout.size, height: layout.size)
-        .accessibilityLabel(accessibilityLabel)
+        .accessibilityLabel(status.accessibilityLabel)
         .onAppear {
             updatePulseState()
         }
-        .onChange(of: sermon.isProcessing) { _, isProcessing in
-            if isProcessing {
+        .onChange(of: status) { _, newStatus in
+            if newStatus.isProcessing {
                 startPulse()
             } else {
                 stopPulse()
@@ -109,26 +114,32 @@ struct SermonStatusView: View {
     /// Background color based on status
     /// Uses semantic colors with 14% opacity for backgrounds
     private var backgroundColor: Color {
-        if sermon.isProcessing {
+        switch status {
+        case .processing:
             return Color("AppSurface")
-        } else if sermon.isComplete {
+        case .ready:
             return Color("AccentBronze").opacity(Theme.Opacity.selectionBackground)
-        } else if sermon.hasError {
+        case .degraded:
+            // Degraded uses bronze with slightly lower opacity to indicate partial success
+            return Color("AccentBronze").opacity(Theme.Opacity.selectionBackground * 0.7)
+        case .error:
             return Color("FeedbackError").opacity(Theme.Opacity.selectionBackground)
-        } else {
-            // Pending
+        case .pending:
             return Color("AppSurface")
         }
     }
 
     /// Icon name based on status
     private var iconName: String {
-        if sermon.hasError {
+        switch status {
+        case .error:
             return "exclamationmark.triangle.fill"
-        } else if sermon.isComplete {
+        case .ready:
             return "checkmark.circle.fill"
-        } else {
-            // Pending
+        case .degraded:
+            // Degraded shows checkmark with badge to indicate viewable but incomplete
+            return "checkmark.circle.badge.questionmark"
+        case .pending, .processing:
             return "clock"
         }
     }
@@ -136,33 +147,23 @@ struct SermonStatusView: View {
     /// Icon color based on status
     /// Bronze reserved for "Ready/Verified" state only
     private var iconColor: Color {
-        if sermon.hasError {
+        switch status {
+        case .error:
             return Color("FeedbackError")
-        } else if sermon.isComplete {
+        case .ready:
             return Color("AccentBronze")
-        } else {
-            // Pending
+        case .degraded:
+            // Degraded uses bronze to indicate viewable, slightly muted
+            return Color("AccentBronze").opacity(0.8)
+        case .pending, .processing:
             return Color("TertiaryText")
-        }
-    }
-
-    /// Accessibility label for VoiceOver
-    private var accessibilityLabel: String {
-        if sermon.isProcessing {
-            return "Processing sermon"
-        } else if sermon.hasError {
-            return "Sermon processing error"
-        } else if sermon.isComplete {
-            return "Sermon ready"
-        } else {
-            return "Sermon pending"
         }
     }
 
     // MARK: - Pulse Control
 
     private func updatePulseState() {
-        if sermon.isProcessing && !reduceMotion {
+        if status.isProcessing && !reduceMotion {
             startPulse()
         }
     }
@@ -196,7 +197,16 @@ struct SermonStatusView: View {
                     sermon: .mockComplete,
                     layout: .full
                 )
-                Text("Complete")
+                Text("Ready")
+                    .font(Typography.Command.caption)
+            }
+
+            VStack {
+                SermonStatusView(
+                    sermon: .mockDegraded,
+                    layout: .full
+                )
+                Text("Degraded")
                     .font(Typography.Command.caption)
             }
 
@@ -227,6 +237,7 @@ struct SermonStatusView: View {
     HStack(spacing: Theme.Spacing.lg) {
         SermonStatusView(sermon: .mockProcessing, layout: .compact)
         SermonStatusView(sermon: .mockComplete, layout: .compact)
+        SermonStatusView(sermon: .mockDegraded, layout: .compact)
         SermonStatusView(sermon: .mockError, layout: .compact)
         SermonStatusView(sermon: .mockPending, layout: .compact)
     }
@@ -283,6 +294,19 @@ private extension Sermon {
             durationSeconds: 1200,
             transcriptionStatus: .pending,
             studyGuideStatus: .pending
+        )
+    }
+
+    static var mockDegraded: Sermon {
+        Sermon(
+            id: UUID(),
+            userId: UUID(),
+            title: "Degraded Sermon",
+            recordedAt: Date(),
+            durationSeconds: 1200,
+            transcriptionStatus: .succeeded,
+            studyGuideStatus: .failed,
+            studyGuideError: "Study guide generation failed"
         )
     }
 }

@@ -3,7 +3,7 @@ import UIKit
 
 // MARK: - Transcript Segment Cache
 // Caches computed display segments to avoid O(n) recomputation on every access
-// Invalidates automatically when wordTimestamps change
+// Invalidates automatically when updatedAt changes (O(1) check)
 // Uses LRU eviction and responds to memory pressure
 
 @MainActor
@@ -23,7 +23,7 @@ final class TranscriptSegmentCache {
 
     private struct CacheEntry {
         let segments: [TranscriptDisplaySegment]
-        let hash: Int
+        let updatedAt: Date  // O(1) invalidation check (was O(n) hashValue)
     }
 
     // MARK: - Memory Warning Observer
@@ -60,18 +60,17 @@ final class TranscriptSegmentCache {
         for transcript: SermonTranscript,
         compute: () -> [TranscriptDisplaySegment]
     ) -> [TranscriptDisplaySegment] {
-        let currentHash = transcript.wordTimestamps.hashValue
         let cacheKey = transcript.sermonId  // Use sermonId for consistent cache invalidation
 
-        // Check if cached and valid
-        if let entry = cache[cacheKey], entry.hash == currentHash {
+        // Check if cached and valid (O(1) updatedAt comparison vs O(n) hashValue)
+        if let entry = cache[cacheKey], entry.updatedAt == transcript.updatedAt {
             updateAccessOrder(for: cacheKey)
             return entry.segments
         }
 
         // Compute and cache
         let segments = compute()
-        cache[cacheKey] = CacheEntry(segments: segments, hash: currentHash)
+        cache[cacheKey] = CacheEntry(segments: segments, updatedAt: transcript.updatedAt)
         updateAccessOrder(for: cacheKey)
         evictIfNeeded()
         return segments
