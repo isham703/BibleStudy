@@ -225,7 +225,13 @@ final class SermonSyncService {
         }
 
         // 3. Sync to remote (best-effort, will retry on next full sync)
-        try? await supabase.updateSermonTitle(id: id.uuidString, title: title)
+        do {
+            try await supabase.updateSermonTitle(id: id.uuidString, title: title)
+        } catch {
+            #if DEBUG
+            print("[SermonSyncService] Remote rename sync deferred: \(error.localizedDescription)")
+            #endif
+        }
     }
 
     // MARK: - Cleanup Helpers
@@ -272,7 +278,13 @@ final class SermonSyncService {
 
         do {
             // Refresh session to ensure fresh JWT token for storage RLS
-            _ = try? await supabase.client.auth.refreshSession()
+            do {
+                _ = try await supabase.client.auth.refreshSession()
+            } catch {
+                #if DEBUG
+                print("[SermonSyncService] Session refresh before upload failed: \(error.localizedDescription)")
+                #endif
+            }
 
             // Generate storage path: {userId}/{sermonId}/chunk_{index:03d}.m4a
             // IMPORTANT: Use lowercased UUIDs to match PostgreSQL's auth.uid()::text format
@@ -412,20 +424,10 @@ final class SermonSyncService {
 
         do {
             // Refresh session to ensure fresh JWT token for RLS validation
-            do {
-                _ = try await supabase.client.auth.refreshSession()
-                print("[SermonSyncService] Session refreshed successfully")
-            } catch {
-                print("[SermonSyncService] Session refresh failed: \(error.localizedDescription)")
-            }
-
-            // Log user ID comparison for debugging
-            let sessionUserId = supabase.currentUser?.id
-            print("[SermonSyncService] Session userId: \(sessionUserId?.uuidString ?? "nil"), Sermon userId: \(sermon.userId.uuidString)")
+            _ = try? await supabase.client.auth.refreshSession()
 
             // Verify the user ID matches before syncing
-            guard let currentUserId = sessionUserId, currentUserId == sermon.userId else {
-                print("[SermonSyncService] User ID mismatch or no session - sermon userId: \(sermon.userId), session userId: \(sessionUserId?.uuidString ?? "nil")")
+            guard let currentUserId = supabase.currentUser?.id, currentUserId == sermon.userId else {
                 throw SermonError.notAuthenticated
             }
 
@@ -439,12 +441,10 @@ final class SermonSyncService {
             var synced = sermon
             synced.needsSync = false
             try repository.updateSermon(synced)
-            print("[SermonSyncService] Sermon synced successfully: \(sermon.id)")
 
         } catch {
-            // Will sync later
+            // Will sync later - offline-first approach
             self.error = error
-            print("[SermonSyncService] Sync error: \(error)")
         }
     }
 
