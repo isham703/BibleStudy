@@ -33,18 +33,18 @@ struct RecordingConfiguration: Sendable {
     }
 
     /// Estimated bytes per minute at current settings (~240KB/min at 32kbps)
-    var estimatedBytesPerMinute: Int { 240_000 }
+    var estimatedBytesPerMinute: Int { SermonConfiguration.estimatedBytesPerMinute }
 
     /// Maximum file size in bytes (25MB Whisper limit)
-    static let maxChunkSize: Int = 25_000_000
+    static let maxChunkSize: Int = SermonConfiguration.maxChunkFileSizeBytes
 
     // nonisolated(unsafe) allows use as default parameter in @MainActor function
     nonisolated(unsafe) static let `default` = RecordingConfiguration(
-        chunkDurationSeconds: 10 * 60  // 10 minutes per chunk
+        chunkDurationSeconds: SermonConfiguration.chunkDurationSeconds
     )
 
     nonisolated(unsafe) static let highQuality = RecordingConfiguration(
-        chunkDurationSeconds: 5 * 60   // 5 minutes per chunk for safety
+        chunkDurationSeconds: SermonConfiguration.highQualityChunkDurationSeconds
     )
 
     init(chunkDurationSeconds: TimeInterval) {
@@ -199,8 +199,11 @@ final class SermonRecordingService: NSObject, Sendable {
         try FileManager.default.createDirectory(at: sermonDirectory, withIntermediateDirectories: true)
         self.outputDirectory = sermonDirectory
 
-        // Setup audio session for recording
-        try setupAudioSession()
+        // Claim audio session for recording (highest priority - will override playback)
+        guard AudioService.shared.pushAudioSession(mode: .sermonRecording, owner: "SermonRecordingService") else {
+            state = .error("Failed to configure audio session for recording")
+            throw SermonError.recordingFailed("Audio session configuration failed")
+        }
 
         // Start first chunk
         try startNewChunk()
@@ -259,8 +262,8 @@ final class SermonRecordingService: NSObject, Sendable {
         }
         audioRecorder = nil
 
-        // Deactivate audio session
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        // Release audio session claim (reverts to prior mode, e.g., Bible playback)
+        AudioService.shared.popAudioSession(owner: "SermonRecordingService")
 
         state = .idle
 
@@ -297,7 +300,8 @@ final class SermonRecordingService: NSObject, Sendable {
         completedChunkURLs = []
         state = .idle
 
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        // Release audio session claim
+        AudioService.shared.popAudioSession(owner: "SermonRecordingService")
     }
 
     /// Add a bookmark at the current timestamp
@@ -320,12 +324,6 @@ final class SermonRecordingService: NSObject, Sendable {
     }
 
     // MARK: - Private Methods
-
-    private func setupAudioSession() throws {
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothA2DP])
-        try session.setActive(true)
-    }
 
     private func startNewChunk() throws {
         // Generate chunk filename

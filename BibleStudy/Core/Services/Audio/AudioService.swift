@@ -4,14 +4,158 @@ import MediaPlayer
 import Combine
 import UIKit
 
+// MARK: - Audio Session Mode
+
+/// Represents different audio session configurations needed by the app.
+/// Higher priority modes override lower priority when pushed onto the stack.
+enum AudioSessionMode: Int, Comparable {
+    case idle = 0           // No audio activity
+    case biblePlayback = 1  // Bible chapter playback (.playback, .spokenAudio)
+    case sermonPlayback = 2 // Sermon playback (.playback, .spokenAudio)
+    case sermonRecording = 3 // Sermon recording (.playAndRecord) - highest priority
+
+    static func < (lhs: AudioSessionMode, rhs: AudioSessionMode) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+
+    var category: AVAudioSession.Category {
+        switch self {
+        case .idle, .biblePlayback, .sermonPlayback:
+            return .playback
+        case .sermonRecording:
+            return .playAndRecord
+        }
+    }
+
+    var mode: AVAudioSession.Mode {
+        switch self {
+        case .idle:
+            return .default
+        case .biblePlayback, .sermonPlayback:
+            return .spokenAudio
+        case .sermonRecording:
+            return .default
+        }
+    }
+
+    var options: AVAudioSession.CategoryOptions {
+        switch self {
+        case .idle, .biblePlayback, .sermonPlayback:
+            return []
+        case .sermonRecording:
+            // Use allowBluetoothHFP for Bluetooth headset mic input (not A2DP which is output-only)
+            // defaultToSpeaker routes playback to speaker when no headphones connected
+            return [.defaultToSpeaker, .allowBluetoothHFP]
+        }
+    }
+
+    var debugDescription: String {
+        switch self {
+        case .idle: return "idle"
+        case .biblePlayback: return "biblePlayback"
+        case .sermonPlayback: return "sermonPlayback"
+        case .sermonRecording: return "sermonRecording"
+        }
+    }
+}
+
+// MARK: - Audio Session Claim
+
+/// Represents a claim on the audio session by a specific owner.
+struct AudioSessionClaim: Equatable {
+    let owner: String  // e.g., "AudioService", "SermonRecordingService", "SermonViewingViewModel"
+    let mode: AudioSessionMode
+    // Equatable conformance is automatically synthesized
+}
+
 // MARK: - Audio Service
-// Manages Bible audio playback with verse synchronization
+// Manages Bible audio playback with verse synchronization and audio session coordination
 
 @MainActor
 @Observable
 final class AudioService: NSObject {
     // MARK: - Singleton
     static let shared = AudioService()
+
+    // MARK: - Audio Session Ownership Stack
+
+    /// Stack of audio session claims - highest priority mode wins
+    private var sessionOwnerStack: [AudioSessionClaim] = []
+
+    /// Current active audio session mode
+    private(set) var currentSessionMode: AudioSessionMode = .idle
+
+    /// Push a new audio session claim onto the stack.
+    /// If this mode is higher priority than current, audio session is reconfigured.
+    /// - Parameters:
+    ///   - mode: The audio session mode to claim
+    ///   - owner: Identifier for who is claiming (for debugging)
+    /// - Returns: True if push succeeded
+    @discardableResult
+    func pushAudioSession(mode: AudioSessionMode, owner: String) -> Bool {
+        let claim = AudioSessionClaim(owner: owner, mode: mode)
+
+        // Remove any existing claim from this owner (prevent duplicates)
+        sessionOwnerStack.removeAll { $0.owner == owner }
+
+        // Add new claim
+        sessionOwnerStack.append(claim)
+
+        print("[AudioService] Session push: \(owner) → \(mode.debugDescription) (stack: \(sessionOwnerStack.count) claims)")
+
+        // Reconfigure if this mode is higher priority or stack was empty
+        return applyHighestPriorityMode()
+    }
+
+    /// Pop an audio session claim from the stack.
+    /// If this was the active mode, audio session reverts to next highest priority.
+    /// - Parameter owner: Identifier for who is releasing their claim
+    func popAudioSession(owner: String) {
+        let removedCount = sessionOwnerStack.filter { $0.owner == owner }.count
+        sessionOwnerStack.removeAll { $0.owner == owner }
+
+        if removedCount > 0 {
+            print("[AudioService] Session pop: \(owner) (stack: \(sessionOwnerStack.count) claims remaining)")
+            if !applyHighestPriorityMode() {
+                print("[AudioService] Warning: Failed to reconfigure session after pop")
+            }
+        }
+    }
+
+    /// Apply the highest priority mode from the stack.
+    /// Idempotent - won't reconfigure if already in the correct mode.
+    @discardableResult
+    private func applyHighestPriorityMode() -> Bool {
+        // Find highest priority mode in stack
+        let targetMode = sessionOwnerStack.max(by: { $0.mode < $1.mode })?.mode ?? .idle
+
+        // Skip if already in this mode (idempotent)
+        guard targetMode != currentSessionMode else {
+            print("[AudioService] Session already in \(targetMode.debugDescription) mode, skipping reconfigure")
+            return true
+        }
+
+        do {
+            let session = AVAudioSession.sharedInstance()
+
+            if targetMode == .idle {
+                // Deactivate session when idle
+                try session.setActive(false, options: .notifyOthersOnDeactivation)
+                print("[AudioService] Session deactivated (idle)")
+            } else {
+                // Configure and activate for non-idle modes
+                try session.setCategory(targetMode.category, mode: targetMode.mode, options: targetMode.options)
+                try session.setActive(true)
+                print("[AudioService] Session configured: \(targetMode.debugDescription) (category: \(targetMode.category), mode: \(targetMode.mode))")
+            }
+
+            currentSessionMode = targetMode
+            return true
+        } catch {
+            print("[AudioService] Failed to configure session for \(targetMode.debugDescription): \(error)")
+            return false
+        }
+    }
 
     // MARK: - Player
     private var player: AVPlayer?
@@ -118,24 +262,8 @@ final class AudioService: NSObject {
     // MARK: - Audio Session
 
     private func setupAudioSession() {
-        do {
-            let session = AVAudioSession.sharedInstance()
-            // Use .spokenAudio mode for continuous spoken audio like podcasts/audiobooks
-            // This enables proper background playback and lock screen behavior
-            try session.setCategory(.playback, mode: .spokenAudio, options: [])
-            try session.setActive(true)
-        } catch {
-            print("AudioService: Failed to setup audio session: \(error)")
-            // Try fallback with minimal configuration
-            do {
-                let session = AVAudioSession.sharedInstance()
-                try session.setCategory(.playback, mode: .default, options: [])
-                try session.setActive(true)
-                print("AudioService: Using fallback audio session configuration")
-            } catch {
-                print("AudioService: Fallback also failed: \(error)")
-            }
-        }
+        // Push initial Bible playback claim - will configure audio session via stack
+        pushAudioSession(mode: .biblePlayback, owner: "AudioService")
     }
 
     // MARK: - Interruption Handling

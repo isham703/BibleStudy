@@ -5,8 +5,8 @@ import SwiftUI
 
 struct SermonProcessingPhase: View {
     @Bindable var flowState: SermonFlowState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var pulsePhase: CGFloat = 0
-    @State private var shimmerOffset: CGFloat = -200
     @State private var isAwakened = false
     @State private var showReassurance = false
     @State private var reassuranceTask: Task<Void, Never>?
@@ -44,8 +44,18 @@ struct SermonProcessingPhase: View {
                 isAwakened = true
             }
         }
+        .onChange(of: reduceMotion) { _, newValue in
+            // Handle Reduce Motion toggle while view is visible
+            stopAnimations()
+            if !newValue {
+                startAnimations()
+            } else {
+                // Immediately show reassurance when Reduce Motion enabled
+                showReassurance = true
+            }
+        }
         .onDisappear {
-            reassuranceTask?.cancel()
+            stopAnimations()
         }
     }
 
@@ -56,7 +66,7 @@ struct SermonProcessingPhase: View {
             Color("AppBackground")
                 .ignoresSafeArea()
 
-            // Soft top glow
+            // Soft top glow (static, no animation)
             RadialGradient(
                 colors: [
                     Color("AppAccentAction").opacity(Theme.Opacity.subtle / 3),
@@ -68,17 +78,19 @@ struct SermonProcessingPhase: View {
             )
             .ignoresSafeArea()
 
-            // Processing pulse glow
-            RadialGradient(
-                colors: [
-                    Color("AppAccentAction").opacity(Double(0.06 * pulsePhase)),
-                    Color.clear
-                ],
-                center: .init(x: 0.5, y: 0.3),
-                startRadius: 0,
-                endRadius: 250
-            )
-            .ignoresSafeArea()
+            // Pulsing glow (disabled for Reduce Motion)
+            if !reduceMotion {
+                RadialGradient(
+                    colors: [
+                        Color("AppAccentAction").opacity(Double(0.06 * pulsePhase)),
+                        Color.clear
+                    ],
+                    center: .init(x: 0.5, y: 0.3),
+                    startRadius: 0,
+                    endRadius: 250
+                )
+                .ignoresSafeArea()
+            }
         }
     }
 
@@ -86,12 +98,14 @@ struct SermonProcessingPhase: View {
 
     private var illuminatedInitial: some View {
         ZStack {
-            // Outer pulse ring
-            Circle()
-                .stroke(Color("AppAccentAction").opacity(0.2), lineWidth: 2)
-                .frame(width: 100, height: 100)
-                .scaleEffect(1 + pulsePhase * 0.1)
-                .opacity(Double(1 - pulsePhase * 0.3))
+            // Outer pulse ring (disabled for Reduce Motion)
+            if !reduceMotion {
+                Circle()
+                    .stroke(Color("AppAccentAction").opacity(0.2), lineWidth: 2)
+                    .frame(width: 100, height: 100)
+                    .scaleEffect(1 + pulsePhase * 0.1)
+                    .opacity(Double(1 - pulsePhase * 0.3))
+            }
 
             // Main circle
             Circle()
@@ -102,14 +116,14 @@ struct SermonProcessingPhase: View {
                         .stroke(Color("AppDivider"), lineWidth: 2)
                 )
 
-            // Animated "S" initial
+            // "S" initial
             Text("S")
                 .font(.system(size: 40, weight: .light, design: .serif))
                 .foregroundStyle(Color("AppAccentAction"))
         }
         .opacity(isAwakened ? 1 : 0)
         .scaleEffect(isAwakened ? 1 : 0.9)
-        .animation(Theme.Animation.settle.delay(0.1), value: isAwakened)
+        .animation(reduceMotion ? nil : Theme.Animation.settle.delay(0.1), value: isAwakened)
     }
 
     // MARK: - Progress Bar
@@ -125,7 +139,7 @@ struct SermonProcessingPhase: View {
                             .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
                     )
 
-                // Fill with gradient
+                // Fill with gradient (no shimmer - banned by Theme.swift doctrine)
                 RoundedRectangle(cornerRadius: 4)
                     .fill(
                         LinearGradient(
@@ -138,23 +152,12 @@ struct SermonProcessingPhase: View {
                         )
                     )
                     .frame(width: geo.size.width * flowState.processingProgress)
-                    .overlay(
-                        // Shimmer effect
-                        LinearGradient(
-                            colors: [.clear, .white.opacity(0.3), .clear],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                        .frame(width: 80)
-                        .offset(x: shimmerOffset)
-                        .mask(RoundedRectangle(cornerRadius: 4))
-                    )
-                    .animation(Theme.Animation.settle, value: flowState.processingProgress)
+                    .animation(reduceMotion ? nil : Theme.Animation.settle, value: flowState.processingProgress)
             }
         }
         .frame(height: 8)
         .opacity(isAwakened ? 1 : 0)
-        .animation(Theme.Animation.slowFade.delay(0.2), value: isAwakened)
+        .animation(reduceMotion ? nil : Theme.Animation.slowFade.delay(0.2), value: isAwakened)
     }
 
     // MARK: - Status Text
@@ -166,22 +169,24 @@ struct SermonProcessingPhase: View {
                     .font(Typography.Command.body)
                     .foregroundStyle(Color("AppTextPrimary"))
 
+                // monospacedDigit prevents visual jitter as percentage changes
                 Text("\(Int(flowState.processingProgress * 100))%")
-                    .font(.system(size: 32, weight: .light))
+                    .font(.system(size: 32, weight: .light).monospacedDigit())
                     .foregroundStyle(Color("AppAccentAction"))
+                    .accessibilityLabel("Progress: \(Int(flowState.processingProgress * 100)) percent")
 
                 // Time estimate (appears after reassurance message)
                 if showReassurance {
                     Text(flowState.formattedEstimatedTime)
                         .font(Typography.Command.caption)
                         .foregroundStyle(Color("TertiaryText"))
-                        .transition(.opacity.combined(with: .move(edge: .top)))
+                        .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .top)))
                 }
             }
         }
         .opacity(isAwakened ? 1 : 0)
-        .animation(Theme.Animation.slowFade.delay(0.25), value: isAwakened)
-        .animation(Theme.Animation.fade, value: showReassurance)
+        .animation(reduceMotion ? nil : Theme.Animation.slowFade.delay(0.25), value: isAwakened)
+        .animation(reduceMotion ? nil : Theme.Animation.fade, value: showReassurance)
     }
 
     // MARK: - Step Checklist
@@ -241,8 +246,8 @@ struct SermonProcessingPhase: View {
             .foregroundStyle(Color("TertiaryText"))
         }
         .opacity(isAwakened ? 1 : 0)
-        .offset(y: isAwakened ? 0 : 10)
-        .animation(Theme.Animation.slowFade.delay(0.3), value: isAwakened)
+        .offset(y: isAwakened ? 0 : (reduceMotion ? 0 : 10))
+        .animation(reduceMotion ? nil : Theme.Animation.slowFade.delay(0.3), value: isAwakened)
     }
 
     // MARK: - Step State Helpers
@@ -271,24 +276,34 @@ struct SermonProcessingPhase: View {
     // MARK: - Animations
 
     private func startAnimations() {
-        // Pulse animation
-        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-            pulsePhase = 1
-        }
+        // Reset state first
+        pulsePhase = 0
 
-        // Shimmer animation
-        withAnimation(.linear(duration: 2.0).repeatForever(autoreverses: false)) {
-            shimmerOffset = 400
+        // Pulse animation (<400ms per Theme.swift doctrine, disabled for Reduce Motion)
+        if !reduceMotion {
+            withAnimation(.easeInOut(duration: 0.35).repeatForever(autoreverses: true)) {
+                pulsePhase = 1
+            }
         }
 
         // Show reassurance message after 2 seconds (cancellable)
         reassuranceTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(2.0))
             guard !Task.isCancelled else { return }
-            withAnimation(Theme.Animation.fade) {
+            if reduceMotion {
                 showReassurance = true
+            } else {
+                withAnimation(Theme.Animation.fade) {
+                    showReassurance = true
+                }
             }
         }
+    }
+
+    private func stopAnimations() {
+        reassuranceTask?.cancel()
+        reassuranceTask = nil
+        pulsePhase = 0
     }
 }
 
@@ -299,6 +314,7 @@ struct ProcessingStepRow: View {
     let isComplete: Bool
     let isActive: Bool
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var pulsePhase: CGFloat = 0
 
     var body: some View {
@@ -321,10 +337,16 @@ struct ProcessingStepRow: View {
                     Circle()
                         .fill(Color("AppAccentAction"))
                         .frame(width: 10, height: 10)
-                        .scaleEffect(1 + pulsePhase * 0.3)
+                        .scaleEffect(reduceMotion ? 1 : (1 + pulsePhase * 0.3))
                         .onAppear {
-                            withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
-                                pulsePhase = 1
+                            startPulse()
+                        }
+                        .onChange(of: reduceMotion) { _, newValue in
+                            // Handle Reduce Motion toggle while view is visible
+                            if newValue {
+                                pulsePhase = 0
+                            } else {
+                                startPulse()
                             }
                         }
                 } else {
@@ -346,6 +368,14 @@ struct ProcessingStepRow: View {
                 .fontWeight(isActive ? .medium : .regular)
 
             Spacer()
+        }
+    }
+
+    private func startPulse() {
+        // Cap duration to <400ms per Theme.swift doctrine
+        guard !reduceMotion else { return }
+        withAnimation(.easeInOut(duration: 0.35).repeatForever(autoreverses: true)) {
+            pulsePhase = 1
         }
     }
 }

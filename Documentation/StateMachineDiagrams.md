@@ -12,7 +12,7 @@ Comprehensive documentation of all state machines in the BibleStudy iOS app, vis
   - [1.5 Authentication Flow](#15-authentication-flow)
   - [1.6 Onboarding Flow](#16-onboarding-flow)
 - [2. Service-Level State Machines](#2-service-level-state-machines)
-  - [2.1 Audio Playback](#21-audio-playback)
+  - [2.1 Audio Playback & Session Ownership](#21-audio-playback--session-ownership)
   - [2.2 Circuit Breaker](#22-circuit-breaker)
   - [2.3 Data Loading](#23-data-loading)
   - [2.4 Subscription/Entitlements](#24-subscriptionentitlements)
@@ -32,7 +32,7 @@ Comprehensive documentation of all state machines in the BibleStudy iOS app, vis
 **Purpose:** Manages the AI-powered prayer generation experience with crisis detection and word-by-word reveal animation.
 
 **Source:** `Features/Experiences/Prayer/Core/PrayerFlowState.swift`
-
+d
 ```mermaid
 stateDiagram-v2
     [*] --> input
@@ -436,9 +436,9 @@ stateDiagram-v2
 
 ## 2. Service-Level State Machines
 
-### 2.1 Audio Playback
+### 2.1 Audio Playback & Session Ownership
 
-**Purpose:** Manages audio playback lifecycle with TTS generation, sleep timers, and verse synchronization.
+**Purpose:** Manages audio playback lifecycle with TTS generation, sleep timers, verse synchronization, and coordinated audio session ownership across multiple producers.
 
 **Source:** `Core/Services/Audio/AudioService.swift`
 
@@ -492,6 +492,36 @@ stateDiagram-v2
         endOfChapter --> inactive: cancelTimer()
     }
 
+    state AudioSessionOwnership {
+        [*] --> idle_session
+        idle_session --> biblePlayback: pushAudioSession(.biblePlayback) / configure(.playback, .spokenAudio)
+        idle_session --> sermonPlayback: pushAudioSession(.sermonPlayback) / configure(.playback, .spokenAudio)
+        idle_session --> sermonRecording: pushAudioSession(.sermonRecording) / configure(.playAndRecord)
+
+        biblePlayback --> sermonPlayback: pushAudioSession(.sermonPlayback) [higher priority]
+        biblePlayback --> sermonRecording: pushAudioSession(.sermonRecording) [highest priority]
+        biblePlayback --> idle_session: popAudioSession() [stack empty] / deactivate()
+
+        sermonPlayback --> sermonRecording: pushAudioSession(.sermonRecording) [highest priority]
+        sermonPlayback --> biblePlayback: popAudioSession() [bible still claimed]
+        sermonPlayback --> idle_session: popAudioSession() [stack empty] / deactivate()
+
+        sermonRecording --> sermonPlayback: popAudioSession() [sermon playback claimed]
+        sermonRecording --> biblePlayback: popAudioSession() [bible claimed]
+        sermonRecording --> idle_session: popAudioSession() [stack empty] / deactivate()
+
+        note right of sermonRecording
+            Priority order:
+            1. sermonRecording (highest)
+            2. sermonPlayback
+            3. biblePlayback
+            4. idle (lowest)
+
+            Stack-based: highest wins
+            Idempotent reconfiguration
+        end note
+    }
+
     note right of playing
         Time observer: 0.25s intervals
         Boundary observer: verse transitions
@@ -505,6 +535,17 @@ stateDiagram-v2
 - TTS fallback chain: Edge neural TTS → Local AVSpeechSynthesizer
 - Sleep timer modes: countdown (minutes) or end-of-chapter
 - Verse boundary synchronization via `CMTime` observers
+- **Stack-based audio session ownership**: Multiple producers can claim the session; highest priority mode wins
+- **Idempotent reconfiguration**: Session only reconfigured when target mode differs from current
+
+**Audio Session Modes (Priority Order):**
+
+| Mode | Priority | Category | AVAudioSession.Mode | Options |
+| ---- | -------- | -------- | ------------------- | ------- |
+| `sermonRecording` | 3 (highest) | `.playAndRecord` | `.default` | `.defaultToSpeaker`, `.allowBluetoothHFP` |
+| `sermonPlayback` | 2 | `.playback` | `.spokenAudio` | none |
+| `biblePlayback` | 1 | `.playback` | `.spokenAudio` | none |
+| `idle` | 0 (lowest) | - | - | Session deactivated |
 
 **Edge Cases:**
 
@@ -512,6 +553,8 @@ stateDiagram-v2
 - Route changes (headphone unplug) trigger pause
 - Invalid cache deleted and regenerated automatically
 - Background task protection for TTS generation (10-30s window)
+- **Session pop with empty stack**: Deactivates session with `.notifyOthersOnDeactivation`
+- **Duplicate owner push**: Removes existing claim before adding new one
 
 ---
 
@@ -1138,10 +1181,11 @@ stateDiagram-v2
 ### Phase-Based Flows
 
 | Component | Enum | Values |
-|-----------|------|--------|
+| --------- | ---- | ------ |
 | Prayer | `PrayerFlowPhase` | input, generating, displaying |
 | Sermon | `SermonFlowPhase` | input, recording, importing, processing(ProcessingStep), viewing, error(SermonError) |
 | Sermon Processing | `ProcessingStep` | uploading(Double), transcribing(Double, Int, Int), moderating, analyzing, saving |
+| Sermon Status | `SermonStatus` | pending, processing, ready, degraded, error |
 | Breathing | `BreathingPhase` | idle, inhale, hold1, exhale, hold2 |
 | Auth | (implicit) | signIn, signUp, resetPassword, emailConfirmation, biometricOptIn |
 | Auth Password | `PasswordIllumination` | blank, rawPigment, groundPigment, gilded, illuminated |
@@ -1150,8 +1194,9 @@ stateDiagram-v2
 ### Service-Level
 
 | Component | Enum | Values |
-|-----------|------|--------|
+| --------- | ---- | ------ |
 | Audio | `PlaybackState` | idle, loading, ready, playing, paused, finished, error |
+| Audio Session | `AudioSessionMode` | idle, biblePlayback, sermonPlayback, sermonRecording |
 | Circuit Breaker | `State` | closed, open, halfOpen |
 | Data Loading | `DataLoadingPhase` | idle, loading(String, Double), completed, failed(String) |
 | Subscription | `SubscriptionTier` | free, premium, scholar |
@@ -1160,7 +1205,7 @@ stateDiagram-v2
 ### UI Components
 
 | Component | Enum | Values |
-|-----------|------|--------|
+| --------- | ---- | ------ |
 | Bible Reader | `BibleSelectionMode` | none, single, range |
 | Reading Menu | `MenuView` | menu, search, settings, insights |
 | Ask Chat | `ChatMode` | general, verseAnchored |

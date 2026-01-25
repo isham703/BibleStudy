@@ -49,12 +49,9 @@ final class SermonViewingViewModel {
         // Don't auto-play - wait for user to tap play
         player?.pause()
 
-        // Configure audio session
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("[SermonViewingViewModel] Audio session error: \(error)")
+        // Claim audio session for sermon playback (lower priority than recording)
+        if !AudioService.shared.pushAudioSession(mode: .sermonPlayback, owner: "SermonViewingViewModel") {
+            print("[SermonViewingViewModel] Warning: Failed to configure audio session for playback")
         }
 
         // Time observer
@@ -166,7 +163,8 @@ final class SermonViewingViewModel {
         player?.pause()
         player = nil
 
-        try? AVAudioSession.sharedInstance().setActive(false)
+        // Release audio session claim
+        AudioService.shared.popAudioSession(owner: "SermonViewingViewModel")
     }
 
     // MARK: - Helpers
