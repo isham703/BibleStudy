@@ -11,7 +11,7 @@ import SwiftUI
 // MARK: - Sermon Tab
 
 enum SermonTab: String, CaseIterable {
-    case library = "Your Sermons"
+    case library = "Library"
     case recordNew = "Record New"
 
     var displayName: String { rawValue }
@@ -42,7 +42,7 @@ struct SermonTabControl: View {
         }
         // Accessibility
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Sermon navigation, \(selectedTab.displayName) selected")
+        .accessibilityLabel("Sermon tabs, \(selectedTab.displayName) selected")
         .accessibilityAdjustableAction { direction in
             switch direction {
             case .increment:
@@ -79,7 +79,7 @@ struct SermonTabControl: View {
                 .foregroundStyle(
                     selectedTab == tab
                         ? Color("AppTextPrimary")
-                        : Color("AppTextSecondary")
+                        : Color("TertiaryText")
                 )
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Theme.Spacing.md)
@@ -105,11 +105,11 @@ struct SermonTabControl: View {
 
             RoundedRectangle(cornerRadius: Theme.Radius.xs)
                 .fill(Color("AccentBronze"))
-                .frame(width: indicatorWidth, height: 2)
+                .frame(width: indicatorWidth, height: 2.5)
                 .offset(x: selectedTab == .library ? libraryOffset : recordOffset)
                 .animation(Theme.Animation.settle, value: selectedTab)
         }
-        .frame(height: 2)
+        .frame(height: 2.5)
     }
 }
 

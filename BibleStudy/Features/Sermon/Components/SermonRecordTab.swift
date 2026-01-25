@@ -25,6 +25,10 @@ struct SermonRecordTab: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.md) {
+            // Section header (always shown)
+            recordHeader
+                .ceremonialAppear(isAwakened: isAwakened, delay: 0.08)
+
             // First-time user onboarding prompt
             if isFirstTimeUser {
                 onboardingPrompt
@@ -81,6 +85,25 @@ struct SermonRecordTab: View {
                 }
             }
         }
+    }
+
+    // MARK: - Record Header
+
+    private var recordHeader: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+            Text("RECORD NEW")
+                .font(Typography.Editorial.sectionHeader)
+                .tracking(Typography.Editorial.sectionTracking)
+                .foregroundStyle(Color("TertiaryText"))
+                .accessibilityLabel("Record new")
+
+            if isFirstTimeUser {
+                Text("Tap the button below to begin.")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color("AppTextSecondary"))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Onboarding Prompt

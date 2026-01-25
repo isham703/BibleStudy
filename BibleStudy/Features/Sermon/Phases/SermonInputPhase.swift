@@ -200,26 +200,22 @@ struct SermonInputPhase: View {
 
     private var titleBlock: some View {
         VStack(spacing: Theme.Spacing.sm) {
-            Text(selectedTab == .library ? "YOUR SERMONS" : "RECORD NEW")
+            Text("SERMONS")
                 .font(Typography.Command.meta)
                 .tracking(Typography.Editorial.sectionTracking)
                 .foregroundStyle(Color("TertiaryText"))
 
-            Text(selectedTab == .library ? "Your Collection" : "Capture & Study")
+            Text("Your Sermons")
                 .font(Typography.Scripture.title)
                 .foregroundStyle(Color("AppTextPrimary"))
 
-            Text(selectedTab == .library
-                ? "\(realSermons.count) sermons saved"
-                : "Record live or import an audio file")
+            Text("Record, organize, and study your sermons.")
                 .font(Typography.Command.body)
                 .foregroundStyle(Color("AppTextSecondary"))
                 .padding(.top, Theme.Spacing.xs)
         }
         .opacity(isAwakened ? 1 : 0)
         .animation(Theme.Animation.slowFade.delay(0.2), value: isAwakened)
-        // Staggered animation on tab switch (80ms delay after content)
-        .animation(reduceMotion ? nil : Theme.Animation.settle.delay(0.08), value: selectedTab)
     }
 
     // MARK: - Tab Content
