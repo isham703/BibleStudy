@@ -608,15 +608,17 @@ final class AudioService: NSObject {
         currentChapter?.setVerseTimings(timings)
         print("[AudioService] Using \(timings.count) verse timings from generation")
 
+        // Tear down observers tied to the current player before replacing it
+        removeTimeObserver()
+        removeBoundaryTimeObserver()
+
         // Create player item and player
         playerItem = AVPlayerItem(asset: composition)
         player = AVPlayer(playerItem: playerItem)
         player?.rate = 0 // Start paused
 
-        // Setup time observer for UI updates (0.25s interval)
-        setupTimeObserver()
-
         // Setup boundary time observer for precise verse transitions
+        // Time observer is managed exclusively by play()/pause()/stop()
         setupBoundaryTimeObserver()
 
         setPlaybackState(.ready)
@@ -832,6 +834,11 @@ final class AudioService: NSObject {
             }
         }
 
+        // Re-add time observer if not present (removed during pause or reload)
+        if timeObserver == nil {
+            setupTimeObserver()
+        }
+
         player?.rate = playbackRate
         setPlaybackState(.playing)
         updateNowPlayingInfo()
@@ -841,7 +848,16 @@ final class AudioService: NSObject {
         player?.pause()
         shouldResumeAfterReload = false
         setPlaybackState(.paused)
+
+        // Freeze at exact player time (avoids up to 250ms drift from last observer tick)
+        if let seconds = player?.currentTime().seconds, seconds.isFinite {
+            currentTime = seconds
+        }
+
         updateNowPlayingInfo()
+
+        // Remove time observer to stop progress updates while paused
+        removeTimeObserver()
 
         // Apply any pending reload now that playback is paused (safe time)
         if pendingFullReload != nil {
@@ -1045,6 +1061,8 @@ final class AudioService: NSObject {
     // MARK: - Time Observer
 
     private func setupTimeObserver() {
+        guard timeObserver == nil else { return }
+
         // Use 0.25s interval for UI updates (reduced from 0.1s for better performance)
         // This is sufficient for displaying time labels while reducing CPU usage
         let interval = CMTime(seconds: 0.25, preferredTimescale: 600)
@@ -1067,6 +1085,9 @@ final class AudioService: NSObject {
     private func handleTimeUpdateWithSeconds(_ seconds: TimeInterval) {
         // Suppress UI updates during composition reload to prevent glitching
         guard !isReloadingComposition else { return }
+
+        // Defense-in-depth: only update time when actively playing
+        guard playbackState == .playing else { return }
 
         currentTime = seconds
         // Note: Verse updates are handled by the boundary time observer for precise transitions

@@ -7,6 +7,8 @@ import SwiftUI
 struct BibleReaderBottomBar: View {
     @Bindable var viewModel: BibleReaderBottomBarViewModel
     let audioService: AudioService
+    let currentBookId: Int
+    let currentChapterNumber: Int
     let isVisible: Bool
     let onNotesTap: () -> Void
     let onSearchTap: () -> Void
@@ -21,8 +23,11 @@ struct BibleReaderBottomBar: View {
         audioService.isLoading
     }
 
+    /// Audio is active for the current chapter (not stale from a previous chapter)
     private var hasActiveAudio: Bool {
-        audioService.playbackState != .idle
+        guard audioService.playbackState != .idle else { return false }
+        guard let chapter = audioService.currentChapter else { return false }
+        return chapter.bookId == currentBookId && chapter.chapterNumber == currentChapterNumber
     }
 
     var body: some View {
@@ -154,6 +159,8 @@ private struct ToolbarIconButton: View {
             BibleReaderBottomBar(
                 viewModel: BibleReaderBottomBarViewModel(),
                 audioService: AudioService.shared,
+                currentBookId: 1,
+                currentChapterNumber: 1,
                 isVisible: true,
                 onNotesTap: {},
                 onSearchTap: {},
