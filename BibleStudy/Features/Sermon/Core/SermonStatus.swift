@@ -54,10 +54,6 @@ enum SermonStatus: Equatable, Sendable {
 
         // Partial processing (transcription done, study guide pending/running)
         if sermon.transcriptionStatus == .succeeded {
-            if sermon.studyGuideStatus == .running {
-                return .processing
-            }
-            // Transcription done, study guide pending - still processing overall
             return .processing
         }
 

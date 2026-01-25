@@ -14,7 +14,7 @@ final class TranscriptSegmentCache {
 
     // MARK: - Configuration
 
-    private let maxCapacity = 100
+    private let maxCapacity = SermonConfiguration.maxCacheEntries
 
     // MARK: - Cache Storage
 

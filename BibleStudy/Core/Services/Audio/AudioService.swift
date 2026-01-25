@@ -43,7 +43,9 @@ enum AudioSessionMode: Int, Comparable {
         case .idle, .biblePlayback, .sermonPlayback:
             return []
         case .sermonRecording:
-            return [.defaultToSpeaker, .allowBluetoothA2DP]
+            // Use allowBluetoothHFP for Bluetooth headset mic input (not A2DP which is output-only)
+            // defaultToSpeaker routes playback to speaker when no headphones connected
+            return [.defaultToSpeaker, .allowBluetoothHFP]
         }
     }
 
@@ -63,11 +65,7 @@ enum AudioSessionMode: Int, Comparable {
 struct AudioSessionClaim: Equatable {
     let owner: String  // e.g., "AudioService", "SermonRecordingService", "SermonViewingViewModel"
     let mode: AudioSessionMode
-    let timestamp: Date
-
-    static func == (lhs: AudioSessionClaim, rhs: AudioSessionClaim) -> Bool {
-        lhs.owner == rhs.owner && lhs.mode == rhs.mode
-    }
+    // Equatable conformance is automatically synthesized
 }
 
 // MARK: - Audio Service
@@ -95,7 +93,7 @@ final class AudioService: NSObject {
     /// - Returns: True if push succeeded
     @discardableResult
     func pushAudioSession(mode: AudioSessionMode, owner: String) -> Bool {
-        let claim = AudioSessionClaim(owner: owner, mode: mode, timestamp: Date())
+        let claim = AudioSessionClaim(owner: owner, mode: mode)
 
         // Remove any existing claim from this owner (prevent duplicates)
         sessionOwnerStack.removeAll { $0.owner == owner }
@@ -118,7 +116,9 @@ final class AudioService: NSObject {
 
         if removedCount > 0 {
             print("[AudioService] Session pop: \(owner) (stack: \(sessionOwnerStack.count) claims remaining)")
-            applyHighestPriorityMode()
+            if !applyHighestPriorityMode() {
+                print("[AudioService] Warning: Failed to reconfigure session after pop")
+            }
         }
     }
 

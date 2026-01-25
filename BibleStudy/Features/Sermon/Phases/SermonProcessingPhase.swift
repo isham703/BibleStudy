@@ -44,8 +44,18 @@ struct SermonProcessingPhase: View {
                 isAwakened = true
             }
         }
+        .onChange(of: reduceMotion) { _, newValue in
+            // Handle Reduce Motion toggle while view is visible
+            stopAnimations()
+            if !newValue {
+                startAnimations()
+            } else {
+                // Immediately show reassurance when Reduce Motion enabled
+                showReassurance = true
+            }
+        }
         .onDisappear {
-            reassuranceTask?.cancel()
+            stopAnimations()
         }
     }
 
@@ -266,6 +276,9 @@ struct SermonProcessingPhase: View {
     // MARK: - Animations
 
     private func startAnimations() {
+        // Reset state first
+        pulsePhase = 0
+
         // Pulse animation (<400ms per Theme.swift doctrine, disabled for Reduce Motion)
         if !reduceMotion {
             withAnimation(.easeInOut(duration: 0.35).repeatForever(autoreverses: true)) {
@@ -285,6 +298,12 @@ struct SermonProcessingPhase: View {
                 }
             }
         }
+    }
+
+    private func stopAnimations() {
+        reassuranceTask?.cancel()
+        reassuranceTask = nil
+        pulsePhase = 0
     }
 }
 
@@ -320,11 +339,14 @@ struct ProcessingStepRow: View {
                         .frame(width: 10, height: 10)
                         .scaleEffect(reduceMotion ? 1 : (1 + pulsePhase * 0.3))
                         .onAppear {
-                            // Cap duration to <400ms per Theme.swift doctrine
-                            if !reduceMotion {
-                                withAnimation(.easeInOut(duration: 0.35).repeatForever(autoreverses: true)) {
-                                    pulsePhase = 1
-                                }
+                            startPulse()
+                        }
+                        .onChange(of: reduceMotion) { _, newValue in
+                            // Handle Reduce Motion toggle while view is visible
+                            if newValue {
+                                pulsePhase = 0
+                            } else {
+                                startPulse()
                             }
                         }
                 } else {
@@ -346,6 +368,14 @@ struct ProcessingStepRow: View {
                 .fontWeight(isActive ? .medium : .regular)
 
             Spacer()
+        }
+    }
+
+    private func startPulse() {
+        // Cap duration to <400ms per Theme.swift doctrine
+        guard !reduceMotion else { return }
+        withAnimation(.easeInOut(duration: 0.35).repeatForever(autoreverses: true)) {
+            pulsePhase = 1
         }
     }
 }

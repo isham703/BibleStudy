@@ -33,18 +33,18 @@ struct RecordingConfiguration: Sendable {
     }
 
     /// Estimated bytes per minute at current settings (~240KB/min at 32kbps)
-    var estimatedBytesPerMinute: Int { 240_000 }
+    var estimatedBytesPerMinute: Int { SermonConfiguration.estimatedBytesPerMinute }
 
     /// Maximum file size in bytes (25MB Whisper limit)
-    static let maxChunkSize: Int = 25_000_000
+    static let maxChunkSize: Int = SermonConfiguration.maxChunkFileSizeBytes
 
     // nonisolated(unsafe) allows use as default parameter in @MainActor function
     nonisolated(unsafe) static let `default` = RecordingConfiguration(
-        chunkDurationSeconds: 10 * 60  // 10 minutes per chunk
+        chunkDurationSeconds: SermonConfiguration.chunkDurationSeconds
     )
 
     nonisolated(unsafe) static let highQuality = RecordingConfiguration(
-        chunkDurationSeconds: 5 * 60   // 5 minutes per chunk for safety
+        chunkDurationSeconds: SermonConfiguration.highQualityChunkDurationSeconds
     )
 
     init(chunkDurationSeconds: TimeInterval) {

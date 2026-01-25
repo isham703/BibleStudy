@@ -154,7 +154,7 @@ struct SermonStatusView: View {
             return Color("AccentBronze")
         case .degraded:
             // Degraded uses bronze to indicate viewable, slightly muted
-            return Color("AccentBronze").opacity(0.8)
+            return Color("AccentBronze").opacity(Theme.Opacity.pressed)
         case .pending, .processing:
             return Color("TertiaryText")
         }

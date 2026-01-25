@@ -50,7 +50,9 @@ final class SermonViewingViewModel {
         player?.pause()
 
         // Claim audio session for sermon playback (lower priority than recording)
-        AudioService.shared.pushAudioSession(mode: .sermonPlayback, owner: "SermonViewingViewModel")
+        if !AudioService.shared.pushAudioSession(mode: .sermonPlayback, owner: "SermonViewingViewModel") {
+            print("[SermonViewingViewModel] Warning: Failed to configure audio session for playback")
+        }
 
         // Time observer
         timeObserver = player?.addPeriodicTimeObserver(
