@@ -67,6 +67,7 @@ struct SermonLibraryTab: View {
             recordShortcutButton
                 .ceremonialAppear(isAwakened: isAwakened, delay: 0.25)
         }
+        .padding(.top, Theme.Spacing.md)  // Match Record tab's spacing
         .onAppear {
             if reduceMotion {
                 isAwakened = true
