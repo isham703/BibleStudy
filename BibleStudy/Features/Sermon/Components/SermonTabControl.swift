@@ -75,16 +75,17 @@ struct SermonTabControl: View {
         } label: {
             Text(tab.displayName)
                 .font(Typography.Command.label)
+                .fontWeight(selectedTab == tab ? .semibold : .regular)
                 .foregroundStyle(
                     selectedTab == tab
                         ? Color("AppTextPrimary")
-                        : Color("TertiaryText")
+                        : Color("AppTextSecondary")
                 )
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Theme.Spacing.md)
                 .background(
                     selectedTab == tab
-                        ? Color("AccentBronze").opacity(0.12)
+                        ? Color("AccentBronze").opacity(0.18)
                         : Color.clear
                 )
                 .contentShape(Rectangle())

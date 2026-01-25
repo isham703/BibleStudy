@@ -171,10 +171,8 @@ struct SermonGroupButton: View {
                 Image(systemName: currentGroup.icon)
                     .font(Typography.Icon.xs)
 
-                if currentGroup != .none {
-                    Text(currentGroup.rawValue)
-                        .font(Typography.Command.caption)
-                }
+                Text(currentGroup == .none ? "Organize" : currentGroup.rawValue)
+                    .font(Typography.Command.caption)
 
                 Image(systemName: "chevron.down")
                     .font(Typography.Icon.xxs)
@@ -188,6 +186,8 @@ struct SermonGroupButton: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(currentGroup == .none ? "Organize sermons" : "Grouped by \(currentGroup.rawValue)")
+        .accessibilityHint("Opens grouping and sorting options")
     }
 }
 
