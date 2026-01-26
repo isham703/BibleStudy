@@ -13,25 +13,45 @@
 //  The TimestampChip is the ONLY seek target to avoid scroll conflicts.
 //
 
+import Auth
 import SwiftUI
 
 // MARK: - Anchored Insight Card
 
 struct AnchoredInsightCard: View {
     let insight: AnchoredInsight
+    let sermonId: UUID
     let delay: Double
     let isAwakened: Bool
     let onSeek: ((TimeInterval) -> Void)?
+
+    @Environment(AppState.self) private var appState
+
+    private var engagementService: SermonEngagementService { .shared }
+
+    private var targetId: String {
+        SermonEngagement.fingerprint(
+            sermonId: sermonId,
+            type: .favoriteInsight,
+            content: insight.title, insight.insight
+        )
+    }
+
+    private var isFavorited: Bool {
+        engagementService.isFavorited(type: .favoriteInsight, targetId: targetId)
+    }
 
     // MARK: - Initialization
 
     init(
         insight: AnchoredInsight,
+        sermonId: UUID,
         delay: Double,
         isAwakened: Bool,
         onSeek: ((TimeInterval) -> Void)? = nil
     ) {
         self.insight = insight
+        self.sermonId = sermonId
         self.delay = delay
         self.isAwakened = isAwakened
         self.onSeek = onSeek
@@ -74,6 +94,28 @@ struct AnchoredInsightCard: View {
 
             Spacer()
 
+            // Favorite toggle
+            Button {
+                HapticService.shared.lightTap()
+                Task {
+                    guard let userId = SupabaseManager.shared.currentUser?.id else { return }
+                    await engagementService.toggleFavorite(
+                        userId: userId,
+                        sermonId: sermonId,
+                        type: .favoriteInsight,
+                        targetId: targetId
+                    )
+                }
+            } label: {
+                Image(systemName: isFavorited ? "heart.fill" : "heart")
+                    .font(Typography.Icon.sm)
+                    .foregroundStyle(isFavorited ? Color("AccentBronze") : Color("TertiaryText"))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isFavorited ? "Unfavorite \(insight.title)" : "Favorite \(insight.title)")
+
             // Timestamp chip (primary seek target)
             if let timestamp = insight.timestampSeconds {
                 TimestampChip(timestamp: timestamp) {
@@ -93,6 +135,7 @@ struct AnchoredInsightCard: View {
                 .font(Typography.Scripture.heading)
                 .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.disabled))
                 .offset(y: -4)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(insight.supportingQuote)
@@ -110,12 +153,21 @@ struct AnchoredInsightCard: View {
     private func scriptureReferencesView(_ references: [String]) -> some View {
         SermonFlowLayout(spacing: Theme.Spacing.xs) {
             ForEach(references, id: \.self) { reference in
-                scriptureChip(reference)
+                Button {
+                    HapticService.shared.lightTap()
+                    openScriptureInBible(reference)
+                } label: {
+                    scriptureChipLabel(reference)
+                        .frame(minHeight: Theme.Size.minTapTarget)
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open \(reference) in Bible")
             }
         }
     }
 
-    private func scriptureChip(_ reference: String) -> some View {
+    private func scriptureChipLabel(_ reference: String) -> some View {
         HStack(spacing: 4) {
             Image(systemName: "book.closed")
                 .font(Typography.Icon.xs)
@@ -135,6 +187,21 @@ struct AnchoredInsightCard: View {
                 .stroke(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
         )
     }
+
+    private func openScriptureInBible(_ reference: String) {
+        let result = ReferenceParser.parse(reference)
+        guard case .success(let parsed) = result else { return }
+        let location = parsed.location
+        appState.saveLocation(location)
+        if let verse = parsed.verseStart {
+            appState.lastScrolledVerse = verse
+        }
+        NotificationCenter.default.post(
+            name: .deepLinkNavigationRequested,
+            object: nil,
+            userInfo: ["location": location]
+        )
+    }
 }
 
 // MARK: - Key Takeaways Section
@@ -142,6 +209,7 @@ struct AnchoredInsightCard: View {
 /// Container for displaying multiple anchored insights (key takeaways)
 struct KeyTakeawaysSection: View {
     let takeaways: [AnchoredInsight]
+    let sermonId: UUID
     let baseDelay: Double
     let isAwakened: Bool
     let onSeek: ((TimeInterval) -> Void)?
@@ -161,6 +229,7 @@ struct KeyTakeawaysSection: View {
                 ForEach(Array(takeaways.prefix(maxTakeaways).enumerated()), id: \.element.id) { index, takeaway in
                     AnchoredInsightCard(
                         insight: takeaway,
+                        sermonId: sermonId,
                         delay: baseDelay + Double(index) * 0.06,
                         isAwakened: isAwakened,
                         onSeek: onSeek
@@ -182,6 +251,8 @@ struct KeyTakeawaysSection: View {
                 .font(Typography.Command.body.weight(.medium))
                 .foregroundStyle(Color("AppTextPrimary"))
         }
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityLabel("Key Takeaways section")
         .ceremonialAppear(isAwakened: isAwakened, delay: baseDelay - 0.05, includeDrift: false)
     }
 
@@ -210,6 +281,7 @@ struct KeyTakeawaysSection: View {
                     timestampSeconds: 154,
                     references: ["John 3:16", "Ephesians 2:8-9"]
                 ),
+                sermonId: UUID(),
                 delay: 0.2,
                 isAwakened: true
             ) { timestamp in
@@ -224,6 +296,7 @@ struct KeyTakeawaysSection: View {
                     timestampSeconds: 423,
                     references: ["Romans 5:1"]
                 ),
+                sermonId: UUID(),
                 delay: 0.3,
                 isAwakened: true
             ) { _ in }
@@ -259,6 +332,7 @@ struct KeyTakeawaysSection: View {
                     references: ["1 John 4:19"]
                 )
             ],
+            sermonId: UUID(),
             baseDelay: 0.3,
             isAwakened: true
         ) { timestamp in

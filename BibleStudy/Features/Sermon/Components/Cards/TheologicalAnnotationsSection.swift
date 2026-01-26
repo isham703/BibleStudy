@@ -17,6 +17,7 @@
 //  Motion: Theme.Animation.settle - NO springs
 //
 
+import Auth
 import SwiftUI
 
 // MARK: - Theological Annotations Section
@@ -25,6 +26,7 @@ import SwiftUI
 /// Each annotation connects a doctrine to sermon content with supporting quotes.
 struct TheologicalAnnotationsSection: View {
     let annotations: [AnchoredInsight]
+    let sermonId: UUID
     let baseDelay: Double
     let isAwakened: Bool
     let onSeek: ((TimeInterval) -> Void)?
@@ -90,7 +92,7 @@ struct TheologicalAnnotationsSection: View {
         .buttonStyle(.plain)
         .accessibilityLabel("Theological Depth section")
         .accessibilityHint(isExpanded ? "Double tap to collapse" : "Double tap to expand")
-        .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits([.isButton, .isHeader])
     }
 
     // MARK: - Collapsed Preview
@@ -133,6 +135,7 @@ struct TheologicalAnnotationsSection: View {
             ForEach(Array(annotations.enumerated()), id: \.element.id) { index, annotation in
                 TheologicalAnnotationCard(
                     annotation: annotation,
+                    sermonId: sermonId,
                     delay: baseDelay + 0.05 + Double(index) * 0.06,
                     isAwakened: isAwakened,
                     onSeek: onSeek
@@ -147,9 +150,26 @@ struct TheologicalAnnotationsSection: View {
 /// Individual card for a theological annotation with doctrine header styling.
 private struct TheologicalAnnotationCard: View {
     let annotation: AnchoredInsight
+    let sermonId: UUID
     let delay: Double
     let isAwakened: Bool
     let onSeek: ((TimeInterval) -> Void)?
+
+    @Environment(AppState.self) private var appState
+
+    private var engagementService: SermonEngagementService { .shared }
+
+    private var targetId: String {
+        SermonEngagement.fingerprint(
+            sermonId: sermonId,
+            type: .favoriteInsight,
+            content: annotation.title, annotation.insight
+        )
+    }
+
+    private var isFavorited: Bool {
+        engagementService.isFavorited(type: .favoriteInsight, targetId: targetId)
+    }
 
     var body: some View {
         SermonAtriumCard(delay: delay, isAwakened: isAwakened) {
@@ -193,6 +213,28 @@ private struct TheologicalAnnotationCard: View {
 
             Spacer()
 
+            // Favorite toggle
+            Button {
+                HapticService.shared.lightTap()
+                Task {
+                    guard let userId = SupabaseManager.shared.currentUser?.id else { return }
+                    await engagementService.toggleFavorite(
+                        userId: userId,
+                        sermonId: sermonId,
+                        type: .favoriteInsight,
+                        targetId: targetId
+                    )
+                }
+            } label: {
+                Image(systemName: isFavorited ? "heart.fill" : "heart")
+                    .font(Typography.Icon.sm)
+                    .foregroundStyle(isFavorited ? Color("AccentBronze") : Color("TertiaryText"))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isFavorited ? "Unfavorite \(annotation.title)" : "Favorite \(annotation.title)")
+
             // Timestamp chip
             if let timestamp = annotation.timestampSeconds {
                 TimestampChip(timestamp: timestamp) {
@@ -212,6 +254,7 @@ private struct TheologicalAnnotationCard: View {
                 .font(Typography.Scripture.heading)
                 .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.disabled))
                 .offset(y: -4)
+                .accessibilityHidden(true)
 
             Text(annotation.supportingQuote)
                 .font(Typography.Scripture.quote)
@@ -227,12 +270,21 @@ private struct TheologicalAnnotationCard: View {
     private func scriptureReferencesView(_ references: [String]) -> some View {
         SermonFlowLayout(spacing: Theme.Spacing.xs) {
             ForEach(references, id: \.self) { reference in
-                scriptureChip(reference)
+                Button {
+                    HapticService.shared.lightTap()
+                    openScriptureInBible(reference)
+                } label: {
+                    scriptureChipLabel(reference)
+                        .frame(minHeight: Theme.Size.minTapTarget)
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open \(reference) in Bible")
             }
         }
     }
 
-    private func scriptureChip(_ reference: String) -> some View {
+    private func scriptureChipLabel(_ reference: String) -> some View {
         HStack(spacing: 4) {
             Image(systemName: "book.closed")
                 .font(Typography.Icon.xs)
@@ -250,6 +302,21 @@ private struct TheologicalAnnotationCard: View {
         .overlay(
             Capsule()
                 .stroke(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground), lineWidth: Theme.Stroke.hairline)
+        )
+    }
+
+    private func openScriptureInBible(_ reference: String) {
+        let result = ReferenceParser.parse(reference)
+        guard case .success(let parsed) = result else { return }
+        let location = parsed.location
+        appState.saveLocation(location)
+        if let verse = parsed.verseStart {
+            appState.lastScrolledVerse = verse
+        }
+        NotificationCenter.default.post(
+            name: .deepLinkNavigationRequested,
+            object: nil,
+            userInfo: ["location": location]
         )
     }
 }
@@ -282,6 +349,7 @@ private struct TheologicalAnnotationCard: View {
                         timestampSeconds: 2156
                     )
                 ],
+                sermonId: UUID(),
                 baseDelay: 0.2,
                 isAwakened: true
             ) { timestamp in
@@ -306,6 +374,7 @@ private struct TheologicalAnnotationCard: View {
                     references: ["Ephesians 2:8-9"]
                 )
             ],
+            sermonId: UUID(),
             baseDelay: 0.2,
             isAwakened: true
         ) { _ in }

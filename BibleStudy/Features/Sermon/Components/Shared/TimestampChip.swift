@@ -7,47 +7,79 @@ import SwiftUI
 // Usage:
 //   TimestampChip(timestamp: 120) { viewModel.seekToTime(120) }
 //   TimestampChip(timestamp: 120, isActive: true) { ... }  // Highlighted state
+//   TimestampChip(timestamp: 120, showPulseHint: true) { ... }  // First-time hint
 
 struct TimestampChip: View {
     // MARK: - Properties
 
     let timestamp: TimeInterval
     var isActive: Bool = false
+    var showPulseHint: Bool = false
     let onTap: () -> Void
 
     @State private var isPressed = false
+    @State private var pulseScale: CGFloat = 1.0
+    @State private var pulseOpacity: Double = 0.0
+    @State private var pulseCount = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "waveform")
-                .font(Typography.Icon.xxs)
+        Button {
+            HapticService.shared.lightTap()
+            onTap()
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "play.fill")
+                    .font(Typography.Icon.xxs)
 
-            Text(formatTimestamp(timestamp))
-                .font(Typography.Command.meta.monospacedDigit())
+                Text(formatTimestamp(timestamp))
+                    .font(Typography.Command.meta.monospacedDigit())
+            }
+            .foregroundStyle(chipColor)
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, 4)
+            .frame(minHeight: Theme.Size.minTapTarget)
+            .background(
+                Capsule()
+                    .fill(chipColor.opacity(Theme.Opacity.subtle))
+            )
+            .overlay(pulseOverlay)
+            .contentShape(Capsule())
         }
-        .foregroundStyle(chipColor)
-        .padding(.horizontal, Theme.Spacing.sm)
-        .padding(.vertical, 4)
-        .background(
-            Capsule()
-                .fill(chipColor.opacity(Theme.Opacity.subtle))
-        )
+        .buttonStyle(.plain)
         .opacity(isPressed ? 0.7 : 1.0)
         .scaleEffect(isPressed ? 0.95 : 1.0)
         .animation(Theme.Animation.settle, value: isPressed)
-        .contentShape(Capsule())
-        .onTapGesture {
-            HapticService.shared.lightTap()
-            onTap()
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !isPressed { isPressed = true }
+                }
+                .onEnded { _ in
+                    isPressed = false
+                }
+        )
+        .onAppear {
+            if showPulseHint && !reduceMotion {
+                startPulse()
+            }
         }
-        .onLongPressGesture(minimumDuration: 0, pressing: { pressing in
-            isPressed = pressing
-        }, perform: {})
-        .accessibilityLabel("Jump to \(formatTimestamp(timestamp))")
+        .accessibilityLabel("Play at \(formatTimestamp(timestamp))")
         .accessibilityHint("Double tap to seek audio")
-        .accessibilityAddTraits(.isButton)
+    }
+
+    // MARK: - Pulse Overlay
+
+    @ViewBuilder
+    private var pulseOverlay: some View {
+        if showPulseHint && !reduceMotion {
+            Capsule()
+                .stroke(chipColor, lineWidth: Theme.Stroke.hairline)
+                .scaleEffect(pulseScale)
+                .opacity(pulseOpacity)
+        }
     }
 
     // MARK: - Helpers
@@ -61,6 +93,22 @@ struct TimestampChip: View {
         let seconds = Int(time) % 60
         return String(format: "%d:%02d", minutes, seconds)
     }
+
+    private func startPulse() {
+        guard pulseCount < 2 else { return }
+        pulseScale = 1.0
+        pulseOpacity = 0.6
+
+        withAnimation(.easeOut(duration: 0.4)) {
+            pulseScale = 1.3
+            pulseOpacity = 0.0
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            pulseCount += 1
+            startPulse()
+        }
+    }
 }
 
 // MARK: - Preview
@@ -69,7 +117,7 @@ struct TimestampChip: View {
     VStack(spacing: Theme.Spacing.md) {
         TimestampChip(timestamp: 120, onTap: {})
         TimestampChip(timestamp: 65, isActive: true, onTap: {})
-        TimestampChip(timestamp: 2700, onTap: {})
+        TimestampChip(timestamp: 2700, showPulseHint: true, onTap: {})
     }
     .padding()
     .background(Color("AppBackground"))

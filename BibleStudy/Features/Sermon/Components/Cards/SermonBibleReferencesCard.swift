@@ -69,6 +69,8 @@ struct SermonBibleReferencesCard: View {
                 .font(Typography.Command.body.weight(.medium))
                 .foregroundStyle(Color("AppTextPrimary"))
         }
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityLabel("Scripture References section")
     }
 
     // MARK: - Mentioned Section

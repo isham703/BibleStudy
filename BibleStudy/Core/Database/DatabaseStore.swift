@@ -1252,6 +1252,42 @@ final class DatabaseStore: @unchecked Sendable {
             print("[Migration v29] Repaired \(repairedCount) sermon status records")
         }
 
+        // MARK: - v30: Sermon Engagements
+        // User engagement tracking: application commits, favorites, journal entries
+        migrator.registerMigration("v30_sermon_engagements") { db in
+            try db.create(table: "sermon_engagements", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("user_id", .text).notNull()
+                t.column("sermon_id", .text).notNull()
+                    .references("sermons", onDelete: .cascade)
+                t.column("engagement_type", .text).notNull()
+                t.column("target_id", .text).notNull()
+                t.column("content", .text)
+                t.column("metadata", .text)
+                t.column("created_at", .datetime).notNull()
+                t.column("updated_at", .datetime).notNull()
+                t.column("deleted_at", .datetime)
+                t.column("needs_sync", .boolean).notNull().defaults(to: false)
+            }
+
+            // Composite index for fast lookups (not unique — toggle via UPDATE)
+            try db.create(
+                index: "idx_sermon_engagements_lookup",
+                on: "sermon_engagements",
+                columns: ["sermon_id", "engagement_type", "target_id"],
+                ifNotExists: true
+            )
+
+            try db.create(
+                index: "idx_sermon_engagements_user",
+                on: "sermon_engagements",
+                columns: ["user_id"],
+                ifNotExists: true
+            )
+
+            print("[Migration v30] Created sermon_engagements table")
+        }
+
         try migrator.migrate(dbQueue)
     }
 

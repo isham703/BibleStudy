@@ -12,6 +12,7 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var isAwakened = false
+    @State private var showSermon = false
     @Environment(HomeTabViewModel.self) private var viewModel
     @Environment(\.settingsAction) private var settingsAction
     @Environment(\.colorScheme) private var colorScheme
@@ -69,6 +70,9 @@ struct HomeView: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(isPresented: $showSermon) {
+            SermonView()
+        }
         .onAppear {
             withAnimation(Theme.Animation.settle) {
                 isAwakened = true
@@ -341,13 +345,13 @@ struct HomeView: View {
 
     private var secondaryActionsGrid: some View {
         VStack(spacing: Theme.Spacing.md) {
-            HomeActionCard(
+            HomeActionButton(
                 icon: "mic.fill",
                 title: "Sermon",
                 subtitle: "Record & analyze",
                 accentColor: Color("AppAccentAction")
             ) {
-                SermonView()
+                showSermon = true
             }
 
             HomeActionCard(
@@ -513,6 +517,55 @@ private struct HomePillar<Destination: View>: View {
         .opacity(isAwakened ? 1 : 0)
         .offset(y: isAwakened ? 0 : 15)
         .animation(Theme.Animation.slowFade.delay(delay), value: isAwakened)
+    }
+}
+
+// MARK: - Home Action Button
+// Button-based action card for fullScreenCover presentations.
+// Visually identical to HomeActionCard but triggers an action
+// instead of pushing a NavigationLink destination.
+
+private struct HomeActionButton: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let accentColor: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: icon)
+                    .font(Typography.Icon.lg.weight(.light))
+                    .foregroundStyle(accentColor)
+                    .frame(width: 32)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(Typography.Command.label)
+                        .foregroundStyle(Color("AppTextPrimary"))
+                        .lineLimit(1)
+
+                    Text(subtitle)
+                        .font(Typography.Command.caption)
+                        .foregroundStyle(Color("TertiaryText"))
+                        .lineLimit(1)
+                }
+
+                Spacer()
+            }
+            .padding(Theme.Spacing.md)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .fill(Color.appSurface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                    .stroke(Color.appDivider, lineWidth: Theme.Stroke.hairline)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 

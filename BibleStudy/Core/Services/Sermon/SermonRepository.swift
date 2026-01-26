@@ -327,6 +327,41 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
         }
     }
 
+    // MARK: - Engagement Operations
+
+    func fetchEngagements(sermonId: UUID) throws -> [SermonEngagement] {
+        return try dbQueue.read { db in
+            try SermonEngagement
+                .filter(SermonEngagement.Columns.sermonId == sermonId)
+                .filter(SermonEngagement.Columns.deletedAt == nil)
+                .fetchAll(db)
+        }
+    }
+
+    func findEngagement(sermonId: UUID, type: EngagementType, targetId: String) throws -> SermonEngagement? {
+        return try dbQueue.read { db in
+            try SermonEngagement
+                .filter(SermonEngagement.Columns.sermonId == sermonId)
+                .filter(SermonEngagement.Columns.engagementType == type.rawValue)
+                .filter(SermonEngagement.Columns.targetId == targetId)
+                .fetchOne(db)
+        }
+    }
+
+    func upsertEngagement(_ engagement: SermonEngagement) throws {
+        try dbQueue.write { db in
+            try engagement.save(db)
+        }
+    }
+
+    func fetchEngagementsNeedingSync() throws -> [SermonEngagement] {
+        return try dbQueue.read { db in
+            try SermonEngagement
+                .filter(SermonEngagement.Columns.needsSync == true)
+                .fetchAll(db)
+        }
+    }
+
     // MARK: - Bulk Operations
 
     func saveSermons(_ sermons: [Sermon]) throws {

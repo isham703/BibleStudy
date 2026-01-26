@@ -62,6 +62,8 @@ struct CollapsibleInsightCard<Item: Identifiable, Content: View>: View {
                         collapseButton
                     }
                 }
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityLabel("\(title) section")
 
                 // Items
                 ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
