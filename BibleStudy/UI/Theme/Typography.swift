@@ -46,11 +46,13 @@ enum Typography {
 
         // S-Body: Reading body text (scripture passages)
         // CRITICAL: Reading blocks must constrain to max width, target 45-70 characters/line
-        static let body: Font = .system(size: 17, weight: .regular, design: .serif)
+        // Uses Dynamic Type (.body) for accessibility scaling — 17pt at default size
+        static let body: Font = .system(.body, design: .serif)
         static let bodyLineSpacing: CGFloat = 6  // ~1.45 line height
 
         // S-Quote: Maxims / quotations (italic for gravity)
-        static let quote: Font = .system(size: 17, weight: .regular, design: .serif).italic()
+        // Uses Dynamic Type (.body) for accessibility scaling — 17pt at default size
+        static let quote: Font = .system(.body, design: .serif).italic()
         static let quoteLineSpacing: CGFloat = 6  // ~1.45 line height
 
         // S-Footnote: Footnotes / references
@@ -79,7 +81,8 @@ enum Typography {
         static let ctaLineSpacing: CGFloat = 3  // ~1.20 line height
 
         // C-Body: Short instructions
-        static let body: Font = .system(size: 17, weight: .regular)
+        // Uses Dynamic Type (.body) for accessibility scaling — 17pt at default size
+        static let body: Font = .system(.body)
         static let bodyLineSpacing: CGFloat = 5  // ~1.35 line height
 
         // C-Label: Field labels, chips
@@ -92,7 +95,8 @@ enum Typography {
         static let metaLineSpacing: CGFloat = 2  // ~1.20 line height
 
         // C-Caption: Hints, helper text
-        static let caption: Font = .system(size: 12, weight: .regular)
+        // Uses Dynamic Type (.caption) for accessibility scaling — 12pt at default size
+        static let caption: Font = .system(.caption)
         static let captionLineSpacing: CGFloat = 2  // ~1.20 line height
 
         // C-ErrorTitle: Error titles

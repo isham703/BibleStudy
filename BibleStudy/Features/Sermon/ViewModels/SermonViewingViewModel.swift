@@ -26,8 +26,9 @@ final class SermonViewingViewModel {
 
     // MARK: - Private
 
-    private var player: AVQueuePlayer?
-    private var timeObserver: Any?
+    nonisolated(unsafe) private var player: AVQueuePlayer?
+    nonisolated(unsafe) private var timeObserver: Any?
+    private var isAudioLoaded = false
 
     // MARK: - Computed Properties
 
@@ -42,7 +43,7 @@ final class SermonViewingViewModel {
     // MARK: - Audio Loading
 
     func loadAudio(urls: [URL]) {
-        guard !urls.isEmpty else { return }
+        guard !urls.isEmpty, !isAudioLoaded else { return }
 
         let items = urls.map { AVPlayerItem(url: $0) }
         player = AVQueuePlayer(items: items)
@@ -63,6 +64,8 @@ final class SermonViewingViewModel {
                 self?.updateTime(time)
             }
         }
+
+        isAudioLoaded = true
     }
 
     private func updateTime(_ time: CMTime) {
@@ -159,12 +162,27 @@ final class SermonViewingViewModel {
     func cleanup() {
         if let observer = timeObserver {
             player?.removeTimeObserver(observer)
+            timeObserver = nil
         }
         player?.pause()
         player = nil
+        isAudioLoaded = false
 
         // Release audio session claim
         AudioService.shared.popAudioSession(owner: "SermonViewingViewModel")
+    }
+
+    deinit {
+        // AVPlayer operations are thread-safe
+        if let observer = timeObserver {
+            player?.removeTimeObserver(observer)
+        }
+        player?.pause()
+
+        // AudioService requires MainActor
+        Task { @MainActor in
+            AudioService.shared.popAudioSession(owner: "SermonViewingViewModel")
+        }
     }
 
     // MARK: - Helpers

@@ -74,7 +74,7 @@ struct AIErrorView: View {
 
     var body: some View {
         VStack(spacing: Theme.Spacing.md) {
-            Image(systemName: "sparkles.slash")
+            Image(systemName: "exclamationmark.triangle")
                 .font(Typography.Command.title1)
                 .foregroundStyle(Color("FeedbackWarning"))
 

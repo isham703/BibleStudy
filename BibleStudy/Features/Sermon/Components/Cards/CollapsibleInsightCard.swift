@@ -55,6 +55,8 @@ struct CollapsibleInsightCard<Item: Identifiable, Content: View>: View {
                     Text(title)
                         .font(Typography.Command.body.weight(.medium))
                         .foregroundStyle(Color("AppTextPrimary"))
+                        .accessibilityAddTraits(.isHeader)
+                        .accessibilityLabel("\(title) section")
 
                     Spacer()
 

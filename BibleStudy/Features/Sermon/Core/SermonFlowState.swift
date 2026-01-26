@@ -333,8 +333,8 @@ final class SermonFlowState {
         HapticService.shared.warning()
     }
 
-    /// Add a bookmark at the current timestamp
-    func addBookmark(label: BookmarkLabel? = nil, note: String? = nil) async {
+    /// Add a bookmark at the given or current timestamp
+    func addBookmark(label: BookmarkLabel? = nil, note: String? = nil, timestampSeconds: TimeInterval? = nil) async {
         // Ensure we have a valid session
         _ = try? await supabase.client.auth.refreshSession()
 
@@ -344,7 +344,7 @@ final class SermonFlowState {
         let bookmark = SermonBookmark(
             userId: userId,
             sermonId: sermon.id,
-            timestampSeconds: recordingDuration,
+            timestampSeconds: timestampSeconds ?? recordingDuration,
             note: note,
             label: label ?? .keyPoint,
             needsSync: true
@@ -553,7 +553,12 @@ final class SermonFlowState {
                       updatedId == sermonId else { continue }
 
                 // Reload study guide to get updated timestamps
-                self.currentStudyGuide = try? self.repository.fetchStudyGuide(sermonId: sermonId)
+                // Only assign if changed — unconditional assignment triggers @Observable
+                // dirty tracking and can cause NavigationStack destination invalidation.
+                let updated = try? self.repository.fetchStudyGuide(sermonId: sermonId)
+                if updated != self.currentStudyGuide {
+                    self.currentStudyGuide = updated
+                }
             }
         }
     }

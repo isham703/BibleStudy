@@ -7,6 +7,7 @@ struct ScriptureReferenceDetailSheet: View {
     let reference: SermonVerseReference
     @State private var appeared = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var appState
 
     var body: some View {
         NavigationStack {
@@ -66,6 +67,17 @@ struct ScriptureReferenceDetailSheet: View {
             .navigationTitle(reference.reference)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if let bookId = reference.bookId, let chapter = reference.chapter {
+                        Button {
+                            openInBible(bookId: bookId, chapter: chapter, verse: reference.verseStart)
+                        } label: {
+                            Label("Open in Bible", systemImage: "book.closed")
+                                .font(Typography.Command.body)
+                                .foregroundStyle(Color("AccentBronze"))
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                         .foregroundStyle(Color("AccentBronze"))
@@ -77,6 +89,22 @@ struct ScriptureReferenceDetailSheet: View {
                 appeared = true
             }
         }
+    }
+
+    // MARK: - Navigation
+
+    private func openInBible(bookId: Int, chapter: Int, verse: Int?) {
+        let location = BibleLocation(bookId: bookId, chapter: chapter)
+        appState.saveLocation(location)
+        if let verse {
+            appState.lastScrolledVerse = verse
+        }
+        dismiss()
+        NotificationCenter.default.post(
+            name: .deepLinkNavigationRequested,
+            object: nil,
+            userInfo: ["location": location]
+        )
     }
 
     // MARK: - Header

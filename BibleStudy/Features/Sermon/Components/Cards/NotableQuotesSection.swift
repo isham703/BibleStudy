@@ -16,6 +16,7 @@
 //  Motion: Theme.Animation.slowFade - NO springs
 //
 
+import Auth
 import SwiftUI
 
 // MARK: - Notable Quotes Section
@@ -23,6 +24,7 @@ import SwiftUI
 /// Section displaying notable quotes from the sermon with decorative styling.
 struct NotableQuotesSection: View {
     let quotes: [Quote]
+    let sermonId: UUID
     let baseDelay: Double
     let isAwakened: Bool
     let onSeek: ((TimeInterval) -> Void)?
@@ -42,6 +44,7 @@ struct NotableQuotesSection: View {
                 ForEach(Array(quotes.prefix(maxQuotes).enumerated()), id: \.element.id) { index, quote in
                     NotableQuoteCard(
                         quote: quote,
+                        sermonId: sermonId,
                         delay: baseDelay + 0.05 + Double(index) * 0.08,
                         isAwakened: isAwakened,
                         onSeek: onSeek
@@ -63,6 +66,8 @@ struct NotableQuotesSection: View {
                 .font(Typography.Command.body.weight(.medium))
                 .foregroundStyle(Color("AppTextPrimary"))
         }
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityLabel("Notable Quotes section")
         .ceremonialAppear(isAwakened: isAwakened, delay: baseDelay, includeDrift: false)
     }
 
@@ -83,11 +88,26 @@ struct NotableQuotesSection: View {
 /// Individual card for a notable quote with decorative marginalia styling.
 private struct NotableQuoteCard: View {
     let quote: Quote
+    let sermonId: UUID
     let delay: Double
     let isAwakened: Bool
     let onSeek: ((TimeInterval) -> Void)?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var engagementService: SermonEngagementService { .shared }
+
+    /// Quote.id is already stable (derived from text content)
+    private var targetId: String { quote.id }
+
+    private var isFavorited: Bool {
+        engagementService.engagements.contains {
+            $0.engagementType == .favoriteQuote &&
+            $0.targetId == targetId &&
+            $0.sermonId == sermonId &&
+            $0.isActive
+        }
+    }
 
     var body: some View {
         SermonAtriumCard(delay: delay, isAwakened: isAwakened) {
@@ -114,6 +134,7 @@ private struct NotableQuoteCard: View {
                 .font(.system(size: 48, weight: .regular, design: .serif))
                 .foregroundStyle(Color("AccentBronze").opacity(Theme.Opacity.selectionBackground))
                 .offset(x: -4, y: -12)
+                .accessibilityHidden(true)
 
             // Quote text
             Text(quote.text)
@@ -139,6 +160,28 @@ private struct NotableQuoteCard: View {
             }
 
             Spacer()
+
+            // Favorite toggle
+            Button {
+                HapticService.shared.lightTap()
+                Task {
+                    guard let userId = SupabaseManager.shared.currentUser?.id else { return }
+                    await engagementService.toggleFavorite(
+                        userId: userId,
+                        sermonId: sermonId,
+                        type: .favoriteQuote,
+                        targetId: targetId
+                    )
+                }
+            } label: {
+                Image(systemName: isFavorited ? "heart.fill" : "heart")
+                    .font(Typography.Icon.sm)
+                    .foregroundStyle(isFavorited ? Color("AccentBronze") : Color("TertiaryText"))
+                    .frame(width: Theme.Size.minTapTarget, height: Theme.Size.minTapTarget)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isFavorited ? "Unfavorite quote" : "Favorite quote")
 
             // Timestamp chip
             if let timestamp = quote.timestampSeconds {
@@ -174,6 +217,7 @@ private struct NotableQuoteCard: View {
                         context: "On transformation"
                     )
                 ],
+                sermonId: UUID(),
                 baseDelay: 0.2,
                 isAwakened: true
             ) { timestamp in
@@ -196,6 +240,7 @@ private struct NotableQuoteCard: View {
                     context: nil
                 )
             ],
+            sermonId: UUID(),
             baseDelay: 0.2,
             isAwakened: true
         ) { _ in }
@@ -209,6 +254,7 @@ private struct NotableQuoteCard: View {
     ScrollView {
         NotableQuotesSection(
             quotes: [],
+            sermonId: UUID(),
             baseDelay: 0.2,
             isAwakened: true
         ) { _ in }
