@@ -67,7 +67,9 @@ struct QuietRecallCard: View {
             "Take a moment. In your own words, what is the main takeaway from this sermon?",
             "What would you say if a friend asked you what this sermon was about?",
         ]
-        let index = abs(sermonId.hashValue) % prompts.count
+        // Deterministic hash — hashValue is randomly seeded per process launch
+        let hash = sermonId.uuidString.utf8.reduce(UInt(0)) { ($0 &* 31) &+ UInt($1) }
+        let index = Int(hash % UInt(prompts.count))
         return prompts[index]
     }
 
@@ -104,12 +106,9 @@ struct QuietRecallCard: View {
                 .fill(Color("AccentBronze").opacity(Theme.Opacity.subtle))
         )
         .ceremonialAppear(isAwakened: isAwakened, delay: delay)
-        .onAppear {
-            if let existing = engagementService.journalEntry(targetId: targetId),
-               let content = existing.content, !content.isEmpty {
-                savedText = content
-                cardState = .saved
-            }
+        .onAppear { loadExistingRecallIfNeeded() }
+        .onChange(of: engagementService.engagements) {
+            loadExistingRecallIfNeeded()
         }
     }
 
@@ -247,6 +246,15 @@ struct QuietRecallCard: View {
     }
 
     // MARK: - Actions
+
+    private func loadExistingRecallIfNeeded() {
+        guard cardState != .expanded else { return }
+        if let existing = engagementService.journalEntry(targetId: targetId),
+           let content = existing.content, !content.isEmpty {
+            savedText = content
+            cardState = .saved
+        }
+    }
 
     private func beginEditing() {
         previousState = cardState
