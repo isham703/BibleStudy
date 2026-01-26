@@ -350,6 +350,17 @@ final class SermonRepository: SermonRepositoryProtocol, @unchecked Sendable {
 
     func upsertEngagement(_ engagement: SermonEngagement) throws {
         try dbQueue.write { db in
+            // Prevent duplicate rows: remove any existing record with same business key
+            // but different primary key before inserting
+            if let existing = try SermonEngagement
+                .filter(SermonEngagement.Columns.sermonId == engagement.sermonId)
+                .filter(SermonEngagement.Columns.engagementType == engagement.engagementType.rawValue)
+                .filter(SermonEngagement.Columns.targetId == engagement.targetId)
+                .fetchOne(db),
+               existing.id != engagement.id
+            {
+                try existing.delete(db)
+            }
             try engagement.save(db)
         }
     }

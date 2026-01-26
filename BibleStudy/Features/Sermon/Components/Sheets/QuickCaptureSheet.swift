@@ -15,16 +15,12 @@ import SwiftUI
 struct QuickCaptureSheet: View {
     let sermonId: UUID
     let currentTime: TimeInterval?
-    let onSave: (BookmarkLabel, String?, TimeInterval) -> Void
+    let onSave: (BookmarkLabel, String?, TimeInterval?) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var selectedLabel: BookmarkLabel = .keyPoint
     @State private var noteText: String = ""
     @FocusState private var isNoteFocused: Bool
-
-    private var effectiveTimestamp: TimeInterval {
-        currentTime ?? 0
-    }
 
     var body: some View {
         NavigationStack {
@@ -148,7 +144,7 @@ struct QuickCaptureSheet: View {
 
     private func saveNote() {
         let note = noteText.trimmingCharacters(in: .whitespacesAndNewlines)
-        onSave(selectedLabel, note.isEmpty ? nil : note, effectiveTimestamp)
+        onSave(selectedLabel, note.isEmpty ? nil : note, currentTime)
         HapticService.shared.selectionChanged()
         dismiss()
     }

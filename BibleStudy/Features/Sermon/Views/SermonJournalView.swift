@@ -33,7 +33,10 @@ struct SermonJournalView: View {
     // MARK: - Computed
 
     private var journalEntries: [SermonEngagement] {
-        engagementService.engagements.filter { $0.engagementType == .journalEntry }
+        guard let sermonId = flowState.currentSermon?.id else { return [] }
+        return engagementService.engagements.filter {
+            $0.engagementType == .journalEntry && $0.sermonId == sermonId
+        }
     }
 
     private var hasBookmarks: Bool {

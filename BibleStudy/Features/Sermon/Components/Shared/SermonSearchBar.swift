@@ -14,7 +14,11 @@ import SwiftUI
 
 struct SermonSearchBar: View {
     @Binding var searchQuery: String
+    var placeholder: String = "Search notes..."
     var matchCount: Int? = nil
+    var matchLabel: String = "section"
+    var matchLabelPlural: String = "sections"
+    var onDismiss: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
@@ -22,28 +26,29 @@ struct SermonSearchBar: View {
                 .font(Typography.Icon.sm)
                 .foregroundStyle(Color("TertiaryText"))
 
-            TextField("Search notes...", text: $searchQuery)
+            TextField(placeholder, text: $searchQuery)
                 .font(Typography.Command.body)
                 .foregroundStyle(Color("AppTextPrimary"))
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
 
             if let count = matchCount, !searchQuery.isEmpty {
-                Text("\(count) section\(count == 1 ? "" : "s")")
+                Text("\(count) \(count == 1 ? matchLabel : matchLabelPlural)")
                     .font(Typography.Command.meta)
                     .foregroundStyle(count > 0 ? Color("AccentBronze") : Color("FeedbackWarning"))
                     .transition(.opacity)
             }
 
-            if !searchQuery.isEmpty {
+            if !searchQuery.isEmpty || onDismiss != nil {
                 Button {
                     searchQuery = ""
+                    onDismiss?()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(Typography.Icon.sm)
                         .foregroundStyle(Color("TertiaryText"))
                 }
-                .accessibilityLabel("Clear search")
+                .accessibilityLabel(onDismiss != nil ? "Close search" : "Clear search")
             }
         }
         .padding(Theme.Spacing.sm)

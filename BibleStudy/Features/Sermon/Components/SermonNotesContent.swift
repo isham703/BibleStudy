@@ -271,27 +271,25 @@ struct SermonNotesContent: View {
             }
         }
         .sheet(item: $selectedQuestion) { question in
+            let targetId = SermonEngagement.fingerprint(
+                sermonId: studyGuide.sermonId,
+                type: .journalEntry,
+                content: question.question
+            )
             JournalEntrySheet(
                 question: question,
                 sermonId: studyGuide.sermonId,
-                existingContent: engagementService.journalEntry(
-                    targetId: SermonEngagement.fingerprint(
-                        sermonId: studyGuide.sermonId,
-                        type: .journalEntry,
-                        content: question.question
-                    )
-                )?.content,
+                existingContent: engagementService.journalEntry(targetId: targetId)?.content,
                 onSave: { content in
                     Task {
-                        guard let userId = SupabaseManager.shared.currentUser?.id else { return }
+                        guard let userId = SupabaseManager.shared.currentUser?.id else {
+                            ToastService.shared.showError(message: "Sign in to save journal entries")
+                            return
+                        }
                         await engagementService.saveJournalEntry(
                             userId: userId,
                             sermonId: studyGuide.sermonId,
-                            targetId: SermonEngagement.fingerprint(
-                                sermonId: studyGuide.sermonId,
-                                type: .journalEntry,
-                                content: question.question
-                            ),
+                            targetId: targetId,
                             content: content
                         )
                     }
@@ -299,27 +297,25 @@ struct SermonNotesContent: View {
             )
         }
         .sheet(item: $selectedReflectionPrompt) { prompt in
+            let targetId = SermonEngagement.fingerprint(
+                sermonId: studyGuide.sermonId,
+                type: .journalEntry,
+                content: prompt.value
+            )
             JournalEntrySheet(
                 question: StudyQuestion(question: prompt.value, type: .application),
                 sermonId: studyGuide.sermonId,
-                existingContent: engagementService.journalEntry(
-                    targetId: SermonEngagement.fingerprint(
-                        sermonId: studyGuide.sermonId,
-                        type: .journalEntry,
-                        content: prompt.value
-                    )
-                )?.content,
+                existingContent: engagementService.journalEntry(targetId: targetId)?.content,
                 onSave: { content in
                     Task {
-                        guard let userId = SupabaseManager.shared.currentUser?.id else { return }
+                        guard let userId = SupabaseManager.shared.currentUser?.id else {
+                            ToastService.shared.showError(message: "Sign in to save journal entries")
+                            return
+                        }
                         await engagementService.saveJournalEntry(
                             userId: userId,
                             sermonId: studyGuide.sermonId,
-                            targetId: SermonEngagement.fingerprint(
-                                sermonId: studyGuide.sermonId,
-                                type: .journalEntry,
-                                content: prompt.value
-                            ),
+                            targetId: targetId,
                             content: content
                         )
                     }
@@ -488,7 +484,10 @@ private struct AnchoredApplicationRow: View {
                     Button {
                         HapticService.shared.lightTap()
                         Task {
-                            guard let userId = SupabaseManager.shared.currentUser?.id else { return }
+                            guard let userId = SupabaseManager.shared.currentUser?.id else {
+                                ToastService.shared.showError(message: "Sign in to commit to application points")
+                                return
+                            }
                             await engagementService.toggleCommit(
                                 userId: userId,
                                 sermonId: sermonId,

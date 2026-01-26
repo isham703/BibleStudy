@@ -165,40 +165,19 @@ struct SermonListenReadView: View {
     // MARK: - Transcript Search Bar
 
     private var transcriptSearchBar: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            Image(systemName: "magnifyingglass")
-                .font(Typography.Icon.sm)
-                .foregroundStyle(Color("TertiaryText"))
-
-            TextField("Find in transcript...", text: $transcriptSearchQuery)
-                .font(Typography.Command.body)
-                .foregroundStyle(Color("AppTextPrimary"))
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-
-            if !transcriptSearchQuery.isEmpty {
-                Text("\(searchResultCount) match\(searchResultCount == 1 ? "" : "es")")
-                    .font(Typography.Command.meta)
-                    .foregroundStyle(searchResultCount > 0 ? Color("AccentBronze") : Color("FeedbackWarning"))
-                    .transition(.opacity)
-            }
-
-            Button {
+        SermonSearchBar(
+            searchQuery: $transcriptSearchQuery,
+            placeholder: "Find in transcript...",
+            matchCount: searchResultCount,
+            matchLabel: "match",
+            matchLabelPlural: "matches",
+            onDismiss: {
                 withAnimation(Theme.Animation.fade) {
-                    transcriptSearchQuery = ""
                     isSearchExpanded = false
                 }
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(Typography.Icon.sm)
-                    .foregroundStyle(Color("TertiaryText"))
-                    .frame(minWidth: Theme.Size.minTapTarget, minHeight: Theme.Size.minTapTarget)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Close search")
-        }
+        )
         .padding(.horizontal, Theme.Spacing.lg)
-        .frame(minHeight: Theme.Size.minTapTarget)
         .padding(.vertical, Theme.Spacing.xxs)
         .background(reduceTransparency ? AnyShapeStyle(Color("AppBackground")) : AnyShapeStyle(.ultraThinMaterial))
     }

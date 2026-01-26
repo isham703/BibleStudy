@@ -24,10 +24,16 @@ final class SermonEngagementService {
             let fetched = try await Task.detached {
                 try SermonRepository.shared.fetchEngagements(sermonId: sermonId)
             }.value
+            // Only apply if we're still the current load (prevents stale overwrites)
+            guard loadedSermonId == sermonId else { return }
             self.engagements = fetched
         } catch {
             print("[SermonEngagementService] Failed to load engagements: \(error)")
-            self.engagements = []
+            // Only clear if we're still the current load (enables retry)
+            if loadedSermonId == sermonId {
+                loadedSermonId = nil
+                self.engagements = []
+            }
         }
     }
 

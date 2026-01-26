@@ -49,14 +49,19 @@ struct SermonLandingContent: View {
         hasAudio && viewModel.currentTime > 0
     }
 
+    private var sermonEngagements: [SermonEngagement] {
+        guard let sermonId = sermon?.id else { return [] }
+        return engagementService.engagements.filter { $0.sermonId == sermonId }
+    }
+
     private var favoritesCount: Int {
-        engagementService.engagements.filter {
+        sermonEngagements.filter {
             $0.engagementType == .favoriteInsight || $0.engagementType == .favoriteQuote
         }.count
     }
 
     private var journalResponseCount: Int {
-        engagementService.engagements.filter {
+        sermonEngagements.filter {
             $0.engagementType == .journalEntry
         }.count
     }
@@ -66,7 +71,7 @@ struct SermonLandingContent: View {
     }
 
     private var applicationCommitCount: Int {
-        engagementService.engagements.filter { $0.engagementType == .applicationCommit }.count
+        sermonEngagements.filter { $0.engagementType == .applicationCommit }.count
     }
 
     private var hasEngagementData: Bool {

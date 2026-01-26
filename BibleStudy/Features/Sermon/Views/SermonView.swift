@@ -14,6 +14,7 @@ struct SermonView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var flowState = SermonFlowState()
     @State private var showLibrary = false
+    @State private var navigationPath = NavigationPath()
 
     // MARK: - Viewing Phase State
 
@@ -26,7 +27,7 @@ struct SermonView: View {
     @State private var audioLoadTask: Task<Void, Never>?
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack {
                 // Background
                 sermonBackground
@@ -79,11 +80,15 @@ struct SermonView: View {
                                 await flowState.addBookmark(
                                     label: label,
                                     note: note,
-                                    timestampSeconds: timestamp
+                                    timestampSeconds: timestamp ?? 0
                                 )
                                 loadBookmarks()
-                                let formatted = String(format: "%d:%02d", Int(timestamp) / 60, Int(timestamp) % 60)
-                                ToastService.shared.showSuccess(message: "Note saved at \(formatted)")
+                                if let ts = timestamp {
+                                    let formatted = String(format: "%d:%02d", Int(ts) / 60, Int(ts) % 60)
+                                    ToastService.shared.showSuccess(message: "Note saved at \(formatted)")
+                                } else {
+                                    ToastService.shared.showSuccess(message: "Note saved")
+                                }
                             }
                         }
                     )
@@ -251,7 +256,7 @@ struct SermonView: View {
                 scrollTo: scrollTo,
                 onAddNote: { showQuickCapture = true },
                 onShare: { showShareSheet = true },
-                onNewSermon: { flowState.reset() },
+                onNewSermon: { navigationPath = NavigationPath(); flowState.reset() },
                 onDelete: { showDeleteConfirmation = true }
             )
 
@@ -262,7 +267,7 @@ struct SermonView: View {
                 autoPlay: autoPlay,
                 onAddNote: { showQuickCapture = true },
                 onShare: { showShareSheet = true },
-                onNewSermon: { flowState.reset() },
+                onNewSermon: { navigationPath = NavigationPath(); flowState.reset() },
                 onDelete: { showDeleteConfirmation = true }
             )
 
@@ -278,7 +283,7 @@ struct SermonView: View {
                 },
                 onAddNote: { showQuickCapture = true },
                 onShare: { showShareSheet = true },
-                onNewSermon: { flowState.reset() },
+                onNewSermon: { navigationPath = NavigationPath(); flowState.reset() },
                 onDelete: { showDeleteConfirmation = true }
             )
         }

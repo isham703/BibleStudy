@@ -90,9 +90,13 @@ final class SermonNotesViewModel {
         guard let guide = studyGuide else { return [] }
         let content = guide.content
 
-        // Quick recap: curated subset
+        // Quick recap: curated subset (still apply search filtering)
         if isQuickRecapMode {
-            return computeRecapSections(content)
+            var sections = computeRecapSections(content)
+            if !debouncedQuery.isEmpty {
+                sections = sections.filter { sectionMatchesQuery($0, content: content, query: debouncedQuery) }
+            }
+            return sections
         }
 
         // Start with all sections that have content
@@ -132,7 +136,7 @@ final class SermonNotesViewModel {
 
     private func computeRecapSections(_ content: StudyGuideContent) -> Set<SermonSectionID> {
         var sections: Set<SermonSectionID> = [.summary]
-        if content.keyTakeaways != nil { sections.insert(.keyTakeaways) }
+        if let takeaways = content.keyTakeaways, !takeaways.isEmpty { sections.insert(.keyTakeaways) }
         if let q = content.notableQuotes, !q.isEmpty { sections.insert(.notableQuotes) }
         if !content.applicationPoints.isEmpty ||
             content.anchoredApplicationPoints.map({ !$0.isEmpty }) == true {

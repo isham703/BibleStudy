@@ -101,7 +101,12 @@ private struct NotableQuoteCard: View {
     private var targetId: String { quote.id }
 
     private var isFavorited: Bool {
-        engagementService.isFavorited(type: .favoriteQuote, targetId: targetId)
+        engagementService.engagements.contains {
+            $0.engagementType == .favoriteQuote &&
+            $0.targetId == targetId &&
+            $0.sermonId == sermonId &&
+            $0.isActive
+        }
     }
 
     var body: some View {

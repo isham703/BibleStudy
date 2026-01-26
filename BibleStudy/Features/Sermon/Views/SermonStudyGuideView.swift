@@ -87,7 +87,8 @@ struct SermonStudyGuideView: View {
             .onChange(of: pendingScrollTarget) { _, newValue in
                 if let target = newValue {
                     pendingScrollTarget = nil
-                    // Reset filter if target section is hidden
+                    // Clear search and reset filter if target section is hidden
+                    notesViewModel.clearSearch()
                     if !notesViewModel.isSectionVisible(target) {
                         notesViewModel.selectedFilter = .all
                         notesViewModel.isQuickRecapMode = false
@@ -220,42 +221,17 @@ struct SermonStudyGuideView: View {
     private var controlStrip: some View {
         VStack(spacing: 0) {
             if isSearchExpanded {
-                // Expanded search mode
-                HStack(spacing: Theme.Spacing.sm) {
-                    Image(systemName: "magnifyingglass")
-                        .font(Typography.Icon.sm)
-                        .foregroundStyle(Color("TertiaryText"))
-
-                    TextField("Search notes...", text: $notesViewModel.searchQuery)
-                        .font(Typography.Command.body)
-                        .foregroundStyle(Color("AppTextPrimary"))
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-
-                    if notesViewModel.isSearchActive {
-                        let count = notesViewModel.matchingSectionCount
-                        Text("\(count) section\(count == 1 ? "" : "s")")
-                            .font(Typography.Command.meta)
-                            .foregroundStyle(count > 0 ? Color("AccentBronze") : Color("FeedbackWarning"))
-                            .transition(.opacity)
-                    }
-
-                    Button {
+                SermonSearchBar(
+                    searchQuery: $notesViewModel.searchQuery,
+                    matchCount: notesViewModel.isSearchActive ? notesViewModel.matchingSectionCount : nil,
+                    onDismiss: {
                         withAnimation(Theme.Animation.fade) {
                             notesViewModel.clearSearch()
                             isSearchExpanded = false
                         }
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(Typography.Icon.sm)
-                            .foregroundStyle(Color("TertiaryText"))
-                            .frame(minWidth: Theme.Size.minTapTarget, minHeight: Theme.Size.minTapTarget)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Close search")
-                }
+                )
                 .padding(.horizontal, Theme.Spacing.lg)
-                .frame(minHeight: Theme.Size.minTapTarget)
             } else {
                 // Compact control strip
                 HStack(spacing: Theme.Spacing.md) {
@@ -288,7 +264,7 @@ struct SermonStudyGuideView: View {
                                      : notesViewModel.selectedFilter.displayLabel)
                             }
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(Typography.Icon.xxs)
                         }
                         .font(Typography.Command.caption)
                         .foregroundStyle(filterPillIsActive ? .white : Color("AppTextSecondary"))
@@ -452,7 +428,7 @@ struct SermonStudyGuideView: View {
                                 HStack(spacing: Theme.Spacing.md) {
                                     Image(systemName: section.icon)
                                         .font(Typography.Icon.sm)
-                                        .frame(width: 24)
+                                        .frame(width: Theme.Size.iconSize)
                                         .foregroundStyle(
                                             section == activeSectionID
                                                 ? Color("AccentBronze")

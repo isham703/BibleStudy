@@ -81,7 +81,7 @@ struct ReflectBridgeCard: View {
                                     Image(systemName: row.icon)
                                         .font(Typography.Icon.sm)
                                         .foregroundStyle(Color("AccentBronze"))
-                                        .frame(width: 24)
+                                        .frame(width: Theme.Size.iconSize)
 
                                     Text(row.label)
                                         .font(Typography.Command.body)

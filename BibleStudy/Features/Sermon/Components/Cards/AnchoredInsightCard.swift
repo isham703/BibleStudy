@@ -114,7 +114,9 @@ struct AnchoredInsightCard: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .disabled(SupabaseManager.shared.currentUser == nil)
             .accessibilityLabel(isFavorited ? "Unfavorite \(insight.title)" : "Favorite \(insight.title)")
+            .accessibilityHint(SupabaseManager.shared.currentUser == nil ? "Sign in to favorite insights" : "")
 
             // Timestamp chip (primary seek target)
             if let timestamp = insight.timestampSeconds {
