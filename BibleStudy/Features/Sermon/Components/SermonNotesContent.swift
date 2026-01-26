@@ -124,6 +124,15 @@ struct SermonNotesContent: View {
                 .trackSectionVisibility(.theologicalDepth, in: "notesScroll")
             }
 
+            // Quiet Recall (retrieval practice before Reflect sections)
+            if shouldShowBridgeCard {
+                QuietRecallCard(
+                    sermonId: studyGuide.sermonId,
+                    isAwakened: isAwakened,
+                    delay: 0.58
+                )
+            }
+
             // Reflect Bridge (between Read and Reflect/Apply sections)
             if shouldShowBridgeCard {
                 ReflectBridgeCard(
@@ -283,7 +292,7 @@ struct SermonNotesContent: View {
                 onSave: { content in
                     Task {
                         guard let userId = SupabaseManager.shared.currentUser?.id else {
-                            ToastService.shared.showError(message: "Sign in to save journal entries")
+                            ToastService.shared.showInfo(message: "Sign in to save journal entries")
                             return
                         }
                         await engagementService.saveJournalEntry(
@@ -309,7 +318,7 @@ struct SermonNotesContent: View {
                 onSave: { content in
                     Task {
                         guard let userId = SupabaseManager.shared.currentUser?.id else {
-                            ToastService.shared.showError(message: "Sign in to save journal entries")
+                            ToastService.shared.showInfo(message: "Sign in to save journal entries")
                             return
                         }
                         await engagementService.saveJournalEntry(
@@ -485,7 +494,7 @@ private struct AnchoredApplicationRow: View {
                         HapticService.shared.lightTap()
                         Task {
                             guard let userId = SupabaseManager.shared.currentUser?.id else {
-                                ToastService.shared.showError(message: "Sign in to commit to application points")
+                                ToastService.shared.showInfo(message: "Sign in to commit to application points")
                                 return
                             }
                             await engagementService.toggleCommit(

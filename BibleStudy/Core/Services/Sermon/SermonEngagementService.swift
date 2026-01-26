@@ -71,11 +71,12 @@ final class SermonEngagementService {
 
     // MARK: - Journal
 
-    func saveJournalEntry(userId: UUID, sermonId: UUID, targetId: String, content: String) async {
+    func saveJournalEntry(userId: UUID, sermonId: UUID, targetId: String, content: String, metadata: String? = nil) async {
         do {
             if var existing = try await findExisting(sermonId: sermonId, type: .journalEntry, targetId: targetId) {
                 // Update existing journal entry
                 existing.updateContent(content)
+                if let metadata { existing.metadata = metadata }
                 if !existing.isActive { existing.restore() }
                 try await persist(existing)
                 updateCache(existing)
@@ -87,6 +88,7 @@ final class SermonEngagementService {
                     engagementType: .journalEntry,
                     targetId: targetId,
                     content: content,
+                    metadata: metadata,
                     needsSync: true
                 )
                 try await persist(engagement)

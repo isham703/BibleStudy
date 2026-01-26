@@ -223,17 +223,30 @@ struct SermonJournalView: View {
 
     // MARK: - Journal Entry Row
 
+    private func isRecallKind(_ entry: SermonEngagement) -> Bool {
+        guard let metadata = entry.metadata,
+              let data = metadata.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let kind = json["kind"] as? String else { return false }
+        return kind == "recall"
+    }
+
     private func journalEntryRow(_ entry: SermonEngagement) -> some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+        let isRecall = isRecallKind(entry)
+        let accentColor = isRecall ? Color("AccentBronze") : Color("FeedbackSuccess")
+        let icon = isRecall ? "brain.head.profile" : "pencil.and.outline"
+        let label = isRecall ? "Recall" : "Response"
+
+        return VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             // Entry type indicator
             HStack {
-                Image(systemName: "pencil.and.outline")
+                Image(systemName: icon)
                     .font(Typography.Icon.sm)
-                    .foregroundStyle(Color("FeedbackSuccess"))
+                    .foregroundStyle(accentColor)
 
-                Text("Response")
+                Text(label)
                     .font(Typography.Command.label)
-                    .foregroundStyle(Color("FeedbackSuccess"))
+                    .foregroundStyle(accentColor)
 
                 Spacer()
 
