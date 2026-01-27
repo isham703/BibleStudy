@@ -250,6 +250,7 @@ final class LiveTranscriptionService {
         analyzerFormat = nil
         inputContinuation = nil
         lastResultRangeStart = .zero
+        currentSermonTitle = nil
 
         return draft
     }
