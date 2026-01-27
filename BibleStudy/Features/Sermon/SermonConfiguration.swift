@@ -76,6 +76,14 @@ enum SermonConfiguration {
     /// Base delay for exponential backoff on recognition retries
     static let recognitionRetryBaseDelaySeconds: TimeInterval = 1.0
 
+    /// Gain multiplier applied to audio fed to the transcription engine.
+    /// Sermon recordings often capture speech from a distance (phone on pew,
+    /// speaker at pulpit). The default mic level (~0.002-0.005 RMS) can be
+    /// too quiet for DictationTranscriber's speech detection threshold.
+    /// 4x boost brings distant speech into reliable recognition range
+    /// without clipping close-range speech (clamped to [-1.0, 1.0]).
+    static let transcriptionGainMultiplier: Float = 4.0
+
     /// RMS threshold to trigger speech activity detection (onset)
     static let speechActivityRMSThreshold: Float = 0.05
 

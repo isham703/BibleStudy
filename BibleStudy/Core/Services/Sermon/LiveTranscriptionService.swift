@@ -218,10 +218,14 @@ final class LiveTranscriptionService {
 
             if let srcFloat = buffer.floatChannelData?[0],
                let dstInt16 = converted.int16ChannelData?[0] {
-                // Direct Float32 → Int16 sample conversion
+                // Direct Float32 → Int16 sample conversion with gain boost.
+                // Sermon mic is often distant (phone on pew); gain brings
+                // quiet speech into the transcriber's recognition range.
+                let gain = SermonConfiguration.transcriptionGainMultiplier
                 let count = Int(buffer.frameLength)
                 for i in 0..<count {
-                    let clamped = max(-1.0, min(1.0, srcFloat[i]))
+                    let gained = srcFloat[i] * gain
+                    let clamped = max(-1.0, min(1.0, gained))
                     dstInt16[i] = Int16(clamped * 32767.0)
                 }
                 converted.frameLength = buffer.frameLength
