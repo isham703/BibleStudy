@@ -9,6 +9,7 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
     var content: String
     var language: String
     var wordTimestamps: [WordTimestamp]
+    var correctionOverlays: [CorrectionOverlay]
     var modelUsed: String?
     var confidenceScore: Double?
     let createdAt: Date
@@ -28,6 +29,23 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         content.components(separatedBy: .whitespacesAndNewlines)
             .filter { !$0.isEmpty }
             .count
+    }
+
+    /// Content with correction overlays applied for display.
+    /// Use this for UI rendering and reference detection.
+    var correctedContent: String {
+        guard !correctionOverlays.isEmpty, !wordTimestamps.isEmpty else {
+            return content
+        }
+        return BiblicalTermCorrector.applyCorrections(
+            to: wordTimestamps,
+            corrections: correctionOverlays
+        )
+    }
+
+    /// Whether this transcript has any corrections applied
+    var hasCorrections: Bool {
+        !correctionOverlays.isEmpty
     }
 
     /// Display segments for UI rendering (cached for performance)
@@ -109,6 +127,7 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         content: String,
         language: String = "en",
         wordTimestamps: [WordTimestamp] = [],
+        correctionOverlays: [CorrectionOverlay] = [],
         modelUsed: String? = nil,
         confidenceScore: Double? = nil,
         createdAt: Date = Date(),
@@ -120,6 +139,7 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         self.content = content
         self.language = language
         self.wordTimestamps = wordTimestamps
+        self.correctionOverlays = correctionOverlays
         self.modelUsed = modelUsed
         self.confidenceScore = confidenceScore
         self.createdAt = createdAt
@@ -172,6 +192,7 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
         case content
         case language
         case wordTimestamps = "word_timestamps"
+        case correctionOverlays = "correction_overlays"
         case modelUsed = "model_used"
         case confidenceScore = "confidence_score"
         case createdAt = "created_at"
@@ -190,6 +211,13 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
             wordTimestamps = (try? JSONCodingUtilities.decode([WordTimestamp].self, from: data)) ?? []
         } else {
             wordTimestamps = []
+        }
+
+        if let overlaysString: String = row[Columns.correctionOverlays],
+           let data = overlaysString.data(using: .utf8) {
+            correctionOverlays = (try? JSONCodingUtilities.decode([CorrectionOverlay].self, from: data)) ?? []
+        } else {
+            correctionOverlays = []
         }
 
         modelUsed = row[Columns.modelUsed]
@@ -212,6 +240,13 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
             container[Columns.wordTimestamps] = "[]"
         }
 
+        if let data = try? JSONCodingUtilities.encode(correctionOverlays),
+           let jsonString = String(data: data, encoding: .utf8) {
+            container[Columns.correctionOverlays] = jsonString
+        } else {
+            container[Columns.correctionOverlays] = "[]"
+        }
+
         container[Columns.modelUsed] = modelUsed
         container[Columns.confidenceScore] = confidenceScore
         container[Columns.createdAt] = createdAt
@@ -227,6 +262,7 @@ struct SermonTranscriptDTO: Codable {
     let content: String
     let language: String
     let wordTimestamps: [SermonTranscript.WordTimestamp]
+    let correctionOverlays: [CorrectionOverlay]?
     let modelUsed: String?
     let confidenceScore: Double?
     let createdAt: Date
@@ -238,6 +274,7 @@ struct SermonTranscriptDTO: Codable {
         case content
         case language
         case wordTimestamps = "word_timestamps"
+        case correctionOverlays = "correction_overlays"
         case modelUsed = "model_used"
         case confidenceScore = "confidence_score"
         case createdAt = "created_at"
@@ -253,6 +290,7 @@ extension SermonTranscript {
         self.content = dto.content
         self.language = dto.language
         self.wordTimestamps = dto.wordTimestamps
+        self.correctionOverlays = dto.correctionOverlays ?? []
         self.modelUsed = dto.modelUsed
         self.confidenceScore = dto.confidenceScore
         self.createdAt = dto.createdAt
@@ -267,6 +305,7 @@ extension SermonTranscript {
             content: content,
             language: language,
             wordTimestamps: wordTimestamps,
+            correctionOverlays: correctionOverlays.isEmpty ? nil : correctionOverlays,
             modelUsed: modelUsed,
             confidenceScore: confidenceScore,
             createdAt: createdAt,
