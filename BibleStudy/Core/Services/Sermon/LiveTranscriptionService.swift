@@ -40,6 +40,7 @@ final class LiveTranscriptionService {
     private var bufferConverter: AVAudioConverter?
     private var retryCount: Int = 0
     private var lastResultRangeStart: CMTime = .zero
+    private var bufferFeedCount: Int = 0
 
     // MARK: - Initialization
 
@@ -148,8 +149,10 @@ final class LiveTranscriptionService {
         // Create converter from recording format to analyzer format
         if let targetFormat = analyzerFormat, targetFormat != recordingFormat {
             bufferConverter = AVAudioConverter(from: recordingFormat, to: targetFormat)
+            print("[LiveTranscriptionService] Format conversion: \(recordingFormat) → \(targetFormat)")
         } else {
             bufferConverter = nil
+            print("[LiveTranscriptionService] No format conversion needed (recording format matches analyzer)")
         }
 
         // Create input stream
@@ -160,6 +163,8 @@ final class LiveTranscriptionService {
         try await newAnalyzer.start(inputSequence: stream)
 
         isTranscribing = true
+        bufferFeedCount = 0
+        print("[LiveTranscriptionService] Analyzer started, awaiting results...")
 
         // Launch result processing task
         transcriptionTask = Task { [weak self] in
@@ -169,7 +174,9 @@ final class LiveTranscriptionService {
                     guard !Task.isCancelled else { break }
                     await self.handleTranscriptionResult(result)
                 }
+                print("[LiveTranscriptionService] Results sequence ended normally")
             } catch {
+                print("[LiveTranscriptionService] Results sequence threw: \(error)")
                 guard !Task.isCancelled else { return }
                 await self.handleTranscriptionError(error, recordingFormat: recordingFormat)
             }
@@ -192,18 +199,29 @@ final class LiveTranscriptionService {
             ) else { return }
 
             var error: NSError?
+            var hasData = true
             converter.convert(to: converted, error: &error) { _, outStatus in
-                outStatus.pointee = .haveData
-                return buffer
+                if hasData {
+                    hasData = false
+                    outStatus.pointee = .haveData
+                    return buffer
+                }
+                outStatus.pointee = .noDataNow
+                return nil
             }
 
-            guard error == nil else { return }
+            guard error == nil, converted.frameLength > 0 else { return }
             inputBuffer = converted
         } else {
             inputBuffer = buffer
         }
 
         inputContinuation?.yield(AnalyzerInput(buffer: inputBuffer))
+
+        bufferFeedCount += 1
+        if bufferFeedCount == 1 || bufferFeedCount == 10 || bufferFeedCount == 50 {
+            print("[LiveTranscriptionService] Fed buffer #\(bufferFeedCount): \(inputBuffer.frameLength) frames, format=\(inputBuffer.format)")
+        }
     }
 
     /// Stop transcription and return draft transcript text
@@ -261,6 +279,7 @@ final class LiveTranscriptionService {
         isTranscribing = false
         retryCount = 0
         lastResultRangeStart = .zero
+        bufferFeedCount = 0
     }
 
     // MARK: - Result Handling
@@ -268,6 +287,10 @@ final class LiveTranscriptionService {
     private func handleTranscriptionResult(_ result: DictationTranscriber.Result) {
         let text = String(result.text.characters)
         guard !text.isEmpty else { return }
+
+        if segments.isEmpty && currentText.isEmpty {
+            print("[LiveTranscriptionService] First result received: \"\(text.prefix(60))\"")
+        }
 
         let rangeStart = result.range.start
 
@@ -294,7 +317,9 @@ final class LiveTranscriptionService {
     }
 
     private func handleTranscriptionError(_ error: Error, recordingFormat: AVAudioFormat) async {
+        print("[LiveTranscriptionService] Error: \(error.localizedDescription), retry \(retryCount)/\(SermonConfiguration.maxRecognitionRetries)")
         guard retryCount < SermonConfiguration.maxRecognitionRetries else {
+            print("[LiveTranscriptionService] Max retries exhausted, stopping transcription")
             isTranscribing = false
             return
         }
