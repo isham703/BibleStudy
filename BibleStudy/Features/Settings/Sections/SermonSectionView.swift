@@ -16,6 +16,7 @@ struct SermonSectionView: View {
 
     @State private var preflightState: PreflightState = .idle
     @State private var downloadProgress: Double = 0
+    @State private var preflightTask: Task<Void, Never>?
 
     private enum PreflightState: Equatable {
         case idle
@@ -45,10 +46,12 @@ struct SermonSectionView: View {
                         iconColor: Color("AppAccentAction")
                     )
                     .onChange(of: liveCaptionsEnabled) { _, newValue in
+                        preflightTask?.cancel()
                         if newValue {
-                            Task { await runPreflight() }
+                            preflightTask = Task { await runPreflight() }
                         } else {
                             preflightState = .idle
+                            downloadProgress = 0
                         }
                     }
 
@@ -128,14 +131,14 @@ struct SermonSectionView: View {
                 // Download progress bar
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 3)
+                        RoundedRectangle(cornerRadius: Theme.Radius.xs)
                             .fill(Color("AppSurface"))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 3)
+                                RoundedRectangle(cornerRadius: Theme.Radius.xs)
                                     .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
                             )
 
-                        RoundedRectangle(cornerRadius: 3)
+                        RoundedRectangle(cornerRadius: Theme.Radius.xs)
                             .fill(Color("AppAccentAction"))
                             .frame(width: geo.size.width * downloadProgress)
                             .animation(Theme.Animation.settle, value: downloadProgress)

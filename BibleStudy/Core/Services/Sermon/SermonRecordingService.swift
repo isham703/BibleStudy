@@ -266,7 +266,14 @@ final class SermonRecordingService: NSObject, Sendable {
         audioConverter = converter
 
         // Open first chunk file
-        try openNewChunkFile()
+        do {
+            try openNewChunkFile()
+        } catch {
+            audioEngine = nil
+            audioConverter = nil
+            AudioService.shared.popAudioSession(owner: "SermonRecordingService")
+            throw error
+        }
 
         // Install tap on input node
         let bufferSize: AVAudioFrameCount = 4096
@@ -314,7 +321,13 @@ final class SermonRecordingService: NSObject, Sendable {
             lastPauseTime = nil
         }
 
-        try? audioEngine?.start()
+        do {
+            try audioEngine?.start()
+        } catch {
+            state = .error("Failed to resume recording: \(error.localizedDescription)")
+            print("[SermonRecordingService] Error resuming: \(error)")
+            return
+        }
         scheduleChunkTimer()
         state = .recording
     }
@@ -373,6 +386,11 @@ final class SermonRecordingService: NSObject, Sendable {
         }
         audioEngine = nil
         audioConverter = nil
+
+        // Delete current in-progress chunk file before releasing handle
+        if let file = audioFile {
+            try? FileManager.default.removeItem(at: file.url)
+        }
         audioFile = nil
 
         chunkTimer?.invalidate()
@@ -380,7 +398,7 @@ final class SermonRecordingService: NSObject, Sendable {
         durationTimer?.invalidate()
         durationTimer = nil
 
-        // Delete all chunks
+        // Delete completed chunks
         for url in completedChunkURLs {
             try? FileManager.default.removeItem(at: url)
         }
@@ -565,6 +583,7 @@ final class SermonRecordingService: NSObject, Sendable {
             try openNewChunkFile()
             scheduleChunkTimer()
         } catch {
+            currentChunkIndex -= 1  // Revert increment on failure
             state = .error("Failed to start new chunk: \(error.localizedDescription)")
             print("[SermonRecordingService] Error starting new chunk: \(error)")
         }
