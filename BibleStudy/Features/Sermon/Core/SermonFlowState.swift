@@ -787,10 +787,13 @@ final class SermonFlowState {
             self?.isSpeechDetected = detected
         }
 
-        // Start transcription
+        // Start transcription with dynamic contextual biasing based on sermon title
         do {
             let format = recordingService.configuration.processingFormat
-            try await service.startTranscription(recordingFormat: format)
+            try await service.startTranscription(
+                recordingFormat: format,
+                sermonTitle: currentSermon?.title
+            )
 
             // Observe transcription service state changes
             startCaptionObservation(service: service)

@@ -248,6 +248,9 @@ final class SermonProcessingQueue {
         await progressPublisher.publish(sermonId: sermonId, job: job, progress: 0.2)
 
         do {
+            // Fetch sermon title for dynamic glossary boosting
+            let sermonTitle = try repository.fetchSermon(id: sermonId)?.title
+
             // Get chunk URLs via repository
             let chunks = try repository.fetchChunks(sermonId: sermonId)
             let chunkURLs = chunks.compactMap { chunk -> URL? in
@@ -263,9 +266,10 @@ final class SermonProcessingQueue {
             let capturedJob = job
             let publisher = progressPublisher
 
-            // Transcribe all chunks
+            // Transcribe all chunks with dynamic glossary based on sermon title
             let output = try await transcriptionService.transcribeChunks(
-                chunkURLs: chunkURLs
+                chunkURLs: chunkURLs,
+                sermonTitle: sermonTitle
             ) { progress in
                 Task {
                     await publisher.publish(

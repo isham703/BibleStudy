@@ -40,6 +40,7 @@ final class LiveTranscriptionService {
     private var bufferConverter: AVAudioConverter?
     private var retryCount: Int = 0
     private var lastResultRangeStart: CMTime = .zero
+    private var currentSermonTitle: String?
 
     // MARK: - Initialization
 
@@ -113,7 +114,10 @@ final class LiveTranscriptionService {
     // MARK: - Transcription Lifecycle
 
     /// Start live transcription. Call after recording has started.
-    func startTranscription(recordingFormat: AVAudioFormat) async throws {
+    /// - Parameters:
+    ///   - recordingFormat: Audio format from the recording service
+    ///   - sermonTitle: Optional sermon title for dynamic contextual biasing
+    func startTranscription(recordingFormat: AVAudioFormat, sermonTitle: String? = nil) async throws {
         guard isAvailable else {
             throw SermonError.speechRecognitionUnavailable
         }
@@ -122,6 +126,7 @@ final class LiveTranscriptionService {
             throw SermonError.speechRecognitionDenied
         }
 
+        currentSermonTitle = sermonTitle
         retryCount = 0
         lastResultRangeStart = .zero
         try await startTranscriptionInternal(recordingFormat: recordingFormat)
@@ -264,17 +269,27 @@ final class LiveTranscriptionService {
         isTranscribing = false
         retryCount = 0
         lastResultRangeStart = .zero
+        currentSermonTitle = nil
     }
 
     // MARK: - Contextual Biasing
 
     /// Apply biblical terminology context to improve transcription accuracy.
     /// Uses AnalysisContext.contextualStrings to bias recognition toward biblical terms.
+    /// If a sermon title is set, dynamically prioritizes terms related to detected books.
     private func applyBiblicalContext(to analyzer: SpeechAnalyzer) async {
+        // Use dynamic contextual strings if sermon title is available
+        let contextualStrings: [String]
+        if let title = currentSermonTitle, !title.isEmpty {
+            contextualStrings = BiblicalContextProvider.contextualStrings(forSermonTitle: title)
+            print("[LiveTranscriptionService] Using dynamic context for: \(title)")
+        } else {
+            contextualStrings = SermonConfiguration.biblicalContextualStrings
+        }
+
         let context = AnalysisContext()
         context.contextualStrings = [
-            AnalysisContext.ContextualStringsTag("vocabulary"):
-                SermonConfiguration.biblicalContextualStrings
+            AnalysisContext.ContextualStringsTag("vocabulary"): contextualStrings
         ]
 
         do {
