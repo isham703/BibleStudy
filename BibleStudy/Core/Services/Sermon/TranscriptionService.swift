@@ -183,15 +183,19 @@ final class TranscriptionService: Sendable {
         var totalDuration: Double = 0
         var detectedLanguage = "en"
         var currentOffset: Double = 0
+        let promptBuilder = WhisperPromptBuilder.default
 
         for (index, chunkURL) in chunkURLs.enumerated() {
             let chunkProgress = Double(index) / Double(chunkURLs.count)
 
-            // Transcribe this chunk
+            // Build prompt with recent context + biblical glossary
+            let recentSegments = Array(allText.suffix(3))
+            let prompt = promptBuilder.buildPrompt(recentSegments: recentSegments)
+
             let input = TranscriptionInput(
                 audioURL: chunkURL,
                 language: detectedLanguage,
-                prompt: allText.suffix(3).joined(separator: " ")  // Use recent text as context
+                prompt: prompt
             )
 
             let output = try await transcribe(input: input) { progress in
@@ -366,5 +370,82 @@ private struct OpenAIErrorResponse: Codable {
         let type: String
         let param: String?
         let code: String?
+    }
+}
+
+// MARK: - Whisper Prompt Builder
+
+/// Builds Whisper API prompts with biblical glossary and context budget management.
+/// Ensures glossary is always fully included and total prompt stays within token limits.
+struct WhisperPromptBuilder {
+    let glossary: String
+    let maxPromptChars: Int
+    let glossaryBudgetChars: Int
+    let contextBudgetChars: Int
+
+    // nonisolated(unsafe) allows use as default parameter in @MainActor contexts
+    nonisolated(unsafe) static let `default` = WhisperPromptBuilder()
+
+    /// Initialize with SermonConfiguration defaults
+    private init() {
+        self.glossary = SermonConfiguration.biblicalGlossaryPrompt
+        self.maxPromptChars = SermonConfiguration.maxPromptChars
+        self.glossaryBudgetChars = SermonConfiguration.glossaryBudgetChars
+        self.contextBudgetChars = SermonConfiguration.contextBudgetChars
+    }
+
+    /// Initialize with custom values (for testing)
+    /// - Parameters:
+    ///   - glossary: Biblical glossary text for Whisper prompting
+    ///   - maxPromptChars: Maximum total prompt characters
+    ///   - glossaryBudgetChars: Characters reserved for glossary
+    ///   - contextBudgetChars: Characters available for context
+    init(glossary: String, maxPromptChars: Int, glossaryBudgetChars: Int, contextBudgetChars: Int) {
+        precondition(glossaryBudgetChars <= maxPromptChars, "glossaryBudgetChars must be <= maxPromptChars")
+        precondition(glossary.count <= glossaryBudgetChars, "glossary (\(glossary.count) chars) exceeds glossaryBudgetChars (\(glossaryBudgetChars))")
+        precondition(contextBudgetChars >= 0, "contextBudgetChars must be >= 0")
+
+        self.glossary = glossary
+        self.maxPromptChars = maxPromptChars
+        self.glossaryBudgetChars = glossaryBudgetChars
+        self.contextBudgetChars = contextBudgetChars
+    }
+
+    /// Build prompt from recent transcript segments.
+    /// - Parameter recentSegments: Recent transcript text segments for context
+    /// - Returns: Combined prompt with context + glossary, respecting budget limits
+    func buildPrompt(recentSegments: [String]) -> String {
+        let recentContext = recentSegments.joined(separator: " ")
+        return buildPrompt(context: recentContext)
+    }
+
+    /// Build prompt from a context string.
+    /// - Parameter context: Recent transcript text for context
+    /// - Returns: Combined prompt with context + glossary, respecting budget limits
+    func buildPrompt(context: String) -> String {
+        // Trim context to budget (take suffix to preserve most recent words)
+        let contextTrimmed: String
+        if context.count > contextBudgetChars {
+            contextTrimmed = String(context.suffix(contextBudgetChars))
+        } else {
+            contextTrimmed = context
+        }
+
+        // Build prompt: context + space + glossary
+        if contextTrimmed.isEmpty {
+            return glossary
+        } else {
+            return "\(contextTrimmed) \(glossary)"
+        }
+    }
+
+    /// Validate that glossary fits within budget (design-time check)
+    var isGlossaryWithinBudget: Bool {
+        glossary.count <= glossaryBudgetChars
+    }
+
+    /// Validate that a built prompt fits within max chars
+    func isWithinBudget(_ prompt: String) -> Bool {
+        prompt.count <= maxPromptChars
     }
 }
