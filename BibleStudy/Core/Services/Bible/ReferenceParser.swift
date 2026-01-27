@@ -531,6 +531,17 @@ extension ReferenceParser {
 // MARK: - Multi-Reference Extraction
 
 extension ReferenceParser {
+    /// Regex pattern to find potential Bible references in text.
+    /// Matches: "Book chapter:verse", "Book chapter verse", "1 Book chapter:verse"
+    /// Shared between `extractAll` and `CaptionReferenceDetector.findRanges`.
+    nonisolated(unsafe) static let candidatePattern = #"(?:\d\s*)?[A-Za-z]+(?:\s+[A-Za-z]+)?\s+\d+(?:[:\s]\d+)?(?:\s*[-–—]\s*\d+)?"#
+
+    /// Pre-compiled regex for the candidate pattern (avoids repeated runtime compilation).
+    nonisolated(unsafe) static let candidateRegex: NSRegularExpression = {
+        // Force-unwrap is safe — pattern is a compile-time constant validated by tests.
+        try! NSRegularExpression(pattern: candidatePattern, options: [])
+    }()
+
     /// Extract all Bible references from a text block
     /// Replaces regex-based extraction with parser-validated results
     /// - Parameter text: The text to search for references
@@ -539,13 +550,7 @@ extension ReferenceParser {
         var results: [ParsedReference] = []
         var seenCanonicalIds = Set<String>()
 
-        // Pattern to find potential Bible references in text
-        // Matches: "Book chapter:verse", "Book chapter verse", "1 Book chapter:verse"
-        let candidatePattern = #"(?:\d\s*)?[A-Za-z]+(?:\s+[A-Za-z]+)?\s+\d+(?:[:\s]\d+)?(?:\s*[-–—]\s*\d+)?"#
-
-        guard let regex = try? NSRegularExpression(pattern: candidatePattern, options: []) else {
-            return []
-        }
+        let regex = candidateRegex
 
         let range = NSRange(text.startIndex..., in: text)
         let matches = regex.matches(in: text, options: [], range: range)

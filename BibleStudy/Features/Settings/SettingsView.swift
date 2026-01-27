@@ -34,6 +34,11 @@ struct SettingsView: View {
                     // Feedback & Alerts Section (notifications + haptics)
                     NotificationsSectionView(viewModel: viewModel)
 
+                    // Sermon Section (Live Captions — iOS 26+)
+                    if #available(iOS 26, *) {
+                        SermonSectionView(viewModel: viewModel)
+                    }
+
                     // Audio Storage Section
                     ReadingSectionView(viewModel: viewModel)
 

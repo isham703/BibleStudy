@@ -127,6 +127,10 @@ struct BibleStudyApp: App {
                 Task {
                     await WidgetService.shared.syncWidgetData()
                 }
+                // Refresh remote feature flags on foreground
+                Task {
+                    await FeatureFlagService.shared.forceFetchFlags()
+                }
                 // Track session start
                 analytics.trackSessionStart()
             }
@@ -203,6 +207,9 @@ struct BibleStudyApp: App {
 
         // Run audio cache maintenance (prunes expired files, enforces size limit)
         AudioCache.shared.performMaintenance()
+
+        // Fetch remote feature flags (kill switches)
+        await FeatureFlagService.shared.fetchFlags()
 
         // Mark as initialized to show main content
         withAnimation {

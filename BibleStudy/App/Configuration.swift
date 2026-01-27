@@ -167,6 +167,9 @@ enum AppConfiguration {
         static let voiceGuidanceEnabled = "voiceGuidanceEnabled"
         static let hapticFeedbackEnabled = "hapticFeedbackEnabled"
         static let cloudSyncEnabled = "cloudSyncEnabled"
+
+        // Sermon Live Captions
+        static let liveCaptionsEnabled = "liveCaptionsEnabled"
     }
 }
 

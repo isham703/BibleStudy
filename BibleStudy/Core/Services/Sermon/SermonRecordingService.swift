@@ -1,5 +1,6 @@
 import Foundation
 import AVFoundation
+import Accelerate
 import Combine
 
 // MARK: - Recording State
@@ -21,15 +22,29 @@ struct RecordingConfiguration: Sendable {
     /// Target duration per chunk in seconds (10-15 minutes recommended)
     let chunkDurationSeconds: TimeInterval
 
-    /// Recording settings dictionary for AVAudioRecorder
-    var settings: [String: Any] {
+    /// AAC output settings for file writing
+    var outputSettings: [String: Any] {
         [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 16000,              // 16kHz - optimal for speech
-            AVNumberOfChannelsKey: 1,            // Mono
-            AVEncoderBitRateKey: 32000,          // 32kbps - ~14MB/hour, well under 25MB limit
+            AVSampleRateKey: Self.sampleRate,
+            AVNumberOfChannelsKey: Int(Self.channelCount),
+            AVEncoderBitRateKey: 32000,
             AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue
         ]
+    }
+
+    /// Recording format: 16kHz mono Float32 (optimal for speech + analyzer)
+    static let sampleRate: Double = 16000
+    static let channelCount: AVAudioChannelCount = 1
+
+    /// PCM processing format for the audio engine tap
+    var processingFormat: AVAudioFormat {
+        AVAudioFormat(
+            commonFormat: .pcmFormatFloat32,
+            sampleRate: Self.sampleRate,
+            channels: Self.channelCount,
+            interleaved: false
+        )!
     }
 
     /// Estimated bytes per minute at current settings (~240KB/min at 32kbps)
@@ -53,7 +68,9 @@ struct RecordingConfiguration: Sendable {
 }
 
 // MARK: - Sermon Recording Service
-// Manages in-app audio recording with chunked output for Whisper API compatibility
+// Manages in-app audio recording with chunked output for Whisper API compatibility.
+// Uses AVAudioEngine to provide audio buffers for both file writing and
+// live transcription (SpeechAnalyzer).
 
 @MainActor
 @Observable
@@ -66,23 +83,38 @@ final class SermonRecordingService: NSObject, Sendable {
     private(set) var currentDuration: TimeInterval = 0
     private(set) var currentChunkIndex: Int = 0
     private(set) var audioLevel: Float = 0  // 0-1 normalized for waveform
+    private(set) var isSpeechDetected: Bool = false
 
     // MARK: - Configuration
     private(set) var configuration: RecordingConfiguration = .default
 
-    // MARK: - Private Properties
-    private var audioRecorder: AVAudioRecorder?
+    // MARK: - Private Properties — Audio Engine
+    private var audioEngine: AVAudioEngine?
+    /// nonisolated(unsafe): Written on MainActor (openNewChunkFile, rotateChunk, stop/cancel).
+    /// Read on audio render thread (processAudioBuffer). AVAudioFile.write is thread-safe;
+    /// Optional reference reads are atomic on 64-bit ARM.
+    private nonisolated(unsafe) var audioFile: AVAudioFile?
+    private var audioConverter: AVAudioConverter?
+
+    // MARK: - Private Properties — Timers & State
     private var chunkTimer: Timer?
-    private var levelTimer: Timer?
     private var durationTimer: Timer?
     private var recordingStartTime: Date?
+    private var pausedDuration: TimeInterval = 0
+    private var lastPauseTime: Date?
     private var currentSermonId: UUID?
     private var outputDirectory: URL?
+    private var chunkStartTime: TimeInterval = 0
 
-    // Metering callback
+    // MARK: - Voice Activity Detection
+    private var speechHoldCounter: Int = 0
+
+    // MARK: - Callbacks
     private var levelCallback: ((Float) -> Void)?
-
-    // Chunk completion callbacks
+    var speechActivityCallback: ((Bool) -> Void)?
+    /// nonisolated(unsafe): Set on MainActor (setBufferCallback).
+    /// Read on audio render thread (processAudioBuffer). Copied to local before invocation.
+    private nonisolated(unsafe) var bufferCallback: ((AVAudioPCMBuffer, AVAudioTime) -> Void)?
     private var onChunkCompleted: ((URL, Int) -> Void)?
     private var onRecordingCompleted: (([URL]) -> Void)?
 
@@ -111,14 +143,15 @@ final class SermonRecordingService: NSObject, Sendable {
     }
 
     var currentChunkDuration: TimeInterval {
-        guard let recorder = audioRecorder else { return 0 }
-        return recorder.currentTime
+        guard state == .recording || state == .paused else { return 0 }
+        return currentDuration - chunkStartTime
     }
 
     // MARK: - Initialization
 
     private override init() {
         super.init()
+        setupInterruptionObserver()
     }
 
     // MARK: - Permission
@@ -140,7 +173,6 @@ final class SermonRecordingService: NSObject, Sendable {
                 return false
             }
         } else {
-            // Fallback for iOS 16 and earlier
             let status = AVAudioSession.sharedInstance().recordPermission
 
             switch status {
@@ -158,6 +190,13 @@ final class SermonRecordingService: NSObject, Sendable {
                 return false
             }
         }
+    }
+
+    // MARK: - Buffer Callback
+
+    /// Set a callback to receive audio buffers (for live transcription)
+    func setBufferCallback(_ callback: ((AVAudioPCMBuffer, AVAudioTime) -> Void)?) {
+        bufferCallback = callback
     }
 
     // MARK: - Recording Control
@@ -189,6 +228,11 @@ final class SermonRecordingService: NSObject, Sendable {
         self.completedChunkURLs = []
         self.currentChunkIndex = 0
         self.currentDuration = 0
+        self.pausedDuration = 0
+        self.lastPauseTime = nil
+        self.chunkStartTime = 0
+        self.speechHoldCounter = 0
+        self.isSpeechDetected = false
 
         // Create output directory
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -205,8 +249,35 @@ final class SermonRecordingService: NSObject, Sendable {
             throw SermonError.recordingFailed("Audio session configuration failed")
         }
 
-        // Start first chunk
-        try startNewChunk()
+        // Create and configure audio engine
+        let engine = AVAudioEngine()
+        audioEngine = engine
+
+        let inputNode = engine.inputNode
+        let nativeFormat = inputNode.outputFormat(forBus: 0)
+        let targetFormat = configuration.processingFormat
+
+        // Create converter from native input format to 16kHz mono Float32
+        guard let converter = AVAudioConverter(from: nativeFormat, to: targetFormat) else {
+            state = .error("Failed to create audio converter")
+            AudioService.shared.popAudioSession(owner: "SermonRecordingService")
+            throw SermonError.recordingFailed("Audio format conversion not supported")
+        }
+        audioConverter = converter
+
+        // Open first chunk file
+        try openNewChunkFile()
+
+        // Install tap on input node
+        let bufferSize: AVAudioFrameCount = 4096
+        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: nativeFormat) {
+            [weak self] buffer, time in
+            self?.processAudioBuffer(buffer, time: time, converter: converter, targetFormat: targetFormat)
+        }
+
+        // Start engine
+        engine.prepare()
+        try engine.start()
 
         state = .recording
         recordingStartTime = Date()
@@ -214,8 +285,10 @@ final class SermonRecordingService: NSObject, Sendable {
         // Start duration timer
         startDurationTimer()
 
-        // Start level metering
-        startLevelMetering()
+        // Schedule chunk timer
+        scheduleChunkTimer()
+
+        print("[SermonRecordingService] Started recording with AVAudioEngine")
 
         return sermonDirectory
     }
@@ -224,9 +297,10 @@ final class SermonRecordingService: NSObject, Sendable {
     func pauseRecording() {
         guard state == .recording else { return }
 
-        audioRecorder?.pause()
+        audioEngine?.pause()
         chunkTimer?.invalidate()
         chunkTimer = nil
+        lastPauseTime = Date()
         state = .paused
     }
 
@@ -234,7 +308,13 @@ final class SermonRecordingService: NSObject, Sendable {
     func resumeRecording() {
         guard state == .paused else { return }
 
-        audioRecorder?.record()
+        // Track paused duration
+        if let pauseStart = lastPauseTime {
+            pausedDuration += Date().timeIntervalSince(pauseStart)
+            lastPauseTime = nil
+        }
+
+        try? audioEngine?.start()
         scheduleChunkTimer()
         state = .recording
     }
@@ -249,18 +329,25 @@ final class SermonRecordingService: NSObject, Sendable {
         // Stop timers
         chunkTimer?.invalidate()
         chunkTimer = nil
-        levelTimer?.invalidate()
-        levelTimer = nil
+        durationTimer?.invalidate()
+        durationTimer = nil
 
-        // Stop and finalize current chunk
-        if let recorder = audioRecorder {
-            recorder.stop()
-            let url = recorder.url
+        // Stop engine and remove tap
+        if let engine = audioEngine {
+            engine.inputNode.removeTap(onBus: 0)
+            engine.stop()
+        }
+        audioEngine = nil
+        audioConverter = nil
+
+        // Close current chunk file
+        if let file = audioFile {
+            let url = file.url
+            audioFile = nil
             if FileManager.default.fileExists(atPath: url.path) {
                 completedChunkURLs.append(url)
             }
         }
-        audioRecorder = nil
 
         // Release audio session claim (reverts to prior mode, e.g., Bible playback)
         AudioService.shared.popAudioSession(owner: "SermonRecordingService")
@@ -279,13 +366,19 @@ final class SermonRecordingService: NSObject, Sendable {
     func cancelRecording() {
         guard state.isActive else { return }
 
-        // Stop recording
-        audioRecorder?.stop()
-        audioRecorder = nil
+        // Stop engine
+        if let engine = audioEngine {
+            engine.inputNode.removeTap(onBus: 0)
+            engine.stop()
+        }
+        audioEngine = nil
+        audioConverter = nil
+        audioFile = nil
+
         chunkTimer?.invalidate()
         chunkTimer = nil
-        levelTimer?.invalidate()
-        levelTimer = nil
+        durationTimer?.invalidate()
+        durationTimer = nil
 
         // Delete all chunks
         for url in completedChunkURLs {
@@ -323,10 +416,98 @@ final class SermonRecordingService: NSObject, Sendable {
         levelCallback = nil
     }
 
-    // MARK: - Private Methods
+    // MARK: - Audio Buffer Processing
 
-    private func startNewChunk() throws {
-        // Generate chunk filename
+    /// Called on the audio render thread for each captured buffer
+    private nonisolated func processAudioBuffer(
+        _ buffer: AVAudioPCMBuffer,
+        time: AVAudioTime,
+        converter: AVAudioConverter,
+        targetFormat: AVAudioFormat
+    ) {
+        // Convert to 16kHz mono Float32
+        let frameCapacity = AVAudioFrameCount(
+            Double(buffer.frameLength) * targetFormat.sampleRate / buffer.format.sampleRate
+        )
+        guard frameCapacity > 0 else { return }
+
+        guard let convertedBuffer = AVAudioPCMBuffer(
+            pcmFormat: targetFormat,
+            frameCapacity: frameCapacity
+        ) else { return }
+
+        var error: NSError?
+        var hasData = true
+        converter.convert(to: convertedBuffer, error: &error) { _, outStatus in
+            if hasData {
+                hasData = false
+                outStatus.pointee = .haveData
+                return buffer
+            }
+            outStatus.pointee = .noDataNow
+            return nil
+        }
+
+        guard error == nil, convertedBuffer.frameLength > 0 else { return }
+
+        // Write to file (AVAudioFile write is thread-safe)
+        try? self.audioFile?.write(from: convertedBuffer)
+
+        // Compute RMS + voice activity detection
+        updateLevelFromBuffer(convertedBuffer)
+
+        // Forward to buffer callback (live transcription)
+        let cb = self.bufferCallback
+        if cb != nil {
+            DispatchQueue.main.async {
+                cb?(convertedBuffer, time)
+            }
+        }
+    }
+
+    /// Compute RMS level and voice activity from buffer (called on render thread)
+    private nonisolated func updateLevelFromBuffer(_ buffer: AVAudioPCMBuffer) {
+        guard let channelData = buffer.floatChannelData?[0] else { return }
+
+        var rms: Float = 0
+        vDSP_measqv(channelData, 1, &rms, vDSP_Length(buffer.frameLength))
+        rms = sqrtf(rms)
+
+        let normalized = min(1.0, rms * 5.0)
+        let smoothed = normalized * normalized
+
+        let rmsThreshold = SermonConfiguration.speechActivityRMSThreshold
+        let silenceThreshold = SermonConfiguration.speechActivitySilenceThreshold
+        let holdFrames = SermonConfiguration.speechActivityHoldFrames
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let wasSpeaking = self.isSpeechDetected
+
+            if rms > rmsThreshold {
+                self.speechHoldCounter = holdFrames
+                self.isSpeechDetected = true
+            } else if rms < silenceThreshold {
+                if self.speechHoldCounter > 0 {
+                    self.speechHoldCounter -= 1
+                } else {
+                    self.isSpeechDetected = false
+                }
+            }
+            // In hysteresis zone (between thresholds): maintain current state
+
+            self.audioLevel = smoothed
+            self.levelCallback?(smoothed)
+
+            if wasSpeaking != self.isSpeechDetected {
+                self.speechActivityCallback?(self.isSpeechDetected)
+            }
+        }
+    }
+
+    // MARK: - Chunk Management
+
+    private func openNewChunkFile() throws {
         guard let directory = outputDirectory else {
             throw SermonError.recordingFailed("No output directory")
         }
@@ -334,32 +515,21 @@ final class SermonRecordingService: NSObject, Sendable {
         let chunkFilename = String(format: "chunk_%03d.m4a", currentChunkIndex)
         let chunkURL = directory.appendingPathComponent(chunkFilename)
 
-        // Create recorder
-        let recorder = try AVAudioRecorder(url: chunkURL, settings: configuration.settings)
-        recorder.delegate = self
-        recorder.isMeteringEnabled = true
+        // Create AVAudioFile for writing with AAC settings
+        audioFile = try AVAudioFile(
+            forWriting: chunkURL,
+            settings: configuration.outputSettings,
+            commonFormat: .pcmFormatFloat32,
+            interleaved: false
+        )
 
-        guard recorder.prepareToRecord() else {
-            throw SermonError.recordingFailed("Failed to prepare recorder")
-        }
-
-        guard recorder.record() else {
-            throw SermonError.recordingFailed("Failed to start recording")
-        }
-
-        audioRecorder = recorder
-
-        // Schedule chunk timer
-        scheduleChunkTimer()
-
-        print("[SermonRecordingService] Started chunk \(currentChunkIndex) at \(chunkURL.lastPathComponent)")
+        print("[SermonRecordingService] Started chunk \(currentChunkIndex) at \(chunkFilename)")
     }
 
     private func scheduleChunkTimer() {
         chunkTimer?.invalidate()
 
-        // Calculate remaining time for this chunk
-        let elapsed = audioRecorder?.currentTime ?? 0
+        let elapsed = currentChunkDuration
         let remaining = configuration.chunkDurationSeconds - elapsed
 
         guard remaining > 0 else {
@@ -377,11 +547,11 @@ final class SermonRecordingService: NSObject, Sendable {
     private func rotateChunk() {
         guard state == .recording else { return }
 
-        // Stop current chunk
-        guard let recorder = audioRecorder else { return }
-        recorder.stop()
+        // Close current chunk file
+        guard let file = audioFile else { return }
+        let completedURL = file.url
+        audioFile = nil
 
-        let completedURL = recorder.url
         if FileManager.default.fileExists(atPath: completedURL.path) {
             completedChunkURLs.append(completedURL)
             onChunkCompleted?(completedURL, currentChunkIndex)
@@ -390,8 +560,10 @@ final class SermonRecordingService: NSObject, Sendable {
 
         // Start next chunk
         currentChunkIndex += 1
+        chunkStartTime = currentDuration
         do {
-            try startNewChunk()
+            try openNewChunkFile()
+            scheduleChunkTimer()
         } catch {
             state = .error("Failed to start new chunk: \(error.localizedDescription)")
             print("[SermonRecordingService] Error starting new chunk: \(error)")
@@ -401,70 +573,54 @@ final class SermonRecordingService: NSObject, Sendable {
     private func startDurationTimer() {
         durationTimer?.invalidate()
 
-        // Update duration every 0.1 seconds
         durationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
             guard let self else {
                 timer.invalidate()
                 return
             }
 
-            // Check state synchronously, then update on main actor
             Task { @MainActor [weak self] in
-                guard let self, self.state == .recording, self.recordingStartTime != nil else { return }
-
-                // Total duration is time since start minus any paused time
-                let chunkTime = self.audioRecorder?.currentTime ?? 0
-                let previousChunksDuration = Double(self.currentChunkIndex) * self.configuration.chunkDurationSeconds
-                self.currentDuration = previousChunksDuration + chunkTime
+                guard let self, self.state == .recording, let startTime = self.recordingStartTime else { return }
+                self.currentDuration = Date().timeIntervalSince(startTime) - self.pausedDuration
             }
         }
     }
 
-    private func startLevelMetering() {
-        levelTimer?.invalidate()
+    // MARK: - Audio Session Interruption
 
-        levelTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+    private func setupInterruptionObserver() {
+        NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
             Task { @MainActor [weak self] in
-                guard let self, let recorder = self.audioRecorder, self.state == .recording else { return }
-
-                recorder.updateMeters()
-
-                // Get average power and convert to 0-1 range
-                // AVAudioRecorder returns dB from -160 to 0
-                let averagePower = recorder.averagePower(forChannel: 0)
-
-                // Normalize: -60dB (quiet) to 0dB (loud) -> 0 to 1
-                let minDb: Float = -60
-                let normalizedLevel = max(0, (averagePower - minDb) / -minDb)
-                let smoothedLevel = normalizedLevel * normalizedLevel // Square for better visual response
-
-                self.audioLevel = smoothedLevel
-                self.levelCallback?(smoothedLevel)
-            }
-        }
-    }
-}
-
-// MARK: - AVAudioRecorderDelegate
-extension SermonRecordingService: AVAudioRecorderDelegate {
-    nonisolated func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-
-            if !flag {
-                print("[SermonRecordingService] Recording finished unsuccessfully")
-                self.state = .error("Recording failed")
+                self?.handleInterruption(notification)
             }
         }
     }
 
-    nonisolated func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
+    private func handleInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+        }
 
-            let errorMessage = error?.localizedDescription ?? "Unknown encoding error"
-            print("[SermonRecordingService] Encode error: \(errorMessage)")
-            self.state = .error(errorMessage)
+        switch type {
+        case .began:
+            if state == .recording {
+                pauseRecording()
+            }
+        case .ended:
+            if let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt {
+                let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+                if options.contains(.shouldResume) && state == .paused {
+                    resumeRecording()
+                }
+            }
+        @unknown default:
+            break
         }
     }
 }

@@ -49,6 +49,11 @@ enum SermonError: Error, LocalizedError, Sendable {
     case cannotDeleteWhileProcessing
     case deleteFailed(String)
 
+    // Speech recognition errors (Live Captions)
+    case speechRecognitionDenied
+    case speechRecognitionUnavailable
+    case speechRecognitionFailed(String)
+
     var errorDescription: String? {
         switch self {
         case .microphonePermissionDenied:
@@ -118,6 +123,13 @@ enum SermonError: Error, LocalizedError, Sendable {
             return "Cannot delete while processing. Please wait for processing to complete."
         case .deleteFailed(let reason):
             return "Failed to delete sermon: \(reason)"
+
+        case .speechRecognitionDenied:
+            return "Speech recognition access was denied. Live captions require this permission."
+        case .speechRecognitionUnavailable:
+            return "Speech recognition is not available on this device."
+        case .speechRecognitionFailed(let reason):
+            return "Live captions failed: \(reason)"
         }
     }
 
@@ -139,6 +151,10 @@ enum SermonError: Error, LocalizedError, Sendable {
             return "Sign in to enable cloud sync and AI features."
         case .cannotDeleteWhileProcessing:
             return "Wait for the transcription and study guide to complete, then try again."
+        case .speechRecognitionDenied:
+            return "Go to Settings > Privacy > Speech Recognition to enable access."
+        case .speechRecognitionFailed:
+            return "Recording continues normally. Live captions will be retried automatically."
         default:
             return nil
         }

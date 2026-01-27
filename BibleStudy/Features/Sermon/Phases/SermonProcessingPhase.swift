@@ -31,6 +31,14 @@ struct SermonProcessingPhase: View {
                 statusText
                     .padding(.bottom, Theme.Spacing.xxl)
 
+                // Draft transcript preview (from live captions)
+                if let draftText = flowState.draftTranscriptText, !draftText.isEmpty {
+                    draftTranscriptCard(text: draftText)
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .padding(.bottom, Theme.Spacing.lg)
+                        .transition(.opacity)
+                }
+
                 // Step checklist
                 stepChecklist
                     .padding(.horizontal, Theme.Spacing.lg)
@@ -248,6 +256,44 @@ struct SermonProcessingPhase: View {
         .opacity(isAwakened ? 1 : 0)
         .offset(y: isAwakened ? 0 : (reduceMotion ? 0 : 10))
         .animation(reduceMotion ? nil : Theme.Animation.slowFade.delay(0.3), value: isAwakened)
+    }
+
+    // MARK: - Draft Transcript Card
+
+    private func draftTranscriptCard(text: String) -> some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            // Header with DRAFT badge
+            HStack(spacing: Theme.Spacing.xs) {
+                Text("DRAFT")
+                    .font(Typography.Command.meta)
+                    .tracking(Typography.Editorial.sectionTracking)
+                    .foregroundStyle(Color("TertiaryText"))
+
+                Text("from live captions")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color("TertiaryText"))
+
+                Spacer()
+            }
+
+            // Draft text preview (truncated)
+            Text(text)
+                .font(Typography.Command.body)
+                .foregroundStyle(Color("AppTextSecondary"))
+                .lineLimit(4)
+                .multilineTextAlignment(.leading)
+        }
+        .padding(Theme.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .fill(Color("AppSurface"))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.card)
+                .stroke(Color("AppDivider"), lineWidth: Theme.Stroke.hairline)
+        )
+        .opacity(isAwakened ? 1 : 0)
+        .animation(reduceMotion ? nil : Theme.Animation.slowFade.delay(0.15), value: isAwakened)
     }
 
     // MARK: - Step State Helpers
