@@ -168,10 +168,12 @@ final class TranscriptionService: Sendable {
     /// Transcribe multiple audio chunks and merge results
     /// - Parameters:
     ///   - chunkURLs: Array of audio chunk URLs in order
+    ///   - sermonTitle: Optional sermon title for dynamic glossary boosting
     ///   - onProgress: Progress callback (0-1) across all chunks
     /// - Returns: Merged transcription output
     func transcribeChunks(
         chunkURLs: [URL],
+        sermonTitle: String? = nil,
         onProgress: ((Double) -> Void)? = nil
     ) async throws -> TranscriptionOutput {
         guard !chunkURLs.isEmpty else {
@@ -183,7 +185,15 @@ final class TranscriptionService: Sendable {
         var totalDuration: Double = 0
         var detectedLanguage = "en"
         var currentOffset: Double = 0
-        let promptBuilder = WhisperPromptBuilder.default
+
+        // Use dynamic glossary if sermon title is provided
+        let promptBuilder: WhisperPromptBuilder
+        if let title = sermonTitle, !title.isEmpty {
+            promptBuilder = WhisperPromptBuilder.forSermon(title: title)
+            print("[TranscriptionService] Using dynamic glossary for: \(title)")
+        } else {
+            promptBuilder = WhisperPromptBuilder.default
+        }
 
         for (index, chunkURL) in chunkURLs.enumerated() {
             let chunkProgress = Double(index) / Double(chunkURLs.count)
@@ -392,6 +402,21 @@ struct WhisperPromptBuilder {
         self.maxPromptChars = SermonConfiguration.maxPromptChars
         self.glossaryBudgetChars = SermonConfiguration.glossaryBudgetChars
         self.contextBudgetChars = SermonConfiguration.contextBudgetChars
+    }
+
+    /// Create a prompt builder with dynamic glossary based on sermon title.
+    /// Extracts Bible book references from the title and customizes the glossary
+    /// to prioritize terms related to those books.
+    /// - Parameter sermonTitle: The sermon title to analyze for book references
+    /// - Returns: A WhisperPromptBuilder with customized glossary for the sermon
+    static func forSermon(title sermonTitle: String) -> WhisperPromptBuilder {
+        let dynamicGlossary = BiblicalContextProvider.glossaryPrompt(forSermonTitle: sermonTitle)
+        return WhisperPromptBuilder(
+            glossary: dynamicGlossary,
+            maxPromptChars: SermonConfiguration.maxPromptChars,
+            glossaryBudgetChars: SermonConfiguration.glossaryBudgetChars,
+            contextBudgetChars: SermonConfiguration.contextBudgetChars
+        )
     }
 
     /// Initialize with custom values (for testing)
