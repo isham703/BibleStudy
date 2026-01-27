@@ -135,6 +135,7 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
 
     /// Build segment text with correction overlays applied.
     /// Corrections that span word indices are replaced with their corrected text.
+    /// Handles corrections that may span segment boundaries.
     private static func buildSegmentText(
         words: [WordTimestamp],
         startIndex: Int,
@@ -154,6 +155,10 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
             if let correction = corrections.first(where: { $0.startWordIndex == globalIndex }) {
                 result.append(correction.correctedText)
                 i += correction.wordCount  // Skip the words that were replaced
+            } else if isInsideCorrectionRange(globalIndex, corrections: corrections) {
+                // This word is part of a correction that started before this segment
+                // Skip it (the corrected text was already added when the correction started)
+                i += 1
             } else {
                 result.append(words[i].word)
                 i += 1
@@ -161,6 +166,19 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         }
 
         return result.joined(separator: " ")
+    }
+
+    /// Check if a global word index falls inside any correction range (but not at the start).
+    private static func isInsideCorrectionRange(
+        _ globalIndex: Int,
+        corrections: [CorrectionOverlay]
+    ) -> Bool {
+        corrections.contains { correction in
+            let rangeStart = correction.startWordIndex
+            let rangeEnd = rangeStart + correction.wordCount
+            // Inside the range but not at the start (start is handled separately)
+            return globalIndex > rangeStart && globalIndex < rangeEnd
+        }
     }
 
     // MARK: - Initialization
