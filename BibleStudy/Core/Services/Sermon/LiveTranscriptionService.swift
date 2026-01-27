@@ -140,6 +140,9 @@ final class LiveTranscriptionService {
         let newAnalyzer = SpeechAnalyzer(modules: [newTranscriber])
         analyzer = newAnalyzer
 
+        // Apply contextual biasing for biblical terminology
+        await applyBiblicalContext(to: newAnalyzer)
+
         // Get the best audio format compatible with the transcriber
         analyzerFormat = await SpeechAnalyzer.bestAvailableAudioFormat(
             compatibleWith: [newTranscriber]
@@ -261,6 +264,25 @@ final class LiveTranscriptionService {
         isTranscribing = false
         retryCount = 0
         lastResultRangeStart = .zero
+    }
+
+    // MARK: - Contextual Biasing
+
+    /// Apply biblical terminology context to improve transcription accuracy.
+    /// Uses AnalysisContext.contextualStrings to bias recognition toward biblical terms.
+    private func applyBiblicalContext(to analyzer: SpeechAnalyzer) async {
+        let context = AnalysisContext()
+        context.contextualStrings = [
+            AnalysisContext.ContextualStringsTag("vocabulary"):
+                SermonConfiguration.biblicalContextualStrings
+        ]
+
+        do {
+            try await analyzer.setContext(context)
+        } catch {
+            // Non-fatal: transcription continues without biasing
+            print("[LiveTranscriptionService] Failed to apply biblical context: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Result Handling

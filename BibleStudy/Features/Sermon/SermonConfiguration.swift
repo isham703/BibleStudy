@@ -102,4 +102,34 @@ enum SermonConfiguration {
     /// Number of buffer callbacks to hold speech state after offset threshold,
     /// preventing flicker during natural pauses
     static let speechActivityHoldFrames: Int = 8
+
+    // MARK: - Live Caption Contextual Biasing (iOS 26+)
+
+    /// Biblical terms for Apple SpeechAnalyzer contextual biasing.
+    /// Passed to AnalysisContext.contextualStrings to improve recognition accuracy.
+    /// Focus on hard-to-transcribe book names and proper nouns (~30-40 terms).
+    static let biblicalContextualStrings: [String] = [
+        // Old Testament books (commonly misrecognized)
+        "Genesis", "Exodus", "Leviticus", "Deuteronomy",
+        "Ecclesiastes", "Nehemiah", "Habakkuk", "Zephaniah",
+        "Zechariah", "Malachi", "Obadiah", "Nahum",
+
+        // New Testament books (commonly misrecognized)
+        "Thessalonians", "Philippians", "Colossians", "Ephesians",
+        "Corinthians", "Galatians", "Philemon", "Revelation",
+
+        // Proper nouns (high-value for reference detection)
+        "Melchizedek", "Nebuchadnezzar", "Jehoshaphat",
+        "Gethsemane", "Golgotha", "Nazareth", "Capernaum",
+        "Jerusalem", "Bethlehem", "Galilee",
+
+        // Religious groups and terms
+        "Pharisees", "Sadducees", "Sanhedrin", "Levites",
+
+        // Worship terms
+        "Hallelujah", "Hosanna", "Selah", "Amen",
+
+        // Theological terms
+        "propitiation", "sanctification", "justification"
+    ]
 }
