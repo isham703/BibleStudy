@@ -38,6 +38,7 @@ final class LiveTranscriptionService {
     private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
     private var transcriptionTask: Task<Void, Never>?
     private var bufferConverter: AVAudioConverter?
+    private var supportedLocale: Locale?
     private var retryCount: Int = 0
     private var lastResultRangeStart: CMTime = .zero
     private var bufferFeedCount: Int = 0
@@ -51,7 +52,9 @@ final class LiveTranscriptionService {
     /// Check device + locale support. Must be called before use.
     func checkAvailability() async {
         let supported = await DictationTranscriber.supportedLocale(equivalentTo: .current)
+        supportedLocale = supported
         isAvailable = supported != nil
+        print("[LiveTranscriptionService] Supported locale: \(supported?.identifier ?? "none")")
     }
 
     // MARK: - Authorization
@@ -72,18 +75,25 @@ final class LiveTranscriptionService {
 
     // MARK: - Language Asset Management
 
-    /// Check if the language model for the current locale is installed
+    /// Check if the language model for the supported locale is installed
     func checkLanguageModelInstalled() async -> Bool {
+        guard let locale = supportedLocale else { return false }
         let installed = await DictationTranscriber.installedLocales
-        return installed.contains(where: { $0.language == Locale.current.language })
+        let found = installed.contains(where: { $0.identifier == locale.identifier })
+        print("[LiveTranscriptionService] Installed locales: \(installed.map(\.identifier)), need: \(locale.identifier), found: \(found)")
+        return found
     }
 
-    /// Install language assets for the current locale.
+    /// Install language assets for the supported locale.
     /// Called from Settings preflight, NOT during recording start.
     func installLanguageAssets(progress: @escaping @Sendable (Double) -> Void) async throws {
+        guard let locale = supportedLocale else {
+            throw SermonError.speechRecognitionUnavailable
+        }
+
         // Create a temporary transcriber instance for asset management
         let tempTranscriber = DictationTranscriber(
-            locale: .current,
+            locale: locale,
             preset: .progressiveLongDictation
         )
 
@@ -129,13 +139,24 @@ final class LiveTranscriptionService {
     }
 
     private func startTranscriptionInternal(recordingFormat: AVAudioFormat) async throws {
-        // Create DictationTranscriber using the long dictation preset
+        guard let locale = supportedLocale else {
+            throw SermonError.speechRecognitionUnavailable
+        }
+
+        // Create DictationTranscriber using the exact supported locale
         // progressiveLongDictation: volatile results + punctuation for sermons/lectures
         let newTranscriber = DictationTranscriber(
-            locale: .current,
+            locale: locale,
             preset: .progressiveLongDictation
         )
         transcriber = newTranscriber
+
+        // Ensure language assets are allocated for this transcriber
+        if let request = try await AssetInventory.assetInstallationRequest(supporting: [newTranscriber]) {
+            print("[LiveTranscriptionService] Installing language assets for \(locale.identifier)...")
+            try await request.downloadAndInstall()
+            print("[LiveTranscriptionService] Language assets installed")
+        }
 
         // Create SpeechAnalyzer with transcriber module
         let newAnalyzer = SpeechAnalyzer(modules: [newTranscriber])
@@ -280,6 +301,7 @@ final class LiveTranscriptionService {
         retryCount = 0
         lastResultRangeStart = .zero
         bufferFeedCount = 0
+        supportedLocale = nil
     }
 
     // MARK: - Result Handling
