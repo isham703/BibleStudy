@@ -209,29 +209,39 @@ final class LiveTranscriptionService {
         guard isTranscribing else { return }
 
         let inputBuffer: AVAudioPCMBuffer
-        if let converter = bufferConverter, let targetFormat = analyzerFormat {
-            // Convert to analyzer format
-            let frameCapacity = AVAudioFrameCount(
-                Double(buffer.frameLength) * targetFormat.sampleRate / buffer.format.sampleRate
-            )
+        if let targetFormat = analyzerFormat, targetFormat != buffer.format {
+            // Manual format conversion (same sample rate, Float32 → Int16)
             guard let converted = AVAudioPCMBuffer(
                 pcmFormat: targetFormat,
-                frameCapacity: frameCapacity
+                frameCapacity: buffer.frameLength
             ) else { return }
 
-            var error: NSError?
-            var hasData = true
-            converter.convert(to: converted, error: &error) { _, outStatus in
-                if hasData {
-                    hasData = false
-                    outStatus.pointee = .haveData
-                    return buffer
+            if let srcFloat = buffer.floatChannelData?[0],
+               let dstInt16 = converted.int16ChannelData?[0] {
+                // Direct Float32 → Int16 sample conversion
+                let count = Int(buffer.frameLength)
+                for i in 0..<count {
+                    let clamped = max(-1.0, min(1.0, srcFloat[i]))
+                    dstInt16[i] = Int16(clamped * 32767.0)
                 }
-                outStatus.pointee = .noDataNow
-                return nil
+                converted.frameLength = buffer.frameLength
+            } else {
+                // Fallback: use AVAudioConverter for non-trivial conversions
+                guard let converter = bufferConverter else { return }
+                var error: NSError?
+                var hasData = true
+                converter.convert(to: converted, error: &error) { _, outStatus in
+                    if hasData {
+                        hasData = false
+                        outStatus.pointee = .haveData
+                        return buffer
+                    }
+                    outStatus.pointee = .noDataNow
+                    return nil
+                }
+                guard error == nil, converted.frameLength > 0 else { return }
             }
 
-            guard error == nil, converted.frameLength > 0 else { return }
             inputBuffer = converted
         } else {
             inputBuffer = buffer
@@ -241,7 +251,28 @@ final class LiveTranscriptionService {
 
         bufferFeedCount += 1
         if bufferFeedCount == 1 || bufferFeedCount == 10 || bufferFeedCount == 50 {
-            print("[LiveTranscriptionService] Fed buffer #\(bufferFeedCount): \(inputBuffer.frameLength) frames, format=\(inputBuffer.format)")
+            // Log buffer info + RMS to verify audio data is non-silent
+            var rms: Float = 0
+            if let int16Data = inputBuffer.int16ChannelData?[0] {
+                var sum: Float = 0
+                for i in 0..<Int(inputBuffer.frameLength) {
+                    let sample = Float(int16Data[i]) / 32768.0
+                    sum += sample * sample
+                }
+                rms = sqrtf(sum / Float(inputBuffer.frameLength))
+            } else if let floatData = inputBuffer.floatChannelData?[0] {
+                var sum: Float = 0
+                for i in 0..<Int(inputBuffer.frameLength) {
+                    sum += floatData[i] * floatData[i]
+                }
+                rms = sqrtf(sum / Float(inputBuffer.frameLength))
+            }
+            print("[LiveTranscriptionService] Fed buffer #\(bufferFeedCount): \(inputBuffer.frameLength) frames, format=\(inputBuffer.format), rms=\(String(format: "%.4f", rms)), time=\(time.sampleTime)@\(time.sampleRate)Hz")
+        }
+
+        // Warn if significant audio fed with no results
+        if bufferFeedCount == 100 && segments.isEmpty && currentText.isEmpty {
+            print("[LiveTranscriptionService] ⚠️ 100 buffers fed (~10s) with no transcription results")
         }
     }
 
