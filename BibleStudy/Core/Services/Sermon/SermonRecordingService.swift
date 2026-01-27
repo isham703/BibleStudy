@@ -284,7 +284,16 @@ final class SermonRecordingService: NSObject, Sendable {
 
         // Start engine
         engine.prepare()
-        try engine.start()
+        do {
+            try engine.start()
+        } catch {
+            engine.inputNode.removeTap(onBus: 0)
+            audioFile = nil
+            audioEngine = nil
+            audioConverter = nil
+            AudioService.shared.popAudioSession(owner: "SermonRecordingService")
+            throw error
+        }
 
         state = .recording
         recordingStartTime = Date()
@@ -469,7 +478,14 @@ final class SermonRecordingService: NSObject, Sendable {
         guard error == nil, convertedBuffer.frameLength > 0 else { return }
 
         // Write to file (AVAudioFile write is thread-safe)
-        try? self.audioFile?.write(from: convertedBuffer)
+        do {
+            try self.audioFile?.write(from: convertedBuffer)
+        } catch {
+            print("[SermonRecordingService] Audio write error: \(error.localizedDescription)")
+            DispatchQueue.main.async { [weak self] in
+                self?.state = .error("Audio write failed: \(error.localizedDescription)")
+            }
+        }
 
         // Compute RMS + voice activity detection
         updateLevelFromBuffer(convertedBuffer)
