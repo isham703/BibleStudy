@@ -336,8 +336,7 @@ final class SermonRecordingService: NSObject, Sendable {
         do {
             try audioEngine?.start()
         } catch {
-            state = .error("Failed to resume recording: \(error.localizedDescription)")
-            print("[SermonRecordingService] Error resuming: \(error)")
+            cleanupAfterError("Failed to resume recording: \(error.localizedDescription)")
             return
         }
         scheduleChunkTimer()
@@ -427,6 +426,25 @@ final class SermonRecordingService: NSObject, Sendable {
         AudioService.shared.popAudioSession(owner: "SermonRecordingService")
     }
 
+    /// Deterministic cleanup after an unrecoverable error during recording.
+    /// Stops engine, removes tap, cancels timers, releases session, sets error state.
+    private func cleanupAfterError(_ message: String) {
+        if let engine = audioEngine {
+            engine.inputNode.removeTap(onBus: 0)
+            engine.stop()
+        }
+        audioEngine = nil
+        audioConverter = nil
+        audioFile = nil
+        chunkTimer?.invalidate()
+        chunkTimer = nil
+        durationTimer?.invalidate()
+        durationTimer = nil
+        AudioService.shared.popAudioSession(owner: "SermonRecordingService")
+        state = .error(message)
+        print("[SermonRecordingService] \(message)")
+    }
+
     /// Add a bookmark at the current timestamp
     /// Returns the timestamp in seconds from start
     func addBookmark() -> TimeInterval {
@@ -484,9 +502,8 @@ final class SermonRecordingService: NSObject, Sendable {
         do {
             try self.audioFile?.write(from: convertedBuffer)
         } catch {
-            print("[SermonRecordingService] Audio write error: \(error.localizedDescription)")
             DispatchQueue.main.async { [weak self] in
-                self?.state = .error("Audio write failed: \(error.localizedDescription)")
+                self?.cleanupAfterError("Audio write failed: \(error.localizedDescription)")
             }
         }
 
@@ -494,10 +511,12 @@ final class SermonRecordingService: NSObject, Sendable {
         updateLevelFromBuffer(convertedBuffer)
 
         // Forward to buffer callback (live transcription)
+        // Deep-copy the buffer so the main queue receives a stable snapshot
         let cb = self.bufferCallback
         if cb != nil {
+            guard let bufferCopy = Self.copyBuffer(convertedBuffer) else { return }
             DispatchQueue.main.async {
-                cb?(convertedBuffer, time)
+                cb?(bufferCopy, time)
             }
         }
     }
@@ -540,6 +559,25 @@ final class SermonRecordingService: NSObject, Sendable {
                 self.speechActivityCallback?(self.isSpeechDetected)
             }
         }
+    }
+
+    /// Create a deep copy of an audio buffer for safe cross-thread dispatch
+    private nonisolated static func copyBuffer(_ source: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
+        guard let copy = AVAudioPCMBuffer(
+            pcmFormat: source.format,
+            frameCapacity: source.frameCapacity
+        ) else { return nil }
+
+        copy.frameLength = source.frameLength
+
+        guard let srcData = source.floatChannelData,
+              let dstData = copy.floatChannelData else { return nil }
+
+        for ch in 0..<Int(source.format.channelCount) {
+            memcpy(dstData[ch], srcData[ch], Int(source.frameLength) * MemoryLayout<Float>.size)
+        }
+
+        return copy
     }
 
     // MARK: - Chunk Management
