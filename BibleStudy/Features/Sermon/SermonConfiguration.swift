@@ -32,6 +32,23 @@ enum SermonConfiguration {
     /// Minimum segment duration before allowing punctuation-based breaks
     static let minSegmentDurationForPunctuationBreak: Double = 5.0
 
+    // MARK: - Whisper Prompt Configuration
+
+    /// Maximum total prompt characters for Whisper API (224 token limit ≈ 600 chars)
+    static let maxPromptChars = 600
+
+    /// Characters reserved for biblical glossary (glossary text must fit within this budget)
+    static let glossaryBudgetChars = 350
+
+    /// Characters available for recent transcript context.
+    /// Clamped to prevent negative values if configuration is invalid.
+    static let contextBudgetChars = max(0, maxPromptChars - glossaryBudgetChars - 1)  // -1 for space separator
+
+    /// Biblical terminology glossary to improve Whisper transcription accuracy.
+    /// Written as prose (mini-transcript style) for better priming effect.
+    /// Always included at end of prompt to teach Whisper biblical spelling.
+    static let biblicalGlossaryPrompt = "Today we study Habakkuk and Zephaniah. In Ecclesiastes and Deuteronomy, we read Thessalonians, Philippians, Colossians, Ephesians, and Corinthians. From Gethsemane to Golgotha, Melchizedek and Nebuchadnezzar. Pharisees and Sadducees. Hallelujah. Selah."
+
     // MARK: - Processing
 
     /// Maximum processing timeout before giving up (30 minutes)
