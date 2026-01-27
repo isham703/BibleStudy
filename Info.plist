@@ -73,6 +73,8 @@
 	<!-- Privacy Usage Descriptions -->
 	<key>NSMicrophoneUsageDescription</key>
 	<string>BibleStudy needs microphone access to record sermons for transcription and study guide generation.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>BibleStudy uses speech recognition to show live captions during sermon recording.</string>
 
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

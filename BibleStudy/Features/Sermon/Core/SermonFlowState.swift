@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import Speech
 import Auth
 import Supabase
 @preconcurrency import GRDB
@@ -92,6 +93,17 @@ final class SermonFlowState {
     var audioLevels: [Float] = []
     var currentAudioLevel: Float = 0
 
+    // MARK: - Live Captions State
+
+    var isLiveCaptionsEnabled: Bool = false
+    var isLiveCaptionsAvailable: Bool = false
+    var liveCaptionText: String = ""
+    var liveCaptionSegments: [LiveCaptionSegment] = []
+    var isSpeechDetected: Bool = false
+    var showLiveCaptionsExpanded: Bool = false
+    var draftTranscriptText: String? = nil
+    let captionReferenceState = CaptionReferenceState()
+
     // MARK: - Sermon Data
 
     var currentSermon: Sermon?
@@ -123,6 +135,7 @@ final class SermonFlowState {
     private var durationTimerTask: Task<Void, Never>?
     private var progressStreamTask: Task<Void, Never>?
     private var studyGuideObserverTask: Task<Void, Never>?
+    private var captionObservationTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -268,6 +281,9 @@ final class SermonFlowState {
             // Start audio level metering
             startMetering()
 
+            // Start live captions (iOS 26+, if enabled)
+            await startLiveCaptions()
+
             HapticService.shared.success()
 
         } catch {
@@ -305,6 +321,10 @@ final class SermonFlowState {
         }
 
         stopMetering()
+
+        // Stop live captions and collect draft transcript
+        await stopLiveCaptions()
+
         let chunkURLs = recordingService.stopRecording()
 
         isRecording = false
@@ -321,6 +341,7 @@ final class SermonFlowState {
         guard phase == .recording else { return }
 
         stopMetering()
+        resetLiveCaptions()
         recordingService.cancelRecording()
 
         isRecording = false
@@ -591,6 +612,7 @@ final class SermonFlowState {
 
             if job.isComplete {
                 await self.loadSermonData(sermonId: sermonId)
+                self.draftTranscriptText = nil  // Final transcript replaces draft
                 self.phase = .viewing
                 HapticService.shared.success()
             } else if job.transcriptionStatus == .failed {
@@ -598,6 +620,7 @@ final class SermonFlowState {
             } else if job.studyGuideStatus == .failed && job.transcriptionStatus == .succeeded {
                 // Study guide failed but transcription succeeded - go to viewing in degraded mode
                 await self.loadSermonData(sermonId: sermonId)
+                self.draftTranscriptText = nil
                 self.phase = .viewing
                 HapticService.shared.warning()
             } else if job.studyGuideStatus == .failed {
@@ -706,6 +729,151 @@ final class SermonFlowState {
         return sermon.studyGuideStatus == .running || sermon.studyGuideStatus == .pending
     }
 
+    // MARK: - Live Captions
+
+    /// Start live transcription if enabled and available (iOS 26+)
+    private func startLiveCaptions() async {
+        // Check remote kill switch first
+        guard FeatureFlagService.shared.isLiveCaptionsEnabled else {
+            isLiveCaptionsEnabled = false
+            isLiveCaptionsAvailable = false
+            return
+        }
+
+        // Load user preference
+        isLiveCaptionsEnabled = UserDefaults.standard.bool(
+            forKey: AppConfiguration.UserDefaultsKeys.liveCaptionsEnabled
+        )
+        guard isLiveCaptionsEnabled else {
+            isLiveCaptionsAvailable = false
+            return
+        }
+
+        guard #available(iOS 26, *) else {
+            isLiveCaptionsAvailable = false
+            return
+        }
+
+        let service = LiveTranscriptionService.shared
+
+        // Check availability (device + locale support)
+        await service.checkAvailability()
+        guard service.isAvailable else {
+            isLiveCaptionsAvailable = false
+            return
+        }
+
+        // Check authorization
+        guard service.authorizationStatus == .authorized else {
+            isLiveCaptionsAvailable = false
+            return
+        }
+
+        // Check language model is installed (preflight should have handled this)
+        guard await service.checkLanguageModelInstalled() else {
+            isLiveCaptionsAvailable = false
+            return
+        }
+
+        isLiveCaptionsAvailable = true
+
+        // Set up buffer forwarding from recording service to transcription service
+        recordingService.setBufferCallback { [weak service] buffer, time in
+            service?.feedAudioBuffer(buffer, at: time)
+        }
+
+        // Set up speech activity callback
+        recordingService.speechActivityCallback = { [weak self] detected in
+            self?.isSpeechDetected = detected
+        }
+
+        // Start transcription
+        do {
+            let format = recordingService.configuration.processingFormat
+            try await service.startTranscription(recordingFormat: format)
+
+            // Observe transcription service state changes
+            startCaptionObservation(service: service)
+        } catch {
+            // Live captions failure is non-fatal — recording continues
+            isLiveCaptionsAvailable = false
+            recordingService.setBufferCallback(nil)
+            recordingService.speechActivityCallback = nil
+            print("[SermonFlowState] Live captions failed to start: \(error)")
+        }
+    }
+
+    /// Observe LiveTranscriptionService state and mirror to flow state
+    @available(iOS 26, *)
+    private func startCaptionObservation(service: LiveTranscriptionService) {
+        captionObservationTask?.cancel()
+        captionObservationTask = Task { @MainActor [weak self, weak service] in
+            // Poll transcription service state at ~10Hz to mirror into flow state.
+            // LiveTranscriptionService is @Observable, but since we need to bridge
+            // its properties into SermonFlowState (also @Observable), polling is the
+            // simplest approach without nested withObservationTracking.
+            while !Task.isCancelled {
+                guard let self, let service else { break }
+                self.liveCaptionText = service.currentText
+                self.liveCaptionSegments = service.segments
+
+                // Scan for Bible references in accumulated text
+                let allText = service.segments.map(\.text).joined(separator: " ")
+                    + (service.currentText.isEmpty ? "" : " " + service.currentText)
+                if !allText.isEmpty {
+                    self.captionReferenceState.scanText(allText)
+                }
+
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+        }
+    }
+
+    /// Stop live captions and collect draft transcript
+    private func stopLiveCaptions() async {
+        captionObservationTask?.cancel()
+        captionObservationTask = nil
+
+        // Clear callbacks
+        recordingService.setBufferCallback(nil)
+        recordingService.speechActivityCallback = nil
+
+        guard isLiveCaptionsAvailable else { return }
+
+        if #available(iOS 26, *) {
+            let service = LiveTranscriptionService.shared
+            draftTranscriptText = await service.stopTranscription()
+        }
+
+        // Clear ephemeral caption state
+        liveCaptionText = ""
+        liveCaptionSegments = []
+        isSpeechDetected = false
+        showLiveCaptionsExpanded = false
+    }
+
+    /// Reset all live caption state (cancel, no draft)
+    private func resetLiveCaptions() {
+        captionObservationTask?.cancel()
+        captionObservationTask = nil
+
+        recordingService.setBufferCallback(nil)
+        recordingService.speechActivityCallback = nil
+
+        if #available(iOS 26, *) {
+            LiveTranscriptionService.shared.reset()
+        }
+
+        isLiveCaptionsEnabled = false
+        isLiveCaptionsAvailable = false
+        liveCaptionText = ""
+        liveCaptionSegments = []
+        isSpeechDetected = false
+        showLiveCaptionsExpanded = false
+        draftTranscriptText = nil
+        captionReferenceState.reset()
+    }
+
     // MARK: - Reset
 
     func reset() {
@@ -715,6 +883,7 @@ final class SermonFlowState {
         stopProgressStream()
         stopObservingStudyGuideUpdates()
         recordingService.stopMetering()
+        resetLiveCaptions()
 
         // Clear task references
         processingTask = nil

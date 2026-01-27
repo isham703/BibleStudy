@@ -88,6 +88,14 @@ enum Theme {
         static func stagger(index: Int, step: Double = 0.06) -> SwiftUI.Animation {
             .easeOut(duration: 0.26).delay(Double(index) * step)
         }
+
+        /// Speech dot onset: 150ms easeOut — snappy, reactive "system heard me"
+        /// Use for: live caption speech activity indicator (ON)
+        static let speechDotOn: SwiftUI.Animation = .easeOut(duration: 0.15)
+
+        /// Speech dot offset: 400ms easeInOut — graceful fade, avoids flicker during pauses
+        /// Use for: live caption speech activity indicator (OFF)
+        static let speechDotOff: SwiftUI.Animation = .easeInOut(duration: 0.4)
     }
 
     // MARK: - Size

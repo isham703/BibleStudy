@@ -64,4 +64,25 @@ enum SermonConfiguration {
 
     /// Estimated bytes per minute at standard recording settings (~240KB/min at 32kbps)
     static let estimatedBytesPerMinute: Int = 240_000
+
+    // MARK: - Live Captions
+
+    /// Maximum finalized caption segments before LRU eviction (oldest dropped)
+    static let maxLiveCaptionSegments: Int = 200
+
+    /// Maximum retry attempts for speech recognition analyzer errors
+    static let maxRecognitionRetries: Int = 3
+
+    /// Base delay for exponential backoff on recognition retries
+    static let recognitionRetryBaseDelaySeconds: TimeInterval = 1.0
+
+    /// RMS threshold to trigger speech activity detection (onset)
+    static let speechActivityRMSThreshold: Float = 0.05
+
+    /// RMS threshold to clear speech activity detection (offset — lower for hysteresis)
+    static let speechActivitySilenceThreshold: Float = 0.02
+
+    /// Number of buffer callbacks to hold speech state after offset threshold,
+    /// preventing flicker during natural pauses
+    static let speechActivityHoldFrames: Int = 8
 }

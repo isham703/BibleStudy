@@ -1,4 +1,5 @@
 import SwiftUI
+import AVKit
 
 // MARK: - Sermon Recording Phase
 // Atrium-style: Clean, spacious recording interface with waveform visualization
@@ -7,6 +8,7 @@ struct SermonRecordingPhase: View {
     @Bindable var flowState: SermonFlowState
     @State private var pulsePhase: CGFloat = 0
     @State private var isAwakened = false
+    @State private var showFullScreenCaptions = false
 
     var body: some View {
         ZStack {
@@ -19,9 +21,60 @@ struct SermonRecordingPhase: View {
                 headerSection
                     .padding(.bottom, Theme.Spacing.xxl)
 
-                // Waveform visualizer card
-                waveformSection
+                // Waveform visualizer card with live captions overlay
+                ZStack(alignment: .bottom) {
+                    waveformSection
+
+                    if flowState.isLiveCaptionsEnabled && flowState.isLiveCaptionsAvailable {
+                        LiveCaptionsPanel(
+                            isExpanded: flowState.showLiveCaptionsExpanded,
+                            captionText: flowState.liveCaptionText,
+                            segments: flowState.liveCaptionSegments,
+                            isSpeechDetected: flowState.isSpeechDetected,
+                            onToggle: { flowState.showLiveCaptionsExpanded.toggle() },
+                            onReferenceTapped: { ref in
+                                flowState.captionReferenceState.selectedReference =
+                                    CaptionReferenceState.DetectedReference(
+                                        id: UUID(),
+                                        parsed: ref,
+                                        canonicalId: ReferenceParser.canonicalId(for: ref),
+                                        detectedAt: Date()
+                                    )
+                            },
+                            onFullScreen: {
+                                showFullScreenCaptions = true
+                            }
+                        )
+                        .padding(.horizontal, Theme.Spacing.sm)
+                        .padding(.bottom, Theme.Spacing.xs)
+                        .transition(.asymmetric(
+                            insertion: .offset(y: 12).combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                    }
+                }
+                .padding(.horizontal, Theme.Spacing.lg)
+                .animation(Theme.Animation.settle, value: flowState.isLiveCaptionsAvailable)
+
+                // Reference chip overlay
+                if let selected = flowState.captionReferenceState.selectedReference {
+                    CaptionReferenceChip(
+                        reference: selected,
+                        onGoToPassage: { _ in
+                            // Navigation handled by parent — for now just dismiss
+                            flowState.captionReferenceState.dismissChip(forReferenceId: selected.id)
+                        },
+                        onDismiss: {
+                            flowState.captionReferenceState.dismissChip(forReferenceId: selected.id)
+                        }
+                    )
                     .padding(.horizontal, Theme.Spacing.lg)
+                    .transition(.asymmetric(
+                        insertion: .offset(y: 8).combined(with: .opacity),
+                        removal: .opacity
+                    ))
+                    .animation(Theme.Animation.settle, value: flowState.captionReferenceState.selectedReference?.id)
+                }
 
                 // Timer display
                 timerSection
@@ -31,7 +84,19 @@ struct SermonRecordingPhase: View {
 
                 // Control buttons
                 controlsSection
-                    .padding(.bottom, Theme.Spacing.xxl * 2)
+                    .padding(.bottom, Theme.Spacing.lg)
+
+                // Input picker (iOS 26+) — secondary action below controls
+                if #available(iOS 26, *) {
+                    InputPickerButton()
+                        .frame(height: 44)
+                        .opacity(isAwakened ? 1 : 0)
+                        .animation(Theme.Animation.slowFade.delay(0.4), value: isAwakened)
+                        .padding(.bottom, Theme.Spacing.xxl)
+                } else {
+                    Spacer()
+                        .frame(height: Theme.Spacing.xxl)
+                }
             }
         }
         .onAppear {
@@ -39,6 +104,9 @@ struct SermonRecordingPhase: View {
             withAnimation(Theme.Animation.settle) {
                 isAwakened = true
             }
+        }
+        .fullScreenCover(isPresented: $showFullScreenCaptions) {
+            FullScreenCaptionsView(flowState: flowState)
         }
     }
 
@@ -360,6 +428,43 @@ struct SermonWaveformView: View {
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.sm)
     }
+}
+
+// MARK: - Input Picker Button (iOS 26+)
+// Wraps AVInputPickerInteraction to show Apple's built-in audio input
+// and mic mode selection UI (Voice Isolation, Bluetooth, etc.)
+
+@available(iOS 26, *)
+private struct InputPickerButton: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let containerView = UIView()
+        containerView.backgroundColor = .clear
+
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        var config = UIButton.Configuration.plain()
+        config.image = UIImage(systemName: "mic.fill")
+        config.imagePadding = 6
+        config.title = "Audio Input"
+        config.baseForegroundColor = UIColor(named: "AppTextSecondary")
+        button.configuration = config
+        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .caption1)
+
+        containerView.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+        ])
+
+        // Attach the input picker interaction
+        let interaction = AVInputPickerInteraction()
+        button.addInteraction(interaction)
+
+        return containerView
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
 // MARK: - Preview
