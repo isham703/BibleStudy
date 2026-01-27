@@ -3,6 +3,12 @@ import GRDB
 
 // MARK: - Sermon Transcript
 // Full transcription of a sermon with word-level timestamps
+//
+// Design Note: This struct is effectively immutable after creation.
+// Fields are declared as `var` for GRDB's FetchableRecord protocol compliance,
+// but all mutations go through the repository layer which creates new instances.
+// TranscriptSegmentCache relies on `updatedAt` for invalidation, which works
+// because the repository always updates `updatedAt` when persisting changes.
 struct SermonTranscript: Identifiable, Hashable, Sendable {
     let id: UUID
     let sermonId: UUID
