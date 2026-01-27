@@ -360,11 +360,16 @@ enum BiblicalContextProvider {
         var parts: [String] = []
         var currentLength = 0
 
+        /// Calculate space cost for separator (0 for first part, 1 for subsequent)
+        func separatorCost() -> Int {
+            parts.isEmpty ? 0 : 1
+        }
+
         // 1. Add detected book names with context
         let bookIntro = "Today we study \(books.joined(separator: " and "))."
-        if currentLength + bookIntro.count + 1 <= budgetChars {
+        if currentLength + bookIntro.count + separatorCost() <= budgetChars {
+            currentLength += bookIntro.count + separatorCost()
             parts.append(bookIntro)
-            currentLength += bookIntro.count + 1
         }
 
         // 2. Add book-specific terms as prose
@@ -372,9 +377,9 @@ enum BiblicalContextProvider {
             if let bookTerms = bookSpecificTerms[book] {
                 let termsProse = bookTerms.prefix(6).joined(separator: ", ")
                 let addition = "In \(book): \(termsProse)."
-                if currentLength + addition.count + 1 <= budgetChars {
+                if currentLength + addition.count + separatorCost() <= budgetChars {
+                    currentLength += addition.count + separatorCost()
                     parts.append(addition)
-                    currentLength += addition.count + 1
                 }
             }
         }
@@ -384,15 +389,15 @@ enum BiblicalContextProvider {
         if !unmentionedBooks.isEmpty {
             let booksList = unmentionedBooks.prefix(4).joined(separator: ", ")
             let addition = "Also \(booksList)."
-            if currentLength + addition.count + 1 <= budgetChars {
+            if currentLength + addition.count + separatorCost() <= budgetChars {
+                currentLength += addition.count + separatorCost()
                 parts.append(addition)
-                currentLength += addition.count + 1
             }
         }
 
         // 4. Fill remaining budget with core terms
         let coreAddition = "Hallelujah. Selah."
-        if currentLength + coreAddition.count <= budgetChars {
+        if currentLength + coreAddition.count + separatorCost() <= budgetChars {
             parts.append(coreAddition)
         }
 
