@@ -101,24 +101,26 @@ struct TranscriptSegmentCacheTests {
             #expect(computeCallCount == 1) // Still 1, no recomputation
         }
 
-        @Test("Recomputes when wordTimestamps hash changes")
+        @Test("Recomputes when updatedAt changes (simulating transcript update)")
         @MainActor
-        func recomputesWhenHashChanges() {
+        func recomputesWhenUpdatedAtChanges() {
             let cache = TranscriptSegmentCache.shared
             cache.clear()
 
             let transcriptId = UUID()
             let sermonId = UUID()
+            let originalUpdatedAt = Date()
 
             // Original transcript
-            var transcript = SermonTranscript(
+            let transcript = SermonTranscript(
                 id: transcriptId,
                 sermonId: sermonId,
                 content: "Original content",
                 wordTimestamps: [
                     .init(word: "Original", start: 0, end: 0.5),
                     .init(word: "content", start: 0.5, end: 1.0)
-                ]
+                ],
+                updatedAt: originalUpdatedAt
             )
 
             var computeCallCount = 0
@@ -140,13 +142,22 @@ struct TranscriptSegmentCacheTests {
             _ = cache.getSegments(for: transcript, compute: compute)
             #expect(computeCallCount == 1)
 
-            // Modify wordTimestamps (changes hash)
-            transcript.wordTimestamps.append(
-                .init(word: "new", start: 1.0, end: 1.5)
+            // Create new transcript with updated timestamps and new updatedAt
+            // (simulating how repository updates work - creates new instance)
+            let updatedTranscript = SermonTranscript(
+                id: transcriptId,
+                sermonId: sermonId,
+                content: "Original content",
+                wordTimestamps: [
+                    .init(word: "Original", start: 0, end: 0.5),
+                    .init(word: "content", start: 0.5, end: 1.0),
+                    .init(word: "new", start: 1.0, end: 1.5)
+                ],
+                updatedAt: Date()  // New updatedAt triggers cache invalidation
             )
 
-            // Should recompute due to hash change
-            _ = cache.getSegments(for: transcript, compute: compute)
+            // Should recompute due to updatedAt change
+            _ = cache.getSegments(for: updatedTranscript, compute: compute)
             #expect(computeCallCount == 2)
         }
 

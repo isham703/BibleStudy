@@ -276,12 +276,24 @@ final class SermonProcessingQueue {
                 }
             }
 
-            // Save transcript via repository
+            // Find biblical term corrections for better reference detection
+            let corrections = BiblicalTermCorrector.findCorrections(
+                in: output.text,
+                wordTimestamps: output.wordTimestamps,
+                requireContext: true  // Only correct near verse-like patterns
+            )
+
+            if !corrections.isEmpty {
+                print("[SermonProcessingQueue] Applied \(corrections.count) biblical term correction(s)")
+            }
+
+            // Save transcript via repository with corrections
             let transcript = SermonTranscript(
                 sermonId: sermonId,
                 content: output.text,
                 language: output.language,
                 wordTimestamps: output.wordTimestamps,
+                correctionOverlays: corrections,
                 modelUsed: "whisper-1",
                 confidenceScore: nil,
                 needsSync: true

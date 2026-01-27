@@ -3,17 +3,22 @@ import GRDB
 
 // MARK: - Sermon Transcript
 // Full transcription of a sermon with word-level timestamps
+//
+// Design Note: Data fields are immutable after creation (`let`). All updates go
+// through the repository layer which creates new instances with updated values.
+// TranscriptSegmentCache relies on `updatedAt` for invalidation.
 struct SermonTranscript: Identifiable, Hashable, Sendable {
     let id: UUID
     let sermonId: UUID
-    var content: String
-    var language: String
-    var wordTimestamps: [WordTimestamp]
-    var modelUsed: String?
-    var confidenceScore: Double?
+    let content: String
+    let language: String
+    let wordTimestamps: [WordTimestamp]
+    let correctionOverlays: [CorrectionOverlay]
+    let modelUsed: String?
+    let confidenceScore: Double?
     let createdAt: Date
-    var updatedAt: Date
-    var needsSync: Bool
+    let updatedAt: Date
+    var needsSync: Bool  // Mutable for sync state management
 
     // MARK: - Word Timestamp
     struct WordTimestamp: Codable, Hashable, Sendable {
@@ -30,19 +35,42 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
             .count
     }
 
+    /// Content with correction overlays applied for display.
+    /// Use this for UI rendering and reference detection.
+    var correctedContent: String {
+        guard !correctionOverlays.isEmpty, !wordTimestamps.isEmpty else {
+            return content
+        }
+        return BiblicalTermCorrector.applyCorrections(
+            to: wordTimestamps,
+            corrections: correctionOverlays
+        )
+    }
+
+    /// Whether this transcript has any corrections applied
+    var hasCorrections: Bool {
+        !correctionOverlays.isEmpty
+    }
+
     /// Display segments for UI rendering (cached for performance)
     /// Access via MainActor for cached results, or use computeSegments() for direct computation
     @MainActor
     var segments: [TranscriptDisplaySegment] {
         TranscriptSegmentCache.shared.getSegments(for: self) {
-            Self.computeSegments(from: wordTimestamps, content: content)
+            Self.computeSegments(
+                from: wordTimestamps,
+                content: content,
+                corrections: correctionOverlays
+            )
         }
     }
 
     /// Compute segments directly (O(n) - use cached version when possible)
+    /// Applies correction overlays when building segment text for display.
     static func computeSegments(
         from wordTimestamps: [WordTimestamp],
-        content: String
+        content: String,
+        corrections: [CorrectionOverlay] = []
     ) -> [TranscriptDisplaySegment] {
         // Group words into display segments (~10-15 seconds each)
         guard !wordTimestamps.isEmpty else {
@@ -69,7 +97,11 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
 
             if shouldBreak && index > segmentStart {
                 let segmentWords = Array(wordTimestamps[segmentStart...index])
-                let text = segmentWords.map(\.word).joined(separator: " ")
+                let text = buildSegmentText(
+                    words: segmentWords,
+                    startIndex: segmentStart,
+                    corrections: corrections
+                )
                 let endTime = segmentWords.last?.end ?? word.end
 
                 segments.append(TranscriptDisplaySegment(
@@ -87,7 +119,11 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         // Add final segment
         if segmentStart < wordTimestamps.count {
             let segmentWords = Array(wordTimestamps[segmentStart...])
-            let text = segmentWords.map(\.word).joined(separator: " ")
+            let text = buildSegmentText(
+                words: segmentWords,
+                startIndex: segmentStart,
+                corrections: corrections
+            )
             let endTime = segmentWords.last?.end ?? 0
 
             segments.append(TranscriptDisplaySegment(
@@ -101,6 +137,54 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         return segments
     }
 
+    /// Build segment text with correction overlays applied.
+    /// Corrections that span word indices are replaced with their corrected text.
+    /// Handles corrections that may span segment boundaries.
+    private static func buildSegmentText(
+        words: [WordTimestamp],
+        startIndex: Int,
+        corrections: [CorrectionOverlay]
+    ) -> String {
+        guard !corrections.isEmpty else {
+            return words.map(\.word).joined(separator: " ")
+        }
+
+        var result: [String] = []
+        var i = 0
+
+        while i < words.count {
+            let globalIndex = startIndex + i
+
+            // Check if this index starts a correction
+            if let correction = corrections.first(where: { $0.startWordIndex == globalIndex }) {
+                result.append(correction.correctedText)
+                i += correction.wordCount  // Skip the words that were replaced
+            } else if isInsideCorrectionRange(globalIndex, corrections: corrections) {
+                // This word is part of a correction that started before this segment
+                // Skip it (the corrected text was already added when the correction started)
+                i += 1
+            } else {
+                result.append(words[i].word)
+                i += 1
+            }
+        }
+
+        return result.joined(separator: " ")
+    }
+
+    /// Check if a global word index falls inside any correction range (but not at the start).
+    private static func isInsideCorrectionRange(
+        _ globalIndex: Int,
+        corrections: [CorrectionOverlay]
+    ) -> Bool {
+        corrections.contains { correction in
+            let rangeStart = correction.startWordIndex
+            let rangeEnd = rangeStart + correction.wordCount
+            // Inside the range but not at the start (start is handled separately)
+            return globalIndex > rangeStart && globalIndex < rangeEnd
+        }
+    }
+
     // MARK: - Initialization
 
     init(
@@ -109,6 +193,7 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         content: String,
         language: String = "en",
         wordTimestamps: [WordTimestamp] = [],
+        correctionOverlays: [CorrectionOverlay] = [],
         modelUsed: String? = nil,
         confidenceScore: Double? = nil,
         createdAt: Date = Date(),
@@ -120,6 +205,7 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         self.content = content
         self.language = language
         self.wordTimestamps = wordTimestamps
+        self.correctionOverlays = correctionOverlays
         self.modelUsed = modelUsed
         self.confidenceScore = confidenceScore
         self.createdAt = createdAt
@@ -172,6 +258,7 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
         case content
         case language
         case wordTimestamps = "word_timestamps"
+        case correctionOverlays = "correction_overlays"
         case modelUsed = "model_used"
         case confidenceScore = "confidence_score"
         case createdAt = "created_at"
@@ -190,6 +277,13 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
             wordTimestamps = (try? JSONCodingUtilities.decode([WordTimestamp].self, from: data)) ?? []
         } else {
             wordTimestamps = []
+        }
+
+        if let overlaysString: String = row[Columns.correctionOverlays],
+           let data = overlaysString.data(using: .utf8) {
+            correctionOverlays = (try? JSONCodingUtilities.decode([CorrectionOverlay].self, from: data)) ?? []
+        } else {
+            correctionOverlays = []
         }
 
         modelUsed = row[Columns.modelUsed]
@@ -212,6 +306,13 @@ extension SermonTranscript: FetchableRecord, PersistableRecord {
             container[Columns.wordTimestamps] = "[]"
         }
 
+        if let data = try? JSONCodingUtilities.encode(correctionOverlays),
+           let jsonString = String(data: data, encoding: .utf8) {
+            container[Columns.correctionOverlays] = jsonString
+        } else {
+            container[Columns.correctionOverlays] = "[]"
+        }
+
         container[Columns.modelUsed] = modelUsed
         container[Columns.confidenceScore] = confidenceScore
         container[Columns.createdAt] = createdAt
@@ -227,6 +328,7 @@ struct SermonTranscriptDTO: Codable {
     let content: String
     let language: String
     let wordTimestamps: [SermonTranscript.WordTimestamp]
+    let correctionOverlays: [CorrectionOverlay]?
     let modelUsed: String?
     let confidenceScore: Double?
     let createdAt: Date
@@ -238,6 +340,7 @@ struct SermonTranscriptDTO: Codable {
         case content
         case language
         case wordTimestamps = "word_timestamps"
+        case correctionOverlays = "correction_overlays"
         case modelUsed = "model_used"
         case confidenceScore = "confidence_score"
         case createdAt = "created_at"
@@ -253,6 +356,7 @@ extension SermonTranscript {
         self.content = dto.content
         self.language = dto.language
         self.wordTimestamps = dto.wordTimestamps
+        self.correctionOverlays = dto.correctionOverlays ?? []
         self.modelUsed = dto.modelUsed
         self.confidenceScore = dto.confidenceScore
         self.createdAt = dto.createdAt
@@ -267,6 +371,7 @@ extension SermonTranscript {
             content: content,
             language: language,
             wordTimestamps: wordTimestamps,
+            correctionOverlays: correctionOverlays.isEmpty ? nil : correctionOverlays,
             modelUsed: modelUsed,
             confidenceScore: confidenceScore,
             createdAt: createdAt,

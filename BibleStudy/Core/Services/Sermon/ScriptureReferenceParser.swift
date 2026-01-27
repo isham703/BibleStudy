@@ -200,7 +200,15 @@ struct ScriptureReferenceParser {
 
     /// Extract all scripture book references from text
     /// Returns normalized book names in order of appearance
+    /// Applies STT confusion normalization before parsing for better accuracy
     static func extractBooks(from text: String) -> [String] {
+        // Apply confusion normalization to handle STT errors
+        let normalizedText = BiblicalTermCorrector.normalizeForParsing(text)
+        return extractBooksFromNormalized(normalizedText)
+    }
+
+    /// Extract books from already-normalized text (internal use)
+    private static func extractBooksFromNormalized(_ text: String) -> [String] {
         var foundBooks: [String] = []
         let lowercased = text.lowercased()
 

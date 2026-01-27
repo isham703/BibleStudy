@@ -1288,6 +1288,15 @@ final class DatabaseStore: @unchecked Sendable {
             print("[Migration v30] Created sermon_engagements table")
         }
 
+        // MARK: - v31: Sermon Transcript Correction Overlays
+        // Adds correction_overlays column for biblical term corrections
+        migrator.registerMigration("v31_transcript_corrections") { db in
+            try db.alter(table: "sermon_transcripts") { t in
+                t.add(column: "correction_overlays", .text).defaults(to: "[]")
+            }
+            print("[Migration v31] Added correction_overlays column to sermon_transcripts")
+        }
+
         try migrator.migrate(dbQueue)
     }
 

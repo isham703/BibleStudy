@@ -544,20 +544,25 @@ extension ReferenceParser {
 
     /// Extract all Bible references from a text block
     /// Replaces regex-based extraction with parser-validated results
+    /// Applies STT confusion normalization for better accuracy with transcribed text
     /// - Parameter text: The text to search for references
     /// - Returns: Array of successfully parsed references (deduped by canonical ID)
     nonisolated static func extractAll(from text: String) -> [ParsedReference] {
+        // Apply confusion normalization to handle STT errors
+        // Note: This normalizes the text for extraction only; highlighting uses original text
+        let normalizedText = BiblicalTermCorrector.normalizeForParsing(text)
+
         var results: [ParsedReference] = []
         var seenCanonicalIds = Set<String>()
 
         let regex = candidateRegex
 
-        let range = NSRange(text.startIndex..., in: text)
-        let matches = regex.matches(in: text, options: [], range: range)
+        let range = NSRange(normalizedText.startIndex..., in: normalizedText)
+        let matches = regex.matches(in: normalizedText, options: [], range: range)
 
         for match in matches {
-            guard let matchRange = Range(match.range, in: text) else { continue }
-            let candidate = String(text[matchRange]).trimmingCharacters(in: .whitespaces)
+            guard let matchRange = Range(match.range, in: normalizedText) else { continue }
+            let candidate = String(normalizedText[matchRange]).trimmingCharacters(in: .whitespaces)
 
             // Try flexible parsing (handles both colon and space formats)
             if case .success(let parsed) = parseFlexible(candidate) {
