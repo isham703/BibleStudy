@@ -288,6 +288,9 @@ final class SermonRecordingService: NSObject, Sendable {
             try engine.start()
         } catch {
             engine.inputNode.removeTap(onBus: 0)
+            if let file = audioFile {
+                try? FileManager.default.removeItem(at: file.url)
+            }
             audioFile = nil
             audioEngine = nil
             audioConverter = nil

@@ -55,8 +55,9 @@ struct SermonSectionView: View {
                         }
                     }
 
-                    // Preflight status
-                    if liveCaptionsEnabled {
+                    // Preflight status (visible whenever state is not idle,
+                    // even if toggle was turned off by preflight failure)
+                    if preflightState != .idle {
                         preflightStatusView
                             .transition(.opacity.combined(with: .move(edge: .top)))
                     }
@@ -163,7 +164,8 @@ struct SermonSectionView: View {
                 )
 
                 Button {
-                    Task { await runPreflight() }
+                    preflightTask?.cancel()
+                    preflightTask = Task { await runPreflight() }
                 } label: {
                     Text("Retry")
                         .font(Typography.Command.caption)
@@ -213,7 +215,6 @@ struct SermonSectionView: View {
             guard !Task.isCancelled else { return }
             guard granted else {
                 preflightState = .permissionDenied
-                liveCaptionsEnabled = false
                 return
             }
         }
@@ -226,7 +227,6 @@ struct SermonSectionView: View {
         guard !Task.isCancelled else { return }
         guard service.isAvailable else {
             preflightState = .failed("Speech recognition is not supported on this device.")
-            liveCaptionsEnabled = false
             return
         }
 
@@ -244,7 +244,7 @@ struct SermonSectionView: View {
         do {
             try await service.installLanguageAssets { progress in
                 Task { @MainActor in
-                    guard !Task.isCancelled else { return }
+                    guard self.preflightState == .downloadingModel else { return }
                     self.downloadProgress = progress
                 }
             }
@@ -253,7 +253,6 @@ struct SermonSectionView: View {
         } catch {
             guard !Task.isCancelled else { return }
             preflightState = .failed("Language model download failed. Please try again.")
-            liveCaptionsEnabled = false
         }
     }
 }
