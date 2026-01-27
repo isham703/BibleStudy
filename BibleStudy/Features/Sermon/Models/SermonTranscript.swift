@@ -53,14 +53,20 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
     @MainActor
     var segments: [TranscriptDisplaySegment] {
         TranscriptSegmentCache.shared.getSegments(for: self) {
-            Self.computeSegments(from: wordTimestamps, content: content)
+            Self.computeSegments(
+                from: wordTimestamps,
+                content: content,
+                corrections: correctionOverlays
+            )
         }
     }
 
     /// Compute segments directly (O(n) - use cached version when possible)
+    /// Applies correction overlays when building segment text for display.
     static func computeSegments(
         from wordTimestamps: [WordTimestamp],
-        content: String
+        content: String,
+        corrections: [CorrectionOverlay] = []
     ) -> [TranscriptDisplaySegment] {
         // Group words into display segments (~10-15 seconds each)
         guard !wordTimestamps.isEmpty else {
@@ -87,7 +93,11 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
 
             if shouldBreak && index > segmentStart {
                 let segmentWords = Array(wordTimestamps[segmentStart...index])
-                let text = segmentWords.map(\.word).joined(separator: " ")
+                let text = buildSegmentText(
+                    words: segmentWords,
+                    startIndex: segmentStart,
+                    corrections: corrections
+                )
                 let endTime = segmentWords.last?.end ?? word.end
 
                 segments.append(TranscriptDisplaySegment(
@@ -105,7 +115,11 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         // Add final segment
         if segmentStart < wordTimestamps.count {
             let segmentWords = Array(wordTimestamps[segmentStart...])
-            let text = segmentWords.map(\.word).joined(separator: " ")
+            let text = buildSegmentText(
+                words: segmentWords,
+                startIndex: segmentStart,
+                corrections: corrections
+            )
             let endTime = segmentWords.last?.end ?? 0
 
             segments.append(TranscriptDisplaySegment(
@@ -117,6 +131,36 @@ struct SermonTranscript: Identifiable, Hashable, Sendable {
         }
 
         return segments
+    }
+
+    /// Build segment text with correction overlays applied.
+    /// Corrections that span word indices are replaced with their corrected text.
+    private static func buildSegmentText(
+        words: [WordTimestamp],
+        startIndex: Int,
+        corrections: [CorrectionOverlay]
+    ) -> String {
+        guard !corrections.isEmpty else {
+            return words.map(\.word).joined(separator: " ")
+        }
+
+        var result: [String] = []
+        var i = 0
+
+        while i < words.count {
+            let globalIndex = startIndex + i
+
+            // Check if this index starts a correction
+            if let correction = corrections.first(where: { $0.startWordIndex == globalIndex }) {
+                result.append(correction.correctedText)
+                i += correction.wordCount  // Skip the words that were replaced
+            } else {
+                result.append(words[i].word)
+                i += 1
+            }
+        }
+
+        return result.joined(separator: " ")
     }
 
     // MARK: - Initialization
