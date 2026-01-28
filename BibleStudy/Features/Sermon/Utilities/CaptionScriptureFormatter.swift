@@ -47,11 +47,12 @@ enum CaptionScriptureFormatter {
     // MARK: - Precompiled Regexes
 
     /// Matches "Book chapter X" at end of text (captures book, chapter number/word)
+    /// Supports numeric prefixes: "1 Corinthians", "2 Peter", etc.
     private static let bookChapterAtEndRegex: NSRegularExpression = {
         let books = #"genesis|gen|exodus|exod|leviticus|lev|numbers|num|deuteronomy|deut|joshua|josh|judges|judg|ruth|samuel|sam|kings|kgs|chronicles|chr|ezra|nehemiah|neh|esther|esth|psalms?|proverbs|prov|ecclesiastes|eccl|isaiah|isa|jeremiah|jer|lamentations|lam|ezekiel|ezek|daniel|dan|hosea|hos|joel|amos|obadiah|obad|jonah|micah|mic|nahum|nah|habakkuk|hab|zephaniah|zeph|haggai|hag|zechariah|zech|malachi|mal|matthew|matt|luke|john|jn|acts|romans|rom|corinthians|cor|galatians|gal|ephesians|eph|philippians|phil|colossians|col|thessalonians|thess|timothy|tim|titus|tit|philemon|phlm|hebrews|heb|james|jas|peter|pet|jude|revelation|rev"#
         let numPhrase = #"(?:\d+|[a-z]+(?:[-\s][a-z]+){0,3})"#
-        // Match: Book chapter <num> [punctuation] at end
-        let pattern = #"(?i)\b(\#(books))\s+chapter\s+(\#(numPhrase))\s*[.,;:!?]?\s*$"#
+        // Match: [optional numeric prefix] Book chapter <num> [punctuation] at end
+        let pattern = #"(?i)\b((?:[1-3]\s*)?\#(books))\s+chapter\s+(\#(numPhrase))\s*[.,;:!?]?\s*$"#
         return try! NSRegularExpression(pattern: pattern)
     }()
 
@@ -64,18 +65,20 @@ enum CaptionScriptureFormatter {
     }()
 
     /// Matches: <Book> chapter <number-phrase> verse <number-phrase>
+    /// Supports numeric prefixes: "1 Corinthians", "2 Peter", etc.
     private static let chapterVerseAfterBookRegex: NSRegularExpression = {
         let books = #"genesis|gen|exodus|exod|leviticus|lev|numbers|num|deuteronomy|deut|joshua|josh|judges|judg|ruth|samuel|sam|kings|kgs|chronicles|chr|ezra|nehemiah|neh|esther|esth|psalms?|proverbs|prov|ecclesiastes|eccl|isaiah|isa|jeremiah|jer|lamentations|lam|ezekiel|ezek|daniel|dan|hosea|hos|joel|amos|obadiah|obad|jonah|micah|mic|nahum|nah|habakkuk|hab|zephaniah|zeph|haggai|hag|zechariah|zech|malachi|mal|matthew|matt|luke|john|jn|acts|romans|rom|corinthians|cor|galatians|gal|ephesians|eph|philippians|phil|colossians|col|thessalonians|thess|timothy|tim|titus|tit|philemon|phlm|hebrews|heb|james|jas|peter|pet|jude|revelation|rev"#
         let numPhrase = #"(?:\d+|[a-z]+(?:[-\s][a-z]+){0,3})"#
-        let pattern = #"(?i)\b(\#(books))\s+chapter\s+(\#(numPhrase))\s+verse\s+(\#(numPhrase))\b"#
+        let pattern = #"(?i)\b((?:[1-3]\s*)?\#(books))\s+chapter\s+(\#(numPhrase))\s+verse\s+(\#(numPhrase))\b"#
         return try! NSRegularExpression(pattern: pattern)
     }()
 
     /// Matches "Book chapter" WITHOUT a number at end of text (for 3-segment splits)
+    /// Supports numeric prefixes: "1 Corinthians", "2 Peter", etc.
     private static let bookChapterNoNumberAtEndRegex: NSRegularExpression = {
         let books = #"genesis|gen|exodus|exod|leviticus|lev|numbers|num|deuteronomy|deut|joshua|josh|judges|judg|ruth|samuel|sam|kings|kgs|chronicles|chr|ezra|nehemiah|neh|esther|esth|psalms?|proverbs|prov|ecclesiastes|eccl|isaiah|isa|jeremiah|jer|lamentations|lam|ezekiel|ezek|daniel|dan|hosea|hos|joel|amos|obadiah|obad|jonah|micah|mic|nahum|nah|habakkuk|hab|zephaniah|zeph|haggai|hag|zechariah|zech|malachi|mal|matthew|matt|luke|john|jn|acts|romans|rom|corinthians|cor|galatians|gal|ephesians|eph|philippians|phil|colossians|col|thessalonians|thess|timothy|tim|titus|tit|philemon|phlm|hebrews|heb|james|jas|peter|pet|jude|revelation|rev"#
-        // Match: Book chapter at end (NOT followed by a number)
-        let pattern = #"(?i)\b(\#(books))\s+chapter\s*$"#
+        // Match: [optional numeric prefix] Book chapter at end (NOT followed by a number)
+        let pattern = #"(?i)\b((?:[1-3]\s*)?\#(books))\s+chapter\s*$"#
         return try! NSRegularExpression(pattern: pattern)
     }()
 

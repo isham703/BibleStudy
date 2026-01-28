@@ -210,10 +210,13 @@ final class LiveTranscriptionService {
 
         let finalText = await activeProvider?.stopTranscription()
 
+        // Snapshot segments BEFORE cleanup clears them
+        let segmentsSnapshot = segments
+
         cleanup()
 
         // Build draft transcript from all segments
-        let draft = segments.isEmpty ? finalText : segments.map(\.text).joined(separator: " ")
+        let draft = segmentsSnapshot.isEmpty ? finalText : segmentsSnapshot.map(\.text).joined(separator: " ")
 
         return draft
     }
@@ -290,10 +293,7 @@ final class LiveTranscriptionService {
             provider = apple
         }
 
-        activeProvider = provider
-        currentSource = source
-        isTranscribing = true
-
+        // Start transcription BEFORE setting state (allows rollback-free failure)
         try await provider.startTranscription(
             recordingFormat: format,
             contextHints: contextHints,
@@ -303,6 +303,11 @@ final class LiveTranscriptionService {
                 }
             }
         )
+
+        // Only set state after successful start
+        activeProvider = provider
+        currentSource = source
+        isTranscribing = true
     }
 
     // MARK: - Event Handling
