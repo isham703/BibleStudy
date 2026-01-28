@@ -11,28 +11,44 @@ struct HighlightedCaptionText: View {
     let highlightColor: Color
     let onReferenceTapped: ((ParsedReference) -> Void)?
 
+    /// Optional volatile text to append inline (shown in secondary color, not highlighted)
+    let volatileSuffix: String?
+    let volatileColor: Color
+
     init(
         text: String,
         font: Font = Typography.Command.body,
         baseColor: Color = Color("AppTextPrimary"),
         highlightColor: Color = Color("AppAccentAction"),
-        onReferenceTapped: ((ParsedReference) -> Void)? = nil
+        onReferenceTapped: ((ParsedReference) -> Void)? = nil,
+        volatileSuffix: String? = nil,
+        volatileColor: Color = Color("AppTextSecondary")
     ) {
         self.text = text
         self.font = font
         self.baseColor = baseColor
         self.highlightColor = highlightColor
         self.onReferenceTapped = onReferenceTapped
+        self.volatileSuffix = volatileSuffix
+        self.volatileColor = volatileColor
     }
 
     var body: some View {
-        let ranges = CaptionReferenceDetector.findRanges(in: text)
+        // Only compute ranges when we have a tap handler (avoids wasted work)
+        let ranges = onReferenceTapped != nil
+            ? CaptionReferenceDetector.findRanges(in: text)
+            : []
 
         if ranges.isEmpty || onReferenceTapped == nil {
-            // No references or no tap handler — plain text
-            Text(text)
-                .font(font)
-                .foregroundStyle(baseColor)
+            // No references or no tap handler — plain text with optional volatile suffix
+            if let suffix = volatileSuffix, !suffix.isEmpty {
+                Text(buildPlainAttributedString(suffix: suffix))
+                    .font(font)
+            } else {
+                Text(text)
+                    .font(font)
+                    .foregroundStyle(baseColor)
+            }
         } else {
             // Build attributed text with tappable highlights
             buildHighlightedText(ranges: ranges)
@@ -77,6 +93,27 @@ struct HighlightedCaptionText: View {
             result[attrRange].link = URL(string: "bibleref://\(index)")
         }
 
+        // Append volatile suffix inline if present
+        if let suffix = volatileSuffix, !suffix.isEmpty {
+            let separator = text.isEmpty ? "" : " "
+            var volatileAttr = AttributedString(separator + suffix)
+            volatileAttr.foregroundColor = UIColor(volatileColor)
+            result.append(volatileAttr)
+        }
+
+        return result
+    }
+
+    /// Build attributed string for plain text (no highlights) with volatile suffix
+    private func buildPlainAttributedString(suffix: String) -> AttributedString {
+        let separator = text.isEmpty ? "" : " "
+        var result = AttributedString(text)
+        result.foregroundColor = UIColor(baseColor)
+
+        var volatileAttr = AttributedString(separator + suffix)
+        volatileAttr.foregroundColor = UIColor(volatileColor)
+        result.append(volatileAttr)
+
         return result
     }
 }
@@ -101,6 +138,15 @@ struct HighlightedCaptionText: View {
 
         HighlightedCaptionText(
             text: "No references in this text at all."
+        )
+
+        // With volatile suffix (continuous flow)
+        HighlightedCaptionText(
+            text: "And so we see in Romans 8:1 that there is therefore now no condemnation.",
+            onReferenceTapped: { ref in
+                print("Tapped: \(ref.displayText)")
+            },
+            volatileSuffix: "For the law of the Spirit of life..."
         )
     }
     .padding()

@@ -6,6 +6,7 @@ import AVKit
 
 struct SermonRecordingPhase: View {
     @Bindable var flowState: SermonFlowState
+    @Environment(AppState.self) private var appState
     @State private var pulsePhase: CGFloat = 0
     @State private var isAwakened = false
     @State private var showFullScreenCaptions = false
@@ -43,6 +44,15 @@ struct SermonRecordingPhase: View {
                             },
                             onFullScreen: {
                                 showFullScreenCaptions = true
+                            },
+                            source: flowState.liveCaptionSource,
+                            isCloudReconnectAvailable: flowState.isCloudReconnectAvailable,
+                            onSwitchToCloud: {
+                                if #available(iOS 26, *) {
+                                    Task {
+                                        await flowState.switchToCloudCaptions()
+                                    }
+                                }
                             }
                         )
                         .padding(.horizontal, Theme.Spacing.sm)
@@ -60,9 +70,8 @@ struct SermonRecordingPhase: View {
                 if let selected = flowState.captionReferenceState.selectedReference {
                     CaptionReferenceChip(
                         reference: selected,
-                        onGoToPassage: { _ in
-                            // Navigation handled by parent — for now just dismiss
-                            flowState.captionReferenceState.dismissChip(forReferenceId: selected.id)
+                        onGoToPassage: { location in
+                            navigateToPassage(location, forReferenceId: selected.id)
                         },
                         onDismiss: {
                             flowState.captionReferenceState.dismissChip(forReferenceId: selected.id)
@@ -355,6 +364,23 @@ struct SermonRecordingPhase: View {
         withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
             pulsePhase = 1
         }
+    }
+
+    // MARK: - Navigation
+
+    private func navigateToPassage(_ location: BibleLocation, forReferenceId: UUID) {
+        // Save location to app state
+        appState.saveLocation(location)
+
+        // Dismiss chip
+        flowState.captionReferenceState.dismissChip(forReferenceId: forReferenceId)
+
+        // Post navigation notification (picked up by MainTabView to switch tabs)
+        NotificationCenter.default.post(
+            name: .deepLinkNavigationRequested,
+            object: nil,
+            userInfo: ["location": location]
+        )
     }
 }
 
