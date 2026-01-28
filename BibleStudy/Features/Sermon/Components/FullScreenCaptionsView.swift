@@ -11,11 +11,15 @@ import SwiftUI
 
 struct FullScreenCaptionsView: View {
     @Bindable var flowState: SermonFlowState
+    @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isNearBottom: Bool = true
     @State private var dotOpacity: Double = 0.3
     @State private var dotScale: CGFloat = 0.85
+
+    /// Cached finalized text - only rebuilt when segments change (not on every volatile update)
+    @State private var cachedFinalizedText: String = ""
 
     var body: some View {
         ZStack {
@@ -39,6 +43,29 @@ struct FullScreenCaptionsView: View {
                 timerBar
                     .padding(.horizontal, Theme.Spacing.lg)
                     .padding(.bottom, Theme.Spacing.md)
+            }
+
+            // Reference chip overlay (same as SermonRecordingPhase)
+            if let selected = flowState.captionReferenceState.selectedReference {
+                VStack {
+                    Spacer()
+                    CaptionReferenceChip(
+                        reference: selected,
+                        onGoToPassage: { location in
+                            navigateToPassage(location, forReferenceId: selected.id)
+                        },
+                        onDismiss: {
+                            flowState.captionReferenceState.dismissChip(forReferenceId: selected.id)
+                        }
+                    )
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.bottom, Theme.Spacing.xxl)
+                }
+                .transition(.asymmetric(
+                    insertion: .offset(y: 8).combined(with: .opacity),
+                    removal: .opacity
+                ))
+                .animation(Theme.Animation.settle, value: flowState.captionReferenceState.selectedReference?.id)
             }
         }
         .persistentSystemOverlays(.hidden)
@@ -95,16 +122,21 @@ struct FullScreenCaptionsView: View {
     // MARK: - Caption Scroll View
 
     private var captionScrollView: some View {
-        ScrollViewReader { proxy in
+        let finalText = cachedFinalizedText
+        let volatile = flowState.liveCaptionText
+        let hasFinalizedContent = !finalText.isEmpty
+
+        return ScrollViewReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                    // Finalized segments — large serif text with reference highlighting
-                    ForEach(flowState.liveCaptionSegments) { segment in
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    // Combined finalized + volatile text as continuous flowing prose
+                    if hasFinalizedContent || !volatile.isEmpty {
                         HighlightedCaptionText(
-                            text: segment.text,
+                            text: finalText,
                             font: Typography.Scripture.prompt,
                             baseColor: Color("AppTextPrimary"),
-                            onReferenceTapped: { ref in
+                            // Only enable taps when we have finalized content
+                            onReferenceTapped: hasFinalizedContent ? { ref in
                                 flowState.captionReferenceState.selectedReference =
                                     CaptionReferenceState.DetectedReference(
                                         id: UUID(),
@@ -112,25 +144,17 @@ struct FullScreenCaptionsView: View {
                                         canonicalId: ReferenceParser.canonicalId(for: ref),
                                         detectedAt: Date()
                                     )
-                            }
+                            } : nil,
+                            volatileSuffix: volatile.isEmpty ? nil : volatile,
+                            volatileColor: Color("AppTextSecondary")
                         )
                         .lineSpacing(Typography.Scripture.promptLineSpacing)
-                        .id(segment.id)
-                    }
-
-                    // Current volatile text — slightly dimmer
-                    if !flowState.liveCaptionText.isEmpty {
-                        Text(flowState.liveCaptionText)
-                            .font(Typography.Scripture.prompt)
-                            .foregroundStyle(Color("AppTextSecondary"))
-                            .lineSpacing(Typography.Scripture.promptLineSpacing)
-                            .animation(Theme.Animation.fade, value: flowState.liveCaptionText)
-                            .contentTransition(.interpolate)
-                            .id("volatile")
+                        .animation(Theme.Animation.fade, value: volatile)
+                        .contentTransition(.interpolate)
                     }
 
                     // Empty state
-                    if flowState.liveCaptionSegments.isEmpty && flowState.liveCaptionText.isEmpty {
+                    if flowState.liveCaptionSegments.isEmpty && volatile.isEmpty {
                         VStack(spacing: Theme.Spacing.md) {
                             Spacer().frame(height: 60)
 
@@ -144,21 +168,26 @@ struct FullScreenCaptionsView: View {
                         }
                         .frame(maxWidth: .infinity)
                     }
+
+                    // Scroll anchor at bottom
+                    Color.clear.frame(height: 1).id("bottom")
                 }
                 .padding(.vertical, Theme.Spacing.xl)
             }
             .onChange(of: flowState.liveCaptionSegments.count) { _, _ in
+                // Rebuild cached finalized text only when segment count changes
+                let rendered = CaptionScriptureFormatter.renderSegments(flowState.liveCaptionSegments)
+                cachedFinalizedText = rendered.map(\.displayText).joined(separator: " ")
+
                 guard isNearBottom else { return }
                 withAnimation(Theme.Animation.settle) {
-                    if let lastId = flowState.liveCaptionSegments.last?.id {
-                        proxy.scrollTo(lastId, anchor: .bottom)
-                    }
+                    proxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
-            .onChange(of: flowState.liveCaptionText) { _, _ in
+            .onChange(of: volatile) { _, _ in
                 guard isNearBottom else { return }
                 withAnimation(Theme.Animation.settle) {
-                    proxy.scrollTo("volatile", anchor: .bottom)
+                    proxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
         }
@@ -210,6 +239,26 @@ struct FullScreenCaptionsView: View {
                 dotScale = 0.85
             }
         }
+    }
+
+    // MARK: - Navigation
+
+    private func navigateToPassage(_ location: BibleLocation, forReferenceId: UUID) {
+        // Save location to app state
+        appState.saveLocation(location)
+
+        // Dismiss chip first
+        flowState.captionReferenceState.dismissChip(forReferenceId: forReferenceId)
+
+        // Dismiss fullscreen view
+        dismiss()
+
+        // Post navigation notification (picked up by MainTabView to switch tabs)
+        NotificationCenter.default.post(
+            name: .deepLinkNavigationRequested,
+            object: nil,
+            userInfo: ["location": location]
+        )
     }
 }
 

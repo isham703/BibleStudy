@@ -104,6 +104,12 @@ final class SermonFlowState {
     var draftTranscriptText: String? = nil
     let captionReferenceState = CaptionReferenceState()
 
+    /// Current caption source (cloud or on-device)
+    var liveCaptionSource: CaptionSource?
+
+    /// Whether cloud captions are available to switch back to after fallback
+    var isCloudReconnectAvailable: Bool = false
+
     // MARK: - Sermon Data
 
     var currentSermon: Sermon?
@@ -819,6 +825,8 @@ final class SermonFlowState {
                 guard let self, let service else { break }
                 self.liveCaptionText = service.currentText
                 self.liveCaptionSegments = service.segments
+                self.liveCaptionSource = service.currentSource
+                self.isCloudReconnectAvailable = service.isCloudReconnectAvailable
 
                 // Scan for Bible references in accumulated text
                 let allText = service.segments.map(\.text).joined(separator: " ")
@@ -853,6 +861,19 @@ final class SermonFlowState {
         liveCaptionSegments = []
         isSpeechDetected = false
         showLiveCaptionsExpanded = false
+        liveCaptionSource = nil
+        isCloudReconnectAvailable = false
+    }
+
+    /// Switch back to cloud captions (after reconnection)
+    @available(iOS 26, *)
+    func switchToCloudCaptions() async {
+        guard isCloudReconnectAvailable else { return }
+        do {
+            try await LiveTranscriptionService.shared.switchToCloud()
+        } catch {
+            print("[SermonFlowState] Failed to switch to cloud: \(error)")
+        }
     }
 
     /// Reset all live caption state (cancel, no draft)
@@ -874,6 +895,8 @@ final class SermonFlowState {
         isSpeechDetected = false
         showLiveCaptionsExpanded = false
         draftTranscriptText = nil
+        liveCaptionSource = nil
+        isCloudReconnectAvailable = false
         captionReferenceState.reset()
     }
 

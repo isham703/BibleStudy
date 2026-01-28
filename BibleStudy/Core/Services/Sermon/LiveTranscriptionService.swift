@@ -1,20 +1,36 @@
 @preconcurrency import AVFoundation
 import Speech
 import CoreMedia
+import Network
 
 // MARK: - Live Caption Segment
-// Individual recognized text segment from on-device speech recognition
+// Individual recognized text segment from on-device or cloud speech recognition
 
 struct LiveCaptionSegment: Identifiable, Sendable {
     let id: UUID
     let text: String
     let timestamp: TimeInterval
     let isFinal: Bool
+    let source: CaptionSource
+
+    init(
+        id: UUID = UUID(),
+        text: String,
+        timestamp: TimeInterval = Date.timeIntervalSinceReferenceDate,
+        isFinal: Bool,
+        source: CaptionSource = .apple
+    ) {
+        self.id = id
+        self.text = text
+        self.timestamp = timestamp
+        self.isFinal = isFinal
+        self.source = source
+    }
 }
 
 // MARK: - Live Transcription Service
-// Wraps SpeechAnalyzer + DictationTranscriber (iOS 26) for on-device
-// streaming recognition with punctuated output.
+// Orchestrates live captioning providers (Apple on-device, Deepgram cloud).
+// Handles automatic provider selection, fallback on network drop, and reconnection.
 // Ephemeral — captions are NOT persisted. The canonical transcript
 // comes from the Whisper pipeline.
 
@@ -29,29 +45,48 @@ final class LiveTranscriptionService {
     private(set) var currentText: String = ""
     private(set) var segments: [LiveCaptionSegment] = []
     private(set) var isTranscribing: Bool = false
+    private(set) var currentSource: CaptionSource?
 
-    // MARK: - Private State
+    /// Whether cloud captions are available to switch back to (after reconnection)
+    private(set) var isCloudReconnectAvailable: Bool = false
 
-    private var transcriber: DictationTranscriber?
-    private var analyzer: SpeechAnalyzer?
-    private var analyzerFormat: AVAudioFormat?
-    private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
-    private var transcriptionTask: Task<Void, Never>?
-    private var bufferConverter: AVAudioConverter?
-    private var retryCount: Int = 0
-    private var lastResultRangeStart: CMTime = .zero
+    // MARK: - Providers
+
+    private var activeProvider: (any LiveCaptioningProvider)?
+    private var appleProvider: AppleLiveCaptioningProvider?
+    private var deepgramProvider: DeepgramLiveCaptioningProvider?
+
+    // MARK: - Network Monitoring
+
+    private var networkMonitor: NWPathMonitor?
+    private let networkQueue = DispatchQueue(label: "com.biblestudy.networkmonitor")
+    private(set) var isNetworkAvailable: Bool = true
+
+    // MARK: - State Management
+
     private var currentSermonTitle: String?
+    private var recordingFormat: AVAudioFormat?
+    private var contextHints: [String] = []
+    private var sequenceCounter: UInt64 = 0
 
     // MARK: - Initialization
 
-    private init() {
-        // Availability check is async — callers must invoke checkAvailability()
-    }
+    private init() {}
+
+    // MARK: - Availability Checks
 
     /// Check device + locale support. Must be called before use.
     func checkAvailability() async {
-        let supported = await DictationTranscriber.supportedLocale(equivalentTo: .current)
-        isAvailable = supported != nil
+        // Check Apple provider availability
+        let tempApple = AppleLiveCaptioningProvider()
+        let appleAvailable = await tempApple.checkAvailability()
+
+        // Check Deepgram API key is configured
+        let deepgramKey = getDeepgramAPIKey()
+        let deepgramConfigured = !deepgramKey.isEmpty
+
+        // Service is available if at least one provider can work
+        isAvailable = appleAvailable || deepgramConfigured
     }
 
     // MARK: - Authorization
@@ -126,227 +161,347 @@ final class LiveTranscriptionService {
             throw SermonError.speechRecognitionDenied
         }
 
-        currentSermonTitle = sermonTitle
-        retryCount = 0
-        lastResultRangeStart = .zero
-        try await startTranscriptionInternal(recordingFormat: recordingFormat)
-    }
+        self.currentSermonTitle = sermonTitle
+        self.recordingFormat = recordingFormat
+        self.sequenceCounter = 0
+        self.segments = []
+        self.currentText = ""
+        self.isCloudReconnectAvailable = false
 
-    private func startTranscriptionInternal(recordingFormat: AVAudioFormat) async throws {
-        // Create DictationTranscriber using the long dictation preset
-        // progressiveLongDictation: volatile results + punctuation for sermons/lectures
-        let newTranscriber = DictationTranscriber(
-            locale: .current,
-            preset: .progressiveLongDictation
-        )
-        transcriber = newTranscriber
-
-        // Create SpeechAnalyzer with transcriber module
-        let newAnalyzer = SpeechAnalyzer(modules: [newTranscriber])
-        analyzer = newAnalyzer
-
-        // Apply contextual biasing for biblical terminology
-        await applyBiblicalContext(to: newAnalyzer)
-
-        // Get the best audio format compatible with the transcriber
-        analyzerFormat = await SpeechAnalyzer.bestAvailableAudioFormat(
-            compatibleWith: [newTranscriber]
-        )
-
-        // Create converter from recording format to analyzer format
-        if let targetFormat = analyzerFormat, targetFormat != recordingFormat {
-            bufferConverter = AVAudioConverter(from: recordingFormat, to: targetFormat)
+        // Build context hints for biblical terminology
+        if let title = sermonTitle, !title.isEmpty {
+            contextHints = BiblicalContextProvider.contextualStrings(forSermonTitle: title)
         } else {
-            bufferConverter = nil
+            contextHints = SermonConfiguration.biblicalContextualStrings
         }
 
-        // Create input stream
-        let (stream, continuation) = AsyncStream<AnalyzerInput>.makeStream()
-        inputContinuation = continuation
+        // Start network monitoring
+        startNetworkMonitoring()
 
-        // Start analyzer
-        try await newAnalyzer.start(inputSequence: stream)
+        // Check user preference
+        let preferOnDevice = UserDefaults.standard.bool(
+            forKey: AppConfiguration.UserDefaultsKeys.preferOnDeviceCaptions
+        )
 
-        isTranscribing = true
+        // Select initial provider based on network and preference
+        let selectedSource = selectProvider(preferOnDevice: preferOnDevice)
 
-        // Launch result processing task
-        transcriptionTask = Task { [weak self] in
-            guard let self else { return }
-            do {
-                for try await result in newTranscriber.results {
-                    guard !Task.isCancelled else { break }
-                    await self.handleTranscriptionResult(result)
-                }
-            } catch {
-                guard !Task.isCancelled else { return }
-                await self.handleTranscriptionError(error, recordingFormat: recordingFormat)
-            }
+        // Create and start provider
+        do {
+            try await startProvider(source: selectedSource)
+        } catch {
+            // Clean up network monitor if provider start fails
+            stopNetworkMonitoring()
+            throw error
         }
     }
 
     /// Feed an audio buffer from the recording service
     func feedAudioBuffer(_ buffer: AVAudioPCMBuffer, at time: AVAudioTime) {
         guard isTranscribing else { return }
-
-        let inputBuffer: AVAudioPCMBuffer
-        if let converter = bufferConverter, let targetFormat = analyzerFormat {
-            // Convert to analyzer format
-            let frameCapacity = AVAudioFrameCount(
-                Double(buffer.frameLength) * targetFormat.sampleRate / buffer.format.sampleRate
-            )
-            guard let converted = AVAudioPCMBuffer(
-                pcmFormat: targetFormat,
-                frameCapacity: frameCapacity
-            ) else { return }
-
-            var error: NSError?
-            converter.convert(to: converted, error: &error) { _, outStatus in
-                outStatus.pointee = .haveData
-                return buffer
-            }
-
-            guard error == nil else { return }
-            inputBuffer = converted
-        } else {
-            inputBuffer = buffer
-        }
-
-        inputContinuation?.yield(AnalyzerInput(buffer: inputBuffer))
+        activeProvider?.feedAudioBuffer(buffer, at: time)
     }
 
     /// Stop transcription and return draft transcript text
     func stopTranscription() async -> String? {
         guard isTranscribing else { return nil }
-        isTranscribing = false
 
-        // Signal end of input
-        inputContinuation?.finish()
+        stopNetworkMonitoring()
 
-        // Finalize remaining audio
-        try? await analyzer?.finalizeAndFinishThroughEndOfInput()
+        let finalText = await activeProvider?.stopTranscription()
 
-        // Cancel result processing
-        transcriptionTask?.cancel()
-        transcriptionTask = nil
+        // Snapshot segments BEFORE cleanup clears them
+        let segmentsSnapshot = segments
 
-        // Flush any remaining currentText as a final segment
-        if !currentText.isEmpty {
-            segments.append(LiveCaptionSegment(
-                id: UUID(),
-                text: currentText,
-                timestamp: Date.timeIntervalSinceReferenceDate,
-                isFinal: true
-            ))
-            currentText = ""
-        }
+        cleanup()
 
         // Build draft transcript from all segments
-        let draft = segments.isEmpty ? nil : segments.map(\.text).joined(separator: " ")
-
-        // Clean up
-        analyzer = nil
-        transcriber = nil
-        bufferConverter = nil
-        analyzerFormat = nil
-        inputContinuation = nil
-        lastResultRangeStart = .zero
-        currentSermonTitle = nil
+        let draft = segmentsSnapshot.isEmpty ? finalText : segmentsSnapshot.map(\.text).joined(separator: " ")
 
         return draft
     }
 
     /// Reset all state (on cancel or new recording)
     func reset() {
-        transcriptionTask?.cancel()
-        transcriptionTask = nil
-        inputContinuation?.finish()
-        inputContinuation = nil
-        analyzer = nil
-        transcriber = nil
-        bufferConverter = nil
-        analyzerFormat = nil
-        currentText = ""
-        segments = []
-        isTranscribing = false
-        retryCount = 0
-        lastResultRangeStart = .zero
-        currentSermonTitle = nil
+        stopNetworkMonitoring()
+        activeProvider?.reset()
+        cleanup()
     }
 
-    // MARK: - Contextual Biasing
+    /// Manually switch to cloud captions (user tapped reconnect banner)
+    func switchToCloud() async throws {
+        guard isCloudReconnectAvailable else { return }
+        guard isNetworkAvailable else { return }
 
-    /// Apply biblical terminology context to improve transcription accuracy.
-    /// Uses AnalysisContext.contextualStrings to bias recognition toward biblical terms.
-    /// If a sermon title is set, dynamically prioritizes terms related to detected books.
-    private func applyBiblicalContext(to analyzer: SpeechAnalyzer) async {
-        // Use dynamic contextual strings if sermon title is available
-        let contextualStrings: [String]
-        if let title = currentSermonTitle, !title.isEmpty {
-            contextualStrings = BiblicalContextProvider.contextualStrings(forSermonTitle: title)
-            print("[LiveTranscriptionService] Using dynamic context for: \(title)")
-        } else {
-            contextualStrings = SermonConfiguration.biblicalContextualStrings
+        isCloudReconnectAvailable = false
+
+        // Add segment marker for source change
+        addSourceChangeMarker(from: .apple, to: .deepgram)
+
+        // Switch to Deepgram
+        try await startProvider(source: .deepgram)
+    }
+
+    // MARK: - Provider Selection
+
+    private func selectProvider(preferOnDevice: Bool) -> CaptionSource {
+        let deepgramKey = getDeepgramAPIKey()
+        print("[LiveTranscriptionService] Provider selection - preferOnDevice: \(preferOnDevice), networkAvailable: \(isNetworkAvailable), deepgramKeyPresent: \(!deepgramKey.isEmpty), keyLength: \(deepgramKey.count)")
+
+        if preferOnDevice {
+            return .apple
         }
 
-        let context = AnalysisContext()
-        context.contextualStrings = [
-            AnalysisContext.ContextualStringsTag("vocabulary"): contextualStrings
-        ]
+        // Check if Deepgram is configured before selecting it
+        if isNetworkAvailable && !deepgramKey.isEmpty {
+            return .deepgram
+        }
 
-        do {
-            try await analyzer.setContext(context)
-        } catch {
-            // Non-fatal: transcription continues without biasing
-            print("[LiveTranscriptionService] Failed to apply biblical context: \(error.localizedDescription)")
+        return .apple
+    }
+
+    private func startProvider(source: CaptionSource) async throws {
+        guard let format = recordingFormat else {
+            throw CaptionProviderError.notAvailable
+        }
+
+        // Clean up existing provider
+        await activeProvider?.stopTranscription()
+        activeProvider = nil
+
+        let provider: any LiveCaptioningProvider
+
+        switch source {
+        case .deepgram:
+            let deepgramKey = getDeepgramAPIKey()
+            print("[LiveTranscriptionService] Starting Deepgram provider, key length: \(deepgramKey.count)")
+            guard !deepgramKey.isEmpty else {
+                print("[LiveTranscriptionService] No Deepgram key - falling back to Apple")
+                // Fall back to Apple if no Deepgram key
+                try await startProvider(source: .apple)
+                return
+            }
+
+            let deepgram = DeepgramLiveCaptioningProvider(apiKey: deepgramKey)
+            deepgramProvider = deepgram
+            provider = deepgram
+
+        case .apple:
+            print("[LiveTranscriptionService] Starting Apple on-device provider")
+            let apple = AppleLiveCaptioningProvider()
+            appleProvider = apple
+            provider = apple
+        }
+
+        // Start transcription BEFORE setting state (allows rollback-free failure)
+        try await provider.startTranscription(
+            recordingFormat: format,
+            contextHints: contextHints,
+            eventHandler: { [weak self] event in
+                Task { @MainActor [weak self] in
+                    self?.handleProviderEvent(event)
+                }
+            }
+        )
+
+        // Only set state after successful start
+        activeProvider = provider
+        currentSource = source
+        isTranscribing = true
+    }
+
+    // MARK: - Event Handling
+
+    private func handleProviderEvent(_ event: CaptionEvent) {
+        switch event {
+        case .transcript(let transcript):
+            handleTranscript(transcript)
+
+        case .stateChange(let state):
+            handleStateChange(state)
+
+        case .error(let error):
+            handleProviderError(error)
         }
     }
 
-    // MARK: - Result Handling
+    private func handleTranscript(_ transcript: CaptionTranscript) {
+        currentText = transcript.text
 
-    private func handleTranscriptionResult(_ result: DictationTranscriber.Result) {
-        let text = String(result.text.characters)
-        guard !text.isEmpty else { return }
-
-        let rangeStart = result.range.start
-
-        // When a result arrives with a later start time, the previous
-        // currentText is effectively finalized (the recognizer moved on).
-        if !currentText.isEmpty && CMTimeCompare(rangeStart, lastResultRangeStart) > 0 {
+        if transcript.isFinal {
             let segment = LiveCaptionSegment(
-                id: UUID(),
-                text: currentText,
-                timestamp: Date.timeIntervalSinceReferenceDate,
-                isFinal: true
+                id: transcript.id,
+                text: transcript.text,
+                timestamp: transcript.timestamp,
+                isFinal: true,
+                source: transcript.source
             )
             segments.append(segment)
 
-            // Cap segments at max (LRU eviction of oldest)
+            // LRU eviction
             if segments.count > SermonConfiguration.maxLiveCaptionSegments {
                 segments.removeFirst(segments.count - SermonConfiguration.maxLiveCaptionSegments)
             }
         }
-
-        // Update volatile text with latest result
-        currentText = text
-        lastResultRangeStart = rangeStart
     }
 
-    private func handleTranscriptionError(_ error: Error, recordingFormat: AVAudioFormat) async {
-        guard retryCount < SermonConfiguration.maxRecognitionRetries else {
-            isTranscribing = false
-            return
+    private func handleStateChange(_ state: CaptionProviderState) {
+        switch state {
+        case .idle:
+            break
+        case .initializing:
+            break
+        case .ready:
+            break
+        case .transcribing:
+            isTranscribing = true
+        case .reconnecting:
+            // Deepgram is attempting to reconnect in background
+            break
+        case .failed(let message):
+            print("[LiveTranscriptionService] Provider failed: \(message)")
         }
+    }
 
-        retryCount += 1
-        let delay = SermonConfiguration.recognitionRetryBaseDelaySeconds * pow(2, Double(retryCount - 1))
+    private func handleProviderError(_ error: CaptionProviderError) {
+        print("[LiveTranscriptionService] Provider error: \(error.localizedDescription)")
 
-        try? await Task.sleep(for: .seconds(delay))
-        guard !Task.isCancelled else { return }
+        if error.shouldFallback && currentSource == .deepgram {
+            // Network-related error from Deepgram - switch to Apple
+            Task {
+                await fallbackToApple()
+            }
+        }
+    }
 
+    // MARK: - Fallback Logic
+
+    private func fallbackToApple() async {
+        guard currentSource == .deepgram else { return }
+
+        print("[LiveTranscriptionService] Falling back to Apple on-device captions")
+
+        // Clear failed Deepgram provider reference
+        deepgramProvider = nil
+
+        // Add segment marker for source change
+        addSourceChangeMarker(from: .deepgram, to: .apple)
+
+        // Switch to Apple provider
         do {
-            try await startTranscriptionInternal(recordingFormat: recordingFormat)
+            try await startProvider(source: .apple)
+
+            // Start monitoring for reconnect opportunity
+            startReconnectMonitoring()
         } catch {
+            print("[LiveTranscriptionService] Fallback to Apple failed: \(error)")
             isTranscribing = false
         }
+    }
+
+    private func addSourceChangeMarker(from oldSource: CaptionSource, to newSource: CaptionSource) {
+        sequenceCounter += 1
+
+        // Empty segment marks source boundary
+        let marker = LiveCaptionSegment(
+            text: "",
+            isFinal: true,
+            source: newSource
+        )
+        segments.append(marker)
+    }
+
+    // MARK: - Network Monitoring
+
+    private func startNetworkMonitoring() {
+        networkMonitor = NWPathMonitor()
+        networkMonitor?.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+
+                let wasOnline = self.isNetworkAvailable
+                self.isNetworkAvailable = path.status == .satisfied
+
+                // Handle network state changes
+                if wasOnline && !self.isNetworkAvailable && self.currentSource == .deepgram {
+                    // Network dropped while using Deepgram - will be handled by provider error
+                    print("[LiveTranscriptionService] Network lost while using Deepgram")
+                }
+
+                if !wasOnline && self.isNetworkAvailable && self.currentSource == .apple {
+                    // Network restored while using Apple - check Deepgram stability
+                    self.checkDeepgramReconnectAvailable()
+                }
+            }
+        }
+        networkMonitor?.start(queue: networkQueue)
+    }
+
+    private func stopNetworkMonitoring() {
+        networkMonitor?.cancel()
+        networkMonitor = nil
+    }
+
+    // MARK: - Reconnection
+
+    private var reconnectStabilityTask: Task<Void, Never>?
+
+    private func startReconnectMonitoring() {
+        // Only monitor if we have Deepgram configured
+        guard !getDeepgramAPIKey().isEmpty else { return }
+
+        reconnectStabilityTask?.cancel()
+        reconnectStabilityTask = Task { @MainActor [weak self] in
+            // Wait for network to stabilize
+            try? await Task.sleep(for: .seconds(DeepgramConfiguration.reconnectStabilitySeconds))
+
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+
+            // Check if network is still available and we're still on Apple
+            if self.isNetworkAvailable && self.currentSource == .apple {
+                self.isCloudReconnectAvailable = true
+                print("[LiveTranscriptionService] Cloud captions available - user can tap to switch back")
+            }
+        }
+    }
+
+    private func checkDeepgramReconnectAvailable() {
+        // User preference
+        let preferOnDevice = UserDefaults.standard.bool(
+            forKey: AppConfiguration.UserDefaultsKeys.preferOnDeviceCaptions
+        )
+        guard !preferOnDevice else { return }
+
+        // Start stability timer
+        startReconnectMonitoring()
+    }
+
+    // MARK: - Cleanup
+
+    private func cleanup() {
+        reconnectStabilityTask?.cancel()
+        reconnectStabilityTask = nil
+        activeProvider = nil
+        appleProvider = nil
+        deepgramProvider = nil
+        currentSource = nil
+        isTranscribing = false
+        currentText = ""
+        segments = []
+        recordingFormat = nil
+        currentSermonTitle = nil
+        contextHints = []
+        sequenceCounter = 0
+        isCloudReconnectAvailable = false
+    }
+
+    // MARK: - Configuration
+
+    private func getDeepgramAPIKey() -> String {
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "DEEPGRAM_API_KEY") as? String else {
+            return ""
+        }
+        return key
     }
 }

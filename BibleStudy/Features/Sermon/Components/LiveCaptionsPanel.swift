@@ -19,15 +19,32 @@ struct LiveCaptionsPanel: View {
     var onReferenceTapped: ((ParsedReference) -> Void)? = nil
     var onFullScreen: (() -> Void)? = nil
 
+    // Cloud/On-device source indicator
+    var source: CaptionSource? = nil
+    var isCloudReconnectAvailable: Bool = false
+    var onSwitchToCloud: (() -> Void)? = nil
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var dotOpacity: Double = 0.3
     @State private var dotScale: CGFloat = 0.85
     @State private var isNearBottom: Bool = true
 
+    /// Cached finalized text - only rebuilt when segments change (not on every volatile update)
+    @State private var cachedFinalizedText: String = ""
+
     var body: some View {
         VStack(spacing: 0) {
             // Header row — always visible
             headerRow
+
+            // Cloud reconnect banner
+            if isCloudReconnectAvailable, let onSwitch = onSwitchToCloud {
+                cloudReconnectBanner(onSwitch: onSwitch)
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .move(edge: .top)),
+                        removal: .opacity
+                    ))
+            }
 
             // Expanded content — scrollable transcript
             if isExpanded {
@@ -70,6 +87,17 @@ struct LiveCaptionsPanel: View {
                         .tracking(Typography.Editorial.labelTracking)
                         .textCase(.uppercase)
                         .foregroundStyle(Color.red)
+
+                    // Source indicator (Cloud / On-device)
+                    if let source = source {
+                        HStack(spacing: 3) {
+                            Image(systemName: source.systemImage)
+                                .font(.system(size: 9))
+                            Text(source.displayName)
+                                .font(Typography.Command.caption)
+                        }
+                        .foregroundStyle(Color("AppTextSecondary"))
+                    }
 
                     // Trust messaging
                     Text("(not saved)")
@@ -135,28 +163,25 @@ struct LiveCaptionsPanel: View {
     // MARK: - Expanded Content
 
     private var expandedContent: some View {
-        ScrollViewReader { proxy in
+        let finalText = cachedFinalizedText
+        let hasFinalizedContent = !finalText.isEmpty
+
+        return ScrollViewReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    // Finalized segments with reference highlighting
-                    ForEach(segments) { segment in
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    // Combined finalized + volatile text as continuous flowing prose
+                    if hasFinalizedContent || !captionText.isEmpty {
                         HighlightedCaptionText(
-                            text: segment.text,
+                            text: finalText,
                             font: Typography.Command.body,
                             baseColor: Color("AppTextPrimary"),
-                            onReferenceTapped: onReferenceTapped
+                            // Only enable taps when we have finalized content
+                            onReferenceTapped: hasFinalizedContent ? onReferenceTapped : nil,
+                            volatileSuffix: captionText.isEmpty ? nil : captionText,
+                            volatileColor: Color("AppTextSecondary")
                         )
-                        .id(segment.id)
-                    }
-
-                    // Current volatile text (no highlighting — text is still changing)
-                    if !captionText.isEmpty {
-                        Text(captionText)
-                            .font(Typography.Command.body)
-                            .foregroundStyle(Color("AppTextSecondary"))
-                            .animation(Theme.Animation.fade, value: captionText)
-                            .contentTransition(.interpolate)
-                            .id("volatile")
+                        .animation(Theme.Animation.fade, value: captionText)
+                        .contentTransition(.interpolate)
                     }
 
                     // Empty state
@@ -165,24 +190,58 @@ struct LiveCaptionsPanel: View {
                             .font(Typography.Command.body)
                             .foregroundStyle(Color("TertiaryText"))
                     }
+
+                    // Scroll anchor at bottom
+                    Color.clear.frame(height: 1).id("bottom")
                 }
                 .padding(.top, Theme.Spacing.xs)
             }
             .onChange(of: segments.count) { _, _ in
+                // Rebuild cached finalized text only when segments change
+                let rendered = CaptionScriptureFormatter.renderSegments(segments)
+                cachedFinalizedText = rendered.map(\.displayText).joined(separator: " ")
+
                 guard isNearBottom else { return }
                 withAnimation(Theme.Animation.settle) {
-                    if let lastId = segments.last?.id {
-                        proxy.scrollTo(lastId, anchor: .bottom)
-                    }
+                    proxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
             .onChange(of: captionText) { _, _ in
                 guard isNearBottom else { return }
                 withAnimation(Theme.Animation.settle) {
-                    proxy.scrollTo("volatile", anchor: .bottom)
+                    proxy.scrollTo("bottom", anchor: .bottom)
                 }
             }
         }
+    }
+
+    // MARK: - Cloud Reconnect Banner
+
+    private func cloudReconnectBanner(onSwitch: @escaping () -> Void) -> some View {
+        Button(action: onSwitch) {
+            HStack(spacing: Theme.Spacing.sm) {
+                Image(systemName: "cloud.fill")
+                    .font(Typography.Icon.xs)
+
+                Text("Cloud captions available")
+                    .font(Typography.Command.caption)
+
+                Spacer()
+
+                Text("Tap to switch")
+                    .font(Typography.Command.caption)
+                    .foregroundStyle(Color("AppAccentAction"))
+            }
+            .foregroundStyle(Color("AppTextSecondary"))
+            .padding(.horizontal, Theme.Spacing.sm)
+            .padding(.vertical, Theme.Spacing.xs)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.xs)
+                    .fill(Color("AppAccentAction").opacity(0.1))
+            )
+        }
+        .buttonStyle(.plain)
+        .padding(.top, Theme.Spacing.xs)
     }
 
     // MARK: - Background
@@ -201,12 +260,15 @@ struct LiveCaptionsPanel: View {
 
     // MARK: - Helpers
 
-    /// Display text: prefer volatile (latest), fall back to last segment
+    /// Display text: prefer volatile (latest), fall back to cached finalized text
     private var displayText: String? {
         if !captionText.isEmpty {
             return captionText
         }
-        return segments.last?.text
+        if !cachedFinalizedText.isEmpty {
+            return cachedFinalizedText
+        }
+        return nil
     }
 
     /// Animate the speech activity dot with asymmetric timing
